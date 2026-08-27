@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@vercel/og": "^1.0.1",
-    "pdfkit": "^0.19.1",
+    "pdfkit": "^0.20.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-helmet-async": "^3.0.0",
