@@ -86,11 +86,11 @@ export function printListFaqs(year) {
 export function printableCalendarFaqs(year) {
   return [
     {
-      q: `Mitä tulostettava viikkokalenteri ${year} sisältää?`,
-      a: `Kalenteri sisältää vuoden ${year} kaikki 12 kuukautta, ${weeksInIsoYear(year)} ISO-viikkoa, viikkonumerot sekä Suomen juhla- ja liputuspäivät.`,
+      q: `Mitä tulostettava A4-kuukausikalenteri ${year} sisältää?`,
+      a: `A4-kuukausikalenteri sisältää vuoden ${year} kaikki 12 kuukautta, ${weeksInIsoYear(year)} ISO-viikkoa, viikkonumerot sekä Suomen juhla- ja liputuspäivät.`,
     },
     {
-      q: `Miten viikkokalenteri ${year} tallennetaan PDF-muodossa?`,
+      q: `Miten A4-kuukausikalenteri ${year} tallennetaan PDF-muodossa?`,
       a: "Paina Tulosta / tallenna PDF ja valitse tulostusikkunasta PDF-tallennus. Kalenteri on sovitettu A4-vaakasivulle.",
     },
     {

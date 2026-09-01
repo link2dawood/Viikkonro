@@ -342,8 +342,8 @@ const WhatWeek = () => {
             <span>52 vai 53 viikkoa — näin se ratkeaa</span>
           </Link>
           <Link className="ql" to={`/tulosta-${Y_NOW}`}>
-            <b>Tulostettava viikkokalenteri</b>
-            <span>Koko vuoden viikot yhdellä sivulla</span>
+            <b>Tulostettava viikkolista</b>
+            <span>Kaikki ISO-viikot riveittäin</span>
           </Link>
           <Link className="ql" to="/ukk">
             <b>Usein kysytyt kysymykset</b>

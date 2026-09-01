@@ -41,10 +41,12 @@ const PrintCalendar = ({ year: pYear } = {}) => {
         canonical={canonicalFor(`/tulosta-${selectedYear}`)}
       />
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> / Tulostettava {selectedYear}
+        <Link to="/">Etusivu</Link> /{" "}
+        <Link to={`/kalenteri-${selectedYear}`}>Kalenteri {selectedYear}</Link> /{" "}
+        Tulostettava viikkolista {selectedYear}
       </div>
 
-      <h1>Viikot PDF {selectedYear} – tulostettava viikkolista</h1>
+      <h1>Tulostettava viikkolista {selectedYear}</h1>
 
       <p className="lead">
         <strong>
@@ -121,7 +123,7 @@ const PrintCalendar = ({ year: pYear } = {}) => {
       </table>
 
       <div className="prose noprint">
-        <h2>Viikot PDF- tai Excel-muodossa</h2>
+        <h2>Viikkolista PDF- tai Excel-muodossa</h2>
         <p>
           PDF sopii tulostamiseen ja jakamiseen. CSV sisältää vuoden jokaisen
           päivämäärän, viikonpäivän, ISO-viikon, viikkovuoden sekä juhla- ja

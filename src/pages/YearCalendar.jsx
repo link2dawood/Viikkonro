@@ -172,7 +172,7 @@ const YearCalendar = ({ year: pYear } = {}) => {
           className="btn"
           onClick={() => window.scrollTo(0, 0)}
         >
-          Tulostettava kalenteri {selectedYear}
+          Tulostettava viikkolista {selectedYear}
         </Link>
         {" "}
         <a className="btn" href={calendarPdfPath(selectedYear)} download>

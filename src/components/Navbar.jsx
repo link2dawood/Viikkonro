@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { isoWeek, isoYear } from "./dateUtils";
+import { Link, useLocation } from "react-router-dom";
+import { isoWeek, isoYear, navigationYearTargets } from "./dateUtils";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { pathname } = useLocation();
+  const isEnglishPage = pathname === "/en";
 
   // Computed directly in the render body, not an effect: an effect never
   // runs during SSR/prerendering, so the badge would show blank ("Vk ") on
   // every prerendered page (Navbar is rendered on all of them) until the
   // client hydrates.
   const NOW = new Date();
-  const Y_NOW = isoYear(NOW);
-  const year = Y_NOW;
+  const weekYear = isoYear(NOW);
   const weekNow = isoWeek(NOW);
+  const { currentYear, promotedYear } = navigationYearTargets(NOW);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -27,7 +29,7 @@ const Navbar = () => {
     <header className="nav">
       <div className="wrap row">
         {/* Brand Text Block */}
-        <Link className="brand" to="/" onClick={closeMenu}>
+        <Link className="brand" to={isEnglishPage ? "/en" : "/"} onClick={closeMenu}>
           {/* <span className="dot"></span>Week Now */}
           <img
             src="/logo-horizontal-cropped.svg"
@@ -41,7 +43,7 @@ const Navbar = () => {
         <button
           className={`menu-toggle ${isOpen ? "is-open" : ""}`}
           onClick={toggleMenu}
-          aria-label="Avaa navigointivalikko"
+          aria-label={isEnglishPage ? "Open navigation menu" : "Avaa navigointivalikko"}
         >
           <span className="bar"></span>
           <span className="bar"></span>
@@ -49,33 +51,56 @@ const Navbar = () => {
         </button>
 
         {/* Navigation Links Grid Block */}
-        <nav className={`nav-links ${isOpen ? "mobile-open" : ""}`}>
-          <Link id="navYear" to={`/vuosi-${Y_NOW}`} onClick={closeMenu}>
-            Tämän vuoden viikot
-          </Link>
-          <Link id="navPrint" to={`/tulosta-${year}`} onClick={closeMenu}>
-            Tulostettava
-          </Link>
-          <Link to={`/kalenteri-${Y_NOW}`} onClick={closeMenu}>
-            Kalenteri
-          </Link>
-          <Link to="/laskurit" onClick={closeMenu}>
-            Laskurit
-          </Link>
-          <Link to="/mika-on-viikkonumero" onClick={closeMenu}>
-            Tietoa viikoista
-          </Link>
+        <nav
+          className={`nav-links ${isOpen ? "mobile-open" : ""}`}
+          aria-label={isEnglishPage ? "Primary navigation" : undefined}
+        >
+          {isEnglishPage ? (
+            <>
+              <Link to="/en" onClick={closeMenu}>English home</Link>
+              <Link to="/" hrefLang="fi" onClick={closeMenu}>Finnish site</Link>
+              <Link to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={closeMenu}>
+                All weeks {currentYear} (Finnish)
+              </Link>
+              <Link to={`/kalenteri-${promotedYear}`} hrefLang="fi" onClick={closeMenu}>
+                Calendar {promotedYear} (Finnish)
+              </Link>
+              <Link to="/avoin-data" hrefLang="fi" onClick={closeMenu}>
+                Open data (Finnish)
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link id="navYear" to={`/vuosi-${currentYear}`} onClick={closeMenu}>
+                Viikot {currentYear}
+              </Link>
+              <Link id="navPrint" to={`/tulosta-${promotedYear}`} onClick={closeMenu}>
+                Viikkolista {promotedYear}
+              </Link>
+              <Link id="navCalendar" to={`/kalenteri-${promotedYear}`} onClick={closeMenu}>
+                Kalenteri {promotedYear}
+              </Link>
+              <Link to="/laskurit" onClick={closeMenu}>Laskurit</Link>
+              <Link to="/mika-on-viikkonumero" onClick={closeMenu}>Tietoa viikoista</Link>
+            </>
+          )}
         </nav>
 
         {/* Badge Indicator Block */}
-        <Link
-          className="badge"
-          id="navBadge"
-          to={`/vuosi-${Y_NOW}`}
-          onClick={closeMenu}
-        >
-          Vk {weekNow}
-        </Link>
+        {isEnglishPage ? (
+          <span className="badge" id="navBadge" aria-label={`Current ISO week: ${weekNow}`}>
+            Week {weekNow}
+          </span>
+        ) : (
+          <Link
+            className="badge"
+            id="navBadge"
+            to={`/vuosi-${weekYear}`}
+            onClick={closeMenu}
+          >
+            Vk {weekNow}
+          </Link>
+        )}
       </div>
     </header>
   );

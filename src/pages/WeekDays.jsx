@@ -275,6 +275,12 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
           : `Vuodessa ${y} on ${total} viikkoa, joten viikon ${w} jälkeen niitä on jäljellä ${weeksLeft}.`}
       </p>
 
+      <p className="note-soft">
+        Viikko {w} merkitään suomeksi myös lyhyesti <strong>vk {w}</strong> tai{" "}
+        <strong>vko {w}</strong>. ISO 8601 -merkintä on{" "}
+        <code>{isoWeekDateLabel(w, y)}</code>.
+      </p>
+
       <QuickFacts
         facts={[
           { label: "Viikko", value: w },

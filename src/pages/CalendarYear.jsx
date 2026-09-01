@@ -162,13 +162,21 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
 
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/kalenteri-${currentYear}`}>Kalenteri</Link> /{" "}
-        {print ? `Tulostettava ${y}` : `${y}${halfLabel}`}
+        {half || print ? (
+          <>
+            <Link to={`/kalenteri-${y}`}>Kalenteri {y}</Link> /{" "}
+            {print
+              ? `Tulostettava A4-kuukausikalenteri ${y}`
+              : `${half === 1 ? "1. vuosipuolisko" : "2. vuosipuolisko"} ${y}`}
+          </>
+        ) : (
+          `Kalenteri ${y}`
+        )}
       </div>
 
       <h1>
         {print
-          ? `Tulostettava viikkokalenteri ${y}`
+          ? `Tulostettava A4-kuukausikalenteri ${y}`
           : `Viikkokalenteri ${y}${halfLabel}`}
       </h1>
 
@@ -185,9 +193,11 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
         </p>
       ) : (
         <p className={print ? "lead print-support" : "lead"}>
-          Vuosi {y} sisältää {totalWeeks} viikkoa. Kalenteri noudattaa ISO 8601
-          -standardia: viikko alkaa maanantaista ja päättyy sunnuntaihin.
-          Juhlapäivät ja viikkonumerot on merkitty.
+          {print
+            ? `A4-kuukausikalenteri näyttää vuoden ${y} kaikki 12 kuukautta ja ${totalWeeks} ISO-viikkoa yhdellä vaakasivulla. `
+            : `Vuoden ${y} ${half === 1 ? "ensimmäinen" : "toinen"} vuosipuolisko sisältää kuusi kuukautta. `}
+          Kalenteri noudattaa ISO 8601 -standardia: viikko alkaa maanantaista
+          ja päättyy sunnuntaihin. Juhlapäivät ja viikkonumerot on merkitty.
           {isCurrentYear
             ? " Kuluva viikko on rajattu vihreällä ja tämä päivä korostettu."
             : ""}
@@ -380,11 +390,13 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
           <li>
             <Link to={`/tulosta-${y}`}>Tulostettava viikkolista {y}</Link>
           </li>
-          <li>
-            <Link to={`/tulostettava-kalenteri-${y}`}>
-              Tulostettava kalenteri A4 ({y})
-            </Link>
-          </li>
+          {!print && (
+            <li>
+              <Link to={`/tulostettava-kalenteri-${y}`}>
+                Tulostettava kalenteri A4 ({y})
+              </Link>
+            </li>
+          )}
           {y - 1 >= YEAR_MIN && (
             <li>
               <Link to={`/kalenteri-${y - 1}`}>Vuoden {y - 1} kalenteri</Link>

@@ -263,14 +263,23 @@ shrink this): `hreflang` alternates are declared **only** between `/` and
 (`inLanguage: "fi-FI"` in its schema) with no English counterpart, which
 is accurate: they don't have one.
 
+**English-route constraint**: `/en` is the only English page and route. Do
+not add `/en/*` subpages, English equivalents of Finnish page families, or
+any additional English URLs to `AppRoutes.jsx`, `sitemapEntries()`, the
+prerender route list, hreflang output, or internal navigation. Improvements
+to `/en` must remain edits to that single existing page. The shared navbar
+and footer must render their English variants on `/en`; links that lead into
+the Finnish-only site must be visibly labeled as Finnish and use
+`hrefLang="fi"`. The Finnish chrome must remain unchanged on every other
+route.
+
 **Never**: add `hreflang` tags to a page that has no real translated
 counterpart (this is how hreflang errors happen — a tag pointing at a
-URL that doesn't serve equivalent content in that language). If a new
-translated page is ever added, extend `languageAlternateLinks()`'s URL
-list rather than duplicating the pattern ad hoc elsewhere. Do not revive
-the retired `/sv/*` pattern without a real Swedish content plan — its
-routes were removed by design; `vercel.json` still 301s them for link
-equity, which is sufficient on its own and must stay in place.
+URL that doesn't serve equivalent content in that language). Do not add a
+new translated page or expand `languageAlternateLinks()` beyond `/` and
+`/en`. Do not revive the retired `/sv/*` pattern — its routes were removed
+by design; `vercel.json` still 301s them for link equity, which is sufficient
+on its own and must stay in place.
 
 ### 13. Preserve AI optimization files
 

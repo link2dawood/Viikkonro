@@ -137,10 +137,10 @@ export function weekMeta(w, y) {
   const su = new Date(mo);
   su.setDate(mo.getDate() + 6);
   return {
-    title: `Viikko ${w} (vk ${w}, vko ${w}) · ${fmtRangeCompactFi(mo, su)} | Viikko Nro`,
+    title: `Viikko ${w} vuonna ${y} – ${fmtRangeCompactFi(mo, su)} | Viikko Nro`,
     // Short dates (fmtFullFi ran ~190 chars → truncated in SERPs). ~148 chars
     // keeps every keyword term within Google's snippet limit.
-    description: `Viikko ${w} vuonna ${y} alkaa maanantaina ${formatShort(mo)} ja päättyy sunnuntaina ${formatShort(su)}${su.getFullYear()}. Katso päivämäärät, juhla- ja nimipäivät sekä tulostettava kalenteri.`,
+    description: `Viikko ${w} vuonna ${y} alkaa maanantaina ${formatShort(mo)} ja päättyy sunnuntaina ${formatShort(su)}${su.getFullYear()}. Katso päivämäärät, juhlapäivät, työpäivät sekä tulostettava kalenteri.`,
   };
 }
 export function monthMeta(m, y) {
@@ -153,7 +153,7 @@ export function monthMeta(m, y) {
   const genitiveCap = M_GENITIVE[m - 1].replace(/^./, (c) => c.toUpperCase());
   return {
     title: `${genitiveCap} viikot ${y} – viikkonumerot | Viikko Nro`,
-    description: `${genitiveCap} ${y} viikkonumerot, päivämäärät, juhlapäivät ja nimipäivät. Tulostettava kuukausikalenteri viikkonumeroilla ISO 8601 -standardin mukaan.`,
+    description: `${genitiveCap} ${y} viikkonumerot, päivämäärät, työpäivät ja arkipyhät. Lataa tulostettava kuukausikalenteri ISO 8601 -viikkonumeroilla PDF-muodossa.`,
   };
 }
 
@@ -362,7 +362,7 @@ export function yearMeta(y) {
   const total = weeksInIsoYear(y);
   return {
     title: `Viikkonumerot ${y} – kaikki ${total} viikkoa | Viikko Nro`,
-    description: `Katso viikkonumerot ${y}: kaikki ${total} viikkoa päivämäärineen. Selaa viikkoja, juhlapäiviä ja nimipäiviä tai avaa tulostettava viikkokalenteri.`,
+    description: `Katso viikkonumerot ${y}: kaikki ${total} viikkoa päivämäärineen. Selaa viikkoja, työpäiviä ja arkipyhiä tai lataa tulostettava viikkokalenteri PDF-muodossa.`,
   };
 }
 
@@ -443,8 +443,8 @@ export function yearStats(year) {
 export function printMeta(y) {
   const total = weeksInIsoYear(y);
   return {
-    title: `Viikot PDF ${y} – tulostettava viikkolista | Viikko Nro`,
-    description: `Tulosta vuoden ${y} kaikki ${total} ISO-viikkoa päivämäärineen tai tallenna viikkolista PDF-muodossa. Lataa tiedot myös Excel-yhteensopivana CSV-tiedostona.`,
+    title: `Tulostettava viikkolista ${y} – ${total} ISO-viikkoa | Viikko Nro`,
+    description: `Tulosta vuoden ${y} kaikki ${total} ISO-viikkoa riveittäin alkamis- ja päättymispäivineen. Tallenna viikkolista PDF-muodossa tai lataa Excel-yhteensopiva CSV.`,
   };
 }
 export function holidaysMeta(y) {
@@ -600,8 +600,8 @@ export function calendarMeta(y, half, print) {
   if (print) {
     const total = weeksInIsoYear(y);
     return {
-      title: `Tulostettava viikkokalenteri ${y} (PDF) | Viikko Nro`,
-      description: `Tulostettava viikkokalenteri ${y} A4-vaakamuodossa: kaikki ${total} viikkoa, päivämäärät ja juhlapäivät. Tulosta, tallenna PDF tai lataa Excel-yhteensopiva CSV.`,
+      title: `Tulostettava A4-kuukausikalenteri ${y} | Viikko Nro`,
+      description: `Tulostettava A4-kuukausikalenteri ${y}: 12 kuukautta, ${total} ISO-viikkoa sekä Suomen juhla- ja liputuspäivät. Lataa valmis PDF tai Excel-yhteensopiva CSV.`,
       robots: "index, follow",
     };
   }
@@ -619,8 +619,8 @@ export function calendarMeta(y, half, print) {
   }
   const total = weeksInIsoYear(y);
   return {
-    title: `Viikkokalenteri ${y} – ${total} viikkoa ja PDF | Viikko Nro`,
-    description: `Avaa viikkokalenteri ${y}: kaikki ${total} viikkoa, viikkonumerot ja juhlapäivät. Tulosta kalenteri tai tallenna se PDF-muodossa yhdellä painikkeella.`,
+    title: `Viikkokalenteri ${y} – 12 kuukautta | Viikko Nro`,
+    description: `Avaa viikkokalenteri ${y}: kaikki 12 kuukautta, ${total} ISO-viikkoa ja Suomen juhlapäivät. Selaa kuukausia ja avaa jokaisen viikon tarkat päivämäärät.`,
   };
 }
 
@@ -647,7 +647,7 @@ export function calendarFaqs(y) {
     },
     {
       q: `Voiko viikkokalenterista avata yksittäisen viikon päivämäärät?`,
-      a: `Kyllä. Napsauta kalenterissa maanantain vieressä näkyvää viikkonumeroa, niin saat viikon kaikki seitsemän päivämäärää sekä juhla- ja nimipäivät.`,
+      a: `Kyllä. Napsauta kalenterissa maanantain vieressä näkyvää viikkonumeroa, niin saat viikon kaikki seitsemän päivämäärää, työpäivien määrän ja päivänvalotiedot.`,
     },
   ];
 }
@@ -1090,7 +1090,11 @@ export function breadcrumbTrail(url) {
     ];
   }
   if ((m = url.match(/^\/tulosta-(\d+)$/))) {
-    return [home, { name: `Tulostettava ${m[1]}`, path: url }];
+    return [
+      home,
+      { name: `Kalenteri ${m[1]}`, path: `/kalenteri-${m[1]}` },
+      { name: `Tulostettava viikkolista ${m[1]}`, path: url },
+    ];
   }
   if ((m = url.match(/^\/pyhapaivat-(\d+)$/))) {
     return [
@@ -1137,17 +1141,21 @@ export function breadcrumbTrail(url) {
     if (!page) return null;
     return [home, { name: `Koululomat ${m[1]}`, path: url }];
   }
-  const kalenteri = { name: "Kalenteri", path: `/kalenteri-${isoYear(new Date())}` };
   if ((m = url.match(/^\/kalenteri-(\d+)(?:-(alkuvuosi|loppuvuosi))?$/))) {
-    const suffix = m[2]
-      ? m[2] === "alkuvuosi"
-        ? ", 1. vuosipuolisko"
-        : ", 2. vuosipuolisko"
-      : "";
-    return [home, kalenteri, { name: `${m[1]}${suffix}`, path: url }];
+    if (!m[2]) return [home, { name: `Kalenteri ${m[1]}`, path: url }];
+    const halfLabel = m[2] === "alkuvuosi" ? "1. vuosipuolisko" : "2. vuosipuolisko";
+    return [
+      home,
+      { name: `Kalenteri ${m[1]}`, path: `/kalenteri-${m[1]}` },
+      { name: `${halfLabel} ${m[1]}`, path: url },
+    ];
   }
   if ((m = url.match(/^\/tulostettava-kalenteri-(\d+)$/))) {
-    return [home, kalenteri, { name: `Tulostettava ${m[1]}`, path: url }];
+    return [
+      home,
+      { name: `Kalenteri ${m[1]}`, path: `/kalenteri-${m[1]}` },
+      { name: `Tulostettava A4-kuukausikalenteri ${m[1]}`, path: url },
+    ];
   }
   return null;
 }

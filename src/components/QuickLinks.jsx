@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { isoYear } from "./dateUtils";
+import { navigationYearTargets } from "./dateUtils";
 const QuickLinks = () => {
   const NOW = new Date();
-  const Y_NOW = isoYear(NOW);
+  const { currentYear, promotedYear } = navigationYearTargets(NOW);
   return (
     <>
       <section>
@@ -10,34 +10,34 @@ const QuickLinks = () => {
         <div className="quicklinks">
           <Link
             className="ql"
-            to={`/kalenteri-${Y_NOW}`}
+            to={`/kalenteri-${promotedYear}`}
             onClick={() => window.scrollTo(0, 0)}
           >
-            <b>Vuoden {Y_NOW} kalenteri</b>
+            <b>Vuoden {promotedYear} kalenteri</b>
             <span>Kaikki viikot ja juhlapäivät yhdellä sivulla</span>
           </Link>
           <Link
             className="ql"
-            to={`/tulosta-${Y_NOW}`}
+            to={`/tulosta-${promotedYear}`}
             onClick={() => window.scrollTo(0, 0)}
           >
-            <b>Tulostettava viikkokalenteri</b>
-            <span>Tulosta koko vuoden viikot</span>
+            <b>Tulostettava viikkolista</b>
+            <span>Kaikki ISO-viikot riveittäin</span>
           </Link>
           <Link
             className="ql"
-            to={`/pyhapaivat-${Y_NOW}`}
+            to={`/pyhapaivat-${currentYear}`}
             onClick={() => window.scrollTo(0, 0)}
           >
-            <b>Suomen pyhäpäivät {Y_NOW}</b>
+            <b>Suomen pyhäpäivät {currentYear}</b>
             <span>Arkipyhät, viikonpäivät ja viikkonumerot</span>
           </Link>
           <Link
             className="ql"
-            to={`/tyopaivat-${Y_NOW}`}
+            to={`/tyopaivat-${currentYear}`}
             onClick={() => window.scrollTo(0, 0)}
           >
-            <b>Työpäivät {Y_NOW}</b>
+            <b>Työpäivät {currentYear}</b>
             <span>Montako työpäivää vuodessa</span>
           </Link>
           <Link

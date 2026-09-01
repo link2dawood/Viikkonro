@@ -168,6 +168,32 @@ export var M_SLUG = [
 export const PRERENDER_MIN_YEAR = 2020;
 export const PRERENDER_MAX_YEAR = new Date().getFullYear() + 9;
 
+// Sitewide seasonal navigation policy. Calendar demand for the following year
+// starts before New Year, so from 1 October onward the high-intent calendar and
+// printable-list links promote the upcoming calendar year while the current
+// year's week hub remains present beside them. Europe/Helsinki parts keep SSR,
+// nightly builds, and clients in other time zones on the same rollover date.
+export const NAVIGATION_PROMOTION_MONTH = 10;
+export function navigationYearTargets(date = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "Europe/Helsinki",
+      year: "numeric",
+      month: "numeric",
+    })
+      .formatToParts(date)
+      .filter((part) => part.type === "year" || part.type === "month")
+      .map((part) => [part.type, Number(part.value)]),
+  );
+  const currentYear = parts.year;
+  const promotesUpcomingYear = parts.month >= NAVIGATION_PROMOTION_MONTH;
+  return {
+    currentYear,
+    promotedYear: promotesUpcomingYear ? currentYear + 1 : currentYear,
+    promotesUpcomingYear,
+  };
+}
+
 // Centralized route-parameter validation — every year/week/month/quarter
 // page renders NotFound through these rather than repeating ad hoc bounds
 // checks per file. Each takes the raw (string or number) route param and

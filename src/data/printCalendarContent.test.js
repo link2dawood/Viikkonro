@@ -25,8 +25,15 @@ describe("print and PDF calendar content", () => {
   it("keeps distinct metadata inside snippet limits", () => {
     const list = printMeta(2026);
     const calendar = calendarMeta(2026, null, true);
+    const browsable = calendarMeta(2026, null, false);
     expect(list.title).not.toBe(calendar.title);
-    for (const meta of [list, calendar]) {
+    expect(list.title).toContain("viikkolista");
+    expect(list.title).toContain("ISO-viikkoa");
+    expect(calendar.title).toContain("A4-kuukausikalenteri");
+    expect(browsable.title).toContain("Viikkokalenteri");
+    expect(browsable.title).toContain("12 kuukautta");
+    expect(browsable.title).not.toContain("PDF");
+    for (const meta of [list, calendar, browsable]) {
       expect(meta.title.length).toBeLessThanOrEqual(60);
       expect(meta.description.length).toBeGreaterThanOrEqual(140);
       expect(meta.description.length).toBeLessThanOrEqual(160);

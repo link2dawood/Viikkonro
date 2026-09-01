@@ -132,7 +132,24 @@ const sitemapRoutes = sitemapEntries(currentYear).map((e) => e.path);
 // Keep the honest noindex fallback available even while today's date is not
 // covered by the partial seed. It joins the sitemap automatically once the
 // authorized full dataset supplies names for the current date.
-const routes = [...new Set([...sitemapRoutes, "/nimipaivat/tanaan"])];
+const routeCandidates = [...sitemapRoutes, "/nimipaivat/tanaan"];
+const duplicateRoutes = [
+  ...new Set(routeCandidates.filter((route, index) => routeCandidates.indexOf(route) !== index)),
+];
+if (duplicateRoutes.length) {
+  throw new Error(`duplicate prerender route(s): ${duplicateRoutes.join(", ")}`);
+}
+const forbiddenGeneratedRoutes = routeCandidates.filter(
+  (route) =>
+    /^\/(?:year|week|month)\//.test(route) ||
+    /^\/kalenteri-\d+-(?:1|2)$/.test(route),
+);
+if (forbiddenGeneratedRoutes.length) {
+  throw new Error(
+    `legacy or numbered calendar route entered prerender output: ${forbiddenGeneratedRoutes.join(", ")}`,
+  );
+}
+const routes = routeCandidates;
 
 // Indexable window: keep the high-intent recent + near-future years in Google's
 // index and noindex the long tail, so ~1,100 near-identical template pages
@@ -2223,7 +2240,7 @@ function calendarPageNodes(year) {
         associatedMedia: {
           "@type": "MediaObject",
           "@id": `${SITE_URL}${calendarPdfPath(year)}#media`,
-          name: `Viikkokalenteri ${year} (PDF)`,
+          name: `A4-kuukausikalenteri ${year} (PDF)`,
           contentUrl: `${SITE_URL}${calendarPdfPath(year)}`,
           encodingFormat: "application/pdf",
           inLanguage: "fi-FI",
@@ -2668,29 +2685,21 @@ for (const url of routes) {
       html = html.replace("</head>", pdfLink + "</head>");
     }
     if (url === "/en" || url === "/api-playground") {
-      // The base template (index.html) is Finnish-first: <html lang>,
-      // og:locale and <meta name="keywords"> are all baked in as Finnish
-      // defaults with no per-page override mechanism elsewhere, so any
-      // deliberately-English page ships them unpatched otherwise — a real
-      // bug, not a styling nit: og:locale: fi_FI on an English page
-      // actively misdescribes it to anything reading Open Graph tags. The
+      // The base template (index.html) is Finnish-first: <html lang> and
+      // og:locale are baked in as Finnish defaults with no per-page override
+      // mechanism elsewhere, so any deliberately-English page ships them
+      // unpatched otherwise — a real bug, not a styling nit: og:locale: fi_FI
+      // on an English page actively misdescribes it to anything reading Open
+      // Graph tags. The
       // <SEO lang="en"> prop these pages set doesn't reach this prerendered
       // HTML at all (react-helmet-async's output is stripped and replaced
       // by this file — see stripInlineMeta), so the fix has to live here,
       // not just in the component (the exact gap found and fixed for /en
       // earlier — api-playground is the same deliberate-English exception,
       // so it needs the same patch, not a second one).
-      const keywords =
-        url === "/api-playground"
-          ? "week number API, ISO 8601 API, free calendar API, ISO week calculator API"
-          : "week number, ISO 8601 week, current week number, ISO week calculator";
       html = html
         .replace('<html lang="fi">', '<html lang="en">')
-        .replace('<meta property="og:locale" content="fi_FI" />', '<meta property="og:locale" content="en_US" />')
-        .replace(
-          /<meta\s+name="keywords"\s+content="[^"]*"\s*\/>/,
-          `<meta name="keywords" content="${keywords}" />`,
-        );
+        .replace('<meta property="og:locale" content="fi_FI" />', '<meta property="og:locale" content="en_US" />');
     }
 
     // Prune the index to the high-intent window: out-of-window year pages stay

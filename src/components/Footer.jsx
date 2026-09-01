@@ -1,13 +1,71 @@
-import { isoYear } from "./dateUtils";
-import { Link } from "react-router-dom";
+import { navigationYearTargets } from "./dateUtils";
+import { Link, useLocation } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
 import { CALENDAR_META } from "../data/nameDays";
 
 function Footer() {
-  // Automatically outputs the correct year dynamically
-  var NOW = new Date(),
-    Y_NOW = isoYear(NOW);
-  const currentYear = Y_NOW;
+  // Copyright follows the Helsinki calendar year, not the ISO week-year (which
+  // can roll over during the last days of December).
+  const { currentYear } = navigationYearTargets(new Date());
+  const { pathname } = useLocation();
+  const isEnglishPage = pathname === "/en";
+
+  if (isEnglishPage) {
+    return (
+      <footer className="site-footer" lang="en">
+        <div className="footer-container">
+          <div className="footer-brand-col">
+            <div className="brand-dark">
+              <img
+                src="/logo-horizontal-dark-cropped.svg"
+                alt="Viikko Nro"
+                width="592"
+                height="122"
+              />
+            </div>
+            <p className="footer-desc">
+              A clear ISO 8601 week-number reference for visitors. The complete
+              calendar service is available in Finnish.
+            </p>
+            <SocialLinks className="footer-social" label="Follow us" />
+          </div>
+
+          <div className="footer-links-col">
+            <h3>Service</h3>
+            <ul>
+              <li><Link to="/en" onClick={() => window.scrollTo(0, 0)}>English home</Link></li>
+              <li><Link to="/" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Finnish site</Link></li>
+              <li><Link to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>All weeks {currentYear} (Finnish)</Link></li>
+              <li><Link to={`/kalenteri-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Calendar {currentYear} (Finnish)</Link></li>
+              <li><Link to="/avoin-data" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Open data (Finnish)</Link></li>
+            </ul>
+          </div>
+
+          <div className="footer-links-col">
+            <h3>Information</h3>
+            <ul>
+              <li><Link to="/menetelma" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Methodology (Finnish)</Link></li>
+              <li><Link to="/tietolahteet" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Data sources (Finnish)</Link></li>
+              <li><Link to="/ota-yhteytta" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Contact (Finnish)</Link></li>
+              <li><Link to="/tietosuoja" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Privacy notice (Finnish)</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        <hr className="footer-divider" />
+        <div className="footer-baseline">
+          <p>&copy; {currentYear} Viikko Nro. All rights reserved.</p>
+          <p className="footer-tz">Based on the international ISO 8601 standard</p>
+        </div>
+        {CALENDAR_META.attributionRequired && (
+          <p className="footer-data-attribution">
+            {CALENDAR_META.attribution}{" "}
+            <a href={CALENDAR_META.sourceUrl} rel="license external">Data source</a>
+          </p>
+        )}
+      </footer>
+    );
+  }
 
   return (
     <footer className="site-footer">
