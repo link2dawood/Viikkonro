@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import FAQPage from "./pages/FAQPage";
 import OpenData from "./pages/OpenData";
 import ApiPlayground from "./pages/ApiPlayground";
+import ChromeExtension from "./pages/ChromeExtension";
 import DatasetPage from "./pages/DatasetPage";
 import TimeManagement from "./pages/TimeManagement";
 import DataSources from "./pages/DataSources";
@@ -108,6 +109,7 @@ const AppRoutes = () => {
         <Route path="/ukk" element={<FAQPage />} />
         <Route path="/avoin-data" element={<OpenData />} />
         <Route path="/api-playground" element={<ApiPlayground />} />
+        <Route path="/chrome-extension" element={<ChromeExtension />} />
         <Route path="/data/week" element={<DatasetPage family="week" />} />
         <Route path="/data/month" element={<DatasetPage family="month" />} />
         <Route path="/data/year" element={<DatasetPage family="year" />} />

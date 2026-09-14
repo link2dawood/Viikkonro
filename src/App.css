@@ -1881,3 +1881,169 @@ body:has(.cal-print) footer {
   color: var(--ink-soft);
   margin: 20px 0 8px;
 }
+
+/* ─── Chrome extension landing page (/chrome-extension) ────────────────── */
+.ext-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin: 18px 0 22px;
+}
+.ext-link {
+  color: var(--accent-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+.ext-link:hover {
+  text-decoration: underline;
+}
+.ext-hero {
+  align-items: start;
+}
+.ext-mock {
+  margin: 0;
+  min-width: 0;
+}
+.ext-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+  padding: 8px 10px;
+}
+.ext-dots {
+  display: flex;
+  gap: 5px;
+}
+.ext-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(21, 33, 31, 0.18);
+}
+.ext-url {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.ext-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+}
+.ext-icon b {
+  position: absolute;
+  right: -8px;
+  bottom: -6px;
+  min-width: 20px;
+  padding: 1px 4px;
+  border-radius: 6px;
+  background: var(--accent-deep);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.ext-popup {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  padding: 16px 18px 18px;
+  box-shadow: 0 14px 30px -18px rgba(15, 42, 33, 0.35);
+}
+.ext-popup-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.ext-popup .week-big {
+  font-size: clamp(52px, 10vw, 72px);
+}
+.ext-arrows {
+  font-size: 22px;
+  color: var(--ink-soft);
+  letter-spacing: 0.3em;
+}
+.ext-days {
+  list-style: none;
+  margin: 14px 0;
+  padding: 0;
+  font-size: 14px;
+}
+.ext-days li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.ext-days li.now {
+  background: rgba(224, 162, 59, 0.18);
+  font-weight: 600;
+}
+.ext-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(21, 33, 31, 0.1);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.ext-track i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.ext-progress .comb-foot {
+  margin-top: 0;
+}
+.ext-mock figcaption {
+  margin-top: 10px;
+}
+.ext-stats {
+  margin-top: 0;
+}
+.ext-page .tool-card h3,
+.ext-page .tool-card p {
+  margin: 0;
+}
+.ext-kbd {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.ext-steps {
+  padding-left: 22px;
+  margin: 0 0 16px;
+}
+.ext-steps li {
+  margin: 10px 0;
+}
+.ext-page .data-table th[scope="row"] {
+  width: 34%;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.ext-page h2 {
+  margin-top: 44px;
+}
