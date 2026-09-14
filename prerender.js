@@ -41,6 +41,13 @@ import {
   yearStats,
 } from "./src/data/seo.js";
 import { openDataFaqs, DATA_FEED_FAMILIES } from "./src/data/openDataContent.js";
+import {
+  CHROME_EXTENSION_PATH,
+  EXTENSION_FACTS,
+  EXTENSION_FEATURES,
+  INSTALL_STEPS,
+  chromeExtensionFaqs,
+} from "./src/data/chromeExtensionContent.js";
 import { dataSourcesFaqs, methodologyFaqs, editorialPolicyFaqs } from "./src/data/trustPages.js";
 import { datasetPageFaqs } from "./src/data/datasetPages.js";
 import { faqs, faqCategories, featuredFaqs } from "./src/data/faqs.js";
@@ -1357,6 +1364,82 @@ function apiPlaygroundNodes() {
           acceptedAnswer: { "@type": "Answer", text: "No authentication is required for any endpoint." },
         },
       ],
+    },
+  ];
+}
+
+// /chrome-extension: the extension itself as a SoftwareApplication (the
+// page's mainEntity), a HowTo for the install steps and a FAQPage — all
+// three read chromeExtensionContent.js, the same module ChromeExtension.jsx
+// renders from, so the visible feature list, <ol> steps and <details> FAQ
+// can't drift from the schema (invariant #9). No aggregateRating: the store
+// listing has no ratings yet, and a made-up one would be invented data.
+function chromeExtensionNodes() {
+  const path = CHROME_EXTENSION_PATH;
+  const url = canonicalFor(path);
+  const f = EXTENSION_FACTS;
+  const appId = `${url}#software`;
+  return [
+    pageNode(path, "WebPage", {
+      description: metaFor(path).description,
+      dateModified: f.updated,
+      mainEntity: { "@id": appId },
+      about: { "@id": appId },
+      speakable: { "@type": "SpeakableSpecification", cssSelector: [".answer-sentence"] },
+    }),
+    {
+      "@type": "SoftwareApplication",
+      "@id": appId,
+      name: f.name,
+      alternateName: "Viikko Nro Chrome-laajennus",
+      description:
+        "Ilmainen Chrome-laajennus, joka näyttää kuluvan ISO 8601 -viikon numeron selaimen työkalupalkissa sekä viikon päivämäärät, liputuspäivät ja koululomat. Viikkohaku osoiteriviltä komennolla vk.",
+      url,
+      sameAs: f.storeUrl,
+      installUrl: f.storeUrl,
+      downloadUrl: f.storeUrl,
+      image: `${SITE_URL}/favicon.svg`,
+      applicationCategory: "BrowserApplication",
+      applicationSubCategory: f.category,
+      operatingSystem: "Windows, macOS, Linux, ChromeOS",
+      browserRequirements: "Requires Google Chrome",
+      softwareVersion: f.version,
+      fileSize: f.size,
+      dateModified: f.updated,
+      inLanguage: f.languageCodes,
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      featureList: EXTENSION_FEATURES.map((x) => `${x.name}: ${x.desc}`),
+      permissions: "Tallennus (asetukset), ajastin (keskiyön päivitys)",
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+    },
+    {
+      "@type": "HowTo",
+      "@id": `${url}#howto`,
+      name: "Näin asennat Viikko Nro -Chrome-laajennuksen",
+      inLanguage: "fi-FI",
+      totalTime: "PT1M",
+      tool: { "@type": "HowToTool", name: "Google Chrome" },
+      step: INSTALL_STEPS.map((step, i) => ({
+        "@type": "HowToStep",
+        position: i + 1,
+        name: step.name,
+        text: step.text,
+        url: `${url}#asennus`,
+      })),
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      dateModified: f.updated,
+      mainEntity: chromeExtensionFaqs().map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
     },
   ];
 }
@@ -2759,6 +2842,7 @@ for (const url of routes) {
       if (url === "/menetelma") nodes.push(...methodologyFaqNodes());
       if (url === "/toimitusperiaatteet") nodes.push(...editorialPolicyFaqNodes());
       if (url === "/api-playground") nodes.push(...apiPlaygroundNodes());
+      if (url === CHROME_EXTENSION_PATH) nodes.push(...chromeExtensionNodes());
       const datasetPageMatch = url.match(/^\/data\/(week|month|year|holiday|working-days)$/);
       if (datasetPageMatch) nodes.push(...datasetPageNodes(datasetPageMatch[1]));
       if (url === "/en") nodes.push(...englishPageNodes());
@@ -4013,6 +4097,7 @@ const llmsFull =
     "  /en  — the one English-language page (mirrors the homepage's current-week facts)",
     "  /ukk  — full FAQ page (Finnish; same content as the FAQ section of this document)",
     "  /avoin-data  — documentation for the /data/ JSON feeds and the /api/ alias",
+    `  ${CHROME_EXTENSION_PATH}  — landing page for the free "${EXTENSION_FACTS.name}" Chrome extension (current ISO week number in the browser toolbar, week dates, flag days, school holidays, "vk 42" address-bar search): ${EXTENSION_FACTS.storeUrl}`,
     "  /tietoa-meista, /ota-yhteytta, /tietosuoja, /kayttoehdot  — about, contact, privacy policy, terms",
     "",
     "## 3. Canonical URL examples",

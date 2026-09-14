@@ -759,6 +759,12 @@ export const routeMeta = {
       "Test Viikko Nro's free ISO 8601 API in your browser. No auth or rate limit. Includes cURL, JavaScript, PHP and Python examples.",
     breadcrumb: "API Playground",
   },
+  "/chrome-extension": {
+    title: "Chrome-laajennus: viikkonumero selaimeen | Viikko Nro",
+    description:
+      "Ilmainen Chrome-laajennus näyttää ISO-viikkonumeron työkalupalkissa: viikon päivämäärät, liputuspäivät, koululomat ja vk-haku osoiteriviltä.",
+    breadcrumb: "Chrome-laajennus",
+  },
   "/ajanhallinta": {
     title: "Ajanhallinta viikkonumeroiden avulla | Viikko Nro",
     description:
@@ -853,6 +859,7 @@ export function sitemapEntries(year) {
     { path: "/ukk", changefreq: "monthly", priority: "0.8" },
     { path: "/avoin-data", changefreq: "monthly", priority: "0.6" },
     { path: "/api-playground", changefreq: "monthly", priority: "0.6" },
+    { path: "/chrome-extension", changefreq: "monthly", priority: "0.7" },
     { path: "/data/week", changefreq: "monthly", priority: "0.5" },
     { path: "/data/month", changefreq: "monthly", priority: "0.5" },
     { path: "/data/year", changefreq: "monthly", priority: "0.5" },

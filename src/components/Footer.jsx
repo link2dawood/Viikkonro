@@ -121,6 +121,11 @@ function Footer() {
               </Link>
             </li>
             <li>
+              <Link to="/chrome-extension" onClick={() => window.scrollTo(0, 0)}>
+                Chrome-laajennus
+              </Link>
+            </li>
+            <li>
               <Link to="/en" lang="en" onClick={() => window.scrollTo(0, 0)}>
                 English
               </Link>

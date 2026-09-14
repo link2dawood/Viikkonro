@@ -80,6 +80,14 @@ const QuickLinks = () => {
             <b>Kuinka monta viikkoa vuodessa on?</b>
             <span>52 tai 53 viikkoa</span>
           </Link>
+          <Link
+            className="ql"
+            to="/chrome-extension"
+            onClick={() => window.scrollTo(0, 0)}
+          >
+            <b>Chrome-laajennus</b>
+            <span>Viikkonumero aina selaimen työkalupalkissa</span>
+          </Link>
           <Link className="ql" to="/ukk" onClick={() => window.scrollTo(0, 0)}>
             <b>UKK</b>
             <span>Vastauksia viikoista</span>
