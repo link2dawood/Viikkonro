@@ -17,7 +17,7 @@ function Footer() {
           <div className="footer-brand-col">
             <div className="brand-dark">
               <img
-                src="/logo-horizontal-dark-cropped.svg"
+                src="/logo-horizontal-dark-viikkonro-20260915.svg"
                 alt="Viikko Nro"
                 width="592"
                 height="122"
@@ -74,7 +74,7 @@ function Footer() {
         <div className="footer-brand-col">
           <div className="brand-dark">
             <img
-              src="/logo-horizontal-dark-cropped.svg"
+              src="/logo-horizontal-dark-viikkonro-20260915.svg"
               alt="Viikko Nro"
               width="592"
               height="122"

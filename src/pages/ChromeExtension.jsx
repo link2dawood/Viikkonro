@@ -85,7 +85,7 @@ const ChromeExtension = () => {
             </span>
             <span className="ext-url">vk 42</span>
             <span className="ext-icon" aria-hidden="true">
-              <img src="/favicon.svg" alt="" width="18" height="18" />
+              <img src="/favicon-viikkonro-20260915.svg" alt="" width="18" height="18" />
               <b>{week}</b>
             </span>
           </div>
