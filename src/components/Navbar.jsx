@@ -29,13 +29,21 @@ const Navbar = () => {
     <header className="nav">
       <div className="wrap row">
         {/* Brand Text Block */}
-        <Link className="brand" to={isEnglishPage ? "/en" : "/"} onClick={closeMenu}>
+        <Link
+          className="brand"
+          to={isEnglishPage ? "/en" : "/"}
+          onClick={closeMenu}
+          aria-label={isEnglishPage ? "Viikkonro home" : "Viikkonro-etusivu"}
+          translate="no"
+        >
           {/* <span className="dot"></span>Week Now */}
           <img
-            src="/logo-horizontal-viikkonro-20260915.svg"
-            alt="Viikko Nro"
+            src="/logo-horizontal-viikkonro-20260916.svg"
+            alt=""
             width="592"
             height="122"
+            aria-hidden="true"
+            translate="no"
           />
         </Link>
 

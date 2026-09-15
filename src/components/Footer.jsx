@@ -17,10 +17,11 @@ function Footer() {
           <div className="footer-brand-col">
             <div className="brand-dark">
               <img
-                src="/logo-horizontal-dark-viikkonro-20260915.svg"
-                alt="Viikko Nro"
+                src="/logo-horizontal-dark-viikkonro-20260916.svg"
+                alt="Viikkonro"
                 width="592"
                 height="122"
+                translate="no"
               />
             </div>
             <p className="footer-desc">
@@ -74,10 +75,11 @@ function Footer() {
         <div className="footer-brand-col">
           <div className="brand-dark">
             <img
-              src="/logo-horizontal-dark-viikkonro-20260915.svg"
-              alt="Viikko Nro"
+              src="/logo-horizontal-dark-viikkonro-20260916.svg"
+              alt="Viikkonro"
               width="592"
               height="122"
+              translate="no"
             />
           </div>
           <p className="footer-desc">
