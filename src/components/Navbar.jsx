@@ -32,7 +32,7 @@ const Navbar = () => {
         <Link className="brand" to={isEnglishPage ? "/en" : "/"} onClick={closeMenu}>
           {/* <span className="dot"></span>Week Now */}
           <img
-            src="/logo-horizontal-cropped.svg"
+            src="/logo-horizontal-viikkonro-20260915.svg"
             alt="Viikko Nro"
             width="592"
             height="122"
