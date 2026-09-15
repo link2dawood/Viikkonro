@@ -90,7 +90,7 @@
       ]
     },
     {
-      "source": "/(sitemap.xml|robots.txt|ads.txt|llms.txt|llms-full.txt|llms-api.txt|llms-data.txt|llms-glossary.txt|ai-manifest.txt|og.png|ai.txt)",
+      "source": "/(sitemap.xml|robots.txt|ads.txt|app-ads.txt|llms.txt|llms-full.txt|llms-api.txt|llms-data.txt|llms-glossary.txt|ai-manifest.txt|og.png|ai.txt)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=3600" },
         {
