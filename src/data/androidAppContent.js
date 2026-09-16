@@ -7,11 +7,18 @@ export const ANDROID_APP_FACTS = {
   storeName: "Viikkonro: viikkonumero",
   packageId: "fi.viikkonro.app",
   storeUrl: PLAY_STORE_URL,
+  version: "1.0.0",
   price: "0 €",
   minimumAndroid: "Android 7.0 tai uudempi",
   minimumApi: 24,
   languageCount: 22,
+  languageCodes: [
+    "ca", "cs", "da", "de", "en", "es", "et", "fi", "fr", "is", "it",
+    "lt", "lv", "nb", "nl", "pl", "pt", "ro", "sl", "sv", "tr", "uk",
+  ],
   widgetCount: 7,
+  permissionsFi:
+    "Internet-yhteys mainoksia ja valinnaista tietojen päivitystä varten sekä käynnistyksen valmistuminen widgetien ajastamiseen uudelleen",
   updated: "2026-09-16",
 };
 
@@ -54,6 +61,8 @@ export const ANDROID_WIDGETS = [
     name: "Viikko mini",
     desc: "Kuluva viikkonumero mahdollisimman pienessä tilassa.",
     image: "/mobile/android/widget-week-mini.png",
+    width: 120,
+    height: 120,
     alt: "Viikko mini -widget, joka näyttää viikon 37",
   },
   {
@@ -61,6 +70,8 @@ export const ANDROID_WIDGETS = [
     name: "Viikkokortti",
     desc: "Viikkonumero, päivämääräväli ja seuraava tärkeä päivä.",
     image: "/mobile/android/widget-week-card.png",
+    width: 260,
+    height: 260,
     alt: "Viikkokortti-widget viikon numerolla ja kalenteritiedoilla",
   },
   {
@@ -68,6 +79,8 @@ export const ANDROID_WIDGETS = [
     name: "Viikkonauha",
     desc: "Koko viikon päivät yhdellä vaakarivillä.",
     image: "/mobile/android/widget-week-strip.png",
+    width: 500,
+    height: 140,
     alt: "Viikkonauha-widget viikon seitsemälle päivälle",
   },
   {
@@ -75,7 +88,28 @@ export const ANDROID_WIDGETS = [
     name: "Kuukausi",
     desc: "Kuukausikalenteri viikkonumeroineen suoraan aloitusnäytöllä.",
     image: "/mobile/android/widget-month.png",
+    width: 500,
+    height: 500,
     alt: "Kuukausi-widget, jossa näkyvät viikkonumerot ja päivät",
+  },
+];
+
+export const ANDROID_INSTALL_STEPS = [
+  {
+    name: "Avaa Google Play",
+    text: "Avaa Viikkonro-sovelluksen sivu Google Playssa Android-puhelimella tai tabletilla.",
+  },
+  {
+    name: "Asenna sovellus",
+    text: "Valitse Asenna. Sovellus toimii Android 7.0:ssa ja sitä uudemmissa Android-versioissa.",
+  },
+  {
+    name: "Avaa Viikkonro",
+    text: "Avaa sovellus ja valitse kieli, teema sekä kalenterissa käytettävät asetukset.",
+  },
+  {
+    name: "Lisää haluamasi widgetit",
+    text: "Paina aloitusnäyttöä pitkään, avaa Widgetit ja valitse jokin seitsemästä Viikkonro-widgetistä.",
   },
 ];
 

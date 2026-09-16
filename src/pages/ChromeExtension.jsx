@@ -53,9 +53,12 @@ const ChromeExtension = () => {
     <section className="app ext-page">
       <SEO {...meta} canonical={canonicalFor(CHROME_EXTENSION_PATH)} />
 
-      <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> / Chrome-laajennus
-      </div>
+      <nav className="breadcrumb" aria-label="Murupolku">
+        <ol>
+          <li><Link to="/">Etusivu</Link></li>
+          <li aria-current="page">Chrome-laajennus</li>
+        </ol>
+      </nav>
 
       <div className="eyebrow">Selainlaajennus</div>
       <h1>Viikkonumero aina näkyvissä Chromessa</h1>
@@ -156,10 +159,10 @@ const ChromeExtension = () => {
       <h2 id="ominaisuudet">Mitä laajennus tekee?</h2>
       <div className="tool-grid">
         {EXTENSION_FEATURES.map((f) => (
-          <div key={f.id} className="tool-card">
+          <article key={f.id} className="tool-card">
             <h3 className="tool-name">{f.name}</h3>
             <p className="tool-desc">{f.desc}</p>
-          </div>
+          </article>
         ))}
       </div>
 
@@ -337,6 +340,10 @@ const ChromeExtension = () => {
 
       <h2>Aiheeseen liittyviä sivuja</h2>
       <div className="quicklinks">
+        <Link className="ql" to="/android-sovellus">
+          <b>Viikkonro Androidille</b>
+          <span>Sovellus ja seitsemän aloitusnäytön widgetiä</span>
+        </Link>
         <Link className="ql" to="/">
           <b>Mikä viikko nyt on?</b>
           <span>Kuluva viikkonumero ja viikkohaku</span>

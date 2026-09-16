@@ -5,6 +5,7 @@ import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
   ANDROID_APP_PATH,
+  ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
   androidAppFaqs,
 } from "../data/androidAppContent";
@@ -28,14 +29,18 @@ const PlayStoreButton = () => (
 
 const AndroidApp = () => {
   const meta = routeMeta[ANDROID_APP_PATH];
+  const year = new Date().getFullYear();
 
   return (
     <section className="app android-page">
       <SEO {...meta} canonical={canonicalFor(ANDROID_APP_PATH)} />
 
-      <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> / Android-sovellus
-      </div>
+      <nav className="breadcrumb" aria-label="Murupolku">
+        <ol>
+          <li><Link to="/">Etusivu</Link></li>
+          <li aria-current="page">Android-sovellus</li>
+        </ol>
+      </nav>
 
       <div className="android-hero">
         <div className="android-hero-copy">
@@ -49,7 +54,7 @@ const AndroidApp = () => {
             />
             <div>
               <div className="eyebrow">Android-sovellus</div>
-              <h1>Viikkonro aina mukana</h1>
+              <h1>Viikkonro Android-sovellus ja widgetit</h1>
             </div>
           </div>
           <p className="lead">
@@ -82,7 +87,11 @@ const AndroidApp = () => {
         </figure>
       </div>
 
-      <div className="stat-row android-stats" aria-label="Sovelluksen perustiedot">
+      <div
+        className="stat-row android-stats"
+        role="group"
+        aria-label="Sovelluksen perustiedot"
+      >
         <div className="stat-box"><div className="n">{ANDROID_APP_FACTS.price}</div><div className="l">Maksuton lataus</div></div>
         <div className="stat-box"><div className="n">{ANDROID_APP_FACTS.widgetCount}</div><div className="l">Android-widgetiä</div></div>
         <div className="stat-box"><div className="n">{ANDROID_APP_FACTS.languageCount}</div><div className="l">Käyttöliittymäkieltä</div></div>
@@ -90,6 +99,13 @@ const AndroidApp = () => {
       </div>
 
       <h2 id="ominaisuudet">Kalenteri ja laskurit samassa sovelluksessa</h2>
+      <p className="lead android-section-lead">
+        Sovellus laskee <Link to="/mika-on-viikkonumero">ISO 8601 -viikkonumerot</Link>
+        {" "}samalla tavalla kuin suomalaiset kalenterit. Voit tarkistaa
+        {" "}<Link to={`/vuosi-${year}`}>vuoden {year} kaikki viikot</Link>, selata
+        kuukausia ja käyttää samoja <Link to="/laskurit">päivämäärälaskureita</Link>
+        {" "}myös puhelimella.
+      </p>
       <div className="tool-grid">
         {ANDROID_APP_FEATURES.map((feature) => (
           <article key={feature.id} className="tool-card">
@@ -99,7 +115,11 @@ const AndroidApp = () => {
         ))}
       </div>
 
-      <div className="android-screen-gallery" aria-label="Kuvia Viikkonro-sovelluksesta">
+      <div
+        className="android-screen-gallery"
+        role="group"
+        aria-label="Kuvia Viikkonro-sovelluksesta"
+      >
         <figure>
           <div className="android-phone-frame">
             <img
@@ -152,7 +172,13 @@ const AndroidApp = () => {
         {ANDROID_WIDGETS.map((widget) => (
           <figure key={widget.id} className="android-widget-card">
             <div className="android-widget-preview">
-              <img src={widget.image} alt={widget.alt} loading="lazy" />
+              <img
+                src={widget.image}
+                alt={widget.alt}
+                width={widget.width}
+                height={widget.height}
+                loading="lazy"
+              />
             </div>
             <figcaption>
               <strong>{widget.name}</strong>
@@ -163,6 +189,16 @@ const AndroidApp = () => {
       </div>
 
       <div className="prose">
+        <h2 id="asennus">Näin asennat Viikkonro-sovelluksen</h2>
+        <ol className="ext-steps">
+          {ANDROID_INSTALL_STEPS.map((step) => (
+            <li key={step.name}>
+              <strong>{step.name}.</strong> {step.text}
+            </li>
+          ))}
+        </ol>
+        <p><PlayStoreButton /></p>
+
         <h2>Yksityisyys Android-sovelluksessa</h2>
         <p>
           Sovellus ei vaadi käyttäjätiliä eikä synkronoi asetuksiasi pilveen.
@@ -173,7 +209,22 @@ const AndroidApp = () => {
           <Link to="/tietosuoja">tietosuojasivulta</Link>.
         </p>
 
-        <h2>Usein kysytyt kysymykset</h2>
+        <h2>Tekniset tiedot</h2>
+        <div className="table-wrap">
+          <table className="data-table">
+            <tbody>
+              <tr><th scope="row">Sovellus</th><td>{ANDROID_APP_FACTS.storeName}</td></tr>
+              <tr><th scope="row">Versio</th><td>{ANDROID_APP_FACTS.version}</td></tr>
+              <tr><th scope="row">Android</th><td>{ANDROID_APP_FACTS.minimumAndroid}</td></tr>
+              <tr><th scope="row">Kielet</th><td>{ANDROID_APP_FACTS.languageCount} käyttöliittymäkieltä</td></tr>
+              <tr><th scope="row">Widgetit</th><td>{ANDROID_APP_FACTS.widgetCount} aloitusnäytön widgetiä</td></tr>
+              <tr><th scope="row">Hinta</th><td>Maksuton lataus</td></tr>
+              <tr><th scope="row">Paketin tunnus</th><td><code>{ANDROID_APP_FACTS.packageId}</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="usein-kysyttya">Usein kysytyt kysymykset</h2>
         <div className="faq-list">
           {androidAppFaqs.map((item, index) => (
             <details key={item.q} open={index === 0}>
@@ -191,6 +242,26 @@ const AndroidApp = () => {
           </div>
           <PlayStoreButton />
         </div>
+      </div>
+
+      <h2>Aiheeseen liittyviä sivuja</h2>
+      <div className="quicklinks">
+        <Link className="ql" to="/">
+          <b>Mikä viikko nyt on?</b>
+          <span>Kuluva viikkonumero ja viikon päivämäärät</span>
+        </Link>
+        <Link className="ql" to={`/vuosi-${year}`}>
+          <b>Vuoden {year} viikot</b>
+          <span>Kaikki ISO-viikot päivämäärineen</span>
+        </Link>
+        <Link className="ql" to="/laskurit">
+          <b>Päivämäärälaskurit</b>
+          <span>Viikko-, päivä- ja työpäivälaskurit verkossa</span>
+        </Link>
+        <Link className="ql" to="/chrome-extension">
+          <b>Chrome-laajennus</b>
+          <span>Viikkonumero myös selaimen työkalupalkkiin</span>
+        </Link>
       </div>
     </section>
   );

@@ -52,6 +52,7 @@ import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
   ANDROID_APP_PATH,
+  ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
   androidAppFaqs,
 } from "./src/data/androidAppContent.js";
@@ -330,6 +331,12 @@ function ogImageUrlFor(url) {
   if (url === "/") {
     return `${SITE_URL}/og.png`;
   }
+  if (url === CHROME_EXTENSION_PATH) {
+    return `${SITE_URL}/og/chrome-extension.png`;
+  }
+  if (url === ANDROID_APP_PATH) {
+    return `${SITE_URL}/og/android-sovellus.png`;
+  }
   if ((m = url.match(/^\/(?:tulostettava-)?kalenteri-(\d+)/))) {
     return `${SITE_URL}/og/kalenteri-${m[1]}.png`;
   }
@@ -372,6 +379,12 @@ function ogImageUrlFor(url) {
 // doesn't need a case — the template value stands unmodified for it.
 function ogImageAltFor(url) {
   let m;
+  if (url === CHROME_EXTENSION_PATH) {
+    return "Viikko Nro Chrome-laajennus – viikkonumero selaimeen";
+  }
+  if (url === ANDROID_APP_PATH) {
+    return "Viikkonro Android-sovellus ja aloitusnäytön widgetit";
+  }
   if ((m = url.match(/^\/(?:tulostettava-)?kalenteri-(\d+)/))) {
     return `Vuoden ${m[1]} kalenteri – Viikko Nro`;
   }
@@ -1393,6 +1406,7 @@ function chromeExtensionNodes() {
       mainEntity: { "@id": appId },
       about: { "@id": appId },
       speakable: { "@type": "SpeakableSpecification", cssSelector: [".answer-sentence"] },
+      ...ogImageExtra(path),
     }),
     {
       "@type": "SoftwareApplication",
@@ -1409,13 +1423,17 @@ function chromeExtensionNodes() {
       applicationCategory: "BrowserApplication",
       applicationSubCategory: f.category,
       operatingSystem: "Windows, macOS, Linux, ChromeOS",
-      browserRequirements: "Requires Google Chrome",
       softwareVersion: f.version,
       fileSize: f.size,
       dateModified: f.updated,
       inLanguage: f.languageCodes,
       isAccessibleForFree: true,
-      offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "EUR",
+        url: f.storeUrl,
+      },
       featureList: EXTENSION_FEATURES.map((x) => `${x.name}: ${x.desc}`),
       permissions: "Tallennus (asetukset), ajastin (keskiyön päivitys)",
       author: { "@id": `${SITE_URL}/#organization` },
@@ -1466,6 +1484,7 @@ function androidAppNodes() {
       mainEntity: { "@id": appId },
       about: { "@id": appId },
       speakable: { "@type": "SpeakableSpecification", cssSelector: [".answer-sentence"] },
+      ...ogImageExtra(path),
     }),
     {
       "@type": "MobileApplication",
@@ -1488,18 +1507,39 @@ function androidAppNodes() {
       applicationSubCategory: "Calendar and week number utility",
       operatingSystem: "Android 7.0 or later",
       availableOnDevice: "Android phone and tablet",
-      inLanguage: ["fi", "en", "sv"],
+      softwareVersion: f.version,
+      inLanguage: f.languageCodes,
       isAccessibleForFree: true,
-      offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "EUR",
+        url: f.storeUrl,
+      },
       featureList: [
         ...ANDROID_APP_FEATURES.map((x) => `${x.name}: ${x.desc}`),
         ...ANDROID_WIDGETS.map((x) => `${x.name}: ${x.desc}`),
       ],
-      permissions: "Internet access only",
+      permissions: f.permissionsFi,
       dateModified: f.updated,
       author: { "@id": `${SITE_URL}/#organization` },
       publisher: { "@id": `${SITE_URL}/#organization` },
       mainEntityOfPage: { "@id": `${url}#webpage` },
+    },
+    {
+      "@type": "HowTo",
+      "@id": `${url}#howto`,
+      name: "Näin asennat Viikkonro-sovelluksen Androidille",
+      inLanguage: "fi-FI",
+      totalTime: "PT2M",
+      tool: { "@type": "HowToTool", name: "Android-puhelin tai tabletti" },
+      step: ANDROID_INSTALL_STEPS.map((step, i) => ({
+        "@type": "HowToStep",
+        position: i + 1,
+        name: step.name,
+        text: step.text,
+        url: `${url}#asennus`,
+      })),
     },
     {
       "@type": "FAQPage",
@@ -4568,6 +4608,36 @@ console.log(`patched robots.txt Sitemap: line -> ${SITE_URL}/sitemap.xml`);
   const ogBuf = Buffer.from(await res.arrayBuffer());
   fs.writeFileSync(path.join(distDir, "og.png"), ogBuf);
   console.log(`generated og.png (Viikko ${ogWeek}/${ogYear}, ${ogBuf.length} bytes)`);
+}
+
+// Product-specific social cards for the two install landing pages. Using the
+// generic current-week image here would describe a different page topic in
+// link previews and image search; these filenames are shared with
+// ogImageUrlFor(), WebPage.image and the sitemap image extension above.
+{
+  const h = React.createElement;
+  const cards = [
+    {
+      filename: "chrome-extension.png",
+      big: "Viikkonumero",
+      accent: "Chromessa",
+      tagline: "Ilmainen Chrome-laajennus · ISO 8601",
+    },
+    {
+      filename: "android-sovellus.png",
+      big: "Viikkonro",
+      accent: "Androidille",
+      tagline: "Kalenteri · laskurit · 7 widgetiä",
+    },
+  ];
+  fs.mkdirSync(path.join(distDir, "og"), { recursive: true });
+  for (const item of cards) {
+    const card = ogCard(h, item);
+    const res = new ImageResponse(card, { width: 1200, height: 630 });
+    const buf = Buffer.from(await res.arrayBuffer());
+    fs.writeFileSync(path.join(distDir, "og", item.filename), buf);
+  }
+  console.log("generated 2 app landing-page OG images");
 }
 
 // Per-year calendar OG images (dist/og/kalenteri-{y}.png), one per year across

@@ -766,7 +766,7 @@ export const routeMeta = {
     breadcrumb: "Chrome-laajennus",
   },
   "/android-sovellus": {
-    title: "Android-sovellus ja widgetit | Viikkonro",
+    title: "Viikkonro Android-sovellus ja widgetit",
     description:
       "Lataa Viikkonro Androidille: ISO-viikot, suomalainen kalenteri, päivämäärälaskurit ja seitsemän aloitusnäytön widgetiä myös offline-käyttöön.",
     breadcrumb: "Android-sovellus",

@@ -270,6 +270,19 @@ img {
 .breadcrumb a:hover {
   text-decoration: underline;
 }
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.breadcrumb li + li::before {
+  content: "/";
+  margin: 0 0.55em;
+  color: var(--ink-soft);
+}
 h1 {
   font-family: "Bricolage Grotesque", "Bricolage Grotesque Fallback", sans-serif;
   font-weight: 800;
@@ -2134,6 +2147,9 @@ body:has(.cal-print) footer {
 }
 .android-stats .n {
   font-size: clamp(22px, 4vw, 32px);
+}
+.android-section-lead {
+  max-width: 780px;
 }
 .android-page .tool-card h3,
 .android-page .tool-card p {
