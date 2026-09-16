@@ -28,7 +28,12 @@ describe("Android app landing content", () => {
   it("publishes unique metadata and a sitemap entry", () => {
     expect(routeMeta[ANDROID_APP_PATH].title).toContain("Android-sovellus");
     expect(routeMeta[ANDROID_APP_PATH].description).toContain("seitsemän");
-    expect(sitemapEntries(2026).some((entry) => entry.path === ANDROID_APP_PATH)).toBe(true);
+    const sitemapMatches = sitemapEntries(2026).filter(
+      (entry) => entry.path === ANDROID_APP_PATH,
+    );
+    expect(sitemapMatches).toEqual([
+      { path: ANDROID_APP_PATH, changefreq: "monthly", priority: "0.8" },
+    ]);
     expect(ANDROID_APP_FEATURES.length).toBeGreaterThanOrEqual(6);
   });
 });
