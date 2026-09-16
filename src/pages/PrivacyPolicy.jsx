@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
-import { CONTENT_UPDATED_FI, routeMeta } from "../data/seo";
+import { routeMeta } from "../data/seo";
 
 const PrivacyPolicy = () => {
   const meta = routeMeta["/tietosuoja"];
@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
         </div>
         <h1>Tietosuojaseloste</h1>
         <div className="prose">
-          <p>Päivitetty viimeksi: {CONTENT_UPDATED_FI}</p>
+          <p>Päivitetty viimeksi: 16. syyskuuta 2026</p>
         </div>
         <h2>1. Rekisterinpitäjä ja yhteydenotto</h2>
         <div className="prose">
@@ -25,7 +25,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>2. Keräämämme tiedot</h2>
+        <h2>2. Verkkosivustolla käsiteltävät tiedot</h2>
         <div className="prose">
           <p>
             <strong>Lokitiedostot:</strong> Kuten useimmat tavanomaiset
@@ -55,7 +55,50 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>3. Miten käytämme tietojasi</h2>
+        <h2>3. Android-sovelluksessa käsiteltävät tiedot</h2>
+        <div className="prose">
+          <p>
+            <strong>Paikalliset tiedot:</strong> Viikkonro-sovellus ei vaadi
+            käyttäjätiliä eikä sisällä pilvisynkronointia. Kieli-, teema- ja
+            muut sovellusasetukset, viikkokohtaiset muistiinpanot sekä widgetien
+            valinnat tallennetaan paikallisesti laitteelle. Niitä ei lähetetä
+            Viikkonron palvelimelle.
+            Tiedot voi poistaa tyhjentämällä sovelluksen tiedot tai poistamalla
+            sovelluksen.
+          </p>
+          <p>
+            <strong>Google Analytics for Firebase:</strong> Android-sovellus
+            kerää sovelluksen käyttöön liittyviä tietoja, kuten avattuja
+            näkymiä, navigointia, sovelluksen version sekä laitteen ja
+            käyttöjärjestelmän teknisiä tietoja. Tietoja käytetään koottuun
+            käyttöanalyysiin ja sovelluksen parantamiseen.
+          </p>
+          <p>
+            <strong>Firebase Crashlytics:</strong> Tuotantoversio voi lähettää
+            kaatumisraportteja, virhelokeja, sovelluksen version sekä laitteen ja
+            käyttöjärjestelmän teknisiä tietoja teknisten vikojen löytämiseksi
+            ja korjaamiseksi.
+          </p>
+          <p>
+            <strong>Google Mobile Ads ja suostumuksenhallinta:</strong>
+            Android-sovelluksen etusivulla voidaan näyttää mainos. Google Mobile
+            Ads SDK ja Googlen User Messaging Platform (UMP) voivat käsitellä
+            mainostunnisteita, IP-osoitetta, laitteen teknisiä tietoja,
+            mainosvuorovaikutuksia ja suostumusvalintoja mainosten näyttämiseen,
+            rajoittamiseen, mittaamiseen ja käyttäjän valinnan perusteella
+            personointiin. Kun Google edellyttää suostumusta, mainospalvelu
+            alustetaan vasta UMP:n sallittua mainospyynnöt. Tietosuoja-asetuksiin
+            voi palata sovelluksen asetuksista, kun Google edellyttää valinnan
+            hallintaa.
+          </p>
+          <p>
+            Sovellus ei pyydä sijainti-, yhteystieto-, kalenteri-, kamera- tai
+            mikrofonioikeutta. Kalenteri- ja viikkotoiminnot toimivat
+            sovellukseen pakatulla aineistolla myös ilman verkkoyhteyttä.
+          </p>
+        </div>
+
+        <h2>4. Miten käytämme tietoja</h2>
         <div className="prose">
           <p>Käytämme keräämiämme tietoja seuraaviin tarkoituksiin:</p>
           <ul>
@@ -63,10 +106,12 @@ const PrivacyPolicy = () => {
             <li>Alustamme työkalujen parantaminen, mukauttaminen ja laajentaminen.</li>
             <li>Sen ymmärtäminen ja analysointi, miten käytät verkkosivustoamme.</li>
             <li>Teknisten vikojen ja petollisen toiminnan seuranta ja estäminen.</li>
+            <li>Android-sovelluksen kaatumisten diagnosointi ja korjaaminen.</li>
+            <li>Mainosten näyttäminen käyttäjän suostumusvalintojen mukaisesti.</li>
           </ul>
         </div>
 
-        <h2>4. Google AdSense, mainosevästeet ja DART</h2>
+        <h2>5. Google AdSense, Google Mobile Ads ja mainostunnisteet</h2>
         <div className="prose">
           <p>
             Sivustolla voidaan näyttää Google AdSense -mainoksia. Google on
@@ -77,6 +122,12 @@ const PrivacyPolicy = () => {
             <strong> DART-eväste</strong>; mainosevästeiden avulla mainoksia
             voidaan näyttää tällä ja muilla verkkosivustoilla tehtyjen
             vierailujen perusteella.
+          </p>
+          <p>
+            Android-sovelluksessa mainonnan toteuttaa Google Mobile Ads.
+            Sovellus pyytää Google UMP:n kautta suostumusvalinnan niillä alueilla,
+            joilla Google tai sovellettava laki sitä edellyttää. Sovelluksen
+            ydintoiminnot ovat käytettävissä valinnasta riippumatta.
           </p>
           <p>
             EU:ssa, ETA-alueella, Isossa-Britanniassa ja Sveitsissä
@@ -103,7 +154,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>5. Microsoft Clarity -käyttöanalytiikka</h2>
+        <h2>6. Microsoft Clarity -käyttöanalytiikka</h2>
         <div className="prose">
           <p>
             Käytämme Microsoft Clarity -palvelua sivuston käytettävyyden,
@@ -136,7 +187,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>6. Tietojen vastaanottajat ja säilytys</h2>
+        <h2>7. Tietojen vastaanottajat ja säilytys</h2>
         <div className="prose">
           <p>
             Palvelun tekniseen toimittamiseen osallistuvat Vercel ja Cloudflare.
@@ -145,6 +196,16 @@ const PrivacyPolicy = () => {
             annettu tarvittava suostumus, Google ja CMP:ssä luetellut
             mainosteknologian tarjoajat voivat käsitellä tietoja omien
             tietosuojakäytäntöjensä mukaisesti. Emme myy henkilötietoja.
+          </p>
+          <p>
+            Android-sovelluksen analytiikan, kaatumisraportoinnin, mainonnan ja
+            suostumuksenhallinnan teknisenä palveluntarjoajana toimii Google.
+            Google voi käsitellä tietoja omien säilytysaikojensa ja
+            tietosuojakäytäntöjensä mukaisesti. Lisätietoja on{" "}
+            <a href="https://policies.google.com/privacy" rel="external noopener">
+              Googlen tietosuojakäytännössä
+            </a>
+            .
           </p>
           <p>
             Palvelinlokeja säilytetään palveluntarjoajien omien
@@ -160,7 +221,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>7. Oikeutesi ja suostumuksen peruuttaminen</h2>
+        <h2>8. Oikeutesi ja suostumuksen peruuttaminen</h2>
         <div className="prose">
           <p>
             Sinulla on soveltuvan tietosuojalainsäädännön mukaisesti oikeus
@@ -169,6 +230,12 @@ const PrivacyPolicy = () => {
             perustuvan käsittelyn voi perua milloin tahansa vaikuttamatta ennen
             peruuttamista tehdyn käsittelyn lainmukaisuuteen. Pyynnön voi tehdä{" "}
             <Link to="/ota-yhteytta">yhteydenottolomakkeella</Link>.
+          </p>
+          <p>
+            Android-sovelluksen mainontaa koskevaa valintaa voi muuttaa
+            sovelluksen asetusten tietosuoja-asetuksista, kun Google näyttää
+            tämän vaihtoehdon. Paikalliset sovellustiedot voi poistaa Androidin
+            sovelluksen tietojen hallinnasta tai poistamalla sovelluksen.
           </p>
         </div>
       </section>

@@ -22,6 +22,7 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Usein kysytyt kysymykset](https://viikkonro.fi/ukk): kattavat vastaukset viikkonumeroista
 - [Avoin data ja JSON-rajapinta](https://viikkonro.fi/avoin-data): kaikkien /data/-syötteiden dokumentaatio, skeemat ja esimerkit
 - [Chrome-laajennus](https://viikkonro.fi/chrome-extension): ilmainen Viikko Nro – viikkonumero -laajennus, joka näyttää kuluvan ISO-viikon numeron Chromen työkalupalkissa sekä viikon päivämäärät, liputuspäivät, koululomat ja vk-haun osoiteriviltä ([Chrome Web Store](https://chromewebstore.google.com/detail/viikko-nro-%E2%80%93-viikkonumero/cljdpfclijdndkcphkgagcoodpdafajg))
+- [Android-sovellus](https://viikkonro.fi/android-sovellus): Viikkonro-sovellus tuo ISO-viikot, suomalaisen kalenterin, päivämäärälaskurit ja seitsemän aloitusnäytön widgetiä Androidille ([Google Play](https://play.google.com/store/apps/details?id=fi.viikkonro.app))
 - [Viikot PDF 2026](https://viikkonro.fi/tulosta-2026): tulostettava viikkolista ja Excel-yhteensopiva CSV
 - [Tulostettava viikkokalenteri 2026](https://viikkonro.fi/tulostettava-kalenteri-2026): A4-kalenteri, PDF-tallennus ja Excel-yhteensopiva CSV
 - [Koululomat 2026](https://viikkonro.fi/koululomat-2026): hiihto- ja syyslomat kaupungeittain, viralliset lähteet

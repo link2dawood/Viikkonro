@@ -1,0 +1,34 @@
+import { describe, expect, it } from "vitest";
+import {
+  ANDROID_APP_FACTS,
+  ANDROID_APP_FEATURES,
+  ANDROID_APP_PATH,
+  ANDROID_WIDGETS,
+  androidAppFaqs,
+} from "./androidAppContent.js";
+import { routeMeta, sitemapEntries } from "./seo.js";
+
+describe("Android app landing content", () => {
+  it("publishes the canonical app identity and store URL", () => {
+    expect(ANDROID_APP_FACTS.name).toBe("Viikkonro");
+    expect(ANDROID_APP_FACTS.packageId).toBe("fi.viikkonro.app");
+    expect(ANDROID_APP_FACTS.storeUrl).toBe(
+      "https://play.google.com/store/apps/details?id=fi.viikkonro.app",
+    );
+  });
+
+  it("keeps the visible widget count aligned with the shipped set", () => {
+    expect(ANDROID_APP_FACTS.widgetCount).toBe(7);
+    expect(ANDROID_WIDGETS).toHaveLength(4);
+    expect(androidAppFaqs.find((item) => item.q.includes("widgetejä"))?.a).toContain(
+      "seitsemän",
+    );
+  });
+
+  it("publishes unique metadata and a sitemap entry", () => {
+    expect(routeMeta[ANDROID_APP_PATH].title).toContain("Android-sovellus");
+    expect(routeMeta[ANDROID_APP_PATH].description).toContain("seitsemän");
+    expect(sitemapEntries(2026).some((entry) => entry.path === ANDROID_APP_PATH)).toBe(true);
+    expect(ANDROID_APP_FEATURES.length).toBeGreaterThanOrEqual(6);
+  });
+});

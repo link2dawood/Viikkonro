@@ -88,6 +88,14 @@ const QuickLinks = () => {
             <b>Chrome-laajennus</b>
             <span>Viikkonumero aina selaimen työkalupalkissa</span>
           </Link>
+          <Link
+            className="ql"
+            to="/android-sovellus"
+            onClick={() => window.scrollTo(0, 0)}
+          >
+            <b>Android-sovellus</b>
+            <span>Viikot, kalenteri, laskurit ja 7 widgetiä</span>
+          </Link>
           <Link className="ql" to="/ukk" onClick={() => window.scrollTo(0, 0)}>
             <b>UKK</b>
             <span>Vastauksia viikoista</span>

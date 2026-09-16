@@ -39,6 +39,7 @@ function Footer() {
               <li><Link to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>All weeks {currentYear} (Finnish)</Link></li>
               <li><Link to={`/kalenteri-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Calendar {currentYear} (Finnish)</Link></li>
               <li><Link to="/avoin-data" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Open data (Finnish)</Link></li>
+              <li><Link to="/android-sovellus" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Android app (Finnish)</Link></li>
             </ul>
           </div>
 
@@ -125,6 +126,11 @@ function Footer() {
             <li>
               <Link to="/chrome-extension" onClick={() => window.scrollTo(0, 0)}>
                 Chrome-laajennus
+              </Link>
+            </li>
+            <li>
+              <Link to="/android-sovellus" onClick={() => window.scrollTo(0, 0)}>
+                Android-sovellus
               </Link>
             </li>
             <li>
