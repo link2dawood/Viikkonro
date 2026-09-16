@@ -2079,35 +2079,25 @@ body:has(.cal-print) footer {
 .android-app-heading h1 {
   margin: 4px 0 0;
 }
-.android-store-button {
+.android-store-link {
   display: inline-flex;
   align-items: center;
-  gap: 11px;
-  min-height: 54px;
-  padding: 8px 18px;
-  border-radius: 12px;
-  background: #15211f;
-  color: #fff;
-  line-height: 1.05;
-  text-align: left;
+  border-radius: 10px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
-.android-store-button:hover {
-  background: #0b1412;
-  color: #fff;
+.android-store-link:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
-.android-store-button small {
+.android-store-link:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 3px;
+}
+.android-store-link img {
   display: block;
-  margin-bottom: 3px;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.android-play-icon {
-  color: #89c9af;
-  font-size: 26px;
-  transform: scaleX(0.8);
+  width: 207px;
+  max-width: 100%;
+  height: auto;
 }
 .android-phone-feature,
 .android-screen-gallery figure,
@@ -2255,7 +2245,7 @@ body:has(.cal-print) footer {
   .android-final-cta {
     grid-template-columns: auto minmax(0, 1fr);
   }
-  .android-final-cta .android-store-button {
+  .android-final-cta .android-store-link {
     grid-column: 1 / -1;
     justify-self: start;
   }

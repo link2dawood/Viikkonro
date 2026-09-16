@@ -9,19 +9,20 @@ import {
   androidAppFaqs,
 } from "../data/androidAppContent";
 
-const PlayStoreButton = ({ children = "Lataa Google Playsta" }) => (
+const PlayStoreButton = () => (
   <a
-    className="btn android-store-button"
+    className="android-store-link"
     href={ANDROID_APP_FACTS.storeUrl}
     target="_blank"
     rel="noopener noreferrer external"
-    aria-label={`${children} – avautuu uuteen välilehteen`}
+    aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
   >
-    <span className="android-play-icon" aria-hidden="true">▶</span>
-    <span>
-      <small>Saatavilla</small>
-      {children}
-    </span>
+    <img
+      src="/mobile/android/google-play-badge-fi.png"
+      alt="Saatavilla Google Playsta"
+      width="207"
+      height="80"
+    />
   </a>
 );
 
