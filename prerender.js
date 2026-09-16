@@ -48,6 +48,13 @@ import {
   INSTALL_STEPS,
   chromeExtensionFaqs,
 } from "./src/data/chromeExtensionContent.js";
+import {
+  ANDROID_APP_FACTS,
+  ANDROID_APP_FEATURES,
+  ANDROID_APP_PATH,
+  ANDROID_WIDGETS,
+  androidAppFaqs,
+} from "./src/data/androidAppContent.js";
 import { dataSourcesFaqs, methodologyFaqs, editorialPolicyFaqs } from "./src/data/trustPages.js";
 import { datasetPageFaqs } from "./src/data/datasetPages.js";
 import { faqs, faqCategories, featuredFaqs } from "./src/data/faqs.js";
@@ -1436,6 +1443,70 @@ function chromeExtensionNodes() {
       inLanguage: "fi-FI",
       dateModified: f.updated,
       mainEntity: chromeExtensionFaqs().map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+// /android-sovellus: the Google Play application is the page's main entity.
+// Facts, features, widgets and FAQ come from the same plain-JS module as the
+// visible React page, keeping store claims and structured data aligned.
+function androidAppNodes() {
+  const path = ANDROID_APP_PATH;
+  const url = canonicalFor(path);
+  const f = ANDROID_APP_FACTS;
+  const appId = `${url}#mobile-app`;
+  return [
+    pageNode(path, "WebPage", {
+      description: metaFor(path).description,
+      dateModified: f.updated,
+      mainEntity: { "@id": appId },
+      about: { "@id": appId },
+      speakable: { "@type": "SpeakableSpecification", cssSelector: [".answer-sentence"] },
+    }),
+    {
+      "@type": "MobileApplication",
+      "@id": appId,
+      name: f.name,
+      alternateName: f.storeName,
+      description:
+        "Android-sovellus ISO 8601 -viikkonumeroihin, suomalaiseen kalenteriin, päivämäärälaskureihin ja seitsemään aloitusnäytön widgetiin.",
+      url,
+      sameAs: f.storeUrl,
+      installUrl: f.storeUrl,
+      downloadUrl: f.storeUrl,
+      image: `${SITE_URL}/mobile/android/app-icon.png`,
+      screenshot: [
+        `${SITE_URL}/mobile/android/app-weeks.png`,
+        `${SITE_URL}/mobile/android/app-calendar.png`,
+        `${SITE_URL}/mobile/android/app-tools.png`,
+      ],
+      applicationCategory: "UtilitiesApplication",
+      applicationSubCategory: "Calendar and week number utility",
+      operatingSystem: "Android 7.0 or later",
+      availableOnDevice: "Android phone and tablet",
+      inLanguage: ["fi", "en", "sv"],
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      featureList: [
+        ...ANDROID_APP_FEATURES.map((x) => `${x.name}: ${x.desc}`),
+        ...ANDROID_WIDGETS.map((x) => `${x.name}: ${x.desc}`),
+      ],
+      permissions: "Internet access only",
+      dateModified: f.updated,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      dateModified: f.updated,
+      mainEntity: androidAppFaqs.map((item) => ({
         "@type": "Question",
         name: item.q,
         acceptedAnswer: { "@type": "Answer", text: item.a },
@@ -2843,6 +2914,7 @@ for (const url of routes) {
       if (url === "/toimitusperiaatteet") nodes.push(...editorialPolicyFaqNodes());
       if (url === "/api-playground") nodes.push(...apiPlaygroundNodes());
       if (url === CHROME_EXTENSION_PATH) nodes.push(...chromeExtensionNodes());
+      if (url === ANDROID_APP_PATH) nodes.push(...androidAppNodes());
       const datasetPageMatch = url.match(/^\/data\/(week|month|year|holiday|working-days)$/);
       if (datasetPageMatch) nodes.push(...datasetPageNodes(datasetPageMatch[1]));
       if (url === "/en") nodes.push(...englishPageNodes());

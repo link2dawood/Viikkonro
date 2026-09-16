@@ -765,6 +765,12 @@ export const routeMeta = {
       "Ilmainen Chrome-laajennus näyttää ISO-viikkonumeron työkalupalkissa: viikon päivämäärät, liputuspäivät, koululomat ja vk-haku osoiteriviltä.",
     breadcrumb: "Chrome-laajennus",
   },
+  "/android-sovellus": {
+    title: "Android-sovellus ja widgetit | Viikkonro",
+    description:
+      "Lataa Viikkonro Androidille: ISO-viikot, suomalainen kalenteri, päivämäärälaskurit ja seitsemän aloitusnäytön widgetiä myös offline-käyttöön.",
+    breadcrumb: "Android-sovellus",
+  },
   "/ajanhallinta": {
     title: "Ajanhallinta viikkonumeroiden avulla | Viikko Nro",
     description:
@@ -792,7 +798,7 @@ export const routeMeta = {
   "/tietosuoja": {
     title: "Tietosuojaseloste | Viikko Nro",
     description:
-      "Viikko Nro -palvelun tietosuojaseloste: mitä tietoja keräämme, miten käytämme niitä ja miten suojaamme yksityisyyttäsi.",
+      "Viikkonro-verkkopalvelun ja Android-sovelluksen tietosuojaseloste: analytiikka, mainonta, kaatumisraportit ja paikallisesti tallennetut tiedot.",
     breadcrumb: "Tietosuojaseloste",
   },
   "/kayttoehdot": {
@@ -860,6 +866,7 @@ export function sitemapEntries(year) {
     { path: "/avoin-data", changefreq: "monthly", priority: "0.6" },
     { path: "/api-playground", changefreq: "monthly", priority: "0.6" },
     { path: "/chrome-extension", changefreq: "monthly", priority: "0.7" },
+    { path: "/android-sovellus", changefreq: "monthly", priority: "0.8" },
     { path: "/data/week", changefreq: "monthly", priority: "0.5" },
     { path: "/data/month", changefreq: "monthly", priority: "0.5" },
     { path: "/data/year", changefreq: "monthly", priority: "0.5" },
