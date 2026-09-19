@@ -15,7 +15,7 @@
 <p align="center">
   <a href="https://github.com/link2dawood/Viikkonro/actions/workflows/ci.yml"><img src="https://github.com/link2dawood/Viikkonro/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
-  <a href="https://github.com/link2dawood/Viikkonro/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"><img src="https://img.shields.io/github/issues/link2dawood/Viikkonro/good%20first%20issue?label=good%20first%20issues&color=7057ff" alt="Good first issues"></a>
+  <a href="https://github.com/link2dawood/Viikkonro/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"><img src="https://img.shields.io/github/issues/link2dawood/Viikkonro/good%20first%20issue" alt="Good first issues"></a>
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@
 
 ---
 
-**What week is it?** In Finland that is an everyday question, and [viikkonro.fi](https://viikkonro.fi) answers it: the current week number, the week of any date, and the calendars, holidays and working days built on top of that. Every page is prerendered to static HTML, so the answer is in the page source before any JavaScript runs. The same facts are published as free JSON data.
+**What week is it?** In Finland that is an everyday question, and [viikkonro.fi](https://viikkonro.fi) answers it: the current week number, the week of any date, and the calendars, holidays and working days that matter in practice.
 
 ## Why this matters
 
@@ -39,7 +39,7 @@ Finnish week numbers follow **ISO 8601**: weeks start on Monday, and week 1 is t
 - **The last days of December can be week 1** of the next year. December 29, 2025 is in week 1 of 2026.
 - **The first days of January can be week 53** of the previous year. January 1, 2021 is in week 53 of 2020.
 
-Many calendar apps and quick scripts get these edges wrong, typically by assuming the week year equals the calendar year. This project gets them right, tests them, and makes the correct answer available to both people and programs.
+Many calendar apps and quick scripts get these edges wrong, typically by assuming the week year equals the calendar year. This project gets them right, tests them, and makes the correct answer available to users and developers.
 
 ## Who it's for
 
@@ -113,7 +113,7 @@ Then open the URL Vite prints, usually http://localhost:5173.
 | `npm run build` | Full production build: client build, SSR build, then `prerender.js` |
 | `npm run preview` | Serve the built `dist/` folder locally |
 
-`npm run build` is the build Vercel runs. It prerenders about 1,700 routes and generates thousands of images and PDFs, so it takes a few minutes. Use it whenever you change routing, page content, metadata or structured data. For everything else, `npm run build:spa` is enough.
+`npm run build` is the build Vercel runs. It prerenders about 1,700 routes and generates thousands of images and PDFs, so it takes a few minutes. Use it whenever you change routing, page content, metadata or any generated assets.
 
 ### Environment variables
 
@@ -147,7 +147,7 @@ npm run build
 A few things are useful to know before changing code:
 
 - **Two entry points, one route tree.** `src/main.jsx` hydrates `AppRoutes` in the browser, and `src/entry-server.jsx` renders the same `AppRoutes` at build time.
-- **Routes are single segment Finnish slugs** such as `/viikko-38-2026`. React Router cannot match two parameters inside one segment, so a `/:slug` catch all in `src/AppRoutes.jsx` dispatches them with regular expressions.
+- **Routes are single segment Finnish slugs** such as `/viikko-38-2026`. React Router cannot match two parameters inside one segment, so a `/:slug` catch all in `src/AppRoutes.jsx` dispatches the right page.
 - **Metadata has one home.** Titles, descriptions, breadcrumbs, canonical URLs and the sitemap list all come from `src/data/seo.js`.
 - **Week math has one home.** All ISO week logic lives in `src/components/dateUtils.js`. Import from it rather than reimplementing it.
 - **Prerendered output is flat.** Pages are written as `dist/ukk.html`, not `dist/ukk/index.html`, which avoids redirect loops with the no trailing slash convention.
@@ -172,11 +172,11 @@ For the full picture, read [`CLAUDE.md`](CLAUDE.md) (architecture notes) and [`d
 
 ### Deployment
 
-Vercel builds and deploys every push to `main`. A scheduled workflow triggers a rebuild every night so the current week shown on the home page never goes stale, and a separate workflow checks the live site shows the correct week.
+Vercel builds and deploys every push to `main`. A scheduled workflow triggers a rebuild every night so the current week shown on the home page never goes stale, and a separate workflow checks the live site.
 
 ## Contributing
 
-Contributions of every size are welcome, from fixing a typo in the Finnish copy to adding a new calculator. **New here?** Start with an issue labelled [good first issue](https://github.com/link2dawood/Viikkonro/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). These are small, well scoped tasks with a clear definition of done.
+Contributions of every size are welcome, from fixing a typo in the Finnish copy to adding a new calculator. **New here?** Start with an issue labelled [good first issue](https://github.com/link2dawood/Viikkonro/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
 
 The short version:
 
@@ -185,7 +185,7 @@ The short version:
 3. If you touched routes, content or metadata, also run `npm run build`
 4. Open a pull request and fill in the template
 
-This site has strict rules for anything that affects search visibility, such as URLs, metadata and structured data. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, especially the section on SEO sensitive changes.
+This site has strict rules for anything that affects search visibility, such as URLs, metadata and structured data. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, especially if your change touches SEO-sensitive content.
 
 - [Contributing guide](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
@@ -218,7 +218,7 @@ The source code is released under the [MIT License](LICENSE).
 
 The MIT License covers the code in this repository. It does not cover:
 
-- **Name day data.** Finnish name day lists are compiled by the University of Helsinki Almanac Office (Yliopiston almanakkatoimisto), which holds a statutory exclusive right over them. Licensed name day data is never committed to this repository.
+- **Name day data.** Finnish name day lists are compiled by the University of Helsinki Almanac Office (Yliopiston almanakkatoimisto), which holds a statutory exclusive right over them. Licensed name day data is used where available.
 - **Fonts** in `public/fonts/`: Inter, IBM Plex Mono and Bricolage Grotesque are each distributed under the [SIL Open Font License 1.1](https://openfontlicense.org).
 - **The Viikko Nro name and logo.** You are welcome to fork the code, but please give your fork its own name and branding.
 
