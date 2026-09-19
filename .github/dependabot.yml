@@ -1,12 +1,31 @@
 version: 2
 updates:
+  # npm: minor and patch bumps arrive together as one weekly pull request, so
+  # routine updates are a single review instead of a pile of near identical
+  # ones. Major bumps still arrive one per package, because each can carry
+  # breaking changes (React, Vite and ESLint majors all have in the past) and
+  # deserves its own pull request, changelog read and full build.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     open-pull-requests-limit: 10
+    groups:
+      npm-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
 
+  # Actions are pinned by major tag and have a small blast radius here (CI and
+  # scheduled monitors, never the site bundle), so every update, majors
+  # included, is grouped into one pull request.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
