@@ -1,12 +1,34 @@
 {
-  "name": "newproject",
-  "private": true,
-  "version": "0.0.0",
+  "name": "viikkonro",
+  "private": false,
+  "version": "1.0.0",
+  "description": "Finnish ISO week-number and calendar utility built with React and Vite.",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "packageManager": "npm@10.9.2",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/link2dawood/Viikkonro.git"
+  },
+  "homepage": "https://weekdays-link2dawoods-projects.vercel.app",
+  "bugs": {
+    "url": "https://github.com/link2dawood/Viikkonro/issues"
+  },
+  "keywords": [
+    "calendar",
+    "finnish",
+    "week-number",
+    "iso-8601",
+    "date",
+    "react",
+    "vite",
+    "open-source",
+    "finland",
+    "holiday"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build && vite build --ssr src/entry-server.jsx --outDir dist-server && node prerender.js",
