@@ -2,7 +2,7 @@
 
 Settings that live in GitHub rather than in files, so they cannot be changed by a commit. Each section gives the recommended value and a `gh` command to apply it. Run `gh auth login` first.
 
-State as of September 2026: the repository is public, issues are enabled, and it has no description, no topics, no license detected by GitHub, and a homepage pointing at a `vercel.app` preview URL.
+State as of September 2026: the repository is public, issues are enabled, `main` is protected by a ruleset, and it has no description, no topics, no license detected by GitHub, and a homepage pointing at a `vercel.app` preview URL.
 
 ## 1. Description, homepage and topics
 
@@ -70,65 +70,41 @@ gh label create seo --repo link2dawood/Viikkonro \
 
 Every push to `main` deploys to production, so `main` should only change through pull requests that passed CI.
 
-**Before enabling this, merge PR #23** (`ci/pr-merge-gate`). It adds `.github/workflows/ci.yml`, whose `build` job is the status check required below. Until it is merged, a required `build` check would never report and would block every pull request. The README's CI badge also depends on that workflow.
+**`main` is already protected** by a ruleset named *Protect default branch* (id `22466113`). As of September 2026 it:
 
-One change to make in PR #23 before merging: its lint step has `continue-on-error: true`, with a comment saying to drop it once ESLint reports clean. ESLint reports clean on `main` today, so drop that line and make lint a real gate.
-
-**Recommended rules:**
-
-| Rule | Setting | Why |
+| Rule | Current | Recommended |
 | --- | --- | --- |
-| Require a pull request | On | No direct pushes to production |
-| Required approvals | **0** while there is one maintainer | GitHub does not let you approve your own pull request. With 1 required approval, a solo maintainer cannot merge their own work. Raise to 1 when a second maintainer joins. |
-| Require status checks | `build` from `ci.yml` | Lint, tests and the full prerender build must pass |
-| Require branches to be up to date | Off | With Dependabot opening grouped PRs weekly, "up to date" forces a rebase and rerun of the multi minute build after every merge. The build is deterministic, so the risk is low. |
-| Require conversation resolution | On | Review comments cannot be silently ignored |
-| Require linear history | On | Matches squash merging |
-| Block force pushes | On | History on `main` is never rewritten |
-| Block deletion | On | |
-| Admin bypass | Allowed | For emergencies, such as reverting a broken deploy |
+| Require a pull request | On | Keep |
+| Required approvals | **1** | **0** while there is one maintainer (see below) |
+| Require conversation resolution | On | Keep |
+| Allowed merge methods | Squash, rebase | Keep |
+| Require linear history | On | Keep |
+| Block force pushes | On | Keep |
+| Block deletion | On | Keep |
+| Require status checks | **Not set** | **Add `build`** from `ci.yml`, once PR #23 is merged |
 
-Nothing is broken by this: no workflow in `.github/workflows/` commits or pushes to `main`. The nightly rebuild calls a Vercel deploy hook, which does not touch the branch.
+**Required approvals.** GitHub does not let you approve your own pull request. With 1 required approval and one maintainer, every pull request, including your own and Dependabot's, needs either a second person or an admin bypass. Either set approvals to 0 until a second maintainer joins, or check that *Repository admin* is in the ruleset's bypass list, so the merge button offers *Merge without waiting for requirements*.
 
-**Apply as a ruleset** (the current GitHub mechanism, which replaces classic branch protection):
+**Required status check.** Merge PR #23 (`ci/pr-merge-gate`) first. It adds `.github/workflows/ci.yml`, whose `build` job runs lint, tests and the full prerender build. A required check that no workflow reports would block every pull request. One change to make in PR #23 before merging: its lint step has `continue-on-error: true`, with a comment saying to drop it once ESLint reports clean. ESLint reports clean on `main` today, so drop that line and make lint a real gate. The README's CI badge also depends on this workflow.
+
+Leave *Require branches to be up to date* off. With Dependabot opening grouped pull requests weekly, it forces a rebase and a rerun of the multi minute build after every merge, and the build is deterministic.
+
+Nothing is broken by these rules: no workflow in `.github/workflows/` commits or pushes to `main`. The nightly rebuild calls a Vercel deploy hook, which does not touch the branch.
+
+**Apply the changes by editing the existing ruleset**, not by creating a second one. Rules from every active ruleset apply together and the strictest wins, so a new ruleset with 0 approvals would not lift the existing 1.
+
+The simplest way is the browser: *Settings → Rules → Rulesets → Protect default branch*. Or, with the CLI, fetch it, edit, and write it back:
 
 ```bash
-gh api -X POST repos/link2dawood/Viikkonro/rulesets --input - <<'JSON'
-{
-  "name": "Protect main",
-  "target": "branch",
-  "enforcement": "active",
-  "conditions": { "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] } },
-  "bypass_actors": [
-    { "actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always" }
-  ],
-  "rules": [
-    { "type": "deletion" },
-    { "type": "non_fast_forward" },
-    { "type": "required_linear_history" },
-    {
-      "type": "pull_request",
-      "parameters": {
-        "required_approving_review_count": 0,
-        "dismiss_stale_reviews_on_push": true,
-        "require_code_owner_review": false,
-        "require_last_push_approval": false,
-        "required_review_thread_resolution": true
-      }
-    },
-    {
-      "type": "required_status_checks",
-      "parameters": {
-        "strict_required_status_checks_policy": false,
-        "required_status_checks": [ { "context": "build" } ]
-      }
-    }
-  ]
-}
-JSON
+gh api repos/link2dawood/Viikkonro/rulesets/22466113 > ruleset.json
+# In ruleset.json:
+#  - set "required_approving_review_count" to 0
+#  - add to "rules":
+#      { "type": "required_status_checks",
+#        "parameters": { "strict_required_status_checks_policy": false,
+#                        "required_status_checks": [ { "context": "build" } ] } }
+gh api -X PUT repos/link2dawood/Viikkonro/rulesets/22466113 --input ruleset.json
 ```
-
-`actor_id: 5` is the built in Admin repository role. After applying, confirm under *Settings → Rules → Rulesets* that the bypass list shows "Repository admin".
 
 ## 6. Looking active and maintained
 
