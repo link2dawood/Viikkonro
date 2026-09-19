@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/link2dawood/Viikkonro/security/advisories/new
+    about: Please report security issues privately, never in a public issue. See SECURITY.md.
+  - name: General feedback about the website
+    url: https://viikkonro.fi/ota-yhteytta
+    about: For questions or feedback that are not bug reports or feature requests, use the contact form.
