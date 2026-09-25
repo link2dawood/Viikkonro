@@ -1245,6 +1245,31 @@ footer {
   color: var(--footer-link-hover);
 }
 
+/* App links under the social links, separated by a thin rule. */
+.footer-apps-sep {
+  border: 0;
+  border-top: 1px solid rgba(240, 253, 244, 0.1);
+  max-width: 320px;
+  margin: 18px 0 14px;
+}
+.footer-apps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.footer-apps a {
+  color: var(--footer-link);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+.footer-apps a:hover {
+  color: var(--footer-link-hover);
+}
+
 /* Nav columns layout logic */
 .footer-links-col {
   flex: 1 1 160px;

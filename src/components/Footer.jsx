@@ -89,6 +89,19 @@ function Footer() {
             -standardiin.
           </p>
           <SocialLinks className="footer-social" />
+          <hr className="footer-apps-sep" />
+          <ul className="footer-apps" aria-label="Sovellukset">
+            <li>
+              <Link to="/android-sovellus" onClick={() => window.scrollTo(0, 0)}>
+                Android-sovellus
+              </Link>
+            </li>
+            <li>
+              <Link to="/chrome-extension" onClick={() => window.scrollTo(0, 0)}>
+                Chrome-laajennus
+              </Link>
+            </li>
+          </ul>
         </div>
 
         {/* Navigation Links Column */}
@@ -141,21 +154,6 @@ function Footer() {
             <li>
               <Link to="/upota-viikkonumero" onClick={() => window.scrollTo(0, 0)}>
                 Viikkonumero-widget
-              </Link>
-            </li>
-            <li>
-              <Link to="/chrome-extension" onClick={() => window.scrollTo(0, 0)}>
-                Chrome-laajennus
-              </Link>
-            </li>
-            <li>
-              <Link to="/android-sovellus" onClick={() => window.scrollTo(0, 0)}>
-                Android-sovellus
-              </Link>
-            </li>
-            <li>
-              <Link to="/en" lang="en" onClick={() => window.scrollTo(0, 0)}>
-                English
               </Link>
             </li>
             <li>

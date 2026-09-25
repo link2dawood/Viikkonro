@@ -45,4 +45,14 @@ describe("English page chrome", () => {
     expect(html).toContain("Kaikki oikeudet pidätetään");
     expect(html).not.toContain("All rights reserved.");
   });
+
+  it("puts the app links under the social links, with no English link", () => {
+    const html = renderChrome("/");
+    const brand = html.slice(html.indexOf("footer-brand-col"), html.indexOf(">Palvelu<"));
+
+    expect(brand).toContain("footer-apps-sep");
+    expect(brand).toContain('href="/android-sovellus"');
+    expect(brand).toContain('href="/chrome-extension"');
+    expect(html).not.toContain('href="/en"');
+  });
 });
