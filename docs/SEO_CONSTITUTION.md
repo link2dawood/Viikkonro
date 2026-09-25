@@ -47,7 +47,13 @@ same content shape. Routes are single-segment Finnish keyword slugs
 `/pyhat-{year}/{slug}`, `/liputuspaivat-{year}`, `/tyopaivat-{year}`,
 `/tyopaivat-{monthSlug}-{year}`, `/koululomat-{year}`,
 `/nimipaivat/tanaan`, `/nimipaiva/{name}`, `/nimipaivat/{month}-{day}`,
-plus static pages).
+`/palkkapaivat-{year}`, `/kesaaika-{year}`, the four
+`/kuinka-monta-paivaa-{target}` countdowns, plus static pages).
+Non-HTML resources outside the route table: `/ics/*.ics` calendar feeds
+(generated from `src/data/icsFeeds.js`) and the `/widget/viikko` iframe
+document (`src/data/weekWidget.js`) — the widget is deliberately
+`noindex` and absent from `sitemapEntries()`, and it is the only path
+exempt from `X-Frame-Options` in `vercel.json`.
 
 **Lives in**: `src/AppRoutes.jsx`'s `DynamicSlug` regex dispatcher (the
 single source of truth for which slug shapes are valid) and

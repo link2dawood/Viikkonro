@@ -123,6 +123,27 @@ import {
   weekdayMeta,
 } from "./src/data/currentDateContent.js";
 import { englishFaqs } from "./src/data/englishContent.js";
+import { paydayFaqs, paydaysInYear, DEFAULT_PAYDAY } from "./src/data/paydayPages.js";
+import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
+import { COUNTDOWNS, COUNTDOWN_BY_PATH, countdownFaqs } from "./src/data/countdownPages.js";
+import {
+  CALENDAR_SUBSCRIPTION_PATH,
+  CALENDAR_SUBSCRIPTION_STEPS,
+  ICS_FEEDS,
+  buildIcs,
+  calendarSubscriptionFaqs,
+  flagDayEvents,
+  holidayEvents,
+  icsYears,
+  weekEvents,
+} from "./src/data/icsFeeds.js";
+import {
+  WEEK_WIDGET_PATH,
+  WIDGET_EMBED_PAGE_PATH,
+  WIDGET_EMBED_STEPS,
+  weekWidgetHtml,
+  widgetFaqs,
+} from "./src/data/weekWidget.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, "dist");
@@ -595,7 +616,9 @@ function entityParentExtra(url) {
   }
   if (
     (m = url.match(/^\/kalenteri-(\d+)(?:-(?:alkuvuosi|loppuvuosi))?$/)) ||
-    (m = url.match(/^\/tulostettava-kalenteri-(\d+)$/))
+    (m = url.match(/^\/tulostettava-kalenteri-(\d+)$/)) ||
+    (m = url.match(/^\/palkkapaivat-(\d{4})$/)) ||
+    (m = url.match(/^\/kesaaika-(\d{4})$/))
   ) {
     const year = m[1];
     return {
@@ -2766,6 +2789,104 @@ const CALCULATOR_SCHEMA = {
   },
 };
 
+// FAQPage node for pages whose Q&A list comes from a shared *Faqs()
+// function that the page's JSX also renders (invariant 9).
+function faqPageNode(url, items) {
+  return {
+    "@type": "FAQPage",
+    "@id": `${canonicalFor(url)}#faq`,
+    inLanguage: "fi-FI",
+    dateModified: CONTENT_UPDATED,
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+}
+
+function howToNode(url, name, steps) {
+  return {
+    "@type": "HowTo",
+    "@id": `${canonicalFor(url)}#howto`,
+    name,
+    inLanguage: "fi-FI",
+    step: steps.map((text, i) => ({ "@type": "HowToStep", position: i + 1, text })),
+  };
+}
+
+// /palkkapaivat-{year}: FAQ plus the 15th-of-month payday table as an
+// ItemList, so the actual dates are machine-readable without parsing HTML.
+function paydayNodes(year) {
+  const url = `/palkkapaivat-${year}`;
+  return [
+    faqPageNode(url, paydayFaqs(year)),
+    {
+      "@type": "ItemList",
+      "@id": `${canonicalFor(url)}#paydays-${DEFAULT_PAYDAY}`,
+      name: `Palkkapäivät ${year}, kuun ${DEFAULT_PAYDAY}. päivä`,
+      itemListElement: paydaysInYear(year, DEFAULT_PAYDAY).map((r, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `${r.monthName}: ${ymd(r.actual)}${r.moved ? ` (siirtyy, ${r.reason})` : ""}`,
+      })),
+    },
+  ];
+}
+
+function dstNodes(year) {
+  const url = `/kesaaika-${year}`;
+  const { start, end } = dstChanges(year);
+  return [
+    faqPageNode(url, dstFaqs(year)),
+    {
+      "@type": "ItemList",
+      "@id": `${canonicalFor(url)}#changes`,
+      name: `Kellojen siirto ${year}`,
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: `Kesäaika alkaa ${ymd(start.date)} klo 03.00 → 04.00 (UTC+3)` },
+        { "@type": "ListItem", position: 2, name: `Talviaika alkaa ${ymd(end.date)} klo 04.00 → 03.00 (UTC+2)` },
+      ],
+    },
+  ];
+}
+
+function countdownNodes(url) {
+  const countdown = COUNTDOWN_BY_PATH[url];
+  return countdown ? [faqPageNode(url, countdownFaqs(countdown, new Date()))] : [];
+}
+
+function calendarSubscriptionNodes() {
+  const url = CALENDAR_SUBSCRIPTION_PATH;
+  return [
+    faqPageNode(url, calendarSubscriptionFaqs(currentYear)),
+    howToNode(
+      url,
+      "Viikkonumerot ja pyhäpäivät Google-kalenteriin, Outlookiin tai iPhoneen",
+      CALENDAR_SUBSCRIPTION_STEPS.flatMap((g) => g.steps.map((s) => `${g.app}: ${s}`)),
+    ),
+    ...ICS_FEEDS.map((feed) => ({
+      "@type": "DataFeed",
+      "@id": `${SITE_URL}${feed.path}#feed`,
+      name: feed.calName,
+      description: feed.desc,
+      url: `${SITE_URL}${feed.path}`,
+      encodingFormat: "text/calendar",
+      inLanguage: "fi-FI",
+      isAccessibleForFree: true,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+    })),
+  ];
+}
+
+function widgetEmbedNodes() {
+  const url = WIDGET_EMBED_PAGE_PATH;
+  return [
+    faqPageNode(url, widgetFaqs()),
+    howToNode(url, "Viikkonumero-widgetin upottaminen omalle sivulle", WIDGET_EMBED_STEPS),
+  ];
+}
+
 function calculatorNodes(url) {
   const entry = CALCULATOR_SCHEMA[url];
   if (!entry) return [];
@@ -3026,6 +3147,14 @@ for (const url of routes) {
       }
       if (CALCULATOR_SCHEMA[url]) nodes.push(...calculatorNodes(url));
 
+      const paydayMatch = url.match(/^\/palkkapaivat-(\d{4})$/);
+      if (paydayMatch) nodes.push(...paydayNodes(+paydayMatch[1]));
+      const dstMatch = url.match(/^\/kesaaika-(\d{4})$/);
+      if (dstMatch) nodes.push(...dstNodes(+dstMatch[1]));
+      if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
+      if (url === CALENDAR_SUBSCRIPTION_PATH) nodes.push(...calendarSubscriptionNodes());
+      if (url === WIDGET_EMBED_PAGE_PATH) nodes.push(...widgetEmbedNodes());
+
       const pageId = `${canonical}#webpage`;
       if (!nodes.some((node) => node["@id"] === pageId)) {
         nodes.unshift(
@@ -3127,6 +3256,48 @@ try {
   console.log(`prerendered /liputuspaivat -> dist/liputuspaivat.html (redirects to ${flagDaysTargetPath})`);
 } catch (err) {
   console.error("failed to prerender liputuspaivat.html:", err);
+}
+
+// Subscribable iCalendar feeds (/ics/*.ics), documented on /kalenteritilaus.
+// Same rolling window every build, so the nightly rebuild adds new years to
+// subscribers' calendars without them doing anything. A failure here fails
+// the build (failures += 1) — a subscriber's calendar silently going stale
+// is worse than a red deploy.
+try {
+  const years = icsYears(currentYear);
+  const inRange = (y) => y >= PRERENDER_MIN_YEAR && y <= PRERENDER_MAX_YEAR;
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const eventsFor = {
+    viikkonumerot: () => weekEvents(years, SITE_URL, inRange),
+    pyhapaivat: () => holidayEvents(years, SITE_URL),
+    liputuspaivat: () => flagDayEvents(years, SITE_URL, inRange),
+  };
+  for (const feed of ICS_FEEDS) {
+    const events = eventsFor[feed.id]();
+    const outPath = path.join(distDir, feed.path);
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
+    fs.writeFileSync(
+      outPath,
+      buildIcs({ calName: feed.calName, calDesc: `${feed.desc} Lähde: ${SITE_URL}/`, events, stamp }),
+    );
+    console.log(`generated ${feed.path} (${events.length} events, ${years[0]}-${years[years.length - 1]})`);
+  }
+} catch (err) {
+  failures += 1;
+  console.error("failed to generate iCalendar feeds:", err);
+}
+
+// Embeddable current-week widget (/widget/viikko) — a standalone document,
+// deliberately not in routes/sitemapEntries (noindex embed target; see
+// weekWidget.js and docs/embeddable-widgets.md).
+try {
+  const outPath = path.join(distDir, `${WEEK_WIDGET_PATH}.html`);
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, weekWidgetHtml(SITE_URL, new Date()));
+  console.log(`generated ${WEEK_WIDGET_PATH} -> dist${WEEK_WIDGET_PATH}.html`);
+} catch (err) {
+  failures += 1;
+  console.error("failed to generate week widget:", err);
 }
 
 // Static machine-readable JSON feeds (STEP 2 of the GEO/AI-consumption data
@@ -3773,7 +3944,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   namingConventions: {
     pageEntityId: "{canonicalUrl}#webpage — every page's own node id",
     subResourceId:
-      "{canonicalUrl}#{fragment} — fragment in {faq, breadcrumb, media, discover, howto, article, events}",
+      "{canonicalUrl}#{fragment} — fragment in {faq, breadcrumb, media, discover, howto, article, events, changes, paydays-15}; calendar feeds use {feedUrl}#feed",
     globalSingletons: [`${SITE_URL}/#website`, `${SITE_URL}/#organization`],
     datasetFamilyId: `${SITE_URL}/#dataset-{id} — one per /data/ family (see datasets below)`,
     pdfMediaId: "{pdfUrl}#media",
@@ -3851,6 +4022,46 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
       count: "4 calendar-view variants per year",
     },
     {
+      entity: "Payday Calendar",
+      schemaType: "WebPage (+ FAQPage, ItemList)",
+      urlPattern: "/palkkapaivat-{year}",
+      idPattern: `${SITE_URL}/palkkapaivat-{year}#webpage`,
+      example: `${SITE_URL}/palkkapaivat-${kgYear}`,
+      count: "1 per year",
+    },
+    {
+      entity: "Daylight Saving Time",
+      schemaType: "WebPage (+ FAQPage, ItemList)",
+      urlPattern: "/kesaaika-{year}",
+      idPattern: `${SITE_URL}/kesaaika-{year}#webpage`,
+      example: `${SITE_URL}/kesaaika-${kgYear}`,
+      count: "1 per year (2 clock changes each)",
+    },
+    {
+      entity: "Countdown",
+      schemaType: "WebPage (+ FAQPage)",
+      urlPattern: COUNTDOWNS.map((c) => c.path).join(", "),
+      idPattern: `${SITE_URL}/kuinka-monta-paivaa-{target}#webpage`,
+      example: `${SITE_URL}${COUNTDOWNS[0].path}`,
+      count: `${COUNTDOWNS.length} static pages (always count to the next occurrence)`,
+    },
+    {
+      entity: "Calendar Feed",
+      schemaType: "DataFeed (text/calendar, iCalendar RFC 5545)",
+      urlPattern: ICS_FEEDS.map((f) => f.path).join(", "),
+      idPattern: `${SITE_URL}/ics/{feed}.ics#feed`,
+      example: `${SITE_URL}${ICS_FEEDS[0].path}`,
+      count: `${ICS_FEEDS.length} feeds, documented on ${CALENDAR_SUBSCRIPTION_PATH}`,
+    },
+    {
+      entity: "Widget",
+      schemaType: "none (noindex iframe embed target)",
+      urlPattern: WEEK_WIDGET_PATH,
+      idPattern: "n/a — documented on the embed page",
+      example: `${SITE_URL}${WEEK_WIDGET_PATH}`,
+      count: `1 widget, embed code on ${WIDGET_EMBED_PAGE_PATH}`,
+    },
+    {
       entity: "PDF",
       schemaType: "MediaObject",
       urlPattern: "/pdf/kalenteri-{year}.pdf, /pdf/viikko-{week}-{year}.pdf, /pdf/kuukausi-{month}-{year}.pdf",
@@ -3902,6 +4113,8 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     { from: "Working Day (yearly)", relation: "hasPart", to: "Working Day (monthly)", cardinality: "one-to-twelve" },
     { from: "Working Day (monthly)", relation: "isPartOf", to: "Month", cardinality: "many-to-one" },
     { from: "Calendar", relation: "isPartOf", to: "Year", cardinality: "many-to-one" },
+    { from: "Payday Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
+    { from: "Daylight Saving Time", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Calendar", relation: "mainEntity (ItemList)", to: "Month", cardinality: "one-to-twelve" },
     { from: "Calendar", relation: "associatedMedia", to: "PDF", cardinality: "one-to-one" },
     { from: "Week", relation: "associatedMedia", to: "PDF", cardinality: "one-to-one" },
@@ -3920,7 +4133,11 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     Week: { linksTo: ["Year"], linkedFrom: ["Year (ItemList)", "Month (ItemList)", "Holiday (mentions)"] },
     Month: { linksTo: ["Quarter", "Year", "Holiday (mentions)", "PDF"], linkedFrom: ["Quarter (hasPart)", "Year (hasPart)", "Working Day monthly", "Holiday (mentions)"] },
     Quarter: { linksTo: ["Year", "Month (hasPart)"], linkedFrom: ["Month", "Year (hasPart)"] },
-    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar"] },
+    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar", "Payday Calendar", "Daylight Saving Time"] },
+    "Payday Calendar": { linksTo: ["Year"], linkedFrom: [] },
+    "Daylight Saving Time": { linksTo: ["Year"], linkedFrom: [] },
+    Countdown: { linksTo: [], linkedFrom: [] },
+    "Calendar Feed": { linksTo: [], linkedFrom: ["Calendar subscription page (DataFeed)"] },
     "Holiday (hub)": { linksTo: ["Year", "Holiday individual (hasPart)"], linkedFrom: ["Holiday individual"] },
     "Holiday (individual)": { linksTo: ["Holiday hub", "Week", "Month", "Year"], linkedFrom: ["Holiday hub (hasPart)"] },
     "Flag Day (hub)": { linksTo: ["Year"], linkedFrom: [] },
@@ -3938,7 +4155,8 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   graphStructure: {
     nodeTypes: [
       "Week", "Month", "Quarter", "Year", "Holiday", "Flag Day", "Working Day",
-      "Calendar", "PDF", "Dataset", "API Endpoint", "Website", "Organization",
+      "Calendar", "Payday Calendar", "Daylight Saving Time", "Countdown",
+      "Calendar Feed", "Widget", "PDF", "Dataset", "API Endpoint", "Website", "Organization",
     ],
     edgeTypes: ["isPartOf", "hasPart", "mentions", "mainEntity", "associatedMedia", "potentialAction", "redirects to", "creator/publisher"],
     hierarchyRoot: "Year",
@@ -4188,6 +4406,19 @@ const llmsFull =
     "School holiday page",
     "  /koululomat-{year}",
     "",
+    "Payday pages",
+    "  /palkkapaivat-{year}  — when a monthly payday (15th, last day of month, or any chosen day) is actually paid: a payday on a Saturday, Sunday or bank holiday moves to the previous banking day",
+    "",
+    "Daylight saving time pages",
+    "  /kesaaika-{year}  — the two clock-change dates of the year (last Sunday of March at 03:00 -> 04:00, last Sunday of October at 04:00 -> 03:00, Finnish local time), with ISO week numbers",
+    "",
+    "Countdown pages (always count to the next occurrence, rebuilt daily)",
+    ...COUNTDOWNS.map((c) => `  ${c.path}  — days, weeks and working days until ${c.targetName}`),
+    "",
+    "Calendar subscription and widget",
+    `  ${CALENDAR_SUBSCRIPTION_PATH}  — subscribe to iCalendar feeds of ISO week numbers, public holidays and flag days (${ICS_FEEDS.map((f) => f.path).join(", ")})`,
+    `  ${WIDGET_EMBED_PAGE_PATH}  — free embeddable current-week widget (iframe ${WEEK_WIDGET_PATH}) with copyable embed code`,
+    "",
     "Name day pages",
     "  /nimipaivat/tanaan",
     "  /nimipaiva/{name}",
@@ -4225,6 +4456,10 @@ const llmsFull =
     `  ${SITE_URL}/tyopaivat-${llY}`,
     `  ${SITE_URL}/tyopaivat-elokuu-${llY}`,
     `  ${SITE_URL}/koululomat-${llY}`,
+    `  ${SITE_URL}/palkkapaivat-${llY}`,
+    `  ${SITE_URL}/kesaaika-${llY}`,
+    `  ${SITE_URL}${COUNTDOWNS[0].path}`,
+    `  ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}`,
     "",
     "## 4. Machine-readable resources",
     "",
@@ -4289,6 +4524,15 @@ const llmsApi =
     `  /pdf/viikko-{week}-{year}.pdf     — single-week fact sheet, e.g. ${SITE_URL}${weekPdfPath(llWeek, llY)}`,
     `  /pdf/kuukausi-{month}-{year}.pdf  — single-month calendar + fact sheet, e.g. ${SITE_URL}${monthPdfPath(llMonth, llY)}`,
     "  Generated with pdfkit (no headless browser), one file per year/week/month across the full data horizon, linked from the corresponding HTML page and from the sitemap.",
+    "",
+    "## Calendar feeds (iCalendar)",
+    "",
+    ...ICS_FEEDS.map((f) => `  ${SITE_URL}${f.path}  — ${f.calName}: ${f.desc}`),
+    `  text/calendar (RFC 5545), all-day events, rolling window of the previous year through two years ahead (currently ${icsYears(currentYear)[0]}-${icsYears(currentYear)[3]}), regenerated daily. Subscribe with any calendar app (webcal:// works too); human instructions: ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}.`,
+    "",
+    "## Embeddable widget",
+    "",
+    `  ${SITE_URL}${WEEK_WIDGET_PATH}  — current ISO week number widget for iframes (300x150, ?teema=tumma for dark). noindex; embed code: ${SITE_URL}${WIDGET_EMBED_PAGE_PATH}.`,
     "",
     "## Images",
     "",
@@ -4366,6 +4610,23 @@ const llmsGlossary =
     "  eve days are excluded from the working-day count, but only the",
     "  official holidays are the reason a weekday is excluded — a weekend day",
     "  is already excluded as a weekend regardless of any holiday.",
+    "",
+    "## Paydays and banking days",
+    "",
+    "  Banking day (pankkipäivä): Monday-Friday, excluding the Bank of Finland's",
+    "  bank holidays — New Year's Day, Epiphany, Good Friday, Easter Monday, May",
+    "  Day, Ascension Day, Midsummer Eve, Independence Day, Christmas Eve,",
+    "  Christmas Day and Boxing Day. If an agreed payday is not a banking day,",
+    "  salary is paid on the previous banking day (Employment Contracts Act).",
+    "  Documented per year at /palkkapaivat-{year}.",
+    "",
+    "## Daylight saving time",
+    "",
+    "  Finland follows EU directive 2000/84/EC: summer time (UTC+3, EEST) starts",
+    "  on the last Sunday of March at 03:00 local time (clocks forward to 04:00)",
+    "  and ends on the last Sunday of October at 04:00 local time (clocks back",
+    `  to 03:00, UTC+2, EET). Both changes happen at 01:00 UTC. This year: ${ymd(dstChanges(currentYear).start.date)} and ${ymd(dstChanges(currentYear).end.date)}.`,
+    "  Documented per year at /kesaaika-{year}.",
     "",
     "## Quarters",
     "",
@@ -4473,6 +4734,10 @@ const aiManifest =
     `   ${SITE_URL}/sitemap.xml     — full XML sitemap`,
     `   ${SITE_URL}/robots.txt      — crawler access rules`,
     `   ${SITE_URL}/avoin-data      — human-readable docs for every /data/ feed`,
+    ...ICS_FEEDS.map((f) => `   ${SITE_URL}${f.path}  — iCalendar feed: ${f.calName}`),
+    `   ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}  — how to subscribe to the calendar feeds`,
+    `   ${SITE_URL}/palkkapaivat-${amCalYear}  — paydays this year (pattern: /palkkapaivat-{year})`,
+    `   ${SITE_URL}/kesaaika-${amCalYear}  — daylight saving time this year (pattern: /kesaaika-{year})`,
     "",
     "## PDF resources",
     "",

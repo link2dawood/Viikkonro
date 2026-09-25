@@ -124,6 +124,26 @@ function Footer() {
               </Link>
             </li>
             <li>
+              <Link to="/kalenteritilaus" onClick={() => window.scrollTo(0, 0)}>
+                Kalenteritilaus
+              </Link>
+            </li>
+            <li>
+              <Link to={`/palkkapaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+                Palkkapäivät {currentYear}
+              </Link>
+            </li>
+            <li>
+              <Link to={`/kesaaika-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+                Kesäaika {currentYear}
+              </Link>
+            </li>
+            <li>
+              <Link to="/upota-viikkonumero" onClick={() => window.scrollTo(0, 0)}>
+                Viikkonumero-widget
+              </Link>
+            </li>
+            <li>
               <Link to="/chrome-extension" onClick={() => window.scrollTo(0, 0)}>
                 Chrome-laajennus
               </Link>
