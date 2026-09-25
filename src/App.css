@@ -2092,14 +2092,20 @@ body:has(.cal-print) footer {
 .android-app-heading h1 {
   margin: 4px 0 0;
 }
+/* Google Play logo (portrait icon + wordmark) on a white button tile. */
 .android-store-link {
   display: inline-flex;
   align-items: center;
-  border-radius: 10px;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: 0 6px 16px -12px rgba(15, 42, 33, 0.5);
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 .android-store-link:hover {
-  opacity: 0.88;
+  border-color: var(--accent);
   transform: translateY(-1px);
 }
 .android-store-link:focus-visible {
@@ -2108,9 +2114,8 @@ body:has(.cal-print) footer {
 }
 .android-store-link img {
   display: block;
-  width: 207px;
-  max-width: 100%;
-  height: auto;
+  width: auto;
+  height: 72px;
 }
 .android-phone-feature,
 .android-screen-gallery figure,
@@ -2318,7 +2323,7 @@ body:has(.cal-print) footer {
   margin-top: auto;
 }
 .apps-actions .android-store-link img {
-  width: 160px;
+  height: 60px;
 }
 
 /* ─── Secondary button ─────────────────────────────────────────────────── */

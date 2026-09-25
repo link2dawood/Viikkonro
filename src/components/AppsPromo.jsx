@@ -61,10 +61,10 @@ const AppsPromo = () => (
             aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
           >
             <img
-              src="/mobile/android/google-play-badge-fi.png"
-              alt="Saatavilla Google Playsta"
-              width="207"
-              height="80"
+              src="/mobile/android/google-play-logo.png"
+              alt="Google Play"
+              width="388"
+              height="432"
               loading="lazy"
             />
           </a>
