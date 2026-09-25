@@ -1,6 +1,6 @@
 # Viikko Nro
 
-> Viikko Nro (viikkonro.fi) on ilmainen suomalainen viikkolaskuri, joka näyttää kuluvan viikkonumeron ja laskee minkä tahansa päivän viikon ISO 8601 -standardin mukaan. Palvelu on nopea, mainokseton eikä vaadi rekisteröitymistä.
+> Viikko Nro (viikkonro.fi) on ilmainen suomalainen viikkolaskuri, joka näyttää kuluvan viikkonumeron ja laskee minkä tahansa päivän viikon ISO 8601 -standardin mukaan. Palvelu on nopea eikä vaadi rekisteröitymistä.
 
 Keskeiset faktat viikkonumeroista Suomessa:
 

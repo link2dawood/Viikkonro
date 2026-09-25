@@ -24,6 +24,7 @@ import { canonicalFor, weekMeta, weekPdfPath } from "../data/seo";
 import NotFound from "./NotFound";
 import { holidaysInWeek } from "../data/holidays";
 import { holidayLinkPath } from "../data/holidayPages";
+import { flagDaysInYear } from "../data/flagDayPages";
 import { hasNameDayPage, nameDaySlug, nameDaysForWeek } from "../data/nameDays";
 import { schoolHolidayPeriodsInWeek } from "../data/schoolHolidayPages";
 import { sunTimesForWeek, formatHelsinkiTime, HELSINKI } from "../data/sunTimes";
@@ -142,6 +143,17 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
     return path ? <Link to={path}>{h.name}</Link> : h.name;
   };
 
+  // Deep-link a flag day to its row on /liputuspaivat-{year} — plain text when
+  // that year is outside the prerendered horizon.
+  const flagDayLink = (f) => {
+    const fy = f.date.getFullYear();
+    return fy >= YEAR_MIN && fy <= YEAR_MAX ? (
+      <Link to={`/liputuspaivat-${fy}#${f.slug}`}>{f.name}</Link>
+    ) : (
+      f.name
+    );
+  };
+
   let monthLinks;
 
   if (mo.getMonth() === su.getMonth()) {
@@ -192,6 +204,11 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
   const weekHolidays = holidaysInWeek(y, w);
   const weekSchoolPeriods = schoolHolidayPeriodsInWeek(y, w);
   const weekSunTimes = sunTimesForWeek(y, w, HELSINKI);
+  // Flag days are calendar-year dates, so (like holidaysInWeek) check both the
+  // Monday's and the Sunday's year for a week straddling New Year.
+  const weekFlagDays = [...new Set([mo.getFullYear(), su.getFullYear()])]
+    .flatMap((fy) => flagDaysInYear(fy))
+    .filter((f) => f.date >= mo && f.date <= su);
 
   const days = [...Array(7)].map((_, i) => {
     const d = new Date(mo);
@@ -202,6 +219,7 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
       names: weekNameDays[i]?.names ?? [],
       holidays: weekHolidays.filter((h) => sameDay(h.date, d)),
       schoolPeriods: weekSchoolPeriods.filter((p) => d >= p.startDate && d <= p.endDate),
+      flagDays: weekFlagDays.filter((f) => sameDay(f.date, d)),
       sun: weekSunTimes[i],
       dayOfYear: dayOfYear(d),
       daysRemaining: daysRemainingInYear(d),
@@ -297,6 +315,11 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
           { label: "Vuodenaika", value: seasonNominative(thursday.getMonth()) },
           { label: "Työpäiviä", value: workingDaysCount },
           { label: "Juhlapäiviä", value: officialHolidays.length },
+          { label: "Liputuspäiviä", value: weekFlagDays.length },
+          {
+            label: "Vuodesta kulunut viikon lopussa",
+            value: `${Math.round((w / total) * 100)} %`,
+          },
           { label: "Viikkoja jäljellä vuonna", value: weeksLeft },
         ]}
       />
@@ -323,6 +346,19 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
           ))}{" "}
           {observedOnlyHolidays.length === 1 ? "ei ole virallinen arkipyhä" : "eivät ole virallisia arkipyhiä"}, mutta
           {observedOnlyHolidays.length === 1 ? " sitä" : " niitä"} vietetään laajasti.
+        </p>
+      )}
+      {weekFlagDays.length > 0 && (
+        <p className="lead">
+          {weekFlagDays.length === 1 ? "Liputuspäivä" : "Liputuspäivät"} tällä
+          viikolla:{" "}
+          {weekFlagDays.map((f, i) => (
+            <span key={f.name}>
+              {i > 0 && ", "}
+              {flagDayLink(f)} ({f.weekday.toLowerCase()} {fmtShortFi(f.date)})
+            </span>
+          ))}
+          .
         </p>
       )}
       {weekSchoolPeriods.length > 0 && (
@@ -368,6 +404,9 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
                     {holidayLink(h)}
                     {!h.official && " (ei virallinen arkipyhä)"}
                   </div>
+                ))}
+                {day.flagDays.map((f) => (
+                  <div key={f.name}>Liputuspäivä: {flagDayLink(f)}</div>
                 ))}
                 {day.schoolPeriods.map((p) => (
                   <div key={p.type + p.week}>{schoolPeriodLabel(p)}</div>
@@ -496,6 +535,11 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
           <li>
             <Link to={`/pyhapaivat-${y}`} onClick={() => window.scrollTo(0, 0)}>
               Pyhäpäivät ja liputuspäivät {y}
+            </Link>
+          </li>
+          <li>
+            <Link to={`/liputuspaivat-${y}`} onClick={() => window.scrollTo(0, 0)}>
+              Liputuspäivät {y}
             </Link>
           </li>
           <li>

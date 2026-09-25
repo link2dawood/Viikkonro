@@ -422,7 +422,7 @@ export const faqCategories = [
       {
         featured: true,
         q: "Onko Viikko Nro ilmainen?",
-        a: "Kyllä. Viikko Nro on täysin ilmainen ja mainokseton, eikä käyttö vaadi rekisteröitymistä.",
+        a: "Kyllä. Viikko Nro on täysin ilmainen käyttää, eikä käyttö vaadi rekisteröitymistä.",
       },
       {
         q: "Toimiiko palvelu mobiililla?",

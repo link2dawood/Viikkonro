@@ -2278,3 +2278,45 @@ body:has(.cal-print) footer {
     min-height: 108px;
   }
 }
+
+/* ─── Homepage apps promo (Chrome extension + Android app) ────────────── */
+.apps-promo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 6px;
+}
+.apps-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.apps-card h3 {
+  margin: 4px 0 8px;
+}
+.apps-card p {
+  color: var(--ink-soft);
+  margin: 0 0 16px;
+}
+.apps-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.apps-card-head img {
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.apps-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-top: auto;
+}
+.apps-actions .android-store-link img {
+  width: 160px;
+}

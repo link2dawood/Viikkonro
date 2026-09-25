@@ -8,6 +8,7 @@ import WeeksOfMonth from "../components/WeeksOfMonth";
 import YearsWeek from "../components/YearsWeek";
 import QuickLinks from "../components/QuickLinks";
 import Information from "../components/Information";
+import AppsPromo from "../components/AppsPromo";
 
 const Home = () => {
   // Computed directly in the render body (not an effect) so it's correct
@@ -33,6 +34,7 @@ const Home = () => {
         <WeeksOfMonth />
         <YearsWeek />
         <Information />
+        <AppsPromo />
         <QuickLinks />
         <FAQ />
       </div>
