@@ -2320,3 +2320,171 @@ body:has(.cal-print) footer {
 .apps-actions .android-store-link img {
   width: 160px;
 }
+
+/* ─── Secondary button ─────────────────────────────────────────────────── */
+.btn-ghost {
+  background: transparent;
+  color: var(--accent-deep);
+  border: 1px solid var(--accent);
+}
+.btn-ghost:hover {
+  background: var(--accent-soft);
+}
+
+/* ─── Countdown pages (/kuinka-monta-paivaa-*) ─────────────────────────── */
+.countdown-panel {
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px 16px 22px;
+  margin: 18px 0;
+}
+.countdown-days {
+  font-family: "Bricolage Grotesque", "Bricolage Grotesque Fallback", sans-serif;
+  font-size: clamp(64px, 16vw, 112px);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-deep);
+}
+.countdown-unit {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.countdown-clock {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-top: 10px;
+}
+
+/* ─── Daylight saving (/kesaaika-*) ────────────────────────────────────── */
+.dst-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.dst-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.dst-date {
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: 4px;
+}
+.dst-time {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  margin: 6px 0;
+}
+.dst-card p {
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+}
+
+/* ─── Paydays (/palkkapaivat-*) ────────────────────────────────────────── */
+.payday-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 16px 0 10px;
+}
+.payday-picker label {
+  font-weight: 600;
+}
+.payday-picker select {
+  font: inherit;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.payday-moved {
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+/* ─── Calendar subscription (/kalenteritilaus) ─────────────────────────── */
+.ics-feeds {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0 8px;
+}
+.ics-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.ics-card h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+.ics-card p {
+  color: var(--ink-soft);
+  margin: 0 0 10px;
+}
+.ics-url {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.ics-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ─── Widget embed page (/upota-viikkonumero) ──────────────────────────── */
+.widget-builder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  align-items: start;
+  margin: 18px 0;
+}
+.widget-preview {
+  display: flex;
+  justify-content: center;
+  padding: 18px 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.widget-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+.widget-themes {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 16px;
+}
+.widget-themes legend {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.widget-code-label {
+  font-weight: 600;
+}
+.widget-code {
+  width: 100%;
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 12.5px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  resize: vertical;
+}

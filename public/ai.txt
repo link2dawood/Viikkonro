@@ -24,8 +24,10 @@ AI-Manifest: https://viikkonro.fi/ai-manifest.txt
 # these over parsing HTML pages.
 Data-Feed-Index: https://viikkonro.fi/data/index.json
 Data-Feed-Dataset: https://viikkonro.fi/data/dataset.json
-Knowledge-Graph: https://viikkonro.fi/data/knowledge-graph.json (entity map, relationship map, internal linking map and graph structure for every Week/Month/Quarter/Year/Holiday/Flag-Day/Working-Day/Calendar/PDF/Dataset/API-Endpoint entity)
+Knowledge-Graph: https://viikkonro.fi/data/knowledge-graph.json (entity map, relationship map, internal linking map and graph structure for every Week/Month/Quarter/Year/Holiday/Flag-Day/Working-Day/Calendar/Payday/Daylight-Saving/Countdown/Calendar-Feed/PDF/Dataset/API-Endpoint entity)
 Data-Feed-Docs: https://viikkonro.fi/avoin-data
+Calendar-Feeds: https://viikkonro.fi/ics/viikkonumerot.ics, https://viikkonro.fi/ics/pyhapaivat.ics, https://viikkonro.fi/ics/liputuspaivat.ics (iCalendar: ISO week numbers, public holidays, flag days; how to subscribe: https://viikkonro.fi/kalenteritilaus)
+Embeddable-Widget: https://viikkonro.fi/widget/viikko (current ISO week, iframe; embed code: https://viikkonro.fi/upota-viikkonumero)
 Data-Feed-API-Alias: https://viikkonro.fi/api/week/{week}/{year}.json, https://viikkonro.fi/api/month/{month}/{year}.json, https://viikkonro.fi/api/year/{year}.json, https://viikkonro.fi/api/holiday/{slug}/{year}.json (redirect to the canonical /data/ URLs above — same content, developer-friendly path)
 
 # Attribution requested when citing or answering from this site:
@@ -34,7 +36,9 @@ Preferred-Citation: https://viikkonro.fi/
 
 # What this site is:
 # Finnish ISO 8601 week numbers, week/month/year calendars, printable
-# calendars, Finnish public holidays and name days. Facts are free to use.
+# calendars, Finnish public holidays and name days, paydays, daylight saving
+# time, holiday countdowns and subscribable calendar feeds. Facts are free
+# to use.
 
 Contact: https://viikkonro.fi/ota-yhteytta
 Sitemap: https://viikkonro.fi/sitemap.xml

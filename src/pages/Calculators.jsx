@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta } from "../data/seo";
+import { COUNTDOWNS } from "../data/countdownPages";
 
 const TOOLS = [
   {
@@ -27,6 +28,16 @@ const TOOLS = [
     to: "/paivien-erotus",
     name: "Päivien erotus",
     desc: "Montako päivää ja viikkoa kahden päivämäärän välillä on.",
+  },
+  ...COUNTDOWNS.map((c) => ({
+    to: c.path,
+    name: `Päivää ${c.illative}`,
+    desc: `Montako päivää, viikkoa ja työpäivää on jäljellä: ${c.targetName}.`,
+  })),
+  {
+    to: `/palkkapaivat-${new Date().getFullYear()}`,
+    name: "Palkkapäivät",
+    desc: "Milloin palkka tulee, kun palkkapäivä osuu viikonloppuun tai arkipyhään.",
   },
 ];
 

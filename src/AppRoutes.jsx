@@ -1,5 +1,5 @@
 import { Routes, Route, useParams, Navigate } from "react-router-dom";
-import { M_SLUG } from "./components/dateUtils";
+import { M_SLUG, validateYear } from "./components/dateUtils";
 import Home from "./pages/Home";
 import YearCalendar from "./pages/YearCalendar";
 import Navbar from "./components/Navbar";
@@ -46,6 +46,12 @@ import CurrentMonth from "./pages/CurrentMonth";
 import CurrentYear from "./pages/CurrentYear";
 import WeekdayCalculator from "./pages/WeekdayCalculator";
 import EnglishHome from "./pages/EnglishHome";
+import Paydays from "./pages/Paydays";
+import DaylightSaving from "./pages/DaylightSaving";
+import Countdown from "./pages/Countdown";
+import CalendarSubscription from "./pages/CalendarSubscription";
+import WidgetEmbed from "./pages/WidgetEmbed";
+import { COUNTDOWNS } from "./data/countdownPages";
 
 // Finnish dynamic pages use keyword-rich single-segment slugs
 // (/viikko-30-2026, /kuukausi-7-2026, /vuosi-2026, /tulosta-2026). React Router
@@ -85,6 +91,10 @@ const DynamicSlug = () => {
     return <CalendarYear year={+m[1]} />;
   if ((m = slug.match(/^tulostettava-kalenteri-(\d+)$/)))
     return <CalendarYear year={+m[1]} print />;
+  if ((m = slug.match(/^palkkapaivat-(\d{4})$/)))
+    return validateYear(+m[1]) ? <Paydays year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^kesaaika-(\d{4})$/)))
+    return validateYear(+m[1]) ? <DaylightSaving year={+m[1]} /> : <NotFound />;
   return <NotFound />;
 };
 
@@ -129,6 +139,11 @@ const AppRoutes = () => {
         <Route path="/viikko-paivamaaraksi" element={<WeekToDate />} />
         <Route path="/tyopaivalaskuri" element={<WorkingDaysBetween />} />
         <Route path="/paivien-erotus" element={<DaysBetween />} />
+        {COUNTDOWNS.map((c) => (
+          <Route key={c.path} path={c.path} element={<Countdown path={c.path} />} />
+        ))}
+        <Route path="/kalenteritilaus" element={<CalendarSubscription />} />
+        <Route path="/upota-viikkonumero" element={<WidgetEmbed />} />
         <Route path="/tietoa-meista" element={<AboutUs />} />
         <Route path="/ota-yhteytta" element={<ContactUs />} />
         <Route path="/tietosuoja" element={<PrivacyPolicy />} />

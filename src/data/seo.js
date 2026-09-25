@@ -59,6 +59,11 @@ import {
 } from "./currentDateContent.js";
 import { englishMeta } from "./englishContent.js";
 import { DATASET_PAGES, datasetPageMeta } from "./datasetPages.js";
+import { paydayMeta } from "./paydayPages.js";
+import { dstMeta } from "./dstPages.js";
+import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
+import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
+import { WIDGET_EMBED_PAGE_PATH, widgetEmbedMeta } from "./weekWidget.js";
 
 // Fixed date the FAQ/explainer/calculator page COPY (not just computed data)
 // was last substantively edited. Bump both by hand when that prose actually
@@ -841,6 +846,27 @@ export const routeMeta = {
     breadcrumb: "Päivien erotus",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  // Countdown pages: the target date in the description is computed when
+  // this module loads — at build time for the prerendered head, refreshed by
+  // the nightly rebuild (same as the current-date pages above).
+  ...Object.fromEntries(
+    COUNTDOWNS.map((c) => [
+      c.path,
+      {
+        ...countdownMeta(c, new Date()),
+        breadcrumb: c.label,
+        breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+      },
+    ]),
+  ),
+  [CALENDAR_SUBSCRIPTION_PATH]: {
+    ...calendarSubscriptionMeta,
+    breadcrumb: "Kalenteritilaus",
+  },
+  [WIDGET_EMBED_PAGE_PATH]: {
+    ...widgetEmbedMeta,
+    breadcrumb: "Viikkonumero-widget",
+  },
 };
 
 // Self-referencing canonical URL for a route ("/" keeps its trailing slash,
@@ -881,6 +907,9 @@ export function sitemapEntries(year) {
     { path: "/viikko-paivamaaraksi", changefreq: "monthly", priority: "0.7" },
     { path: "/tyopaivalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/paivien-erotus", changefreq: "monthly", priority: "0.7" },
+    ...COUNTDOWNS.map((c) => ({ path: c.path, changefreq: "daily", priority: "0.7" })),
+    { path: CALENDAR_SUBSCRIPTION_PATH, changefreq: "monthly", priority: "0.7" },
+    { path: WIDGET_EMBED_PAGE_PATH, changefreq: "monthly", priority: "0.5" },
     { path: "/tietoa-meista", changefreq: "yearly", priority: "0.4" },
     { path: "/ota-yhteytta", changefreq: "yearly", priority: "0.4" },
     { path: "/tietosuoja", changefreq: "yearly", priority: "0.3" },
@@ -979,6 +1008,16 @@ export function sitemapEntries(year) {
       changefreq: current ? "monthly" : "yearly",
       priority: current ? "0.7" : "0.5",
     });
+    entries.push({
+      path: `/palkkapaivat-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.7" : "0.5",
+    });
+    entries.push({
+      path: `/kesaaika-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.6" : "0.4",
+    });
     for (const holiday of HOLIDAY_DEFINITIONS) {
       entries.push({
         path: `/pyhat-${y}/${holiday.slug}`,
@@ -1038,6 +1077,8 @@ export function metaFor(url) {
     return mi === -1 ? null : monthlyWorkingDaysMeta(mi + 1, +m[2]);
   }
   if ((m = url.match(/^\/koululomat-(\d+)$/))) return schoolHolidayMeta(+m[1]);
+  if ((m = url.match(/^\/palkkapaivat-(\d{4})$/))) return paydayMeta(+m[1]);
+  if ((m = url.match(/^\/kesaaika-(\d{4})$/))) return dstMeta(+m[1]);
   if ((m = url.match(/^\/kalenteri-(\d+)-(alkuvuosi|loppuvuosi)$/)))
     return calendarMeta(+m[1], m[2] === "alkuvuosi" ? 1 : 2, false);
   if ((m = url.match(/^\/kalenteri-(\d+)$/))) return calendarMeta(+m[1], null, false);
@@ -1148,6 +1189,20 @@ export function breadcrumbTrail(url) {
       { name: `Viikot ${m[2]}`, path: `/vuosi-${m[2]}` },
       { name: `Työpäivät ${m[2]}`, path: `/tyopaivat-${m[2]}` },
       { name: M_FULL[mi], path: url },
+    ];
+  }
+  if ((m = url.match(/^\/palkkapaivat-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Palkkapäivät ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/kesaaika-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Kesäaika ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/koululomat-(\d+)$/))) {

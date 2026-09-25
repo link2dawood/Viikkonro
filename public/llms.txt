@@ -27,6 +27,11 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Tulostettava viikkokalenteri 2026](https://viikkonro.fi/tulostettava-kalenteri-2026): A4-kalenteri, PDF-tallennus ja Excel-yhteensopiva CSV
 - [Koululomat 2026](https://viikkonro.fi/koululomat-2026): hiihto- ja syyslomat kaupungeittain, viralliset lähteet
 - [Koululomat 2027](https://viikkonro.fi/koululomat-2027): talvilomaviikot 8–10 ja vahvistetut aluekohtaiset ajat
+- [Palkkapäivät 2026](https://viikkonro.fi/palkkapaivat-2026): milloin palkka maksetaan, kun palkkapäivä osuu viikonloppuun tai arkipyhään (edellinen pankkipäivä)
+- [Kesäaika 2026](https://viikkonro.fi/kesaaika-2026): kellojen siirto kesä- ja talviaikaan päivämäärineen ja viikkonumeroineen
+- [Kuinka monta päivää jouluun?](https://viikkonro.fi/kuinka-monta-paivaa-jouluun): päivälaskuri jouluaattoon; myös [juhannukseen](https://viikkonro.fi/kuinka-monta-paivaa-juhannukseen), [kesälomaan](https://viikkonro.fi/kuinka-monta-paivaa-kesalomaan) ja [uuteenvuoteen](https://viikkonro.fi/kuinka-monta-paivaa-uuteenvuoteen)
+- [Kalenteritilaus](https://viikkonro.fi/kalenteritilaus): viikkonumerot, pyhäpäivät ja liputuspäivät Google-kalenteriin, Outlookiin tai iPhoneen (iCalendar)
+- [Viikkonumero-widget](https://viikkonro.fi/upota-viikkonumero): ilmainen upotettava widget, joka näyttää kuluvan viikon omalla sivulla
 - [Tietoa meistä](https://viikkonro.fi/tietoa-meista): palvelun esittely
 - [Ota yhteyttä](https://viikkonro.fi/ota-yhteytta): yhteydenottolomake
 - [Week number today – English](https://viikkonro.fi/en): current ISO week number and dates, computed live
@@ -46,6 +51,12 @@ Jokaiselle viikolle, kuukaudelle, vuodelle, vuosineljännekselle, pyhäpäivävu
 - [Dataset-skeema (JSON-LD)](https://viikkonro.fi/data/dataset.json)
 - [Tietämysverkko (knowledge graph)](https://viikkonro.fi/data/knowledge-graph.json): entiteettikartta, suhdekartta, sisäisten linkkien kartta ja verkon rakenne
 - Kehittäjäystävällinen alias: `/api/week/{viikko}/{vuosi}.json`, `/api/month/{kuukausi}/{vuosi}.json`, `/api/year/{vuosi}.json`, `/api/holiday/{tunniste}/{vuosi}.json` — pysyvät uudelleenohjaukset yllä oleviin `/data/`-osoitteisiin, sama sisältö.
+
+## Kalenterisyötteet (iCalendar)
+
+- [Viikkonumerot](https://viikkonro.fi/ics/viikkonumerot.ics): ISO-viikkonumero jokaisen viikon maanantaina
+- [Suomen pyhäpäivät](https://viikkonro.fi/ics/pyhapaivat.ics): 13 arkipyhää sekä juhannus- ja jouluaatto
+- [Suomen liputuspäivät](https://viikkonro.fi/ics/liputuspaivat.ics): 14 liputuspäivää
 
 ## Optional
 

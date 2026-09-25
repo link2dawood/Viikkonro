@@ -19,7 +19,7 @@
 // on hiihtoloma for 2027–2028 specifically, where two of the three regions
 // are inferred rather than independently re-confirmed for that exact year.
 
-import { mondayOf } from "../components/dateUtils";
+import { mondayOf } from "../components/dateUtils.js";
 
 function weekRange(isoYear, week) {
   const startDate = mondayOf(week, isoYear);
