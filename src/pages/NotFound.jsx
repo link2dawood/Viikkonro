@@ -1,10 +1,11 @@
+import { useToday } from "../components/useToday";
 import React from "react";
 import { Link } from "react-router-dom";
 import { isoYear } from "../components/dateUtils";
 import SEO from "../components/SEO";
 
 const NotFound = () => {
-  const NOW = new Date();
+  const NOW = useToday();
   const Y_NOW = isoYear(NOW);
 
   return (

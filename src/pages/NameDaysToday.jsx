@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { fmtFullFi } from "../components/dateUtils";
+import { useToday } from "../components/useToday";
 import { nameDayFaqs, todayNameDayMeta, todayNameDayPage } from "../data/nameDayPages";
 import { nameDaySlug } from "../data/nameDays";
 import { canonicalFor } from "../data/seo";
 
 const NameDaysToday = () => {
-  const page = todayNameDayPage();
-  const meta = todayNameDayMeta();
+  const today = useToday();
+  const page = todayNameDayPage(today);
+  const meta = todayNameDayMeta(today);
   const faqs = nameDayFaqs(page, "today");
 
   return (

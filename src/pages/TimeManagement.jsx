@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta } from "../data/seo";
@@ -15,7 +16,7 @@ const PATH = "/ajanhallinta";
 // year rolls over.
 const TimeManagement = () => {
   const meta = routeMeta[PATH];
-  const now = new Date();
+  const now = useToday();
   const year = isoYear(now);
   const currentWeek = isoWeek(now);
   const totalWeeks = weeksInIsoYear(year);

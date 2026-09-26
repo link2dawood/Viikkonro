@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
@@ -51,7 +52,7 @@ function codeFor(lang, apiUrl) {
 
 const ApiPlayground = () => {
   const meta = routeMeta[PATH];
-  const now = new Date();
+  const now = useToday();
   const year = isoYear(now);
   const week = isoWeek(now);
   const month = now.getMonth() + 1;

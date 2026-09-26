@@ -1,6 +1,29 @@
 export function clampYear(y, min = 2000, max = 2100) {
   return Math.min(max, Math.max(min, y));
 }
+
+// ─── "Today" in Finland ─────────────────────────────────────────────────────
+// The site's notion of today is the calendar day in Europe/Helsinki, never the
+// machine's local zone (Vercel builds run in UTC, visitors can be anywhere).
+// "YYYY-MM-DD" of `instant`'s day in Helsinki.
+export function helsinkiDayKey(instant = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Helsinki",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(instant);
+}
+
+// A Date for a Helsinki calendar day, pinned to 10:00 UTC (12:00/13:00 in
+// Helsinki). At that instant the local Y/M/D getters return the same day in
+// every zone from UTC−10 to UTC+13, and Intl conversions to Helsinki agree —
+// so isoWeek()/mondayOf()/formatters and Helsinki-aware helpers all see the
+// same day, wherever this runs.
+export function dateFromDayKey(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 10));
+}
 export function isoYear(date) {
   var t = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   var day = (t.getDay() + 6) % 7;

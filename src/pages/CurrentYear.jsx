@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
+import { useToday } from "../components/useToday";
 import { currentYearFacts, currentYearFaqs, currentYearMeta } from "../data/currentDateContent";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
 
 const CurrentYear = () => {
-  const fact = currentYearFacts();
-  const faqs = currentYearFaqs();
+  const today = useToday();
+  const fact = currentYearFacts(today);
+  const faqs = currentYearFaqs(today);
   return (
     <section className="app">
-      <SEO {...currentYearMeta()} canonical={canonicalFor("/mika-vuosi-nyt")} />
+      <SEO {...currentYearMeta(today)} canonical={canonicalFor("/mika-vuosi-nyt")} />
       <div className="breadcrumb"><Link to="/">Etusivu</Link> / Mikä vuosi nyt on?</div>
       <h1>Mikä vuosi nyt on?</h1>
       <p className="lead"><strong>Nyt on vuosi {fact.year}.</strong></p>

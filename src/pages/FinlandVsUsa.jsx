@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import { fmtShortFi, isoYear } from "../components/dateUtils";
 import SEO from "../components/SEO";
@@ -17,7 +18,7 @@ const PATH = "/suomi-vs-usa-viikkonumerot";
 // a different week number than the US" search intent actually wants.
 const FinlandVsUsa = () => {
   const meta = routeMeta[PATH];
-  const currentYear = isoYear(new Date());
+  const currentYear = isoYear(useToday());
 
   // Shared with prerender.js's FAQPage JSON-LD so the visible FAQ and the
   // schema can't drift — same discipline as every other FAQ set in this

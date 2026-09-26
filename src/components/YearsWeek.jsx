@@ -1,3 +1,4 @@
+import { useToday } from "./useToday";
 import React from "react";
 import {
   isoYear,
@@ -10,7 +11,7 @@ const YearsWeek = () => {
   for (let y = YEAR_MIN; y <= YEAR_MAX; y++) {
     years.push(y);
   }
-  const Y_NOW = isoYear(new Date());
+  const Y_NOW = isoYear(useToday());
 
   return (
     <>

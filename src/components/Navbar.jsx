@@ -1,3 +1,4 @@
+import { useToday } from "./useToday";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { isoWeek, isoYear, navigationYearTargets } from "./dateUtils";
@@ -11,7 +12,7 @@ const Navbar = () => {
   // runs during SSR/prerendering, so the badge would show blank ("Vk ") on
   // every prerendered page (Navbar is rendered on all of them) until the
   // client hydrates.
-  const NOW = new Date();
+  const NOW = useToday();
   const weekYear = isoYear(NOW);
   const weekNow = isoWeek(NOW);
   const { currentYear, promotedYear } = navigationYearTargets(NOW);

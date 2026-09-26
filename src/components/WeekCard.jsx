@@ -1,3 +1,4 @@
+import { useToday } from "./useToday";
 import React from "react";
 import { Link } from "react-router-dom";
 import { mondayOf, dShort, isoWeek, isoYear } from "./dateUtils";
@@ -7,7 +8,7 @@ const WeekCard = ({ w, y }) => {
   const su = new Date(mo);
   su.setDate(mo.getDate() + 6);
 
-  const now = new Date();
+  const now = useToday();
   const isCurrent = w === isoWeek(now) && y === isoYear(now);
 
   return (

@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta } from "../data/seo";
@@ -36,7 +37,7 @@ const ChromeExtension = () => {
   const faqs = chromeExtensionFaqs();
   const examples = omniboxExamples();
 
-  const now = new Date();
+  const now = useToday();
   const week = isoWeek(now);
   const year = isoYear(now);
   const totalWeeks = weeksInIsoYear(year);

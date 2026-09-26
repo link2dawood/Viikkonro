@@ -1,18 +1,23 @@
 name: Daily rebuild (Vercel)
 
 # Vercel auto-deploys on every push to main. This cron additionally rebuilds
-# once a day so the baked-in current week number / date range in the home
-# page's <title> and <meta description> stays fresh as the ISO week rolls over
-# — without needing a code change. 22:05 UTC is always just after midnight in
-# Helsinki (00:05 winter / 01:05 summer), so a Monday rebuild lands right after
-# the week number changes.
+# right after midnight in Helsinki so the baked-in current week number / date
+# in the home page's <title>, <meta description> and hero stays fresh as the
+# day and ISO week roll over — without needing a code change. Two runs cover
+# both offsets: 21:05 UTC is 00:05 in summer (EEST, UTC+3), 22:05 UTC is 00:05
+# in winter (EET, UTC+2); the other run of each pair is a harmless extra
+# rebuild. The build itself runs in Europe/Helsinki time (prerender-tz.js),
+# so a build starting at 00:05 Helsinki already sees the new day even though
+# UTC is still on the previous one. Pages opened before the new deploy lands
+# still show the right day: useToday() switches to the live date right after
+# hydration.
 #
 # Setup: in Vercel -> Project -> Settings -> Git -> Deploy Hooks, create a hook
 # for the `main` branch, then add its URL as the repo secret VERCEL_DEPLOY_HOOK.
 
 on:
   schedule:
-    - cron: "5 22 * * *"
+    - cron: "5 21,22 * * *"
   workflow_dispatch:
 
 jobs:

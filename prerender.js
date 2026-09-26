@@ -11,6 +11,9 @@
 //
 // No headless browser is used, so the build stays fast and small.
 
+// Must stay the first import: switches the build to Finnish local time
+// before any other module evaluates a date (see the file for why).
+import "./scripts/prerender-tz.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -62,6 +65,7 @@ import { faqs, faqCategories, featuredFaqs } from "./src/data/faqs.js";
 import {
   fmtShortFi,
   getWeekdayName,
+  helsinkiDayKey,
   isoWeek,
   isoWeekDateLabel,
   isoYear,
@@ -207,6 +211,17 @@ const isIndexable = (p) => {
 };
 
 let template = fs.readFileSync(path.join(distDir, "index.html"), "utf-8");
+
+// One "today" for the whole build. useToday() renders this day on the server
+// (globalThis) and during hydration in the browser (the <meta> below), so the
+// prerendered markup and the first client render always agree even when the
+// page is opened days later — the client then switches to the live day.
+const RENDER_DAY = helsinkiDayKey();
+globalThis.__VIIKKONRO_RENDER_DAY__ = RENDER_DAY;
+template = template.replace(
+  "</head>",
+  `<meta name="viikkonro-render-day" content="${RENDER_DAY}" /></head>`,
+);
 
 // The three site-wide entities are authored in index.html, but every
 // prerendered page needs them in the same graph as its page entity. Extracting

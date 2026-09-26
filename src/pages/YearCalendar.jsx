@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link, useParams } from "react-router-dom";
 import {
   isoWeek,
@@ -22,6 +23,8 @@ const YearCalendar = ({ year: pYear } = {}) => {
   const params = useParams();
   const year = pYear ?? params.year;
   const selectedYear = Number(year);
+  // Before the early return: hooks must run on every render.
+  const NOW = useToday();
 
   if (!validateYear(selectedYear)) return <NotFound />;
 
@@ -30,7 +33,6 @@ const YearCalendar = ({ year: pYear } = {}) => {
     years.push(y);
   }
 
-  const NOW = new Date();
   const W_NOW = isoWeek(NOW);
   const Y_NOW = isoYear(NOW);
 
