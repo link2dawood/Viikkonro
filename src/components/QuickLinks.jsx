@@ -1,7 +1,8 @@
+import { useToday } from "./useToday";
 import { Link } from "react-router-dom";
 import { navigationYearTargets } from "./dateUtils";
 const QuickLinks = () => {
-  const NOW = new Date();
+  const NOW = useToday();
   const { currentYear, promotedYear } = navigationYearTargets(NOW);
   return (
     <>

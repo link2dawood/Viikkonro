@@ -1,17 +1,19 @@
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { M_FULL } from "../components/dateUtils";
+import { useToday } from "../components/useToday";
 import { currentMonthFacts, currentMonthFaqs, currentMonthMeta } from "../data/currentDateContent";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
 
 const CurrentMonth = () => {
-  const fact = currentMonthFacts();
-  const faqs = currentMonthFaqs();
+  const today = useToday();
+  const fact = currentMonthFacts(today);
+  const faqs = currentMonthFaqs(today);
   const previousName = M_FULL[fact.previous.month - 1].toLowerCase();
   const nextName = M_FULL[fact.next.month - 1].toLowerCase();
   return (
     <section className="app">
-      <SEO {...currentMonthMeta()} canonical={canonicalFor("/mika-kuukausi-nyt")} />
+      <SEO {...currentMonthMeta(today)} canonical={canonicalFor("/mika-kuukausi-nyt")} />
       <div className="breadcrumb"><Link to="/">Etusivu</Link> / Mikä kuukausi nyt on?</div>
       <h1>Mikä kuukausi nyt on?</h1>
       <p className="lead"><strong>Nyt on {fact.nameLower} {fact.year}, vuoden {fact.month}. kuukausi.</strong></p>

@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { dWritten, isoYear } from "../components/dateUtils";
@@ -60,7 +61,7 @@ const WorkingDaysBetween = () => {
     setTo(toInput(end));
   }, []);
   const r = compute(from, to);
-  const Y_NOW = isoYear(new Date());
+  const Y_NOW = isoYear(useToday());
 
   return (
     <section className="app">

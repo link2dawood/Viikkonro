@@ -1,3 +1,4 @@
+import { useToday } from "./useToday";
 import React from "react";
 import { isoWeek, isoYear, mondayOf } from "./dateUtils";
 import { Link } from "react-router-dom";
@@ -12,7 +13,7 @@ function formatShort(date) {
 // client hydrates — undermining D-06's "reachable within 3 clicks" goal for
 // any crawler that doesn't execute JS.
 const WeeksOfMonth = () => {
-  const now = new Date();
+  const now = useToday();
   const currentWkNow = isoWeek(now);
   const currentYrNow = isoYear(now);
 

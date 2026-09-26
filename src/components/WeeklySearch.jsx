@@ -1,3 +1,4 @@
+import { useToday } from "./useToday";
 import React, { useState, useEffect } from "react";
 import { isoWeek, isoYear, mondayOf } from "./dateUtils";
 import { Link } from "react-router-dom";
@@ -75,7 +76,7 @@ const WeeklySearch = () => {
   // for no-JS visitors — otherwise this whole section's crawlable body is a
   // label and an empty <input>. Once the client hydrates and the effect fills
   // in selectedDateStr, `result` becomes truthy and replaces this example.
-  const todayExample = computeResult(getFormattedDateInputString(new Date()));
+  const todayExample = computeResult(getFormattedDateInputString(useToday()));
 
   return (
     <>

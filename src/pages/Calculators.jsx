@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta } from "../data/seo";
 import { COUNTDOWNS } from "../data/countdownPages";
+import { useToday } from "../components/useToday";
 
 const TOOLS = [
   {
@@ -34,14 +35,19 @@ const TOOLS = [
     name: `Päivää ${c.illative}`,
     desc: `Montako päivää, viikkoa ja työpäivää on jäljellä: ${c.targetName}.`,
   })),
-  {
-    to: `/palkkapaivat-${new Date().getFullYear()}`,
-    name: "Palkkapäivät",
-    desc: "Milloin palkka tulee, kun palkkapäivä osuu viikonloppuun tai arkipyhään.",
-  },
 ];
 
-const Calculators = () => (
+const Calculators = () => {
+  const year = useToday().getFullYear();
+  const tools = [
+    ...TOOLS,
+    {
+      to: `/palkkapaivat-${year}`,
+      name: "Palkkapäivät",
+      desc: "Milloin palkka tulee, kun palkkapäivä osuu viikonloppuun tai arkipyhään.",
+    },
+  ];
+  return (
   <section className="app">
     <SEO {...routeMeta["/laskurit"]} canonical={canonicalFor("/laskurit")} />
     <div className="breadcrumb">
@@ -54,7 +60,7 @@ const Calculators = () => (
     </p>
 
     <div className="tool-grid">
-      {TOOLS.map((t) => (
+      {tools.map((t) => (
         <Link key={t.to} className="tool-card" to={t.to}>
           <span className="tool-name">{t.name}</span>
           <span className="tool-desc">{t.desc}</span>
@@ -64,9 +70,10 @@ const Calculators = () => (
 
     <p>
       Etsitkö kuluvaa viikkoa? Katso <Link to="/">mikä viikko nyt on</Link> tai
-      selaa <Link to="/vuosi-2026">vuoden 2026 viikkonumeroita</Link>.
+      selaa <Link to={`/vuosi-${year}`}>vuoden {year} viikkonumeroita</Link>.
     </p>
   </section>
-);
+  );
+};
 
 export default Calculators;

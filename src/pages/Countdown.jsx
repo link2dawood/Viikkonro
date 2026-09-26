@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fmtFullFi, fmtShortFi, WD_ESSIVE } from "../components/dateUtils";
+import { useToday } from "../components/useToday";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
 import { canonicalFor, routeMeta } from "../data/seo";
@@ -25,23 +26,25 @@ function clockLeft(target, now) {
   };
 }
 
-// Countdown pages (/kuinka-monta-paivaa-jouluun etc.). The day count is
-// computed in the render body, like homeMeta(), so the prerendered HTML
-// already shows today's number; the nightly rebuild keeps it fresh.
+// Countdown pages (/kuinka-monta-paivaa-jouluun etc.). The day count comes
+// from useToday(): the prerendered day during hydration, the live day right
+// after, so the number is correct even before the nightly rebuild lands.
+// The minute-level clock uses its own `now`, which only exists after mount.
 const Countdown = ({ path }) => {
   const countdown = COUNTDOWN_BY_PATH[path];
-  const [now, setNow] = useState(() => new Date());
-  const [mounted, setMounted] = useState(false);
+  const today = useToday();
+  const [now, setNow] = useState(null);
 
   useEffect(() => {
-    setMounted(true);
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(id);
   }, []);
+  const mounted = now !== null;
 
-  const stats = countdownStats(countdown, now);
-  const faqs = countdownFaqs(countdown, now);
-  const upcoming = upcomingTargets(countdown, now, 5);
+  const stats = countdownStats(countdown, today);
+  const faqs = countdownFaqs(countdown, today);
+  const upcoming = upcomingTargets(countdown, today, 5);
   const others = COUNTDOWNS.filter((c) => c.path !== path);
   const verb = countdown.verb ?? "on";
 

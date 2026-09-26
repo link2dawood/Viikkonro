@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import { isoYear } from "../components/dateUtils";
 import SEO from "../components/SEO";
@@ -12,7 +13,7 @@ const PATH = "/viikko-alkaa-maanantaista";
 
 const WeekStartsMonday = () => {
   const meta = routeMeta[PATH];
-  const currentYear = isoYear(new Date());
+  const currentYear = isoYear(useToday());
 
   return (
     <section className="app">

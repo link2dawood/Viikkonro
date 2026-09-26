@@ -1,3 +1,4 @@
+import { useToday } from "./useToday";
 import { navigationYearTargets } from "./dateUtils";
 import { Link, useLocation } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
@@ -6,7 +7,7 @@ import { CALENDAR_META } from "../data/nameDays";
 function Footer() {
   // Copyright follows the Helsinki calendar year, not the ISO week-year (which
   // can roll over during the last days of December).
-  const { currentYear } = navigationYearTargets(new Date());
+  const { currentYear } = navigationYearTargets(useToday());
   const { pathname } = useLocation();
   const isEnglishPage = pathname === "/en";
 

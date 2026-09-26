@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { useParams, Link } from "react-router-dom";
 import {
   isoWeek,
@@ -25,7 +26,7 @@ const PrintCalendar = ({ year: pYear } = {}) => {
     years.push(y);
   }
 
-  const NOW = new Date();
+  const NOW = useToday();
   const W_NOW = isoWeek(NOW);
   const Y_NOW = isoYear(NOW);
 

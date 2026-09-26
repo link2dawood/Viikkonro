@@ -1,3 +1,4 @@
+import { useToday } from "./useToday";
 import React from "react";
 import {
   isoWeek,
@@ -13,7 +14,7 @@ import {
 // and F-06's correctness monitor both depend on) would otherwise always show
 // "Viikko 0" until the client hydrates.
 const Weekcounter = ({ lead }) => {
-  const now = new Date();
+  const now = useToday();
   const weekNow = isoWeek(now);
   const yearNow = isoYear(now);
   const totalWeeks = weeksInIsoYear(yearNow);

@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import "../App.css";
 import SEO from "../components/SEO";
 import { canonicalFor, homeMeta } from "../data/seo";
@@ -14,7 +15,7 @@ const Home = () => {
   // Computed directly in the render body (not an effect) so it's correct
   // during SSR/prerendering too — an effect-based computation (like
   // Weekcounter's) would render as build-time-empty state on the server.
-  const meta = homeMeta(new Date());
+  const meta = homeMeta(useToday());
   return (
     <>
       <SEO

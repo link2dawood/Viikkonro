@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTodayKey } from "../components/useToday";
 import {
   isoWeek,
   isoYear,
@@ -36,12 +37,10 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
   const faqs = !half && !print ? calendarFaqs(y) : [];
   const printFaqs = print ? printableCalendarFaqs(y) : [];
 
-  // "Today" in Europe/Helsinki. Server-rendered at build (the same current-date
-  // pattern Home.jsx uses); the daily rebuild keeps it fresh and hydration
-  // reconciles it to the viewer's day. Highlight only applies in the current year.
-  const todayISO = new Date().toLocaleDateString("en-CA", {
-    timeZone: "Europe/Helsinki",
-  });
+  // "Today" in Europe/Helsinki (see useToday.js): the build's day during
+  // hydration, the live day right after. Highlight only applies in the
+  // current year.
+  const todayISO = useTodayKey();
   const currentYear = Number(todayISO.slice(0, 4));
   const isCurrentYear = y === currentYear;
   const todayParts = todayISO.split("-").map(Number);

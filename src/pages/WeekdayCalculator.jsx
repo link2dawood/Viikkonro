@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import SEO from "../components/SEO";
@@ -15,7 +16,7 @@ function toInput(date) {
 const WeekdayCalculator = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [value, setValue] = useState("");
-  const today = weekdayResult(toInput(new Date()));
+  const today = weekdayResult(toInput(useToday()));
 
   useEffect(() => {
     const requested = searchParams.get("paiva");

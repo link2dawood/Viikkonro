@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import {
   isoYear,
@@ -20,7 +21,7 @@ const PATH = "/kuinka-monta-viikkoa-vuodessa";
 
 const WeeksInYear = () => {
   const meta = routeMeta[PATH];
-  const currentYear = isoYear(new Date());
+  const currentYear = isoYear(useToday());
   const currentWeeks = weeksInIsoYear(currentYear);
   const rows = yearWeekRows(YEAR_MIN, YEAR_MAX);
   const longYears = rows.filter((row) => row.weeks === 53);

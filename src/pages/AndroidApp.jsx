@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta } from "../data/seo";
@@ -29,7 +30,7 @@ const PlayStoreButton = () => (
 
 const AndroidApp = () => {
   const meta = routeMeta[ANDROID_APP_PATH];
-  const year = new Date().getFullYear();
+  const year = useToday().getFullYear();
 
   return (
     <section className="app android-page">

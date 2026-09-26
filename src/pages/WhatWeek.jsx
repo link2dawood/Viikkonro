@@ -1,3 +1,4 @@
+import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import { isoWeek, isoYear, weeksInIsoYear } from "../components/dateUtils";
 import SEO from "../components/SEO";
@@ -12,7 +13,7 @@ import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 const WhatWeek = () => {
   // Live current week/year, computed in the render body so the prerendered HTML
   // is correct too; the daily rebuild keeps it fresh and hydration reconciles.
-  const NOW = new Date();
+  const NOW = useToday();
   const W_NOW = isoWeek(NOW);
   const Y_NOW = isoYear(NOW);
   const weeksInYear = weeksInIsoYear(Y_NOW);
