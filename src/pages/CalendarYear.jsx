@@ -13,6 +13,7 @@ import nimipaivat from "../data/nimipaivat.json";
 import { hasNameDayPage, nameDaySlug } from "../data/nameDays";
 import SEO from "../components/SEO";
 import AdSlot from "../components/AdSlot";
+import YearActions from "../components/YearActions";
 import { calendarFaqs, calendarPdfPath, canonicalFor, calendarMeta } from "../data/seo";
 import {
   downloadCalendarCsv,
@@ -203,6 +204,10 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
         </p>
       )}
 
+      {/* The print page keeps its own download/print buttons up top, so it
+          only gets the related links (below its button row). */}
+      {!print && <YearActions year={y} view="kalenteri" />}
+
       {print && (
         <section className="print-support">
           <div className="panel">
@@ -231,6 +236,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
               Avaa selattava kalenteri
             </Link>
           </p>
+          <YearActions year={y} view="kalenteri" download={false} />
         </section>
       )}
 

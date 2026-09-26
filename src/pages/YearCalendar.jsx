@@ -15,6 +15,7 @@ import {
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
 import AdSlot from "../components/AdSlot";
+import YearActions from "../components/YearActions";
 import { calendarPdfPath, canonicalFor, yearFaqs, yearMeta, yearStats } from "../data/seo";
 import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
@@ -91,6 +92,8 @@ const YearCalendar = ({ year: pYear } = {}) => {
         </span>{" "}
         Napsauta viikkoa nähdäksesi sen päivämäärät.
       </p>
+
+      <YearActions year={selectedYear} view="vuosi" />
 
       <QuickFacts
         facts={[
