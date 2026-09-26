@@ -217,6 +217,16 @@ export function navigationYearTargets(date = new Date()) {
   };
 }
 
+// The year the homepage features in its season block (SeasonYear.jsx).
+// Next-year calendar searches start climbing in September and peak Nov–Jan,
+// so the homepage switches a month before the site-wide navigation
+// (NAVIGATION_PROMOTION_MONTH): Sep–Dec -> next year, Jan–Aug -> this year.
+export const HOMEPAGE_SEASON_MONTH = 9;
+export function homepageSeasonYear(date = new Date()) {
+  const [y, m] = helsinkiDayKey(date).split("-").map(Number);
+  return m >= HOMEPAGE_SEASON_MONTH ? y + 1 : y;
+}
+
 // Centralized route-parameter validation — every year/week/month/quarter
 // page renders NotFound through these rather than repeating ad hoc bounds
 // checks per file. Each takes the raw (string or number) route param and

@@ -618,6 +618,53 @@ input[type="date"]:focus-visible {
   background: #11432f;
 }
 
+/* ─── Homepage season block (SeasonYear.jsx) ───────────────────────────── */
+.season-year {
+  margin: 28px 0 8px;
+  padding: 20px 22px 22px;
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.season-year-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin-bottom: 16px;
+}
+.season-year-head h2 {
+  margin: 4px 0 6px;
+}
+.season-year-head p {
+  margin: 0;
+  color: var(--ink-soft);
+  max-width: 52ch;
+}
+.season-year-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.season-year-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+.season-year-tiles .ql {
+  background: var(--bg, #fff);
+}
+@media (max-width: 560px) {
+  .season-year {
+    padding: 16px;
+  }
+  .season-year-cta .btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
 /* ─── Year/calendar page actions (YearActions.jsx) ─────────────────────── */
 .year-actions {
   display: flex;

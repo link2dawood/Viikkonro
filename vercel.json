@@ -50,7 +50,7 @@
         },
         {
           "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self' 'sha256-yWHssl+XrfQT8DJh5AUJJrltus0RZgaHOYcIYBI+1HM=' https://www.clarity.ms https://*.clarity.ms https://c.bing.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://api.web3forms.com; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self' 'sha256-ODKUmDjr7AoAu/JjsqaTEjNqu0fmC78dp95KydrvEVo=' https://www.clarity.ms https://*.clarity.ms https://c.bing.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://api.web3forms.com; object-src 'none'"
         },
         {
           "key": "CDN-Cache-Control",
