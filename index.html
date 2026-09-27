@@ -125,13 +125,20 @@
 
     <!-- Microsoft Clarity (project y5lf3vwo97). Consent V2 defaults to denied
          before the asynchronous tracker loads. A supported CMP can update
-         these signals after the visitor makes analytics/advertising choices. -->
+         these signals after the visitor makes analytics/advertising choices.
+         The command queue exists immediately (so clarity("event", …) calls
+         are buffered), but clarity.js itself is only fetched once the page
+         has loaded and the main thread is idle: its startup snapshots the
+         whole DOM, which was the largest long task during load and pushed
+         INP up for visitors tapping while the page was still hydrating.
+         If this script changes, update its sha256 in vercel.json's CSP. -->
     <script>
-      (function(c,l,a,r,i,t,y){
+      (function(c,l,a,r,i){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         c[a]("consentv2",{ad_Storage:"denied",analytics_Storage:"denied"});
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        function go(){var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";l.head.appendChild(t);}
+        function idle(){"requestIdleCallback" in c?c.requestIdleCallback(go,{timeout:4000}):setTimeout(go,1500);}
+        l.readyState==="complete"?idle():c.addEventListener("load",idle,{once:true});
       })(window,document,"clarity","script","y5lf3vwo97");
     </script>
   </head>

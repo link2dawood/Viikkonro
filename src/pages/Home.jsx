@@ -10,6 +10,7 @@ import YearsWeek from "../components/YearsWeek";
 import QuickLinks from "../components/QuickLinks";
 import Information from "../components/Information";
 import AppsPromo from "../components/AppsPromo";
+import SeasonYear from "../components/SeasonYear";
 
 const Home = () => {
   // Computed directly in the render body (not an effect) so it's correct
@@ -31,6 +32,7 @@ const Home = () => {
       />
       <div className="app">
         <Weekcounter lead={meta.lead} />
+        <SeasonYear />
         <WeeklySearch />
         <WeeksOfMonth />
         <YearsWeek />

@@ -1,5 +1,7 @@
-import { Routes, Route, useParams, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, useParams, Navigate, useLocation } from "react-router-dom";
 import { M_SLUG, validateYear } from "./components/dateUtils";
+import { trackPageView } from "./analytics";
 import Home from "./pages/Home";
 import YearCalendar from "./pages/YearCalendar";
 import Navbar from "./components/Navbar";
@@ -100,9 +102,20 @@ const DynamicSlug = () => {
 
 // Router-agnostic app shell. Wrapped in <BrowserRouter> on the client (App.jsx)
 // and in <StaticRouter> at build time for prerendering (entry-server.jsx).
+// Clarity page-view tags/events after each route renders (see analytics.js).
+// Effects never run during prerendering, so this is client-only.
+const RouteAnalytics = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    trackPageView(pathname);
+  }, [pathname]);
+  return null;
+};
+
 const AppRoutes = () => {
   return (
     <>
+      <RouteAnalytics />
       <Navbar />
       {/* Single <main> landmark wraps the routed page content (a11y: screen
           readers use it to jump to the primary content). */}
