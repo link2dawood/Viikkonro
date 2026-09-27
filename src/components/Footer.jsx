@@ -3,6 +3,7 @@ import { navigationYearTargets } from "./dateUtils";
 import { Link, useLocation } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
 import { CALENDAR_META } from "../data/nameDays";
+import { openConsentSettings } from "../consent";
 
 function Footer() {
   // Copyright follows the Helsinki calendar year, not the ISO week-year (which
@@ -51,6 +52,7 @@ function Footer() {
               <li><Link to="/tietolahteet" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Data sources (Finnish)</Link></li>
               <li><Link to="/ota-yhteytta" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Contact (Finnish)</Link></li>
               <li><Link to="/tietosuoja" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Privacy notice (Finnish)</Link></li>
+              <li><button type="button" className="footer-linkbtn" onClick={openConsentSettings}>Cookie settings</button></li>
             </ul>
           </div>
         </div>
@@ -201,6 +203,11 @@ function Footer() {
               <Link to="/tietosuoja" onClick={() => window.scrollTo(0, 0)}>
                 Tietosuojaseloste
               </Link>
+            </li>
+            <li>
+              <button type="button" className="footer-linkbtn" onClick={openConsentSettings}>
+                Evästeasetukset
+              </button>
             </li>
           </ul>
         </div>

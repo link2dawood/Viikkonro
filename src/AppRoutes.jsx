@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Routes, Route, useParams, Navigate, useLocation } from "react-router-dom";
 import { M_SLUG, validateYear } from "./components/dateUtils";
 import { trackPageView } from "./analytics";
+import ConsentBanner from "./components/ConsentBanner";
 import Home from "./pages/Home";
 import YearCalendar from "./pages/YearCalendar";
 import Navbar from "./components/Navbar";
@@ -181,6 +182,7 @@ const AppRoutes = () => {
         </Routes>
       </main>
       <Footer />
+      <ConsentBanner />
     </>
   );
 };
