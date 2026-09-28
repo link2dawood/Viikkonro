@@ -26,6 +26,11 @@ const TOOLS = [
     desc: "Työpäivät kahden päivän välillä, viikonloput ja arkipyhät huomioiden.",
   },
   {
+    to: "/vuosilomalaskuri",
+    name: "Vuosilomalaskuri",
+    desc: "Montako lomapäivää loma kuluttaa ja kertyy, ja viikot, joilla loma kuluttaa vähemmän.",
+  },
+  {
     to: "/tuntilaskuri",
     name: "Tuntilaskuri",
     desc: "Työtunnit kellonajoista taukoineen, viikon tunnit ja minuutit desimaaleina.",

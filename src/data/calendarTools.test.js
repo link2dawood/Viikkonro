@@ -49,6 +49,14 @@ import {
   toDecimal,
   weekTotal,
 } from "./hoursCalculator.js";
+import {
+  cheapWeeks,
+  lastedFullYear,
+  leaveAccrued,
+  leaveDaysUsed,
+  leaveFaqs,
+  leaveFreeReason,
+} from "./annualLeave.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -117,6 +125,44 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("annual leave", () => {
+  it("accrues 2 or 2.5 days per full month, rounding up", () => {
+    expect(leaveAccrued(12, true).days).toBe(30);
+    expect(leaveAccrued(12, false).days).toBe(24);
+    expect(leaveAccrued(5, true)).toMatchObject({ exact: 12.5, days: 13 });
+    expect(lastedFullYear(new Date(2025, 3, 1), 2026)).toBe(true);
+    expect(lastedFullYear(new Date(2025, 3, 2), 2026)).toBe(false);
+  });
+
+  it("counts Saturdays but not Sundays or holidays", () => {
+    // Monday-Sunday with no holidays: 6 days.
+    expect(leaveDaysUsed(new Date(2026, 8, 7), new Date(2026, 8, 13)).used).toBe(6);
+    // 3.5.-16.5.2027: 14 days, 2 Sundays, helatorstai 6.5. -> 11.
+    const r = leaveDaysUsed(new Date(2027, 4, 3), new Date(2027, 4, 16));
+    expect(r.used).toBe(11);
+    expect(r.skipped.map((s) => s.name)).toEqual(["Helatorstai"]);
+  });
+
+  it("treats pääsiäislauantai and the eves as leave-free", () => {
+    expect(leaveFreeReason(new Date(2026, 3, 4))).toBe("Pääsiäislauantai");
+    expect(leaveFreeReason(new Date(2026, 11, 24))).toBe("Jouluaatto");
+    expect(leaveFreeReason(new Date(2026, 5, 19))).toBe("Juhannusaatto");
+    expect(leaveFreeReason(new Date(2026, 5, 22))).toBeNull();
+  });
+
+  it("finds the weeks when a week of leave uses fewer days", () => {
+    const weeks = cheapWeeks(2026);
+    expect(weeks.find((w) => w.week === 52).used).toBe(3);
+    expect(weeks.find((w) => w.week === 25).used).toBe(4);
+    // Itsenäisyyspäivä 2026 is a Sunday, so week 49 is not cheaper.
+    expect(weeks.find((w) => w.week === 49)).toBeUndefined();
+  });
+
+  it("writes FAQ answers without en dashes", () => {
+    for (const { q, a } of leaveFaqs()) expect(q + a).not.toMatch(/–|\.\./);
   });
 });
 

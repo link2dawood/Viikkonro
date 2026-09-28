@@ -880,6 +880,13 @@ export const routeMeta = {
     breadcrumb: "Tuntilaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  "/vuosilomalaskuri": {
+    title: "Vuosilomalaskuri: lomapäivät ja kertyminen | Viikko Nro",
+    description:
+      "Laske montako lomapäivää loma kuluttaa ja montako kertyy. Lauantai on lomapäivä, arkipyhät eivät. Katso viikot, joilla loma kuluttaa vähemmän.",
+    breadcrumb: "Vuosilomalaskuri",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
   [SUN_HUB_PATH]: {
     ...sunHubMeta(),
     breadcrumb: "Auringonnousu ja -lasku",
@@ -972,6 +979,7 @@ export function sitemapEntries(year) {
     { path: CALCULATOR_PATH, changefreq: "monthly", priority: "0.7" },
     { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/tuntilaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: "/vuosilomalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: SUN_HUB_PATH, changefreq: "daily", priority: "0.7" },
     ...SUN_CITIES.map((c) => ({ path: sunCityPath(c.slug), changefreq: "daily", priority: "0.6" })),
     ...OFFSETS.map((n) => ({ path: offsetPath(n), changefreq: "daily", priority: "0.6" })),

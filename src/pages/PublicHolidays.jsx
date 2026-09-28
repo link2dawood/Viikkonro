@@ -106,7 +106,8 @@ const PublicHolidays = ({ year: pYear } = {}) => {
         <Link to={`/aitienpaiva-${year}`}>äitienpäivä {year}</Link>,{" "}
         <Link to={`/isanpaiva-${year}`}>isänpäivä {year}</Link> ja{" "}
         <Link to={`/adventti-${year}`}>adventti {year}</Link>.{" "}
-        Katso myös <Link to={`/liputuspaivat-${year}`}>liputuspäivät {year}</Link>,{" "}
+        Katso myös <Link to="/vuosilomalaskuri">vuosilomalaskuri</Link>,{" "}
+        <Link to={`/liputuspaivat-${year}`}>liputuspäivät {year}</Link>,{" "}
         <Link to={`/tyopaivat-${year}`}>työpäivät vuonna {year}</Link>,{" "}
         <Link to={`/vuosi-${year}`}>vuoden {year} viikkonumerot</Link>,{" "}
         <Link to={`/kalenteri-${year}`}>vuoden {year} kalenteri</Link> ja{" "}
