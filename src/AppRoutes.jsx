@@ -56,6 +56,7 @@ import ObservanceDay from "./pages/ObservanceDay";
 import DateCalculator from "./pages/DateCalculator";
 import DateOffset from "./pages/DateOffset";
 import AgeCalculator from "./pages/AgeCalculator";
+import MoonPhases from "./pages/MoonPhases";
 import { CALCULATOR_PATH, OFFSETS, offsetPath } from "./data/dateCalculator";
 import { OBSERVANCE_SLUG_RE } from "./data/observanceDays";
 import DaylightSaving from "./pages/DaylightSaving";
@@ -108,6 +109,8 @@ const DynamicSlug = () => {
     return validateYear(+m[1]) ? <KelaPayments year={+m[1]} /> : <NotFound />;
   if ((m = slug.match(/^elakkeen-maksupaivat-(\d{4})$/)))
     return validateYear(+m[1]) ? <PensionPayments year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^kuun-vaiheet-(\d{4})$/)))
+    return validateYear(+m[1]) ? <MoonPhases year={+m[1]} /> : <NotFound />;
   if ((m = slug.match(OBSERVANCE_SLUG_RE)))
     return validateYear(+m[2]) ? <ObservanceDay slug={m[1]} year={+m[2]} /> : <NotFound />;
   if ((m = slug.match(/^kesaaika-(\d{4})$/)))

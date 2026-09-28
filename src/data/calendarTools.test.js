@@ -29,6 +29,7 @@ import {
 } from "./dateCalculator.js";
 import { flagDayFaqs, flagDaysInYear } from "./flagDayPages.js";
 import { ageFaqs, ageOn, ageReport, ageText, nextBirthday } from "./ageCalculator.js";
+import { blueMoons, moonFaqs, moonMeta, moonPhasesInYear, phaseList } from "./moonPhases.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -97,6 +98,47 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("moon phases", () => {
+  // NASA Six Millennium Catalog of Phases of the Moon, 2026 (UT).
+  const NASA_2026 = [
+    ["taysikuu", Date.UTC(2026, 1, 1, 22, 9)],
+    ["taysikuu", Date.UTC(2026, 7, 28, 4, 18)],
+    ["taysikuu", Date.UTC(2026, 11, 24, 1, 28)],
+    ["uusikuu", Date.UTC(2026, 0, 18, 19, 52)],
+    ["uusikuu", Date.UTC(2026, 7, 12, 17, 37)],
+    ["ensimmainen-neljannes", Date.UTC(2026, 5, 21, 21, 55)],
+    ["viimeinen-neljannes", Date.UTC(2026, 11, 30, 18, 59)],
+  ];
+
+  it("matches NASA's phase times to within two minutes", () => {
+    const events = moonPhasesInYear(2026);
+    for (const [phase, t] of NASA_2026) {
+      const closest = events
+        .filter((e) => e.phase === phase)
+        .reduce((b, e) => (Math.abs(e.instant - t) < Math.abs(b.instant - t) ? e : b));
+      expect(Math.abs(closest.instant - t) / 60000).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it("gives Finnish local dates and times, including summer time", () => {
+    const aug = phaseList(2026, "taysikuu").find((e) => e.month === 8);
+    expect(aug.time).toBe("07.18");
+    // 29.6. 23:57 UT is already 30.6. in Finland.
+    expect(phaseList(2026, "taysikuu").find((e) => e.month === 6).date.getDate()).toBe(30);
+  });
+
+  it("finds 13 full moons and the May blue moon in 2026", () => {
+    expect(phaseList(2026, "taysikuu")).toHaveLength(13);
+    expect(blueMoons(2026).map((e) => e.date.getDate() + "." + e.month)).toEqual(["31.5"]);
+    expect(phaseList(2024, "taysikuu")).toHaveLength(12);
+  });
+
+  it("writes FAQ answers without en dashes and a title within limits", () => {
+    for (const { q, a } of moonFaqs(2026)) expect(q + a).not.toMatch(/–|\.\./);
+    expect(moonMeta(2026).title.length).toBeLessThanOrEqual(60);
   });
 });
 

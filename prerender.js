@@ -154,6 +154,7 @@ import {
   offsetPath,
 } from "./src/data/dateCalculator.js";
 import { AGE_PATH, AGE_STEPS, ageFaqs } from "./src/data/ageCalculator.js";
+import { moonFaqs, phaseList } from "./src/data/moonPhases.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
 import { COUNTDOWNS, COUNTDOWN_BY_PATH, countdownFaqs } from "./src/data/countdownPages.js";
 import {
@@ -661,6 +662,7 @@ function entityParentExtra(url) {
     (m = url.match(/^\/palkkapaivat-(\d{4})$/)) ||
     (m = url.match(/^\/kelan-maksupaivat-(\d{4})$/)) ||
     (m = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/)) ||
+    (m = url.match(/^\/kuun-vaiheet-(\d{4})$/)) ||
     (m = url.match(/^\/kesaaika-(\d{4})$/))
   ) {
     const year = m[1];
@@ -2957,6 +2959,25 @@ function dstNodes(year) {
   ];
 }
 
+// /kuun-vaiheet-{year}: FAQ plus the year's full moons as an ItemList with
+// exact instants (UTC ISO), from the same moonPhases.js the page renders.
+function moonNodes(year) {
+  const url = `/kuun-vaiheet-${year}`;
+  return [
+    faqPageNode(url, moonFaqs(year)),
+    {
+      "@type": "ItemList",
+      "@id": `${canonicalFor(url)}#taysikuut`,
+      name: `Täysikuut ${year}`,
+      itemListElement: phaseList(year, "taysikuu").map((e, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `Täysikuu ${ymd(e.date)} klo ${e.time} (Suomen aikaa, ${e.instant.toISOString().slice(0, 16)}Z)`,
+      })),
+    },
+  ];
+}
+
 // /ikalaskuri: HowTo + FAQ from the same data the page renders. The FAQ uses
 // fixed example dates, so it does not depend on the build day.
 function ageCalculatorNodes() {
@@ -3308,6 +3329,8 @@ for (const url of routes) {
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
       if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());
       if (url === AGE_PATH) nodes.push(...ageCalculatorNodes());
+      const moonMatch = url.match(/^\/kuun-vaiheet-(\d{4})$/);
+      if (moonMatch) nodes.push(...moonNodes(+moonMatch[1]));
       if (OFFSET_BY_PATH[url]) nodes.push(...dateOffsetNodes(url));
       if (url === CALENDAR_SUBSCRIPTION_PATH) nodes.push(...calendarSubscriptionNodes());
       if (url === WIDGET_EMBED_PAGE_PATH) nodes.push(...widgetEmbedNodes());
@@ -4203,6 +4226,14 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
       count: "1 per year",
     },
     {
+      entity: "Moon Phases",
+      schemaType: "WebPage (+ FAQPage, ItemList of full moons)",
+      urlPattern: "/kuun-vaiheet-{year}",
+      idPattern: `${SITE_URL}/kuun-vaiheet-{year}#webpage`,
+      example: `${SITE_URL}/kuun-vaiheet-${kgYear}`,
+      count: "1 per year",
+    },
+    {
       entity: "Observance Day",
       schemaType: "WebPage (+ FAQPage, ItemList of coming years)",
       urlPattern: `/{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year}`,
@@ -4297,6 +4328,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     { from: "Payday Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Kela Payment Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Pension Payment Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
+    { from: "Moon Phases", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Observance Day", relation: "isPartOf", to: "Year", cardinality: "many-to-one" },
     { from: "Observance Day", relation: "mentions", to: "Week", cardinality: "many-to-one" },
     { from: "Observance Day", relation: "mentions", to: "Month", cardinality: "many-to-one" },
@@ -4320,11 +4352,12 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     Week: { linksTo: ["Year"], linkedFrom: ["Year (ItemList)", "Month (ItemList)", "Holiday (mentions)"] },
     Month: { linksTo: ["Quarter", "Year", "Holiday (mentions)", "PDF"], linkedFrom: ["Quarter (hasPart)", "Year (hasPart)", "Working Day monthly", "Holiday (mentions)"] },
     Quarter: { linksTo: ["Year", "Month (hasPart)"], linkedFrom: ["Month", "Year (hasPart)"] },
-    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Observance Day", "Daylight Saving Time"] },
+    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Observance Day", "Moon Phases", "Daylight Saving Time"] },
     "Payday Calendar": { linksTo: ["Year"], linkedFrom: [] },
     "Kela Payment Calendar": { linksTo: ["Year"], linkedFrom: [] },
     "Pension Payment Calendar": { linksTo: ["Year"], linkedFrom: [] },
     "Observance Day": { linksTo: ["Year", "Week (mentions)", "Month (mentions)"], linkedFrom: [] },
+    "Moon Phases": { linksTo: ["Year"], linkedFrom: [] },
     "Daylight Saving Time": { linksTo: ["Year"], linkedFrom: [] },
     Countdown: { linksTo: [], linkedFrom: [] },
     "Calendar Feed": { linksTo: [], linkedFrom: ["Calendar subscription page (DataFeed)"] },
@@ -4345,7 +4378,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   graphStructure: {
     nodeTypes: [
       "Week", "Month", "Quarter", "Year", "Holiday", "Flag Day", "Working Day",
-      "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Observance Day", "Daylight Saving Time", "Countdown",
+      "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Observance Day", "Moon Phases", "Daylight Saving Time", "Countdown",
       "Calendar Feed", "Widget", "PDF", "Dataset", "API Endpoint", "Website", "Organization",
     ],
     edgeTypes: ["isPartOf", "hasPart", "mentions", "mainEntity", "associatedMedia", "potentialAction", "redirects to", "creator/publisher"],
@@ -4601,6 +4634,9 @@ const llmsFull =
     "  /kelan-maksupaivat-{year}  - the actual payment day of every Kela benefit per month (general housing allowance, study grant, basic income support, pensioner housing allowance, national pension, maintenance allowance, guarantee pension, child benefit)",
     "  /elakkeen-maksupaivat-{year}  - the actual payment day of the earnings-related pension (tyoelake) and Kela's pensions per month",
     "",
+    "Moon phase pages",
+    "  /kuun-vaiheet-{year}  - every new moon, first quarter, full moon and last quarter of the year with date and Finnish time, blue moons, and the current phase",
+    "",
     "Observance day pages (widely observed days that are not public holidays)",
     `  /{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year}  - date, weekday, ISO week, how the date is set, flag-day status and the same day in the coming years`,
     "",
@@ -4658,6 +4694,7 @@ const llmsFull =
     `  ${SITE_URL}/kelan-maksupaivat-${llY}`,
     `  ${SITE_URL}/elakkeen-maksupaivat-${llY}`,
     ...OBSERVANCES.map((o) => `  ${SITE_URL}/${o.slug}-${llY}`),
+    `  ${SITE_URL}/kuun-vaiheet-${llY}`,
     `  ${SITE_URL}/kesaaika-${llY}`,
     `  ${SITE_URL}${COUNTDOWNS[0].path}`,
     `  ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}`,
@@ -4832,6 +4869,15 @@ const llmsGlossary =
     "  or bank holiday (usually a Monday).",
     "  Documented per year at /kelan-maksupaivat-{year} and /elakkeen-maksupaivat-{year}.",
     "",
+    "## Moon phases",
+    "",
+    "  Computed with Meeus, Astronomical Algorithms ch. 49 (with the planetary",
+    "  terms) and delta T; checked against NASA's Six Millennium Catalog of",
+    "  Phases of the Moon (all 2026 phases match to the minute). Times are",
+    "  given in Finnish time (Europe/Helsinki). A blue moon (sininen kuu) here",
+    "  means the second full moon in one calendar month, Finnish time.",
+    "  Documented per year at /kuun-vaiheet-{year}.",
+    "",
     "## Observance days (not public holidays)",
     "",
     "  Checked against almanakka.helsinki.fi (2026-09-28). Isänpäivä and",
@@ -4959,6 +5005,7 @@ const aiManifest =
     `   ${SITE_URL}/palkkapaivat-${amCalYear}  — paydays this year (pattern: /palkkapaivat-{year})`,
     `   ${SITE_URL}/kelan-maksupaivat-${amCalYear}  - Kela payment days this year (pattern: /kelan-maksupaivat-{year})`,
     `   ${SITE_URL}/elakkeen-maksupaivat-${amCalYear}  - pension payment days this year (pattern: /elakkeen-maksupaivat-{year})`,
+    `   ${SITE_URL}/kuun-vaiheet-${amCalYear}  - moon phases this year (pattern: /kuun-vaiheet-{year})`,
     `   ${SITE_URL}/isanpaiva-${amCalYear}  - observance days this year (pattern: /{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year})`,
     `   ${SITE_URL}/kesaaika-${amCalYear}  — daylight saving time this year (pattern: /kesaaika-{year})`,
     "",

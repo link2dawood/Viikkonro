@@ -91,7 +91,8 @@ const DaylightSaving = ({ year }) => {
 
       <p>
         Katso myös <Link to={`/vuosi-${y}`}>vuoden {y} viikkonumerot</Link>,{" "}
-        <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link> ja{" "}
+        <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>,{" "}
+        <Link to={`/kuun-vaiheet-${y}`}>kuun vaiheet {y}</Link> ja{" "}
         <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link>.
       </p>
 
