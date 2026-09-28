@@ -39,6 +39,16 @@ import {
   sunHubMeta,
   sunSummary,
 } from "./sunCities.js";
+import {
+  MINUTE_TABLE,
+  decimalToMinutes,
+  fmtHM,
+  hoursFaqs,
+  parseClock,
+  shiftMinutes,
+  toDecimal,
+  weekTotal,
+} from "./hoursCalculator.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -107,6 +117,44 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("hours calculator", () => {
+  it("parses common clock formats", () => {
+    expect(parseClock("8.00")).toBe(480);
+    expect(parseClock("08:30")).toBe(510);
+    expect(parseClock("7,45")).toBe(465);
+    expect(parseClock("1630")).toBe(990);
+    expect(parseClock("25.00")).toBeNull();
+    expect(parseClock("")).toBeNull();
+  });
+
+  it("subtracts breaks and handles night shifts", () => {
+    expect(shiftMinutes("8.00", "16.30", 30).worked).toBe(480);
+    const night = shiftMinutes("22.00", "6.00", 30);
+    expect(night.overnight).toBe(true);
+    expect(night.worked).toBe(450);
+  });
+
+  it("converts between minutes and decimal hours", () => {
+    expect(toDecimal(45)).toBe("0,75");
+    expect(toDecimal(465)).toBe("7,75");
+    expect(decimalToMinutes("7,75")).toBe(465);
+    expect(fmtHM(465)).toBe("7 h 45 min");
+    expect(MINUTE_TABLE[14]).toEqual({ min: 15, dec: "0,25" });
+  });
+
+  it("sums a week and compares it to 40 hours", () => {
+    const rows = Array.from({ length: 5 }, () => ({ start: "8", end: "16.30", break: "30" }));
+    const t = weekTotal([...rows, { start: "", end: "", break: "" }, { start: "", end: "", break: "" }]);
+    expect(t.worked).toBe(2400);
+    expect(t.days).toBe(5);
+    expect(t.diffTo40).toBe(0);
+  });
+
+  it("writes FAQ answers without en dashes", () => {
+    for (const { q, a } of hoursFaqs()) expect(q + a).not.toMatch(/–|\.\./);
   });
 });
 

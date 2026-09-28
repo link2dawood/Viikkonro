@@ -1906,6 +1906,7 @@ body:has(.cal-print) footer {
 .two-fields + .two-fields {
   margin-top: 12px;
 }
+.lookup input:not([type]),
 .lookup input[type="number"],
 .lookup select {
   font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
@@ -1922,6 +1923,24 @@ body:has(.cal-print) footer {
 .lookup select:focus-visible {
   outline: 3px solid rgba(31, 122, 92, 0.4);
   outline-offset: 2px;
+}
+/* Hours calculator (/tuntilaskuri): compact inputs in the weekly table. */
+.hours-week input {
+  font: inherit;
+  width: 5.5em;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+}
+.hours-week tfoot th,
+.hours-week tfoot td {
+  font-weight: 600;
+}
+.minute-table th,
+.minute-table td {
+  white-space: nowrap;
 }
 .tool-grid {
   display: grid;

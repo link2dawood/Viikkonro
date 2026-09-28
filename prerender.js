@@ -154,6 +154,7 @@ import {
   offsetPath,
 } from "./src/data/dateCalculator.js";
 import { AGE_PATH, AGE_STEPS, ageFaqs } from "./src/data/ageCalculator.js";
+import { HOURS_PATH, HOURS_STEPS, hoursFaqs } from "./src/data/hoursCalculator.js";
 import { moonFaqs, phaseList } from "./src/data/moonPhases.js";
 import { SUN_CITIES, SUN_HUB_PATH, sunCityFaqs, sunCityPath, sunHubFaqs } from "./src/data/sunCities.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
@@ -3350,6 +3351,9 @@ for (const url of routes) {
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
       if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());
       if (url === AGE_PATH) nodes.push(...ageCalculatorNodes());
+      if (url === HOURS_PATH) {
+        nodes.push(faqPageNode(url, hoursFaqs()), howToNode(url, "Näin lasket työtunnit kellonajoista", HOURS_STEPS));
+      }
       if (url === SUN_HUB_PATH || SUN_CITY_BY_PATH[url]) nodes.push(...sunNodes(url));
       const moonMatch = url.match(/^\/kuun-vaiheet-(\d{4})$/);
       if (moonMatch) nodes.push(...moonNodes(+moonMatch[1]));
@@ -4697,6 +4701,7 @@ const llmsFull =
     "  /paivien-erotus  — count total days between two dates",
     "  /paivamaaralaskuri  - add or subtract days, weeks, months or working days from any date",
     "  /ikalaskuri  - exact age in years, months and days, next birthday, milestones (18 years, 10 000 days), and the age reached this year by birth year",
+    "  /tuntilaskuri  - hours between two clock times minus breaks (night shifts included), a weekly working-hours sum, and minutes as decimal hours (table 1-60 min)",
     `  /{${OFFSETS.join("|")}}-paivaa-eteenpain  - the date N days from today (rebuilt daily), plus N days from the 1st of every month`,
     "  /viikonpaiva  — look up the weekday of any date (shareable result)",
     "",
