@@ -150,6 +150,16 @@ function Footer() {
               </Link>
             </li>
             <li>
+              <Link to={`/kelan-maksupaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+                Kelan maksupäivät {currentYear}
+              </Link>
+            </li>
+            <li>
+              <Link to={`/elakkeen-maksupaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+                Eläkkeen maksupäivät {currentYear}
+              </Link>
+            </li>
+            <li>
               <Link to={`/kesaaika-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
                 Kesäaika {currentYear}
               </Link>

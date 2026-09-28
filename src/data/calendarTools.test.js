@@ -1,11 +1,85 @@
 import { describe, expect, it } from "vitest";
 import { paydayFor, paydayFaqs, paydaysInYear, PAYDAY_LAST, nonBankingReason } from "./paydayPages.js";
 import { dstChanges, dstFaqs } from "./dstPages.js";
+import {
+  AFTER_DAY_OFF,
+  KELA_BENEFITS,
+  PENSION_BENEFITS,
+  benefitPaymentFor,
+  benefitPaymentsInYear,
+  kelaPaymentFaqs,
+  pensionPaymentFaqs,
+} from "./benefitPaymentPages.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
 
 const ymd = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+describe("Kela and pension payment days", () => {
+  // Kela's published schedule for February to December 2026, per benefit.
+  const PUBLISHED_2026 = {
+    asumistuki: "2.2. 2.3. 1.4. 4.5. 1.6. 1.7. 3.8. 1.9. 1.10. 2.11. 1.12.",
+    "elakkeensaajan-asumistuki": "4.2. 4.3. 2.4. 4.5. 4.6. 3.7. 4.8. 4.9. 2.10. 4.11. 4.12.",
+    kansanelake: "6.2. 6.3. 7.4. 7.5. 5.6. 7.7. 7.8. 7.9. 7.10. 6.11. 7.12.",
+    elatustuki: "10.2. 10.3. 10.4. 8.5. 10.6. 10.7. 10.8. 10.9. 9.10. 10.11. 10.12.",
+    takuuelake: "20.2. 20.3. 22.4. 22.5. 22.6. 22.7. 21.8. 22.9. 22.10. 20.11. 22.12.",
+    lapsilisa: "26.2. 26.3. 24.4. 26.5. 26.6. 24.7. 26.8. 25.9. 23.10. 26.11. 23.12.",
+  };
+
+  it("matches Kela's published 2026 schedule for every benefit", () => {
+    for (const b of KELA_BENEFITS) {
+      const got = benefitPaymentsInYear(2026, b)
+        .slice(1)
+        .map((r) => `${r.actual.getDate()}.${r.actual.getMonth() + 1}.`)
+        .join(" ");
+      expect(got, b.id).toBe(PUBLISHED_2026[b.id]);
+    }
+  });
+
+  it("pays child benefit early when the 26th follows a non-banking day", () => {
+    const lapsilisa = KELA_BENEFITS.find((b) => b.id === "lapsilisa");
+    // Monday 26.10.2026 -> Friday 23.10.
+    const monday = benefitPaymentFor(2026, 10, lapsilisa);
+    expect(monday.reason).toBe("Maanantai");
+    expect(monday.afterDayOff).toBe(true);
+    expect(ymd(monday.actual)).toBe("2026-10-23");
+    // Published 2024 and 2025 cases: Mondays 26.2.2024 and 26.5.2025.
+    expect(ymd(benefitPaymentFor(2024, 2, lapsilisa).actual)).toBe("2024-2-23");
+    expect(ymd(benefitPaymentFor(2025, 5, lapsilisa).actual)).toBe("2025-5-23");
+    // Friday 26.5.2028 follows Ascension Day (Thursday 25.5.2028).
+    const afterHoliday = benefitPaymentFor(2028, 5, lapsilisa);
+    expect(afterHoliday.reason).toBe(AFTER_DAY_OFF);
+    expect(ymd(afterHoliday.actual)).toBe("2028-5-24");
+  });
+
+  it("does not apply the day-after rule to other benefits", () => {
+    // Tuesday 22.4.2025 follows Easter Monday; takuueläke is still paid that day.
+    const r = benefitPaymentFor(2025, 4, KELA_BENEFITS.find((b) => b.id === "takuuelake"));
+    expect(r.moved).toBe(false);
+    expect(ymd(r.actual)).toBe("2025-4-22");
+  });
+
+  it("moves first-of-month payments forward past New Year's Day", () => {
+    const r = benefitPaymentFor(2027, 1, KELA_BENEFITS[0]);
+    expect(r.early).toBe(false);
+    expect(ymd(r.actual)).toBe("2027-1-4");
+  });
+
+  it("uses the same dates for a pension on both pages", () => {
+    const kela = KELA_BENEFITS.find((b) => b.id === "takuuelake");
+    const pension = PENSION_BENEFITS.find((b) => b.id === "takuuelake");
+    expect(benefitPaymentsInYear(2027, pension)).toEqual(benefitPaymentsInYear(2027, kela));
+  });
+
+  it("writes FAQ answers without en dashes or doubled periods", () => {
+    for (const faqs of [kelaPaymentFaqs(2026), pensionPaymentFaqs(2026)]) {
+      for (const { q, a } of faqs) {
+        expect(q + a).not.toMatch(/–|\.\./);
+      }
+    }
+  });
+});
 
 describe("paydays", () => {
   it("moves a weekend payday to the previous Friday", () => {

@@ -4,6 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Before any task touching routing, page content, structured data, `prerender.js`, `vercel.json`, or anything under `/data/`, `/pdf/`, `/og/`, `/discover/`, or the AI-facing text files in `public/`, read [`docs/SEO_CONSTITUTION.md`](docs/SEO_CONSTITUTION.md) first.** It names the exact mechanisms (URL structure, schema coverage, internal linking, sitemap, PDF/image discoverability, AI-facing files) that must survive any change, and what "preserve" means for each in this specific codebase.
 
+## Writing rules for page content
+
+- **Never use the en dash character (`–`) in any new or edited writing**: page copy, titles, meta descriptions, FAQ answers, schema text, AI-facing text files, or code comments. Rewrite the sentence instead (a colon, a comma, "ja", or a plain hyphen `-` in ranges like `A-K`). Existing copy is not bulk-rewritten, but any line you touch should lose its `–`.
+- New content must be unique and high quality: every number and date computed from real data or verified against an official source (cite it in a comment with the check date), never generic filler shared across page families.
+- Follow semantic SEO: headings and copy built around the main keyword and its related entities and questions, `FAQPage` content that answers real queries, and proper internal links (each new page links to its related pages and is linked back from them, the footer, and relevant hubs).
+
 ## What this is
 
 "Viikko Nro" (viikkonro.fi) — a Finnish-language ISO 8601 week-number calculator built as a React SPA (Vite + React Router). All UI copy is in Finnish. There is no backend; the contact form posts directly to Web3Forms from the client.
