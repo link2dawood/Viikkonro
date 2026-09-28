@@ -53,6 +53,9 @@ import Paydays from "./pages/Paydays";
 import KelaPayments from "./pages/KelaPayments";
 import PensionPayments from "./pages/PensionPayments";
 import ObservanceDay from "./pages/ObservanceDay";
+import DateCalculator from "./pages/DateCalculator";
+import DateOffset from "./pages/DateOffset";
+import { CALCULATOR_PATH, OFFSETS, offsetPath } from "./data/dateCalculator";
 import { OBSERVANCE_SLUG_RE } from "./data/observanceDays";
 import DaylightSaving from "./pages/DaylightSaving";
 import Countdown from "./pages/Countdown";
@@ -163,6 +166,10 @@ const AppRoutes = () => {
         <Route path="/viikko-paivamaaraksi" element={<WeekToDate />} />
         <Route path="/tyopaivalaskuri" element={<WorkingDaysBetween />} />
         <Route path="/paivien-erotus" element={<DaysBetween />} />
+        <Route path={CALCULATOR_PATH} element={<DateCalculator />} />
+        {OFFSETS.map((n) => (
+          <Route key={n} path={offsetPath(n)} element={<DateOffset n={n} />} />
+        ))}
         {COUNTDOWNS.map((c) => (
           <Route key={c.path} path={c.path} element={<Countdown path={c.path} />} />
         ))}

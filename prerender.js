@@ -66,6 +66,7 @@ import {
   fmtShortFi,
   getWeekdayName,
   helsinkiDayKey,
+  dateFromDayKey,
   isoWeek,
   isoWeekDateLabel,
   isoYear,
@@ -143,6 +144,15 @@ import {
   observancePage,
   upcomingYears,
 } from "./src/data/observanceDays.js";
+import {
+  CALCULATOR_PATH as DATE_CALCULATOR_PATH,
+  DATE_CALCULATOR_STEPS,
+  OFFSETS,
+  dateCalculatorFaqs,
+  monthlyTable,
+  offsetFaqs,
+  offsetPath,
+} from "./src/data/dateCalculator.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
 import { COUNTDOWNS, COUNTDOWN_BY_PATH, countdownFaqs } from "./src/data/countdownPages.js";
 import {
@@ -2946,6 +2956,36 @@ function dstNodes(year) {
   ];
 }
 
+// /paivamaaralaskuri: HowTo + FAQ from the same data the page renders.
+function dateCalculatorNodes() {
+  return [
+    faqPageNode(DATE_CALCULATOR_PATH, dateCalculatorFaqs()),
+    howToNode(DATE_CALCULATOR_PATH, "Näin lasket päivämäärän päivien, viikkojen tai kuukausien päähän", DATE_CALCULATOR_STEPS),
+  ];
+}
+
+// /{n}-paivaa-eteenpain: FAQ for the render day (the same day useToday()
+// prerenders with) plus the month-start table, which does not depend on it.
+const OFFSET_BY_PATH = Object.fromEntries(OFFSETS.map((n) => [offsetPath(n), n]));
+function dateOffsetNodes(url) {
+  const n = OFFSET_BY_PATH[url];
+  const today = dateFromDayKey(RENDER_DAY);
+  const year = today.getFullYear();
+  return [
+    faqPageNode(url, offsetFaqs(n, today)),
+    {
+      "@type": "ItemList",
+      "@id": `${canonicalFor(url)}#month-starts`,
+      name: `${n} päivää kunkin kuukauden alusta vuonna ${year}`,
+      itemListElement: monthlyTable(n, year).map((r, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `${ymd(r.from)} + ${n} päivää = ${ymd(r.result)}`,
+      })),
+    },
+  ];
+}
+
 function countdownNodes(url) {
   const countdown = COUNTDOWN_BY_PATH[url];
   return countdown ? [faqPageNode(url, countdownFaqs(countdown, new Date()))] : [];
@@ -3256,6 +3296,8 @@ for (const url of routes) {
       const dstMatch = url.match(/^\/kesaaika-(\d{4})$/);
       if (dstMatch) nodes.push(...dstNodes(+dstMatch[1]));
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
+      if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());
+      if (OFFSET_BY_PATH[url]) nodes.push(...dateOffsetNodes(url));
       if (url === CALENDAR_SUBSCRIPTION_PATH) nodes.push(...calendarSubscriptionNodes());
       if (url === WIDGET_EMBED_PAGE_PATH) nodes.push(...widgetEmbedNodes());
 
@@ -4572,6 +4614,8 @@ const llmsFull =
     "  /viikko-paivamaaraksi  — enter a week number and year, get its start/end dates",
     "  /tyopaivalaskuri  — count working days between two dates",
     "  /paivien-erotus  — count total days between two dates",
+    "  /paivamaaralaskuri  - add or subtract days, weeks, months or working days from any date",
+    `  /{${OFFSETS.join("|")}}-paivaa-eteenpain  - the date N days from today (rebuilt daily), plus N days from the 1st of every month`,
     "  /viikonpaiva  — look up the weekday of any date (shareable result)",
     "",
     "Explainer / evergreen articles",

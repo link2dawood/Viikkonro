@@ -26,6 +26,11 @@ const TOOLS = [
     desc: "Työpäivät kahden päivän välillä, viikonloput ja arkipyhät huomioiden.",
   },
   {
+    to: "/paivamaaralaskuri",
+    name: "Päivämäärälaskuri",
+    desc: "Lisää tai vähennä päiviä, viikkoja, kuukausia tai arkipäiviä mistä tahansa päivästä.",
+  },
+  {
     to: "/paivien-erotus",
     name: "Päivien erotus",
     desc: "Montako päivää ja viikkoa kahden päivämäärän välillä on.",

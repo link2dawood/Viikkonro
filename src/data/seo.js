@@ -25,7 +25,10 @@ import {
   PRERENDER_MIN_YEAR,
   PRERENDER_MAX_YEAR,
   WD_ESSIVE,
+  dateFromDayKey,
+  helsinkiDayKey,
 } from "../components/dateUtils.js";
+import { CALCULATOR_PATH, OFFSETS, offsetMeta, offsetPath } from "./dateCalculator.js";
 import {
   HOLIDAY_DEFINITIONS,
   holidayPageFor,
@@ -854,6 +857,25 @@ export const routeMeta = {
     breadcrumb: "Päivien erotus",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  [CALCULATOR_PATH]: {
+    title: "Päivämäärälaskuri: lisää tai vähennä päiviä | Viikko Nro",
+    description:
+      "Laske päivämäärä, joka on tietyn määrän päiviä, viikkoja, kuukausia tai arkipäiviä eteen- tai taaksepäin. Näet viikonpäivän ja viikkonumeron.",
+    breadcrumb: "Päivämäärälaskuri",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
+  // "N päivää eteenpäin" pages: the date in title/description is computed for
+  // the render day (same day useToday() prerenders with), refreshed nightly.
+  ...Object.fromEntries(
+    OFFSETS.map((n) => [
+      offsetPath(n),
+      {
+        ...offsetMeta(n, dateFromDayKey(helsinkiDayKey())),
+        breadcrumb: `${n} päivää eteenpäin`,
+        breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+      },
+    ]),
+  ),
   // Countdown pages: the target date in the description is computed when
   // this module loads — at build time for the prerendered head, refreshed by
   // the nightly rebuild (same as the current-date pages above).
@@ -915,6 +937,8 @@ export function sitemapEntries(year) {
     { path: "/viikko-paivamaaraksi", changefreq: "monthly", priority: "0.7" },
     { path: "/tyopaivalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/paivien-erotus", changefreq: "monthly", priority: "0.7" },
+    { path: CALCULATOR_PATH, changefreq: "monthly", priority: "0.7" },
+    ...OFFSETS.map((n) => ({ path: offsetPath(n), changefreq: "daily", priority: "0.6" })),
     ...COUNTDOWNS.map((c) => ({ path: c.path, changefreq: "daily", priority: "0.7" })),
     { path: CALENDAR_SUBSCRIPTION_PATH, changefreq: "monthly", priority: "0.7" },
     { path: WIDGET_EMBED_PAGE_PATH, changefreq: "monthly", priority: "0.5" },

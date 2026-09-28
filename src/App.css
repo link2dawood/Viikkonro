@@ -1901,6 +1901,28 @@ body:has(.cal-print) footer {
   display: flex;
   flex-direction: column;
 }
+/* Date calculator (/paivamaaralaskuri): number and select fields match the
+   date input, and stacked field rows get the same gap as fields in a row. */
+.two-fields + .two-fields {
+  margin-top: 12px;
+}
+.lookup input[type="number"],
+.lookup select {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 17px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 13px 15px;
+  width: 100%;
+  max-width: 280px;
+}
+.lookup input[type="number"]:focus-visible,
+.lookup select:focus-visible {
+  outline: 3px solid rgba(31, 122, 92, 0.4);
+  outline-offset: 2px;
+}
 .tool-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

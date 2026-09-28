@@ -190,7 +190,8 @@ const WorkingDaysBetween = () => {
       </div>
 
       <p>
-        Katso myös <Link to="/paivien-erotus">päivien erotus</Link> ja{" "}
+        Katso myös <Link to="/paivamaaralaskuri">päivämäärälaskuri</Link>,{" "}
+        <Link to="/paivien-erotus">päivien erotus</Link> ja{" "}
         <Link to="/laskurit">kaikki laskurit</Link>.
       </p>
     </section>

@@ -37,6 +37,7 @@ const PAGE_TYPES = [
   [/^\/(isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|adventti)-\d+$/, "juhlapaiva"],
   [/^\/kesaaika-\d+$/, "kesaaika"],
   [/^\/kuinka-monta-paivaa-/, "laskuri-paivat"],
+  [/^\/(paivamaaralaskuri|\d+-paivaa-eteenpain)$/, "laskuri-paivamaara"],
   [/^\/nimipaiv/, "nimipaivat"],
 ];
 

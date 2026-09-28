@@ -144,7 +144,9 @@ const DaysBetween = () => {
 
       <p>
         Tarvitsetko vain arkipäivät? Käytä{" "}
-        <Link to="/tyopaivalaskuri">työpäivälaskuria</Link>. Katso myös{" "}
+        <Link to="/tyopaivalaskuri">työpäivälaskuria</Link>. Haluatko tietää,
+        mikä päivä on tietyn ajan päästä? Käytä{" "}
+        <Link to="/paivamaaralaskuri">päivämäärälaskuria</Link>. Katso myös{" "}
         <Link to="/laskurit">kaikki laskurit</Link>.
       </p>
     </section>
