@@ -552,6 +552,16 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
               Tulostettava viikkolista {y}
             </Link>
           </li>
+          <li>
+            <Link to="/auringonlasku-helsinki" onClick={() => window.scrollTo(0, 0)}>
+              Auringonnousu ja -lasku Helsingissä
+            </Link>
+          </li>
+          <li>
+            <Link to={`/kuun-vaiheet-${y}`} onClick={() => window.scrollTo(0, 0)}>
+              Kuun vaiheet {y}
+            </Link>
+          </li>
         </ul>
 
         <h3>ISO 8601</h3>

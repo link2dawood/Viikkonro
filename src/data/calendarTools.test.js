@@ -30,6 +30,15 @@ import {
 import { flagDayFaqs, flagDaysInYear } from "./flagDayPages.js";
 import { ageFaqs, ageOn, ageReport, ageText, nextBirthday } from "./ageCalculator.js";
 import { blueMoons, moonFaqs, moonMeta, moonPhasesInYear, phaseList } from "./moonPhases.js";
+import {
+  SUN_CITIES,
+  fmtTime,
+  sunCityFaqs,
+  sunCityMeta,
+  sunDay,
+  sunHubMeta,
+  sunSummary,
+} from "./sunCities.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -98,6 +107,44 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("sun times by city", () => {
+  const fmt = (d) => (d ? fmtTime(d) : null);
+  const city = (slug) => SUN_CITIES.find((c) => c.slug === slug);
+
+  it("matches known Helsinki times at the solstices", () => {
+    const june = sunDay(city("helsinki"), 2026, 5, 21);
+    const dec = sunDay(city("helsinki"), 2026, 11, 21);
+    expect([fmt(june.sunrise), fmt(june.sunset)]).toEqual(["03.54", "22.50"]);
+    expect([fmt(dec.sunrise), fmt(dec.sunset)]).toEqual(["09.23", "15.12"]);
+  });
+
+  it("puts the longest and shortest day on the solstices south of the Arctic Circle", () => {
+    const s = sunSummary(city("oulu"), 2026);
+    expect(ymd(s.longest.date)).toBe("2026-6-21");
+    expect(ymd(s.shortest.date)).toBe("2026-12-21");
+    expect(s.midnightSun).toHaveLength(0);
+  });
+
+  it("finds Utsjoki's midnight sun and kaamos", () => {
+    const s = sunSummary(city("utsjoki"), 2026);
+    // Verified windows: midnight sun from 17.5., kaamos 26.11.-15.1.
+    expect(ymd(s.midnightSun[0].from)).toBe("2026-5-17");
+    expect(ymd(s.polarNight[0].to)).toBe("2026-1-15");
+    expect(ymd(s.polarNight[1].from)).toBe("2026-11-26");
+  });
+
+  it("writes titles, descriptions and FAQs within limits", () => {
+    const today = new Date(2026, 8, 28);
+    for (const c of SUN_CITIES) {
+      const m = sunCityMeta(c.slug, today);
+      expect(m.title.length).toBeLessThanOrEqual(60);
+      expect(m.description.length).toBeLessThanOrEqual(160);
+      for (const { q, a } of sunCityFaqs(c.slug, today)) expect(q + a).not.toMatch(/–|\.\./);
+    }
+    expect(sunHubMeta().title.length).toBeLessThanOrEqual(60);
   });
 });
 
