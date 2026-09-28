@@ -55,6 +55,7 @@ import PensionPayments from "./pages/PensionPayments";
 import ObservanceDay from "./pages/ObservanceDay";
 import DateCalculator from "./pages/DateCalculator";
 import DateOffset from "./pages/DateOffset";
+import AgeCalculator from "./pages/AgeCalculator";
 import { CALCULATOR_PATH, OFFSETS, offsetPath } from "./data/dateCalculator";
 import { OBSERVANCE_SLUG_RE } from "./data/observanceDays";
 import DaylightSaving from "./pages/DaylightSaving";
@@ -167,6 +168,7 @@ const AppRoutes = () => {
         <Route path="/tyopaivalaskuri" element={<WorkingDaysBetween />} />
         <Route path="/paivien-erotus" element={<DaysBetween />} />
         <Route path={CALCULATOR_PATH} element={<DateCalculator />} />
+        <Route path="/ikalaskuri" element={<AgeCalculator />} />
         {OFFSETS.map((n) => (
           <Route key={n} path={offsetPath(n)} element={<DateOffset n={n} />} />
         ))}

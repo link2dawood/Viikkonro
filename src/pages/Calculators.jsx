@@ -26,6 +26,11 @@ const TOOLS = [
     desc: "Työpäivät kahden päivän välillä, viikonloput ja arkipyhät huomioiden.",
   },
   {
+    to: "/ikalaskuri",
+    name: "Ikälaskuri",
+    desc: "Tarkka ikä vuosina, kuukausina ja päivinä sekä seuraava syntymäpäivä.",
+  },
+  {
     to: "/paivamaaralaskuri",
     name: "Päivämäärälaskuri",
     desc: "Lisää tai vähennä päiviä, viikkoja, kuukausia tai arkipäiviä mistä tahansa päivästä.",

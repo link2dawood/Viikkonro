@@ -28,6 +28,7 @@ import {
   weeksAndDays,
 } from "./dateCalculator.js";
 import { flagDayFaqs, flagDaysInYear } from "./flagDayPages.js";
+import { ageFaqs, ageOn, ageReport, ageText, nextBirthday } from "./ageCalculator.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -96,6 +97,44 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("age calculator", () => {
+  it("counts full years, months and days", () => {
+    expect(ageOn(new Date(1990, 5, 15), new Date(2026, 8, 28))).toMatchObject({ years: 36, months: 3, days: 13 });
+    expect(ageOn(new Date(1990, 5, 15), new Date(2026, 5, 15))).toMatchObject({ years: 36, months: 0, days: 0 });
+    expect(ageOn(new Date(1990, 5, 15), new Date(2026, 5, 14)).years).toBe(35);
+  });
+
+  it("handles month ends", () => {
+    // Born 31.1.: one month later is 28.2. (month-end rule, as in the date calculator).
+    expect(ageOn(new Date(2000, 0, 31), new Date(2026, 1, 28))).toMatchObject({ years: 26, months: 1, days: 0 });
+    expect(ageOn(new Date(2000, 0, 31), new Date(2026, 2, 31))).toMatchObject({ years: 26, months: 2, days: 0 });
+  });
+
+  it("completes a 29.2. birthday on 1.3. in non-leap years", () => {
+    const leapling = new Date(2004, 1, 29);
+    expect(ageOn(leapling, new Date(2027, 1, 28)).years).toBe(22);
+    expect(ageOn(leapling, new Date(2027, 2, 1)).years).toBe(23);
+    expect(ageOn(leapling, new Date(2028, 1, 29)).years).toBe(24);
+    expect(ymd(nextBirthday(leapling, new Date(2027, 0, 10)).date)).toBe("2027-3-1");
+  });
+
+  it("reports next birthday and milestones", () => {
+    const r = ageReport(new Date(2000, 0, 1), new Date(2026, 8, 28));
+    expect(ymd(r.next.date)).toBe("2027-1-1");
+    expect(r.next.turns).toBe(27);
+    // 10 000 days after 1.1.2000 is 19.5.2027: still ahead on 28.9.2026.
+    const tenK = r.milestones.find((m) => m.label === "10 000 päivää");
+    expect(ymd(tenK.date)).toBe("2027-5-19");
+    expect(tenK.past).toBe(false);
+    expect(ageReport(new Date(2030, 0, 1), new Date(2026, 8, 28))).toBeNull();
+  });
+
+  it("writes FAQ answers without en dashes", () => {
+    for (const { q, a } of ageFaqs()) expect(q + a).not.toMatch(/–|\.\./);
+    expect(ageText({ years: 1, months: 1, days: 1 })).toBe("1 vuosi, 1 kuukausi ja 1 päivä");
   });
 });
 

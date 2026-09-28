@@ -864,6 +864,13 @@ export const routeMeta = {
     breadcrumb: "Päivämäärälaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  "/ikalaskuri": {
+    title: "Ikälaskuri: kuinka vanha olen? Tarkka ikä | Viikko Nro",
+    description:
+      "Laske tarkka ikäsi vuosina, kuukausina ja päivinä. Näet seuraavan syntymäpäivän, täysi-ikäisyyden ja 10 000 päivän merkkipäivän päivämäärät.",
+    breadcrumb: "Ikälaskuri",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
   // "N päivää eteenpäin" pages: the date in title/description is computed for
   // the render day (same day useToday() prerenders with), refreshed nightly.
   ...Object.fromEntries(
@@ -938,6 +945,7 @@ export function sitemapEntries(year) {
     { path: "/tyopaivalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/paivien-erotus", changefreq: "monthly", priority: "0.7" },
     { path: CALCULATOR_PATH, changefreq: "monthly", priority: "0.7" },
+    { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
     ...OFFSETS.map((n) => ({ path: offsetPath(n), changefreq: "daily", priority: "0.6" })),
     ...COUNTDOWNS.map((c) => ({ path: c.path, changefreq: "daily", priority: "0.7" })),
     { path: CALENDAR_SUBSCRIPTION_PATH, changefreq: "monthly", priority: "0.7" },
