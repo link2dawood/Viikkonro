@@ -32,6 +32,8 @@ const PAGE_TYPES = [
   [/^\/tyopaivat-/, "tyopaivat"],
   [/^\/koululomat-\d+$/, "koululomat"],
   [/^\/palkkapaivat-\d+$/, "palkkapaivat"],
+  [/^\/kelan-maksupaivat-\d+$/, "kelan-maksupaivat"],
+  [/^\/elakkeen-maksupaivat-\d+$/, "elakkeen-maksupaivat"],
   [/^\/kesaaika-\d+$/, "kesaaika"],
   [/^\/kuinka-monta-paivaa-/, "laskuri-paivat"],
   [/^\/nimipaiv/, "nimipaivat"],

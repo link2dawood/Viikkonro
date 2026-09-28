@@ -2609,6 +2609,30 @@ body:has(.cal-print) footer {
   font-size: 13px;
 }
 
+/* ─── Kela and pension payment days (/kelan-maksupaivat-*, /elakkeen-maksupaivat-*) */
+.payment-table th .payment-rule {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.payment-table tbody th {
+  text-align: left;
+  font-weight: 600;
+}
+.payment-table td {
+  white-space: nowrap;
+}
+.payment-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* ─── Calendar subscription (/kalenteritilaus) ─────────────────────────── */
 .ics-feeds {
   display: grid;

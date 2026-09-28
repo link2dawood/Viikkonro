@@ -50,6 +50,8 @@ import CurrentYear from "./pages/CurrentYear";
 import WeekdayCalculator from "./pages/WeekdayCalculator";
 import EnglishHome from "./pages/EnglishHome";
 import Paydays from "./pages/Paydays";
+import KelaPayments from "./pages/KelaPayments";
+import PensionPayments from "./pages/PensionPayments";
 import DaylightSaving from "./pages/DaylightSaving";
 import Countdown from "./pages/Countdown";
 import CalendarSubscription from "./pages/CalendarSubscription";
@@ -96,6 +98,10 @@ const DynamicSlug = () => {
     return <CalendarYear year={+m[1]} print />;
   if ((m = slug.match(/^palkkapaivat-(\d{4})$/)))
     return validateYear(+m[1]) ? <Paydays year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^kelan-maksupaivat-(\d{4})$/)))
+    return validateYear(+m[1]) ? <KelaPayments year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^elakkeen-maksupaivat-(\d{4})$/)))
+    return validateYear(+m[1]) ? <PensionPayments year={+m[1]} /> : <NotFound />;
   if ((m = slug.match(/^kesaaika-(\d{4})$/)))
     return validateYear(+m[1]) ? <DaylightSaving year={+m[1]} /> : <NotFound />;
   return <NotFound />;

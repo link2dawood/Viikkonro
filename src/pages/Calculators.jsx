@@ -46,6 +46,16 @@ const Calculators = () => {
       name: "Palkkapäivät",
       desc: "Milloin palkka tulee, kun palkkapäivä osuu viikonloppuun tai arkipyhään.",
     },
+    {
+      to: `/kelan-maksupaivat-${year}`,
+      name: "Kelan maksupäivät",
+      desc: "Lapsilisän, asumistuen, opintorahan ja muiden Kelan etuuksien maksupäivät kuukausittain.",
+    },
+    {
+      to: `/elakkeen-maksupaivat-${year}`,
+      name: "Eläkkeen maksupäivät",
+      desc: "Milloin työeläke, kansaneläke ja takuueläke tulevat tilille.",
+    },
   ];
   return (
   <section className="app">

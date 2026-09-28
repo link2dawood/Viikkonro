@@ -60,6 +60,7 @@ import {
 import { englishMeta } from "./englishContent.js";
 import { DATASET_PAGES, datasetPageMeta } from "./datasetPages.js";
 import { paydayMeta } from "./paydayPages.js";
+import { kelaPaymentMeta, pensionPaymentMeta } from "./benefitPaymentPages.js";
 import { dstMeta } from "./dstPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
@@ -1014,6 +1015,16 @@ export function sitemapEntries(year) {
       priority: current ? "0.7" : "0.5",
     });
     entries.push({
+      path: `/kelan-maksupaivat-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.7" : "0.5",
+    });
+    entries.push({
+      path: `/elakkeen-maksupaivat-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.7" : "0.5",
+    });
+    entries.push({
       path: `/kesaaika-${y}`,
       changefreq: current ? "monthly" : "yearly",
       priority: current ? "0.6" : "0.4",
@@ -1078,6 +1089,8 @@ export function metaFor(url) {
   }
   if ((m = url.match(/^\/koululomat-(\d+)$/))) return schoolHolidayMeta(+m[1]);
   if ((m = url.match(/^\/palkkapaivat-(\d{4})$/))) return paydayMeta(+m[1]);
+  if ((m = url.match(/^\/kelan-maksupaivat-(\d{4})$/))) return kelaPaymentMeta(+m[1]);
+  if ((m = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/))) return pensionPaymentMeta(+m[1]);
   if ((m = url.match(/^\/kesaaika-(\d{4})$/))) return dstMeta(+m[1]);
   if ((m = url.match(/^\/kalenteri-(\d+)-(alkuvuosi|loppuvuosi)$/)))
     return calendarMeta(+m[1], m[2] === "alkuvuosi" ? 1 : 2, false);
@@ -1196,6 +1209,20 @@ export function breadcrumbTrail(url) {
       home,
       { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
       { name: `Palkkapäivät ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/kelan-maksupaivat-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Kelan maksupäivät ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Eläkkeen maksupäivät ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/kesaaika-(\d{4})$/))) {

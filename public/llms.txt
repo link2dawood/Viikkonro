@@ -28,6 +28,8 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Koululomat 2026](https://viikkonro.fi/koululomat-2026): hiihto- ja syyslomat kaupungeittain, viralliset lähteet
 - [Koululomat 2027](https://viikkonro.fi/koululomat-2027): talvilomaviikot 8–10 ja vahvistetut aluekohtaiset ajat
 - [Palkkapäivät 2026](https://viikkonro.fi/palkkapaivat-2026): milloin palkka maksetaan, kun palkkapäivä osuu viikonloppuun tai arkipyhään (edellinen pankkipäivä)
+- [Kelan maksupäivät 2026](https://viikkonro.fi/kelan-maksupaivat-2026): lapsilisän, asumistuen, opintorahan, kansaneläkkeen, takuueläkkeen ja elatustuen todelliset maksupäivät kuukausittain
+- [Eläkkeen maksupäivät 2026](https://viikkonro.fi/elakkeen-maksupaivat-2026): työeläkkeen ja Kelan eläkkeiden maksupäivät kuukausittain
 - [Kesäaika 2026](https://viikkonro.fi/kesaaika-2026): kellojen siirto kesä- ja talviaikaan päivämäärineen ja viikkonumeroineen
 - [Kuinka monta päivää jouluun?](https://viikkonro.fi/kuinka-monta-paivaa-jouluun): päivälaskuri jouluaattoon; myös [juhannukseen](https://viikkonro.fi/kuinka-monta-paivaa-juhannukseen), [kesälomaan](https://viikkonro.fi/kuinka-monta-paivaa-kesalomaan) ja [uuteenvuoteen](https://viikkonro.fi/kuinka-monta-paivaa-uuteenvuoteen)
 - [Kalenteritilaus](https://viikkonro.fi/kalenteritilaus): viikkonumerot, pyhäpäivät ja liputuspäivät Google-kalenteriin, Outlookiin tai iPhoneen (iCalendar)

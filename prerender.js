@@ -128,6 +128,13 @@ import {
 } from "./src/data/currentDateContent.js";
 import { englishFaqs } from "./src/data/englishContent.js";
 import { paydayFaqs, paydaysInYear, DEFAULT_PAYDAY } from "./src/data/paydayPages.js";
+import {
+  KELA_BENEFITS,
+  PENSION_BENEFITS,
+  benefitPaymentsInYear,
+  kelaPaymentFaqs,
+  pensionPaymentFaqs,
+} from "./src/data/benefitPaymentPages.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
 import { COUNTDOWNS, COUNTDOWN_BY_PATH, countdownFaqs } from "./src/data/countdownPages.js";
 import {
@@ -633,6 +640,8 @@ function entityParentExtra(url) {
     (m = url.match(/^\/kalenteri-(\d+)(?:-(?:alkuvuosi|loppuvuosi))?$/)) ||
     (m = url.match(/^\/tulostettava-kalenteri-(\d+)$/)) ||
     (m = url.match(/^\/palkkapaivat-(\d{4})$/)) ||
+    (m = url.match(/^\/kelan-maksupaivat-(\d{4})$/)) ||
+    (m = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/)) ||
     (m = url.match(/^\/kesaaika-(\d{4})$/))
   ) {
     const year = m[1];
@@ -2830,6 +2839,27 @@ function howToNode(url, name, steps) {
   };
 }
 
+// /kelan-maksupaivat-{year} and /elakkeen-maksupaivat-{year}: FAQ plus one
+// ItemList per benefit column of the page table, so every payment date is
+// machine-readable without parsing HTML. Same data source as the visible
+// table (benefitPaymentsInYear), so the two cannot drift.
+function benefitPaymentNodes(url, year, benefits, faqs) {
+  return [
+    faqPageNode(url, faqs),
+    ...benefits.map((b) => ({
+      "@type": "ItemList",
+      "@id": `${canonicalFor(url)}#${b.id}`,
+      name: `${b.name}: maksupäivät ${year}`,
+      description: `Sääntö: ${b.rule}.`,
+      itemListElement: benefitPaymentsInYear(year, b).map((r, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `${r.monthName}: ${ymd(r.actual)}${r.moved ? ` (${r.early ? "etuajassa" : "siirtyy"}, ${r.reason})` : ""}`,
+      })),
+    })),
+  ];
+}
+
 // /palkkapaivat-{year}: FAQ plus the 15th-of-month payday table as an
 // ItemList, so the actual dates are machine-readable without parsing HTML.
 function paydayNodes(year) {
@@ -3164,6 +3194,14 @@ for (const url of routes) {
 
       const paydayMatch = url.match(/^\/palkkapaivat-(\d{4})$/);
       if (paydayMatch) nodes.push(...paydayNodes(+paydayMatch[1]));
+      const kelaMatch = url.match(/^\/kelan-maksupaivat-(\d{4})$/);
+      if (kelaMatch) {
+        nodes.push(...benefitPaymentNodes(url, +kelaMatch[1], KELA_BENEFITS, kelaPaymentFaqs(+kelaMatch[1])));
+      }
+      const pensionMatch = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/);
+      if (pensionMatch) {
+        nodes.push(...benefitPaymentNodes(url, +pensionMatch[1], PENSION_BENEFITS, pensionPaymentFaqs(+pensionMatch[1])));
+      }
       const dstMatch = url.match(/^\/kesaaika-(\d{4})$/);
       if (dstMatch) nodes.push(...dstNodes(+dstMatch[1]));
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
@@ -3959,7 +3997,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   namingConventions: {
     pageEntityId: "{canonicalUrl}#webpage — every page's own node id",
     subResourceId:
-      "{canonicalUrl}#{fragment} — fragment in {faq, breadcrumb, media, discover, howto, article, events, changes, paydays-15}; calendar feeds use {feedUrl}#feed",
+      "{canonicalUrl}#{fragment} — fragment in {faq, breadcrumb, media, discover, howto, article, events, changes, paydays-15, one benefit id per payment-calendar column e.g. lapsilisa or tyoelake}; calendar feeds use {feedUrl}#feed",
     globalSingletons: [`${SITE_URL}/#website`, `${SITE_URL}/#organization`],
     datasetFamilyId: `${SITE_URL}/#dataset-{id} — one per /data/ family (see datasets below)`,
     pdfMediaId: "{pdfUrl}#media",
@@ -4042,6 +4080,22 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
       urlPattern: "/palkkapaivat-{year}",
       idPattern: `${SITE_URL}/palkkapaivat-{year}#webpage`,
       example: `${SITE_URL}/palkkapaivat-${kgYear}`,
+      count: "1 per year",
+    },
+    {
+      entity: "Kela Payment Calendar",
+      schemaType: "WebPage (+ FAQPage, ItemList per benefit)",
+      urlPattern: "/kelan-maksupaivat-{year}",
+      idPattern: `${SITE_URL}/kelan-maksupaivat-{year}#webpage`,
+      example: `${SITE_URL}/kelan-maksupaivat-${kgYear}`,
+      count: "1 per year",
+    },
+    {
+      entity: "Pension Payment Calendar",
+      schemaType: "WebPage (+ FAQPage, ItemList per pension)",
+      urlPattern: "/elakkeen-maksupaivat-{year}",
+      idPattern: `${SITE_URL}/elakkeen-maksupaivat-{year}#webpage`,
+      example: `${SITE_URL}/elakkeen-maksupaivat-${kgYear}`,
       count: "1 per year",
     },
     {
@@ -4129,6 +4183,8 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     { from: "Working Day (monthly)", relation: "isPartOf", to: "Month", cardinality: "many-to-one" },
     { from: "Calendar", relation: "isPartOf", to: "Year", cardinality: "many-to-one" },
     { from: "Payday Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
+    { from: "Kela Payment Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
+    { from: "Pension Payment Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Daylight Saving Time", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Calendar", relation: "mainEntity (ItemList)", to: "Month", cardinality: "one-to-twelve" },
     { from: "Calendar", relation: "associatedMedia", to: "PDF", cardinality: "one-to-one" },
@@ -4148,8 +4204,10 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     Week: { linksTo: ["Year"], linkedFrom: ["Year (ItemList)", "Month (ItemList)", "Holiday (mentions)"] },
     Month: { linksTo: ["Quarter", "Year", "Holiday (mentions)", "PDF"], linkedFrom: ["Quarter (hasPart)", "Year (hasPart)", "Working Day monthly", "Holiday (mentions)"] },
     Quarter: { linksTo: ["Year", "Month (hasPart)"], linkedFrom: ["Month", "Year (hasPart)"] },
-    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar", "Payday Calendar", "Daylight Saving Time"] },
+    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Daylight Saving Time"] },
     "Payday Calendar": { linksTo: ["Year"], linkedFrom: [] },
+    "Kela Payment Calendar": { linksTo: ["Year"], linkedFrom: [] },
+    "Pension Payment Calendar": { linksTo: ["Year"], linkedFrom: [] },
     "Daylight Saving Time": { linksTo: ["Year"], linkedFrom: [] },
     Countdown: { linksTo: [], linkedFrom: [] },
     "Calendar Feed": { linksTo: [], linkedFrom: ["Calendar subscription page (DataFeed)"] },
@@ -4170,7 +4228,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   graphStructure: {
     nodeTypes: [
       "Week", "Month", "Quarter", "Year", "Holiday", "Flag Day", "Working Day",
-      "Calendar", "Payday Calendar", "Daylight Saving Time", "Countdown",
+      "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Daylight Saving Time", "Countdown",
       "Calendar Feed", "Widget", "PDF", "Dataset", "API Endpoint", "Website", "Organization",
     ],
     edgeTypes: ["isPartOf", "hasPart", "mentions", "mainEntity", "associatedMedia", "potentialAction", "redirects to", "creator/publisher"],
@@ -4423,6 +4481,8 @@ const llmsFull =
     "",
     "Payday pages",
     "  /palkkapaivat-{year}  — when a monthly payday (15th, last day of month, or any chosen day) is actually paid: a payday on a Saturday, Sunday or bank holiday moves to the previous banking day",
+    "  /kelan-maksupaivat-{year}  - the actual payment day of every Kela benefit per month (general housing allowance, study grant, basic income support, pensioner housing allowance, national pension, maintenance allowance, guarantee pension, child benefit)",
+    "  /elakkeen-maksupaivat-{year}  - the actual payment day of the earnings-related pension (tyoelake) and Kela's pensions per month",
     "",
     "Daylight saving time pages",
     "  /kesaaika-{year}  — the two clock-change dates of the year (last Sunday of March at 03:00 -> 04:00, last Sunday of October at 04:00 -> 03:00, Finnish local time), with ISO week numbers",
@@ -4472,6 +4532,8 @@ const llmsFull =
     `  ${SITE_URL}/tyopaivat-elokuu-${llY}`,
     `  ${SITE_URL}/koululomat-${llY}`,
     `  ${SITE_URL}/palkkapaivat-${llY}`,
+    `  ${SITE_URL}/kelan-maksupaivat-${llY}`,
+    `  ${SITE_URL}/elakkeen-maksupaivat-${llY}`,
     `  ${SITE_URL}/kesaaika-${llY}`,
     `  ${SITE_URL}${COUNTDOWNS[0].path}`,
     `  ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}`,
@@ -4635,6 +4697,17 @@ const llmsGlossary =
     "  salary is paid on the previous banking day (Employment Contracts Act).",
     "  Documented per year at /palkkapaivat-{year}.",
     "",
+    "## Kela benefit and pension payment days",
+    "",
+    "  Checked against kela.fi/maksupaivat and tyoelake.fi (2026-09-28).",
+    ...[...KELA_BENEFITS, PENSION_BENEFITS[0]].map((b) => `  ${b.name}: ${b.rule}.`),
+    "  General housing allowance, study grant, basic income support and the",
+    "  earnings-related pension move FORWARD to the next banking day; every",
+    "  other Kela payment moves BACK to the previous banking day. Child",
+    "  benefit also moves back when the 26th is the day right after a weekend",
+    "  or bank holiday (usually a Monday).",
+    "  Documented per year at /kelan-maksupaivat-{year} and /elakkeen-maksupaivat-{year}.",
+    "",
     "## Daylight saving time",
     "",
     "  Finland follows EU directive 2000/84/EC: summer time (UTC+3, EEST) starts",
@@ -4752,6 +4825,8 @@ const aiManifest =
     ...ICS_FEEDS.map((f) => `   ${SITE_URL}${f.path}  — iCalendar feed: ${f.calName}`),
     `   ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}  — how to subscribe to the calendar feeds`,
     `   ${SITE_URL}/palkkapaivat-${amCalYear}  — paydays this year (pattern: /palkkapaivat-{year})`,
+    `   ${SITE_URL}/kelan-maksupaivat-${amCalYear}  - Kela payment days this year (pattern: /kelan-maksupaivat-{year})`,
+    `   ${SITE_URL}/elakkeen-maksupaivat-${amCalYear}  - pension payment days this year (pattern: /elakkeen-maksupaivat-{year})`,
     `   ${SITE_URL}/kesaaika-${amCalYear}  — daylight saving time this year (pattern: /kesaaika-{year})`,
     "",
     "## PDF resources",
