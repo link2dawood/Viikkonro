@@ -50,7 +50,8 @@ same content shape. Routes are single-segment Finnish keyword slugs
 `/palkkapaivat-{year}`, `/kelan-maksupaivat-{year}`,
 `/elakkeen-maksupaivat-{year}`, `/kesaaika-{year}`, the observance days
 `/{isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|adventti}-{year}`, the
-`/{n}-paivaa-eteenpain` offset pages (n in `OFFSETS`, `dateCalculator.js`), the four
+`/{n}-paivaa-eteenpain` offset pages (n in `OFFSETS`, `dateCalculator.js`),
+`/kuun-vaiheet-{year}`, the four
 `/kuinka-monta-paivaa-{target}` countdowns, plus static pages).
 Non-HTML resources outside the route table: `/ics/*.ics` calendar feeds
 (generated from `src/data/icsFeeds.js`) and the `/widget/viikko` iframe

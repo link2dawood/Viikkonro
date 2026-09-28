@@ -165,6 +165,11 @@ function Footer() {
               </Link>
             </li>
             <li>
+              <Link to={`/kuun-vaiheet-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+                Kuun vaiheet {currentYear}
+              </Link>
+            </li>
+            <li>
               <Link to="/upota-viikkonumero" onClick={() => window.scrollTo(0, 0)}>
                 Viikkonumero-widget
               </Link>

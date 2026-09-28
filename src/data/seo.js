@@ -29,6 +29,7 @@ import {
   helsinkiDayKey,
 } from "../components/dateUtils.js";
 import { CALCULATOR_PATH, OFFSETS, offsetMeta, offsetPath } from "./dateCalculator.js";
+import { moonMeta, moonPath } from "./moonPhases.js";
 import {
   HOLIDAY_DEFINITIONS,
   holidayPageFor,
@@ -1063,6 +1064,11 @@ export function sitemapEntries(year) {
       changefreq: current ? "monthly" : "yearly",
       priority: current ? "0.7" : "0.5",
     });
+    entries.push({
+      path: moonPath(y),
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.7" : "0.5",
+    });
     for (const observance of OBSERVANCES) {
       entries.push({
         path: observancePath(observance.slug, y),
@@ -1138,6 +1144,7 @@ export function metaFor(url) {
   if ((m = url.match(/^\/kelan-maksupaivat-(\d{4})$/))) return kelaPaymentMeta(+m[1]);
   if ((m = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/))) return pensionPaymentMeta(+m[1]);
   if ((m = url.slice(1).match(OBSERVANCE_SLUG_RE))) return observanceMeta(m[1], +m[2]);
+  if ((m = url.match(/^\/kuun-vaiheet-(\d{4})$/))) return moonMeta(+m[1]);
   if ((m = url.match(/^\/kesaaika-(\d{4})$/))) return dstMeta(+m[1]);
   if ((m = url.match(/^\/kalenteri-(\d+)-(alkuvuosi|loppuvuosi)$/)))
     return calendarMeta(+m[1], m[2] === "alkuvuosi" ? 1 : 2, false);
@@ -1270,6 +1277,13 @@ export function breadcrumbTrail(url) {
       home,
       { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
       { name: `Eläkkeen maksupäivät ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/kuun-vaiheet-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Kuun vaiheet ${m[1]}`, path: url },
     ];
   }
   if ((m = url.slice(1).match(OBSERVANCE_SLUG_RE))) {
