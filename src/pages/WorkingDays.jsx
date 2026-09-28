@@ -163,7 +163,8 @@ const WorkingDays = ({ year: pYear } = {}) => {
       <p>
         Laskurit: <Link to="/tyopaivalaskuri">työpäivälaskuri</Link> (työpäivät
         kahden päivämäärän välillä) ja{" "}
-        <Link to="/paivien-erotus">päivien erotus</Link>.
+        <Link to="/paivien-erotus">päivien erotus</Link>. Lomasuunnitteluun:{" "}
+        <Link to="/vuosilomalaskuri">vuosilomalaskuri</Link>.
       </p>
 
       <div className="prevnext">
