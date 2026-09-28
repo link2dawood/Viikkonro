@@ -873,6 +873,13 @@ export const routeMeta = {
     breadcrumb: "Ikälaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  "/tuntilaskuri": {
+    title: "Tuntilaskuri: työtunnit ja desimaalitunnit | Viikko Nro",
+    description:
+      "Laske työtunnit kellonajoista taukoineen, viikon tunnit yhteensä ja minuutit desimaaleina. Esimerkiksi 7 h 45 min on 7,75 h. Mukana työaikalain rajat.",
+    breadcrumb: "Tuntilaskuri",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
   [SUN_HUB_PATH]: {
     ...sunHubMeta(),
     breadcrumb: "Auringonnousu ja -lasku",
@@ -964,6 +971,7 @@ export function sitemapEntries(year) {
     { path: "/paivien-erotus", changefreq: "monthly", priority: "0.7" },
     { path: CALCULATOR_PATH, changefreq: "monthly", priority: "0.7" },
     { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: "/tuntilaskuri", changefreq: "monthly", priority: "0.7" },
     { path: SUN_HUB_PATH, changefreq: "daily", priority: "0.7" },
     ...SUN_CITIES.map((c) => ({ path: sunCityPath(c.slug), changefreq: "daily", priority: "0.6" })),
     ...OFFSETS.map((n) => ({ path: offsetPath(n), changefreq: "daily", priority: "0.6" })),

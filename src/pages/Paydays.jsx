@@ -134,7 +134,8 @@ const Paydays = ({ year }) => {
         <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link>,{" "}
         <Link to={`/kelan-maksupaivat-${y}`}>Kelan maksupäivät {y}</Link>,{" "}
         <Link to={`/elakkeen-maksupaivat-${y}`}>eläkkeen maksupäivät {y}</Link> ja{" "}
-        <Link to="/tyopaivalaskuri">työpäivälaskuri</Link>.
+        <Link to="/tyopaivalaskuri">työpäivälaskuri</Link>. Työtunnit lasket{" "}
+        <Link to="/tuntilaskuri">tuntilaskurilla</Link>.
       </p>
 
       <div className="prevnext">

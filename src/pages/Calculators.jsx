@@ -26,6 +26,11 @@ const TOOLS = [
     desc: "Työpäivät kahden päivän välillä, viikonloput ja arkipyhät huomioiden.",
   },
   {
+    to: "/tuntilaskuri",
+    name: "Tuntilaskuri",
+    desc: "Työtunnit kellonajoista taukoineen, viikon tunnit ja minuutit desimaaleina.",
+  },
+  {
     to: "/ikalaskuri",
     name: "Ikälaskuri",
     desc: "Tarkka ikä vuosina, kuukausina ja päivinä sekä seuraava syntymäpäivä.",

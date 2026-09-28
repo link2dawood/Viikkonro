@@ -59,6 +59,7 @@ import AgeCalculator from "./pages/AgeCalculator";
 import MoonPhases from "./pages/MoonPhases";
 import SunCity from "./pages/SunCity";
 import SunHub from "./pages/SunHub";
+import HoursCalculator from "./pages/HoursCalculator";
 import { SUN_CITIES, SUN_HUB_PATH, sunCityPath } from "./data/sunCities";
 import { CALCULATOR_PATH, OFFSETS, offsetPath } from "./data/dateCalculator";
 import { OBSERVANCE_SLUG_RE } from "./data/observanceDays";
@@ -175,6 +176,7 @@ const AppRoutes = () => {
         <Route path="/paivien-erotus" element={<DaysBetween />} />
         <Route path={CALCULATOR_PATH} element={<DateCalculator />} />
         <Route path="/ikalaskuri" element={<AgeCalculator />} />
+        <Route path="/tuntilaskuri" element={<HoursCalculator />} />
         <Route path={SUN_HUB_PATH} element={<SunHub />} />
         {SUN_CITIES.map((c) => (
           <Route key={c.slug} path={sunCityPath(c.slug)} element={<SunCity slug={c.slug} />} />
