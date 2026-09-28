@@ -33,7 +33,7 @@ export const ICS_FEEDS = [
     path: "/ics/liputuspaivat.ics",
     name: "Suomen liputuspäivät",
     calName: "Suomen liputuspäivät (Viikko Nro)",
-    desc: "14 liputuspäivää, kuten Runebergin päivä, äitienpäivä ja Sibeliuksen päivä.",
+    desc: "Kaikki viralliset ja vakiintuneet liputuspäivät, kuten Runebergin päivä, äitienpäivä, Suomen lipun päivä ja itsenäisyyspäivä.",
   },
 ];
 

@@ -27,6 +27,7 @@ import {
   offsetPage,
   weeksAndDays,
 } from "./dateCalculator.js";
+import { flagDayFaqs, flagDaysInYear } from "./flagDayPages.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -95,6 +96,42 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("flag days", () => {
+  const find = (year, name) => flagDaysInYear(year).find((d) => d.name === name);
+  const dmy = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
+
+  it("lists all dated flag days, with 2023 additions only from 2023", () => {
+    expect(flagDaysInYear(2022)).toHaveLength(20);
+    expect(flagDaysInYear(2026)).toHaveLength(22);
+    expect(find(2022, "Suomen luonnon päivä")).toBeUndefined();
+    expect(find(2023, "Miina Sillanpään päivä")).toBeDefined();
+  });
+
+  it("has exactly the seven official flag days of the decree", () => {
+    const official = flagDaysInYear(2026).filter((d) => d.category === "virallinen").map((d) => d.name);
+    expect(official).toEqual([
+      "Kalevalan päivä",
+      "Vappu",
+      "Äitienpäivä",
+      "Puolustusvoimain lippujuhlan päivä",
+      "Juhannuspäivä",
+      "Isänpäivä",
+      "Itsenäisyyspäivä",
+    ]);
+  });
+
+  it("computes the movable flag days and names juhannus as Suomen lipun päivä", () => {
+    expect(dmy(find(2026, "Kaatuneitten muistopäivä").date)).toBe("17.5.");
+    expect(dmy(find(2026, "Suomen luonnon päivä").date)).toBe("29.8.");
+    expect(find(2026, "Juhannuspäivä").altName).toBe("Suomen lipun päivä");
+    expect(find(2026, "Puolustusvoimain lippujuhlan päivä").altName).toBeNull();
+  });
+
+  it("writes FAQ answers without en dashes", () => {
+    for (const { q, a } of flagDayFaqs(2026)) expect(q + a).not.toMatch(/–|\.\./);
   });
 });
 

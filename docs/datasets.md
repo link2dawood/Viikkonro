@@ -222,7 +222,7 @@ GET /data/year/index.json   — every year: [{ year, url }]
 | `workingDays` | integer | Weekdays in the year minus official holidays |
 | `weekendDays` | integer | Saturdays + Sundays in the year |
 | `holidays` | array of `{name, date, official}` | **All** named holidays (both statutory and the 2 unofficial eve days) |
-| `flagDays` | array of `{name, date}` | All 14 flag days |
+| `flagDays` | array of `{name, date}` | All dated flag days of the year (22 from 2023 on) |
 | `firstWeek` | `{week, year}` | The ISO week containing 1 January |
 | `lastWeek` | `{week, year}` | The ISO week containing 31 December |
 | `url` | string | Canonical HTML page for this year |
@@ -473,11 +473,16 @@ Each item in `flagDays[]`:
 | `category` | string | One of `"virallinen"` (in the flag-day decree 383/1978: Kalevalan päivä, Äitienpäivä, Puolustusvoimain lippujuhlan päivä, Isänpäivä), `"vakiintunut"` (customary flag day on the University of Helsinki list, e.g. J. L. Runebergin päivä), `"kansainvälinen"` (international observance Finland also flags for: Eurooppa-päivä, YK:n päivä) |
 | `holidayOverlap` | string \| `null` | Name of the public holiday on the same date, if any (e.g. Itsenäisyyspäivä is both a holiday and a flag day); otherwise `null` |
 
-14 flag days per year: J. L. Runebergin päivä, Kalevalan päivä, Minna
-Canthin päivä, Mikael Agricolan päivä / Suomen kielen päivä, J. V.
-Snellmanin päivä, Puolustusvoimain lippujuhlan päivä, Eino Leinon päivä,
-Aleksis Kiven päivä, Ruotsalaisuuden päivä, Jean Sibeliuksen päivä,
-Äitienpäivä, Isänpäivä, Eurooppa-päivä, YK:n päivä.
+All dated flag days per year (checked 2026-09-28 against
+almanakka.helsinki.fi): the 7 official ones (Kalevalan päivä, Vappu,
+Äitienpäivä, Puolustusvoimain lippujuhlan päivä, Juhannuspäivä as Suomen
+lipun päivä, Isänpäivä, Itsenäisyyspäivä) and the customary ones (J. L.
+Runebergin päivä, Minna Canthin päivä, Mikael Agricolan päivä / Suomen
+kielen päivä, Kansallinen veteraanipäivä, Eurooppa-päivä, J. V. Snellmanin
+päivä, Kaatuneitten muistopäivä, Eino Leinon päivä, Aleksis Kiven päivä,
+YK:n päivä, Ruotsalaisuuden päivä, Jean Sibeliuksen päivä, Lapsen
+oikeuksien päivä from 2020, Suomen luonnon päivä and Miina Sillanpään päivä
+from 2023). Election days have no fixed date and are not included.
 
 ### Example
 
@@ -531,7 +536,7 @@ not hardcoded; the rest are fixed calendar dates.
 
 ### Temporal coverage
 
-2020–2035, one file per year, 14 flag days each.
+2020-2035, one file per year: 20 flag days in 2020-2022, 22 from 2023 on.
 
 ---
 
