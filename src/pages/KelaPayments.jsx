@@ -130,7 +130,9 @@ const KelaPayments = ({ year }) => {
         <Link to={`/palkkapaivat-${y}`}>palkkapäivät {y}</Link>,{" "}
         <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link>,{" "}
         <Link to={`/tyopaivat-${y}`}>työpäivät {y}</Link> ja{" "}
-        <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>.
+        <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>. Odottaville:{" "}
+        <Link to="/raskauslaskuri">raskauslaskuri</Link> näyttää raskausvapaan
+        alun ja raskausrahan hakupäivän.
       </p>
 
       <div className="prevnext">

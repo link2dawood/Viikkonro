@@ -57,6 +57,15 @@ import {
   leaveFaqs,
   leaveFreeReason,
 } from "./annualLeave.js";
+import {
+  dueFromLmp,
+  isKelaWorkingDay,
+  lmpFromDue,
+  pregnancyFaqs,
+  pregnancyReport,
+  weekNotation,
+  workingDaysBefore,
+} from "./pregnancyCalculator.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -125,6 +134,41 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("pregnancy calculator", () => {
+  it("puts the due date 280 days after the last period", () => {
+    expect(ymd(dueFromLmp(new Date(2027, 0, 1)))).toBe("2027-10-8");
+    expect(ymd(lmpFromDue(new Date(2027, 9, 8)))).toBe("2027-1-1");
+  });
+
+  it("writes pregnancy weeks as weeks+days", () => {
+    const r = pregnancyReport({ lmp: new Date(2026, 5, 1) }, new Date(2026, 7, 27));
+    expect(r.days).toBe(87);
+    expect(r.week).toBe("12+3");
+    expect(r.daysToDue).toBe(193);
+    expect(weekNotation(280)).toBe("40+0");
+  });
+
+  it("counts Kela working days (Mon-Sat, no arkipyhät) back from the due date", () => {
+    // Saturday counts, Sunday does not; itsenäisyyspäivä (su 6.12.2026) is a Sunday anyway.
+    expect(isKelaWorkingDay(new Date(2026, 8, 26))).toBe(true);
+    expect(isKelaWorkingDay(new Date(2026, 8, 27))).toBe(false);
+    expect(isKelaWorkingDay(new Date(2027, 4, 6))).toBe(false); // helatorstai
+    // Due Monday 12.10.2026: 6 working days back over one Sunday is Monday 5.10.
+    expect(ymd(workingDaysBefore(new Date(2026, 9, 12), 6))).toBe("2026-10-5");
+  });
+
+  it("dates the key milestones from the last period", () => {
+    const r = pregnancyReport({ lmp: new Date(2027, 0, 1) }, new Date(2027, 1, 1));
+    const byLabel = Object.fromEntries(r.milestones.map((m) => [m.label.split(" (")[0], m]));
+    expect(ymd(byLabel["Raskausrahaa voi hakea"].from)).toBe("2027-6-4"); // 1.1. + 154 days
+    expect(ymd(byLabel["Alkuraskauden ultraääni"].from)).toBe("2027-3-19"); // + 77 days
+  });
+
+  it("writes FAQ answers without en dashes", () => {
+    for (const { q, a } of pregnancyFaqs()) expect(q + a).not.toMatch(/–|\.\./);
   });
 });
 
