@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { routeMeta } from "../data/seo";
+import { openConsentSettings } from "../consent";
 
 const PrivacyPolicy = () => {
   const meta = routeMeta["/tietosuoja"];
@@ -14,7 +15,7 @@ const PrivacyPolicy = () => {
         </div>
         <h1>Tietosuojaseloste</h1>
         <div className="prose">
-          <p>Päivitetty viimeksi: 16. syyskuuta 2026</p>
+          <p>Päivitetty viimeksi: 27. syyskuuta 2026</p>
         </div>
         <h2>1. Rekisterinpitäjä ja yhteydenotto</h2>
         <div className="prose">
@@ -40,6 +41,9 @@ const PrivacyPolicy = () => {
             väärinkäytön estävä lähetysrajoitus tallentaa selaimen{" "}
             <code>localStorage</code>-muistiin vain lähetysaikoja. Laskureiden
             käyttämiseen ei tarvita mainos- tai analytiikkaevästeitä.
+            Evästevalintasi tallennetaan selaimen <code>localStorage</code>
+            -muistiin avaimella <code>viikkonro-consent</code>, jotta sitä ei
+            kysytä jokaisella sivulla. Tieto ei lähde laitteeltasi.
           </p>
           <p>
             <strong>Käyttöanalytiikka:</strong> Microsoft Clarity voi käsitellä
@@ -171,9 +175,18 @@ const PrivacyPolicy = () => {
             analytiikka- tai mainosevästeitä ja toimii rajoitetussa
             evästeettömässä tilassa, jossa yksittäisiä sivulatauksia ja
             perusvuorovaikutuksia voidaan käsitellä ilman sivujen välille
-            jatkuvaa evästeistuntoa. Jos käyttäjä antaa suostumuksen
-            analytiikkaan tai mainontaan, CMP välittää valinnan Claritylle.
-            Suostumuksen voi myöhemmin perua CMP:n evästeasetuksista.
+            jatkuvaa evästeistuntoa. Sivuston evästebannerissa voit sallia
+            analytiikkaevästeet, jolloin Claritylle välitetään{" "}
+            <code>analytics_Storage: granted</code> ja Clarity voi tunnistaa
+            palaavan selaimen. Mainosevästeet pysyvät tämän valinnan jälkeenkin
+            estettyinä. Voit muuttaa tai perua valinnan milloin tahansa
+            sivuston alaosan Evästeasetukset-linkistä tai alla olevasta
+            painikkeesta; perumisen yhteydessä Clarityn evästeet poistetaan.
+          </p>
+          <p>
+            <button type="button" className="btn" onClick={openConsentSettings}>
+              Muuta evästeasetuksia
+            </button>
           </p>
           <p>
             Lisätietoja siitä, miten Microsoft käsittelee ja suojaa tietoja, on{" "}
