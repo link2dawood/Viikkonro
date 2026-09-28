@@ -26,6 +26,11 @@ const TOOLS = [
     desc: "Työpäivät kahden päivän välillä, viikonloput ja arkipyhät huomioiden.",
   },
   {
+    to: "/kuukautislaskuri",
+    name: "Kuukautislaskuri",
+    desc: "Seuraavat kuukautiset, arvioitu ovulaatio ja hedelmälliset päivät.",
+  },
+  {
     to: "/raskauslaskuri",
     name: "Raskauslaskuri",
     desc: "Raskausviikko ja laskettu aika sekä raskausvapaan ja raskausrahan päivät.",

@@ -199,7 +199,8 @@ const PregnancyCalculator = () => {
       </section>
 
       <p className="hub-links">
-        Katso myös <Link to="/paivamaaralaskuri">päivämäärälaskuri</Link>,{" "}
+        Katso myös <Link to="/kuukautislaskuri">kuukautislaskuri</Link>,{" "}
+        <Link to="/paivamaaralaskuri">päivämäärälaskuri</Link>,{" "}
         <Link to="/paivien-erotus">päivien erotus</Link>,{" "}
         <Link to="/ikalaskuri">ikälaskuri</Link> ja{" "}
         <Link to="/laskurit">kaikki laskurit</Link>.

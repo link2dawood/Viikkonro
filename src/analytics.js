@@ -42,6 +42,7 @@ const PAGE_TYPES = [
   [/^\/tuntilaskuri$/, "laskuri-tunnit"],
   [/^\/vuosilomalaskuri$/, "laskuri-vuosiloma"],
   [/^\/raskauslaskuri$/, "laskuri-raskaus"],
+  [/^\/kuukautislaskuri$/, "laskuri-kuukautiset"],
   [/^\/kuun-vaiheet-\d+$/, "kuun-vaiheet"],
   [/^\/auringonlasku(-[a-z]+)?$/, "auringonlasku"],
   [/^\/nimipaiv/, "nimipaivat"],
