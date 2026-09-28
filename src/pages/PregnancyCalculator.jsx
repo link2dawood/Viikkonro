@@ -21,6 +21,55 @@ function parse(str) {
 }
 const dm = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
 
+// Key dates and the week calendar for a report. Renders nothing for a date
+// outside the pregnancy (a future last period, or a due date long past):
+// such a report has no milestones, and rendering them crashed the page.
+export const PregnancyDetails = ({ r }) => {
+  if (!r || r.outOfRange) return null;
+  return (
+    <section className="prose">
+      <h2>Tärkeät päivät</h2>
+      <ul>
+        {r.milestones.map((m) => (
+          <li key={m.label}>
+            <strong>{m.label}:</strong> {fmtFullFi(m.from)}
+            {m.to ? ` - ${fmtFullFi(m.to)}` : ""}
+          </li>
+        ))}
+      </ul>
+      <p className="note-soft">
+        Tarkista raskausvapaan päivät{" "}
+        <a href={SOURCES.kelaCalculator} target="_blank" rel="noopener noreferrer">
+          Kelan laskurista
+        </a>
+        .
+      </p>
+
+      <h2>Raskausviikot kalenterissa</h2>
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Raskausviikko</th>
+              <th scope="col">Alkaa</th>
+              <th scope="col">Päättyy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {weekCalendar(r.start).map((w) => (
+              <tr key={w.week}>
+                <th scope="row">rv {w.week}</th>
+                <td>{dm(w.from)}{w.from.getFullYear()}</td>
+                <td>{dm(w.to)}{w.to.getFullYear()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+};
+
 // Pregnancy calculator (/raskauslaskuri). Inputs start empty, so nothing
 // personal is prerendered; "today" comes from useToday().
 const PregnancyCalculator = () => {
@@ -88,48 +137,7 @@ const PregnancyCalculator = () => {
         arviota.
       </p>
 
-      {r && (
-        <section className="prose">
-          <h2>Tärkeät päivät</h2>
-          <ul>
-            {r.milestones.map((m) => (
-              <li key={m.label}>
-                <strong>{m.label}:</strong> {fmtFullFi(m.from)}
-                {m.to ? ` - ${fmtFullFi(m.to)}` : ""}
-              </li>
-            ))}
-          </ul>
-          <p className="note-soft">
-            Tarkista raskausvapaan päivät{" "}
-            <a href={SOURCES.kelaCalculator} target="_blank" rel="noopener noreferrer">
-              Kelan laskurista
-            </a>
-            .
-          </p>
-
-          <h2>Raskausviikot kalenterissa</h2>
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th scope="col">Raskausviikko</th>
-                  <th scope="col">Alkaa</th>
-                  <th scope="col">Päättyy</th>
-                </tr>
-              </thead>
-              <tbody>
-                {weekCalendar(r.start).map((w) => (
-                  <tr key={w.week}>
-                    <th scope="row">rv {w.week}</th>
-                    <td>{dm(w.from)}{w.from.getFullYear()}</td>
-                    <td>{dm(w.to)}{w.to.getFullYear()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+      <PregnancyDetails r={r} />
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
