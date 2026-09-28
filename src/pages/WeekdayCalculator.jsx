@@ -87,7 +87,8 @@ const WeekdayCalculator = () => {
         ))}
       </div>
       <p>
-        Katso myös <Link to="/paivamaara-viikoksi">päivämäärän viikkonumero</Link>,{" "}
+        Katso myös <Link to="/ikalaskuri">ikälaskuri</Link>,{" "}
+        <Link to="/paivamaara-viikoksi">päivämäärän viikkonumero</Link>,{" "}
         <Link to="/">mikä viikko nyt on</Link> ja <Link to="/mika-kuukausi-nyt">mikä kuukausi nyt on</Link>.
       </p>
     </section>

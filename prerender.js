@@ -153,6 +153,7 @@ import {
   offsetFaqs,
   offsetPath,
 } from "./src/data/dateCalculator.js";
+import { AGE_PATH, AGE_STEPS, ageFaqs } from "./src/data/ageCalculator.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
 import { COUNTDOWNS, COUNTDOWN_BY_PATH, countdownFaqs } from "./src/data/countdownPages.js";
 import {
@@ -2956,6 +2957,15 @@ function dstNodes(year) {
   ];
 }
 
+// /ikalaskuri: HowTo + FAQ from the same data the page renders. The FAQ uses
+// fixed example dates, so it does not depend on the build day.
+function ageCalculatorNodes() {
+  return [
+    faqPageNode(AGE_PATH, ageFaqs()),
+    howToNode(AGE_PATH, "Näin lasket tarkan ikäsi", AGE_STEPS),
+  ];
+}
+
 // /paivamaaralaskuri: HowTo + FAQ from the same data the page renders.
 function dateCalculatorNodes() {
   return [
@@ -3297,6 +3307,7 @@ for (const url of routes) {
       if (dstMatch) nodes.push(...dstNodes(+dstMatch[1]));
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
       if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());
+      if (url === AGE_PATH) nodes.push(...ageCalculatorNodes());
       if (OFFSET_BY_PATH[url]) nodes.push(...dateOffsetNodes(url));
       if (url === CALENDAR_SUBSCRIPTION_PATH) nodes.push(...calendarSubscriptionNodes());
       if (url === WIDGET_EMBED_PAGE_PATH) nodes.push(...widgetEmbedNodes());
@@ -4615,6 +4626,7 @@ const llmsFull =
     "  /tyopaivalaskuri  — count working days between two dates",
     "  /paivien-erotus  — count total days between two dates",
     "  /paivamaaralaskuri  - add or subtract days, weeks, months or working days from any date",
+    "  /ikalaskuri  - exact age in years, months and days, next birthday, milestones (18 years, 10 000 days), and the age reached this year by birth year",
     `  /{${OFFSETS.join("|")}}-paivaa-eteenpain  - the date N days from today (rebuilt daily), plus N days from the 1st of every month`,
     "  /viikonpaiva  — look up the weekday of any date (shareable result)",
     "",

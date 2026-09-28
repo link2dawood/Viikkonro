@@ -181,7 +181,8 @@ const DateCalculator = () => {
         Katso myös <Link to="/paivien-erotus">päivien erotus</Link>,{" "}
         <Link to="/tyopaivalaskuri">työpäivälaskuri</Link>,{" "}
         <Link to="/paivamaara-viikoksi">päivämäärästä viikkonumeroon</Link>,{" "}
-        <Link to="/viikonpaiva">viikonpäivälaskuri</Link> ja{" "}
+        <Link to="/viikonpaiva">viikonpäivälaskuri</Link>,{" "}
+        <Link to="/ikalaskuri">ikälaskuri</Link> ja{" "}
         <Link to="/laskurit">kaikki laskurit</Link>.
       </p>
     </section>
