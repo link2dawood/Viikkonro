@@ -10,6 +10,7 @@ import QuickFacts from "../components/QuickFacts";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
 import { flagDayFaqs, flagDaysInYear, flagDaysMeta } from "../data/flagDayPages";
 import { holidayLinkPath } from "../data/holidayPages";
+import { observancePathForFlagDay } from "../data/observanceDays";
 
 // Finland's flag-day (liputuspäivät) hub for a year (/liputuspaivat-2026).
 // Distinct from /pyhapaivat-<year> (public holidays) — a flag day is not
@@ -88,7 +89,11 @@ const FlagDays = ({ year: pYear } = {}) => {
             {days.map((d) => (
               <tr key={`${d.name}-${d.date.toISOString()}`} id={d.slug}>
                 <td>
-                  {d.name}
+                  {observancePathForFlagDay(d.name, y) ? (
+                    <Link to={observancePathForFlagDay(d.name, y)}>{d.name}</Link>
+                  ) : (
+                    d.name
+                  )}
                   {d.altName ? ` (${d.altName})` : ""}
                 </td>
                 <td>
@@ -123,7 +128,9 @@ const FlagDays = ({ year: pYear } = {}) => {
       </section>
 
       <p>
-        Katso myös <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}
+        Katso myös <Link to={`/isanpaiva-${year}`}>isänpäivä {year}</Link>,{" "}
+        <Link to={`/aitienpaiva-${year}`}>äitienpäivä {year}</Link>,{" "}
+        <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}
         <Link to={`/vuosi-${year}`}>vuoden {year} viikkonumerot</Link>,{" "}
         <Link to={`/kalenteri-${year}`}>vuoden {year} kalenteri</Link> ja{" "}
         <Link to={`/tyopaivat-${year}`}>työpäivät {year}</Link>.

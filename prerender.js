@@ -135,6 +135,14 @@ import {
   kelaPaymentFaqs,
   pensionPaymentFaqs,
 } from "./src/data/benefitPaymentPages.js";
+import {
+  OBSERVANCES,
+  OBSERVANCE_SLUG_RE,
+  observanceFaqs,
+  observanceMeta,
+  observancePage,
+  upcomingYears,
+} from "./src/data/observanceDays.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
 import { COUNTDOWNS, COUNTDOWN_BY_PATH, countdownFaqs } from "./src/data/countdownPages.js";
 import {
@@ -649,6 +657,14 @@ function entityParentExtra(url) {
       isPartOf: [
         { "@id": `${SITE_URL}/#website` },
         { "@id": `${canonicalFor(`/vuosi-${year}`)}#webpage` },
+      ],
+    };
+  }
+  if ((m = url.slice(1).match(OBSERVANCE_SLUG_RE))) {
+    return {
+      isPartOf: [
+        { "@id": `${SITE_URL}/#website` },
+        { "@id": `${canonicalFor(`/vuosi-${m[2]}`)}#webpage` },
       ],
     };
   }
@@ -2839,6 +2855,40 @@ function howToNode(url, name, steps) {
   };
 }
 
+// /isanpaiva-{year}, /aitienpaiva-{year}, ...: the page's own WebPage node
+// (with mentions of its week, month and year, like the named holiday pages),
+// the FAQ, and the same day in the coming years as an ItemList. Everything
+// comes from observanceDays.js, the same source as the visible page.
+function observanceNodes(url) {
+  const m = url.slice(1).match(OBSERVANCE_SLUG_RE);
+  const page = observancePage(m[1], +m[2]);
+  return [
+    pageNode(url, "WebPage", {
+      description: observanceMeta(m[1], +m[2]).description,
+      about: { "@type": "Thing", name: page.name },
+      mentions: [
+        { "@id": `${canonicalFor(page.weekPath)}#webpage` },
+        { "@id": `${canonicalFor(page.monthPath)}#webpage` },
+        { "@id": `${canonicalFor(`/vuosi-${page.year}`)}#webpage` },
+      ],
+      speakable: { "@type": "SpeakableSpecification", cssSelector: [".answer-sentence"] },
+      ...entityParentExtra(url),
+    }),
+    faqPageNode(url, observanceFaqs(page)),
+    {
+      "@type": "ItemList",
+      "@id": `${canonicalFor(url)}#upcoming`,
+      name: `${page.name} tulevina vuosina`,
+      itemListElement: upcomingYears(page.slug, page.year).map((u, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `${page.name} ${u.year}: ${ymd(u.date)}`,
+        url: canonicalFor(u.path),
+      })),
+    },
+  ];
+}
+
 // /kelan-maksupaivat-{year} and /elakkeen-maksupaivat-{year}: FAQ plus one
 // ItemList per benefit column of the page table, so every payment date is
 // machine-readable without parsing HTML. Same data source as the visible
@@ -3198,6 +3248,7 @@ for (const url of routes) {
       if (kelaMatch) {
         nodes.push(...benefitPaymentNodes(url, +kelaMatch[1], KELA_BENEFITS, kelaPaymentFaqs(+kelaMatch[1])));
       }
+      if (OBSERVANCE_SLUG_RE.test(url.slice(1))) nodes.push(...observanceNodes(url));
       const pensionMatch = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/);
       if (pensionMatch) {
         nodes.push(...benefitPaymentNodes(url, +pensionMatch[1], PENSION_BENEFITS, pensionPaymentFaqs(+pensionMatch[1])));
@@ -3997,7 +4048,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   namingConventions: {
     pageEntityId: "{canonicalUrl}#webpage — every page's own node id",
     subResourceId:
-      "{canonicalUrl}#{fragment} — fragment in {faq, breadcrumb, media, discover, howto, article, events, changes, paydays-15, one benefit id per payment-calendar column e.g. lapsilisa or tyoelake}; calendar feeds use {feedUrl}#feed",
+      "{canonicalUrl}#{fragment} — fragment in {faq, breadcrumb, media, discover, howto, article, events, changes, paydays-15, one benefit id per payment-calendar column e.g. lapsilisa or tyoelake, upcoming}; calendar feeds use {feedUrl}#feed",
     globalSingletons: [`${SITE_URL}/#website`, `${SITE_URL}/#organization`],
     datasetFamilyId: `${SITE_URL}/#dataset-{id} — one per /data/ family (see datasets below)`,
     pdfMediaId: "{pdfUrl}#media",
@@ -4099,6 +4150,14 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
       count: "1 per year",
     },
     {
+      entity: "Observance Day",
+      schemaType: "WebPage (+ FAQPage, ItemList of coming years)",
+      urlPattern: `/{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year}`,
+      idPattern: `${SITE_URL}/{slug}-{year}#webpage`,
+      example: `${SITE_URL}/isanpaiva-${kgYear}`,
+      count: `${OBSERVANCES.length} per year`,
+    },
+    {
       entity: "Daylight Saving Time",
       schemaType: "WebPage (+ FAQPage, ItemList)",
       urlPattern: "/kesaaika-{year}",
@@ -4185,6 +4244,10 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     { from: "Payday Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Kela Payment Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Pension Payment Calendar", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
+    { from: "Observance Day", relation: "isPartOf", to: "Year", cardinality: "many-to-one" },
+    { from: "Observance Day", relation: "mentions", to: "Week", cardinality: "many-to-one" },
+    { from: "Observance Day", relation: "mentions", to: "Month", cardinality: "many-to-one" },
+    { from: "Observance Day", relation: "mentions", to: "Year", cardinality: "many-to-one" },
     { from: "Daylight Saving Time", relation: "isPartOf", to: "Year", cardinality: "one-to-one" },
     { from: "Calendar", relation: "mainEntity (ItemList)", to: "Month", cardinality: "one-to-twelve" },
     { from: "Calendar", relation: "associatedMedia", to: "PDF", cardinality: "one-to-one" },
@@ -4204,10 +4267,11 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     Week: { linksTo: ["Year"], linkedFrom: ["Year (ItemList)", "Month (ItemList)", "Holiday (mentions)"] },
     Month: { linksTo: ["Quarter", "Year", "Holiday (mentions)", "PDF"], linkedFrom: ["Quarter (hasPart)", "Year (hasPart)", "Working Day monthly", "Holiday (mentions)"] },
     Quarter: { linksTo: ["Year", "Month (hasPart)"], linkedFrom: ["Month", "Year (hasPart)"] },
-    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Daylight Saving Time"] },
+    Year: { linksTo: ["Month (hasPart)", "Quarter (hasPart)", "Week (ItemList)"], linkedFrom: ["Week", "Month", "Quarter", "Holiday hub", "Flag Day hub", "Working Day yearly", "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Observance Day", "Daylight Saving Time"] },
     "Payday Calendar": { linksTo: ["Year"], linkedFrom: [] },
     "Kela Payment Calendar": { linksTo: ["Year"], linkedFrom: [] },
     "Pension Payment Calendar": { linksTo: ["Year"], linkedFrom: [] },
+    "Observance Day": { linksTo: ["Year", "Week (mentions)", "Month (mentions)"], linkedFrom: [] },
     "Daylight Saving Time": { linksTo: ["Year"], linkedFrom: [] },
     Countdown: { linksTo: [], linkedFrom: [] },
     "Calendar Feed": { linksTo: [], linkedFrom: ["Calendar subscription page (DataFeed)"] },
@@ -4228,7 +4292,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   graphStructure: {
     nodeTypes: [
       "Week", "Month", "Quarter", "Year", "Holiday", "Flag Day", "Working Day",
-      "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Daylight Saving Time", "Countdown",
+      "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Observance Day", "Daylight Saving Time", "Countdown",
       "Calendar Feed", "Widget", "PDF", "Dataset", "API Endpoint", "Website", "Organization",
     ],
     edgeTypes: ["isPartOf", "hasPart", "mentions", "mainEntity", "associatedMedia", "potentialAction", "redirects to", "creator/publisher"],
@@ -4484,6 +4548,9 @@ const llmsFull =
     "  /kelan-maksupaivat-{year}  - the actual payment day of every Kela benefit per month (general housing allowance, study grant, basic income support, pensioner housing allowance, national pension, maintenance allowance, guarantee pension, child benefit)",
     "  /elakkeen-maksupaivat-{year}  - the actual payment day of the earnings-related pension (tyoelake) and Kela's pensions per month",
     "",
+    "Observance day pages (widely observed days that are not public holidays)",
+    `  /{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year}  - date, weekday, ISO week, how the date is set, flag-day status and the same day in the coming years`,
+    "",
     "Daylight saving time pages",
     "  /kesaaika-{year}  — the two clock-change dates of the year (last Sunday of March at 03:00 -> 04:00, last Sunday of October at 04:00 -> 03:00, Finnish local time), with ISO week numbers",
     "",
@@ -4534,6 +4601,7 @@ const llmsFull =
     `  ${SITE_URL}/palkkapaivat-${llY}`,
     `  ${SITE_URL}/kelan-maksupaivat-${llY}`,
     `  ${SITE_URL}/elakkeen-maksupaivat-${llY}`,
+    ...OBSERVANCES.map((o) => `  ${SITE_URL}/${o.slug}-${llY}`),
     `  ${SITE_URL}/kesaaika-${llY}`,
     `  ${SITE_URL}${COUNTDOWNS[0].path}`,
     `  ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}`,
@@ -4672,7 +4740,7 @@ const llmsGlossary =
     llHolidayLines,
     "Only the 13 statutory holidays reduce the working-day counts published across the site (week/month/quarter/year working-day figures); the 2 eve days and all flag days do not.",
     "",
-    `Flag days (liputuspäivät): Finland has 14 recognised flag-flying days, listed on /liputuspaivat-${llY}, in three categories — officially decreed civic/cultural days honouring a named person or institution, two days established by tradition (Mother's Day, Father's Day), and two international observance days Finland also flags for:`,
+    `Flag days (liputuspäivät): Finland has 14 recognised flag-flying days, listed on /liputuspaivat-${llY}, in three categories: official flag days in the flag-day decree 383/1978 (Kalevala Day, Mother's Day, the Defence Forces flag day and Father's Day, which became official in 2019), customary flag days on the University of Helsinki list, and two international observance days Finland also flags for:`,
     llFlagDayLines,
     "A flag day can coincide with a public holiday (e.g. Itsenäisyyspäivä / Independence Day, 6 December, is both a statutory holiday and a flag day).",
     "",
@@ -4707,6 +4775,14 @@ const llmsGlossary =
     "  benefit also moves back when the 26th is the day right after a weekend",
     "  or bank holiday (usually a Monday).",
     "  Documented per year at /kelan-maksupaivat-{year} and /elakkeen-maksupaivat-{year}.",
+    "",
+    "## Observance days (not public holidays)",
+    "",
+    "  Checked against almanakka.helsinki.fi (2026-09-28). Isänpäivä and",
+    "  äitienpäivä are official flag days (isänpäivä since the 2019 decree",
+    "  amendment); the other days are neither flag days nor days off.",
+    ...OBSERVANCES.map((o) => `  ${o.name}: ${o.rule}`),
+    `  Documented per year at /{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year}.`,
     "",
     "## Daylight saving time",
     "",
@@ -4827,6 +4903,7 @@ const aiManifest =
     `   ${SITE_URL}/palkkapaivat-${amCalYear}  — paydays this year (pattern: /palkkapaivat-{year})`,
     `   ${SITE_URL}/kelan-maksupaivat-${amCalYear}  - Kela payment days this year (pattern: /kelan-maksupaivat-{year})`,
     `   ${SITE_URL}/elakkeen-maksupaivat-${amCalYear}  - pension payment days this year (pattern: /elakkeen-maksupaivat-{year})`,
+    `   ${SITE_URL}/isanpaiva-${amCalYear}  - observance days this year (pattern: /{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year})`,
     `   ${SITE_URL}/kesaaika-${amCalYear}  — daylight saving time this year (pattern: /kesaaika-{year})`,
     "",
     "## PDF resources",

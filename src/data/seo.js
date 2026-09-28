@@ -61,6 +61,13 @@ import { englishMeta } from "./englishContent.js";
 import { DATASET_PAGES, datasetPageMeta } from "./datasetPages.js";
 import { paydayMeta } from "./paydayPages.js";
 import { kelaPaymentMeta, pensionPaymentMeta } from "./benefitPaymentPages.js";
+import {
+  OBSERVANCES,
+  OBSERVANCE_SLUG_RE,
+  observanceMeta,
+  observancePage,
+  observancePath,
+} from "./observanceDays.js";
 import { dstMeta } from "./dstPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
@@ -1024,6 +1031,13 @@ export function sitemapEntries(year) {
       changefreq: current ? "monthly" : "yearly",
       priority: current ? "0.7" : "0.5",
     });
+    for (const observance of OBSERVANCES) {
+      entries.push({
+        path: observancePath(observance.slug, y),
+        changefreq: current ? "monthly" : "yearly",
+        priority: current ? "0.7" : "0.5",
+      });
+    }
     entries.push({
       path: `/kesaaika-${y}`,
       changefreq: current ? "monthly" : "yearly",
@@ -1091,6 +1105,7 @@ export function metaFor(url) {
   if ((m = url.match(/^\/palkkapaivat-(\d{4})$/))) return paydayMeta(+m[1]);
   if ((m = url.match(/^\/kelan-maksupaivat-(\d{4})$/))) return kelaPaymentMeta(+m[1]);
   if ((m = url.match(/^\/elakkeen-maksupaivat-(\d{4})$/))) return pensionPaymentMeta(+m[1]);
+  if ((m = url.slice(1).match(OBSERVANCE_SLUG_RE))) return observanceMeta(m[1], +m[2]);
   if ((m = url.match(/^\/kesaaika-(\d{4})$/))) return dstMeta(+m[1]);
   if ((m = url.match(/^\/kalenteri-(\d+)-(alkuvuosi|loppuvuosi)$/)))
     return calendarMeta(+m[1], m[2] === "alkuvuosi" ? 1 : 2, false);
@@ -1223,6 +1238,14 @@ export function breadcrumbTrail(url) {
       home,
       { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
       { name: `Eläkkeen maksupäivät ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.slice(1).match(OBSERVANCE_SLUG_RE))) {
+    const page = observancePage(m[1], +m[2]);
+    return [
+      home,
+      { name: `Viikot ${m[2]}`, path: `/vuosi-${m[2]}` },
+      { name: `${page.name} ${m[2]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/kesaaika-(\d{4})$/))) {

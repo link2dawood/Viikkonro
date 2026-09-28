@@ -191,6 +191,10 @@ const YearCalendar = ({ year: pYear } = {}) => {
         <Link to={`/palkkapaivat-${year}`}>palkkapäivät {year}</Link>,{" "}
         <Link to={`/kelan-maksupaivat-${year}`}>Kelan maksupäivät {year}</Link>,{" "}
         <Link to={`/elakkeen-maksupaivat-${year}`}>eläkkeen maksupäivät {year}</Link>,{" "}
+        <Link to={`/isanpaiva-${year}`}>isänpäivä {year}</Link>,{" "}
+        <Link to={`/aitienpaiva-${year}`}>äitienpäivä {year}</Link>,{" "}
+        <Link to={`/laskiainen-${year}`}>laskiainen {year}</Link>,{" "}
+        <Link to={`/adventti-${year}`}>adventti {year}</Link>,{" "}
         <Link to={`/kesaaika-${year}`}>kesäaika {year}</Link>
         {/* STEP 6: Year Page → Confirmed School Holiday Page only. */}
         {pageConfidenceTier(selectedYear) === CONFIDENCE.CONFIRMED && (

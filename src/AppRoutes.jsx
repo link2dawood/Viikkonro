@@ -52,6 +52,8 @@ import EnglishHome from "./pages/EnglishHome";
 import Paydays from "./pages/Paydays";
 import KelaPayments from "./pages/KelaPayments";
 import PensionPayments from "./pages/PensionPayments";
+import ObservanceDay from "./pages/ObservanceDay";
+import { OBSERVANCE_SLUG_RE } from "./data/observanceDays";
 import DaylightSaving from "./pages/DaylightSaving";
 import Countdown from "./pages/Countdown";
 import CalendarSubscription from "./pages/CalendarSubscription";
@@ -102,6 +104,8 @@ const DynamicSlug = () => {
     return validateYear(+m[1]) ? <KelaPayments year={+m[1]} /> : <NotFound />;
   if ((m = slug.match(/^elakkeen-maksupaivat-(\d{4})$/)))
     return validateYear(+m[1]) ? <PensionPayments year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(OBSERVANCE_SLUG_RE)))
+    return validateYear(+m[2]) ? <ObservanceDay slug={m[1]} year={+m[2]} /> : <NotFound />;
   if ((m = slug.match(/^kesaaika-(\d{4})$/)))
     return validateYear(+m[1]) ? <DaylightSaving year={+m[1]} /> : <NotFound />;
   return <NotFound />;

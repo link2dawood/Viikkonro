@@ -470,7 +470,7 @@ Each item in `flagDays[]`:
 | `weekday` | string | Finnish weekday name |
 | `week` | integer | ISO week number containing this date |
 | `weekYear` | integer | ISO week-year containing this date |
-| `category` | string | One of `"virallinen"` (officially decreed), `"vakiintunut"` (established by tradition — Äitienpäivä, Isänpäivä), `"kansainvälinen"` (international observance Finland also flags for — Eurooppa-päivä, YK:n päivä) |
+| `category` | string | One of `"virallinen"` (in the flag-day decree 383/1978: Kalevalan päivä, Äitienpäivä, Puolustusvoimain lippujuhlan päivä, Isänpäivä), `"vakiintunut"` (customary flag day on the University of Helsinki list, e.g. J. L. Runebergin päivä), `"kansainvälinen"` (international observance Finland also flags for: Eurooppa-päivä, YK:n päivä) |
 | `holidayOverlap` | string \| `null` | Name of the public holiday on the same date, if any (e.g. Itsenäisyyspäivä is both a holiday and a flag day); otherwise `null` |
 
 14 flag days per year: J. L. Runebergin päivä, Kalevalan päivä, Minna
