@@ -31,6 +31,7 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Kelan maksupäivät 2026](https://viikkonro.fi/kelan-maksupaivat-2026): lapsilisän, asumistuen, opintorahan, kansaneläkkeen, takuueläkkeen ja elatustuen todelliset maksupäivät kuukausittain
 - [Eläkkeen maksupäivät 2026](https://viikkonro.fi/elakkeen-maksupaivat-2026): työeläkkeen ja Kelan eläkkeiden maksupäivät kuukausittain
 - [Isänpäivä 2026](https://viikkonro.fi/isanpaiva-2026): isänpäivän päivämäärä, viikko, liputus ja päivät tuleville vuosille (samaan sarjaan kuuluvat äitienpäivä, ystävänpäivä, laskiainen ja adventti)
+- [Päivämäärälaskuri](https://viikkonro.fi/paivamaaralaskuri): lisää tai vähennä päiviä, viikkoja, kuukausia tai arkipäiviä; valmiit laskut kuten [90 päivää eteenpäin](https://viikkonro.fi/90-paivaa-eteenpain)
 - [Kesäaika 2026](https://viikkonro.fi/kesaaika-2026): kellojen siirto kesä- ja talviaikaan päivämäärineen ja viikkonumeroineen
 - [Kuinka monta päivää jouluun?](https://viikkonro.fi/kuinka-monta-paivaa-jouluun): päivälaskuri jouluaattoon; myös [juhannukseen](https://viikkonro.fi/kuinka-monta-paivaa-juhannukseen), [kesälomaan](https://viikkonro.fi/kuinka-monta-paivaa-kesalomaan) ja [uuteenvuoteen](https://viikkonro.fi/kuinka-monta-paivaa-uuteenvuoteen)
 - [Kalenteritilaus](https://viikkonro.fi/kalenteritilaus): viikkonumerot, pyhäpäivät ja liputuspäivät Google-kalenteriin, Outlookiin tai iPhoneen (iCalendar)

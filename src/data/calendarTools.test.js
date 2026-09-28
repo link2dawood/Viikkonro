@@ -18,6 +18,15 @@ import {
   observanceMeta,
   observancePage,
 } from "./observanceDays.js";
+import {
+  OFFSETS,
+  addWorkingDays,
+  calculate,
+  offsetFaqs,
+  offsetMeta,
+  offsetPage,
+  weeksAndDays,
+} from "./dateCalculator.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -86,6 +95,42 @@ describe("Kela and pension payment days", () => {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
+  });
+});
+
+describe("date calculator", () => {
+  it("does not count the start day", () => {
+    expect(ymd(calculate(new Date(2026, 0, 1), 1, "paivaa").result)).toBe("2026-1-2");
+    expect(ymd(calculate(new Date(2026, 0, 1), 1, "viikkoa").result)).toBe("2026-1-8");
+  });
+
+  it("clamps months to the last day of a shorter month", () => {
+    expect(ymd(calculate(new Date(2027, 0, 31), 1, "kuukautta").result)).toBe("2027-2-28");
+    expect(ymd(calculate(new Date(2028, 0, 31), 1, "kuukautta").result)).toBe("2028-2-29");
+  });
+
+  it("skips weekends and official holidays but counts jouluaatto as a working day", () => {
+    // 23 (ke), 24 (to, jouluaatto), 28 (ma), 29 (ti), 30 (ke).
+    expect(ymd(calculate(new Date(2026, 11, 22), 5, "arkipaivaa").result)).toBe("2026-12-30");
+  });
+
+  it("counts backwards", () => {
+    expect(ymd(calculate(new Date(2027, 2, 1), 90, "paivaa", -1).result)).toBe("2026-12-1");
+    // 7.1.2026 is a Wednesday; loppiainen (ti 6.1.) is skipped: 5.1., then 2.1.
+    expect(ymd(addWorkingDays(new Date(2026, 0, 7), -2))).toBe("2026-1-2");
+  });
+
+  it("builds offset pages and titles within limits", () => {
+    const today = new Date(2026, 8, 28);
+    for (const n of OFFSETS) {
+      const p = offsetPage(n, today);
+      expect(ymd(p.result)).toBe(ymd(new Date(2026, 8, 28 + n)));
+      expect(offsetMeta(n, today).title.length).toBeLessThanOrEqual(60);
+      expect(offsetMeta(n, today).description.length).toBeLessThanOrEqual(160);
+      for (const { q, a } of offsetFaqs(n, today)) expect(q + a).not.toMatch(/–|\.\./);
+    }
+    expect(weeksAndDays(90)).toBe("12 viikkoa ja 6 päivää");
+    expect(weeksAndDays(8)).toBe("1 viikko ja 1 päivä");
   });
 });
 
