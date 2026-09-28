@@ -76,31 +76,50 @@ export function getJuhlapaivat(year) {
   ]);
 }
 
-// Flag days → Map("MM-DD" -> name[]). Mother's Day = 2nd Sunday of May,
-// Father's Day = 2nd Sunday of Nov — both movable, so in some years they land
-// on the same calendar date as one of the 12 fixed-date flag days (e.g.
-// Äitienpäivä and Eurooppa-päivä both fall on 9 May in 2027). The value is an
-// array (not a single name) specifically so that collision doesn't silently
-// drop one of the two real flag days for that date.
+// Last Saturday of a month (month0 is 0-based). Used for Suomen luonnon päivä.
+function lastSaturdayOfMonth(year, month0) {
+  const last = new Date(year, month0 + 1, 0);
+  return new Date(year, month0, last.getDate() - ((last.getDay() + 1) % 7));
+}
+
+// Flag days → Map("MM-DD" -> name[]). The full list of dated flag days,
+// checked 2026-09-28 against almanakka.helsinki.fi (the University of
+// Helsinki almanac office, which keeps the list of customary flag days) and
+// fi.wikipedia.org/wiki/Luettelo_Suomen_liputuspäivistä: 7 official days in
+// the flag-day decree plus the customary ones. Election days and presidential
+// inaugurations are also official flag days but have no fixed date, so they
+// are not listed. Days added recently only apply from their first year
+// (`since`). Movable days can land on the same date as a fixed one (e.g.
+// Äitienpäivä and Eurooppa-päivä both fall on 9 May in 2027), which is why the
+// value is an array: a collision never silently drops a real flag day.
 export function getLiputuspaivat(year) {
   const entries = [
     ["02-05", "J. L. Runebergin päivä"],
     ["02-28", "Kalevalan päivä"],
     ["03-19", "Minna Canthin päivä"],
     ["04-09", "Mikael Agricolan päivä / Suomen kielen päivä"],
+    ["04-27", "Kansallinen veteraanipäivä"],
+    ["05-01", "Vappu"],
     ["05-09", "Eurooppa-päivä"],
     ["05-12", "J. V. Snellmanin päivä"],
     [key(nthSundayOfMonth(year, 4, 2)), "Äitienpäivä"],
+    [key(nthSundayOfMonth(year, 4, 3)), "Kaatuneitten muistopäivä"],
     ["06-04", "Puolustusvoimain lippujuhlan päivä"],
-    [key(nthSundayOfMonth(year, 10, 2)), "Isänpäivä"],
+    [key(saturdayInWindow(year, 5, 20)), "Juhannuspäivä"],
     ["07-06", "Eino Leinon päivä"],
+    [key(lastSaturdayOfMonth(year, 7)), "Suomen luonnon päivä", 2023],
+    ["10-01", "Miina Sillanpään päivä", 2023],
     ["10-10", "Aleksis Kiven päivä"],
     ["10-24", "YK:n päivä"],
     ["11-06", "Ruotsalaisuuden päivä"],
+    [key(nthSundayOfMonth(year, 10, 2)), "Isänpäivä"],
+    ["11-20", "Lapsen oikeuksien päivä", 2020],
+    ["12-06", "Itsenäisyyspäivä"],
     ["12-08", "Jean Sibeliuksen päivä"],
   ];
   const map = new Map();
-  for (const [mmdd, name] of entries) {
+  for (const [mmdd, name, since] of entries) {
+    if (since && year < since) continue;
     if (!map.has(mmdd)) map.set(mmdd, []);
     map.get(mmdd).push(name);
   }

@@ -51,14 +51,16 @@ const FlagDays = ({ year: pYear } = {}) => {
 
       <p className="lead">
         <span className="answer-sentence">
-          Vuonna {year} Suomessa on <strong>{days.length} liputuspäivää</strong>.
+          Vuonna {year} Suomessa on <strong>{days.length} liputuspäivää</strong>,
+          joista {officialCount} on virallisia.
         </span>{" "}
         {suomenLipunPaiva && (
           <>
-            Suomen lipun päivä (Puolustusvoimain lippujuhlan päivä) on{" "}
-            {fmtFullFi(suomenLipunPaiva.date)}.
+            Suomen lipun päivä on juhannuspäivä, {fmtFullFi(suomenLipunPaiva.date)}.
           </>
-        )}
+        )}{" "}
+        Lisäksi vaalipäivät ja presidentin virkaanastujaispäivä ovat virallisia
+        liputuspäiviä.
       </p>
 
       <QuickFacts

@@ -60,7 +60,7 @@ Jokaiselle viikolle, kuukaudelle, vuodelle, vuosineljännekselle, pyhäpäivävu
 
 - [Viikkonumerot](https://viikkonro.fi/ics/viikkonumerot.ics): ISO-viikkonumero jokaisen viikon maanantaina
 - [Suomen pyhäpäivät](https://viikkonro.fi/ics/pyhapaivat.ics): 13 arkipyhää sekä juhannus- ja jouluaatto
-- [Suomen liputuspäivät](https://viikkonro.fi/ics/liputuspaivat.ics): 14 liputuspäivää
+- [Suomen liputuspäivät](https://viikkonro.fi/ics/liputuspaivat.ics): kaikki viralliset ja vakiintuneet liputuspäivät
 
 ## Optional
 
