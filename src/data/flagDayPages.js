@@ -10,26 +10,28 @@
 import { fmtFullFi, isoWeek, isoYear, getWeekdayName } from "../components/dateUtils.js";
 import { getJuhlapaivat, getLiputuspaivat } from "./juhlapaivat.js";
 
-// Category label per name. Äitienpäivä/Isänpäivä are Finland's two
-// "vakiintuneet liputuspäivät" (established by tradition rather than tied to
-// a specific person or civic decree); Eurooppa-päivä and YK:n päivä are
-// international observance days Finland also flags for; the rest are
-// Finland's officially decreed civic/cultural flag days honoring a named
-// person or institution. This classification labels the existing 14 names —
-// it does not add or remove any.
+// Category label per name, corrected 2026-09-28. "virallinen" means the day is
+// in the flag-day decree 383/1978: of the names below that is Kalevalan päivä,
+// Äitienpäivä, Puolustusvoimain lippujuhlan päivä and Isänpäivä (isänpäivä
+// since the amendment of 14.3.2019; valtioneuvosto.fi press release,
+// almanakka.helsinki.fi and intermin.fi agree). Every other day is a
+// "vakiintunut" (customary) flag day on the list the University of Helsinki
+// publishes, with Eurooppa-päivä and YK:n päivä kept under their own
+// "kansainvälinen" label. This labels the existing 14 names; it does not add
+// or remove any.
 const FLAG_DAY_CATEGORY = {
-  "J. L. Runebergin päivä": "virallinen",
+  "J. L. Runebergin päivä": "vakiintunut",
   "Kalevalan päivä": "virallinen",
-  "Minna Canthin päivä": "virallinen",
-  "Mikael Agricolan päivä / Suomen kielen päivä": "virallinen",
-  "J. V. Snellmanin päivä": "virallinen",
+  "Minna Canthin päivä": "vakiintunut",
+  "Mikael Agricolan päivä / Suomen kielen päivä": "vakiintunut",
+  "J. V. Snellmanin päivä": "vakiintunut",
   "Puolustusvoimain lippujuhlan päivä": "virallinen",
-  "Eino Leinon päivä": "virallinen",
-  "Aleksis Kiven päivä": "virallinen",
-  "Ruotsalaisuuden päivä": "virallinen",
-  "Jean Sibeliuksen päivä": "virallinen",
-  "Äitienpäivä": "vakiintunut",
-  "Isänpäivä": "vakiintunut",
+  "Eino Leinon päivä": "vakiintunut",
+  "Aleksis Kiven päivä": "vakiintunut",
+  "Ruotsalaisuuden päivä": "vakiintunut",
+  "Jean Sibeliuksen päivä": "vakiintunut",
+  "Äitienpäivä": "virallinen",
+  "Isänpäivä": "virallinen",
   "Eurooppa-päivä": "kansainvälinen",
   "YK:n päivä": "kansainvälinen",
 };

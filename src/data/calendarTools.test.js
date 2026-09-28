@@ -10,6 +10,14 @@ import {
   kelaPaymentFaqs,
   pensionPaymentFaqs,
 } from "./benefitPaymentPages.js";
+import {
+  OBSERVANCES,
+  OBSERVANCE_SLUG_RE,
+  observanceFaqs,
+  observanceHighlights,
+  observanceMeta,
+  observancePage,
+} from "./observanceDays.js";
 import { COUNTDOWNS, countdownStats, countdownFaqs, nextTarget } from "./countdownPages.js";
 import { buildIcs, foldIcsLine, holidayEvents, weekEvents } from "./icsFeeds.js";
 import { weekWidgetHtml, widgetEmbedCode } from "./weekWidget.js";
@@ -75,6 +83,48 @@ describe("Kela and pension payment days", () => {
   it("writes FAQ answers without en dashes or doubled periods", () => {
     for (const faqs of [kelaPaymentFaqs(2026), pensionPaymentFaqs(2026)]) {
       for (const { q, a } of faqs) {
+        expect(q + a).not.toMatch(/–|\.\./);
+      }
+    }
+  });
+});
+
+describe("observance days", () => {
+  const dm = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
+
+  it("matches the published dates", () => {
+    expect(dm(observancePage("isanpaiva", 2026).date)).toBe("8.11.");
+    expect(dm(observancePage("aitienpaiva", 2027).date)).toBe("9.5.");
+    expect(dm(observancePage("laskiainen", 2026).date)).toBe("15.2.");
+    expect(dm(observancePage("laskiainen", 2026).extras[0].date)).toBe("17.2.");
+    expect(dm(observancePage("adventti", 2026).date)).toBe("29.11.");
+    expect(dm(observancePage("ystavanpaiva", 2027).date)).toBe("14.2.");
+  });
+
+  it("keeps isänpäivä eight days after pyhäinpäivä every year", () => {
+    for (let y = 2020; y <= 2035; y++) {
+      const [fact] = observanceHighlights(observancePage("isanpaiva", y));
+      expect(fact.text).toContain("kahdeksan päivää");
+    }
+  });
+
+  it("notices when äitienpäivä shares its date with another flag day", () => {
+    const [fact] = observanceHighlights(observancePage("aitienpaiva", 2027));
+    expect(fact.text).toContain("Eurooppa-päivä");
+  });
+
+  it("routes only the five observance slugs", () => {
+    expect(OBSERVANCE_SLUG_RE.test("isanpaiva-2026")).toBe(true);
+    expect(OBSERVANCE_SLUG_RE.test("isanpaiva-26")).toBe(false);
+    expect(OBSERVANCE_SLUG_RE.test("halloween-2026")).toBe(false);
+  });
+
+  it("writes titles, descriptions and FAQs within limits and without en dashes", () => {
+    for (const o of OBSERVANCES) {
+      const meta = observanceMeta(o.slug, 2027);
+      expect(meta.title.length).toBeLessThanOrEqual(60);
+      expect(meta.description.length).toBeLessThanOrEqual(160);
+      for (const { q, a } of observanceFaqs(observancePage(o.slug, 2027))) {
         expect(q + a).not.toMatch(/–|\.\./);
       }
     }
