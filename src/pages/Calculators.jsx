@@ -26,6 +26,11 @@ const TOOLS = [
     desc: "Työpäivät kahden päivän välillä, viikonloput ja arkipyhät huomioiden.",
   },
   {
+    to: "/raskauslaskuri",
+    name: "Raskauslaskuri",
+    desc: "Raskausviikko ja laskettu aika sekä raskausvapaan ja raskausrahan päivät.",
+  },
+  {
     to: "/vuosilomalaskuri",
     name: "Vuosilomalaskuri",
     desc: "Montako lomapäivää loma kuluttaa ja kertyy, ja viikot, joilla loma kuluttaa vähemmän.",
