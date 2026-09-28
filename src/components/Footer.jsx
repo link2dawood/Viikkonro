@@ -170,6 +170,11 @@ function Footer() {
               </Link>
             </li>
             <li>
+              <Link to="/auringonlasku" onClick={() => window.scrollTo(0, 0)}>
+                Auringonnousu ja -lasku
+              </Link>
+            </li>
+            <li>
               <Link to="/upota-viikkonumero" onClick={() => window.scrollTo(0, 0)}>
                 Viikkonumero-widget
               </Link>

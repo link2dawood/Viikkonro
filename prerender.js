@@ -155,6 +155,7 @@ import {
 } from "./src/data/dateCalculator.js";
 import { AGE_PATH, AGE_STEPS, ageFaqs } from "./src/data/ageCalculator.js";
 import { moonFaqs, phaseList } from "./src/data/moonPhases.js";
+import { SUN_CITIES, SUN_HUB_PATH, sunCityFaqs, sunCityPath, sunHubFaqs } from "./src/data/sunCities.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
 import { COUNTDOWNS, COUNTDOWN_BY_PATH, countdownFaqs } from "./src/data/countdownPages.js";
 import {
@@ -2959,6 +2960,26 @@ function dstNodes(year) {
   ];
 }
 
+// /auringonlasku and /auringonlasku-{city}: FAQ for the render day (the same
+// day useToday() prerenders with) and, for a city, the Place it is about with
+// the coordinates the times are computed for.
+const SUN_CITY_BY_PATH = Object.fromEntries(SUN_CITIES.map((c) => [sunCityPath(c.slug), c]));
+function sunNodes(url) {
+  const today = dateFromDayKey(RENDER_DAY);
+  if (url === SUN_HUB_PATH) return [faqPageNode(url, sunHubFaqs(today))];
+  const city = SUN_CITY_BY_PATH[url];
+  return [
+    faqPageNode(url, sunCityFaqs(city.slug, today)),
+    {
+      "@type": "Place",
+      "@id": `${canonicalFor(url)}#place`,
+      name: city.name,
+      address: { "@type": "PostalAddress", addressLocality: city.name, addressCountry: "FI" },
+      geo: { "@type": "GeoCoordinates", latitude: city.lat, longitude: city.lon },
+    },
+  ];
+}
+
 // /kuun-vaiheet-{year}: FAQ plus the year's full moons as an ItemList with
 // exact instants (UTC ISO), from the same moonPhases.js the page renders.
 function moonNodes(year) {
@@ -3329,6 +3350,7 @@ for (const url of routes) {
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
       if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());
       if (url === AGE_PATH) nodes.push(...ageCalculatorNodes());
+      if (url === SUN_HUB_PATH || SUN_CITY_BY_PATH[url]) nodes.push(...sunNodes(url));
       const moonMatch = url.match(/^\/kuun-vaiheet-(\d{4})$/);
       if (moonMatch) nodes.push(...moonNodes(+moonMatch[1]));
       if (OFFSET_BY_PATH[url]) nodes.push(...dateOffsetNodes(url));
@@ -4226,6 +4248,14 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
       count: "1 per year",
     },
     {
+      entity: "Sun Times (city)",
+      schemaType: "WebPage (+ FAQPage, Place with GeoCoordinates)",
+      urlPattern: `/auringonlasku-{${SUN_CITIES.map((c) => c.slug).join("|")}}`,
+      idPattern: `${SITE_URL}/auringonlasku-{city}#webpage`,
+      example: `${SITE_URL}/auringonlasku-helsinki`,
+      count: `${SUN_CITIES.length} cities, plus the hub /auringonlasku`,
+    },
+    {
       entity: "Moon Phases",
       schemaType: "WebPage (+ FAQPage, ItemList of full moons)",
       urlPattern: "/kuun-vaiheet-{year}",
@@ -4634,6 +4664,10 @@ const llmsFull =
     "  /kelan-maksupaivat-{year}  - the actual payment day of every Kela benefit per month (general housing allowance, study grant, basic income support, pensioner housing allowance, national pension, maintenance allowance, guarantee pension, child benefit)",
     "  /elakkeen-maksupaivat-{year}  - the actual payment day of the earnings-related pension (tyoelake) and Kela's pensions per month",
     "",
+    "Sunrise and sunset pages (rebuilt daily)",
+    `  /auringonlasku  - today's sunrise, sunset and day length in ${SUN_CITIES.length} Finnish cities`,
+    `  /auringonlasku-{city}  - one city (${SUN_CITIES.map((c) => c.slug).join(", ")}): today, the 1st and 15th of every month, longest and shortest day, midnight sun and polar night`,
+    "",
     "Moon phase pages",
     "  /kuun-vaiheet-{year}  - every new moon, first quarter, full moon and last quarter of the year with date and Finnish time, blue moons, and the current phase",
     "",
@@ -4695,6 +4729,7 @@ const llmsFull =
     `  ${SITE_URL}/elakkeen-maksupaivat-${llY}`,
     ...OBSERVANCES.map((o) => `  ${SITE_URL}/${o.slug}-${llY}`),
     `  ${SITE_URL}/kuun-vaiheet-${llY}`,
+    `  ${SITE_URL}/auringonlasku-helsinki`,
     `  ${SITE_URL}/kesaaika-${llY}`,
     `  ${SITE_URL}${COUNTDOWNS[0].path}`,
     `  ${SITE_URL}${CALENDAR_SUBSCRIPTION_PATH}`,
@@ -4869,6 +4904,15 @@ const llmsGlossary =
     "  or bank holiday (usually a Monday).",
     "  Documented per year at /kelan-maksupaivat-{year} and /elakkeen-maksupaivat-{year}.",
     "",
+    "## Sunrise and sunset",
+    "",
+    "  Computed with suncalc for each municipal centre: sunrise and sunset are",
+    "  when the Sun's upper limb is on the horizon with standard refraction",
+    "  (altitude -0.833 degrees), shown in Finnish time. Midnight sun (yötön",
+    "  yö) and polar night (kaamos) are days without a sunset or sunrise; their",
+    "  first and last days can differ by a day or two between sources.",
+    "  Documented at /auringonlasku and /auringonlasku-{city}.",
+    "",
     "## Moon phases",
     "",
     "  Computed with Meeus, Astronomical Algorithms ch. 49 (with the planetary",
@@ -5006,6 +5050,7 @@ const aiManifest =
     `   ${SITE_URL}/kelan-maksupaivat-${amCalYear}  - Kela payment days this year (pattern: /kelan-maksupaivat-{year})`,
     `   ${SITE_URL}/elakkeen-maksupaivat-${amCalYear}  - pension payment days this year (pattern: /elakkeen-maksupaivat-{year})`,
     `   ${SITE_URL}/kuun-vaiheet-${amCalYear}  - moon phases this year (pattern: /kuun-vaiheet-{year})`,
+    `   ${SITE_URL}${SUN_HUB_PATH}  - sunrise and sunset today by city (pattern: /auringonlasku-{city})`,
     `   ${SITE_URL}/isanpaiva-${amCalYear}  - observance days this year (pattern: /{${OBSERVANCES.map((o) => o.slug).join("|")}}-{year})`,
     `   ${SITE_URL}/kesaaika-${amCalYear}  — daylight saving time this year (pattern: /kesaaika-{year})`,
     "",

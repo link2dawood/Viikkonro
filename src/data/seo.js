@@ -30,6 +30,7 @@ import {
 } from "../components/dateUtils.js";
 import { CALCULATOR_PATH, OFFSETS, offsetMeta, offsetPath } from "./dateCalculator.js";
 import { moonMeta, moonPath } from "./moonPhases.js";
+import { SUN_CITIES, SUN_HUB_PATH, sunCityMeta, sunCityPath, sunHubMeta } from "./sunCities.js";
 import {
   HOLIDAY_DEFINITIONS,
   holidayPageFor,
@@ -872,6 +873,22 @@ export const routeMeta = {
     breadcrumb: "Ikälaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  [SUN_HUB_PATH]: {
+    ...sunHubMeta(),
+    breadcrumb: "Auringonnousu ja -lasku",
+  },
+  // City sun pages: "today" in the description is the render day, the same
+  // day useToday() prerenders with; refreshed by the nightly rebuild.
+  ...Object.fromEntries(
+    SUN_CITIES.map((c) => [
+      sunCityPath(c.slug),
+      {
+        ...sunCityMeta(c.slug, dateFromDayKey(helsinkiDayKey())),
+        breadcrumb: c.name,
+        breadcrumbParent: { name: "Auringonnousu ja -lasku", path: SUN_HUB_PATH },
+      },
+    ]),
+  ),
   // "N päivää eteenpäin" pages: the date in title/description is computed for
   // the render day (same day useToday() prerenders with), refreshed nightly.
   ...Object.fromEntries(
@@ -947,6 +964,8 @@ export function sitemapEntries(year) {
     { path: "/paivien-erotus", changefreq: "monthly", priority: "0.7" },
     { path: CALCULATOR_PATH, changefreq: "monthly", priority: "0.7" },
     { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: SUN_HUB_PATH, changefreq: "daily", priority: "0.7" },
+    ...SUN_CITIES.map((c) => ({ path: sunCityPath(c.slug), changefreq: "daily", priority: "0.6" })),
     ...OFFSETS.map((n) => ({ path: offsetPath(n), changefreq: "daily", priority: "0.6" })),
     ...COUNTDOWNS.map((c) => ({ path: c.path, changefreq: "daily", priority: "0.7" })),
     { path: CALENDAR_SUBSCRIPTION_PATH, changefreq: "monthly", priority: "0.7" },

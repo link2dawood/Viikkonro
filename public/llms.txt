@@ -34,6 +34,7 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Päivämäärälaskuri](https://viikkonro.fi/paivamaaralaskuri): lisää tai vähennä päiviä, viikkoja, kuukausia tai arkipäiviä; valmiit laskut kuten [90 päivää eteenpäin](https://viikkonro.fi/90-paivaa-eteenpain)
 - [Ikälaskuri](https://viikkonro.fi/ikalaskuri): tarkka ikä vuosina, kuukausina ja päivinä, seuraava syntymäpäivä ja merkkipäivät
 - [Kuun vaiheet 2026](https://viikkonro.fi/kuun-vaiheet-2026): täysikuut, uudetkuut ja puolikuut Suomen aikaan, sininen kuu ja kuu tänään
+- [Auringonnousu ja -lasku](https://viikkonro.fi/auringonlasku): ajat tänään 15 kaupungissa Helsingistä Utsjoelle, pisin ja lyhyin päivä, yötön yö ja kaamos
 - [Kesäaika 2026](https://viikkonro.fi/kesaaika-2026): kellojen siirto kesä- ja talviaikaan päivämäärineen ja viikkonumeroineen
 - [Kuinka monta päivää jouluun?](https://viikkonro.fi/kuinka-monta-paivaa-jouluun): päivälaskuri jouluaattoon; myös [juhannukseen](https://viikkonro.fi/kuinka-monta-paivaa-juhannukseen), [kesälomaan](https://viikkonro.fi/kuinka-monta-paivaa-kesalomaan) ja [uuteenvuoteen](https://viikkonro.fi/kuinka-monta-paivaa-uuteenvuoteen)
 - [Kalenteritilaus](https://viikkonro.fi/kalenteritilaus): viikkonumerot, pyhäpäivät ja liputuspäivät Google-kalenteriin, Outlookiin tai iPhoneen (iCalendar)
