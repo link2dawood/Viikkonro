@@ -1,0 +1,74 @@
+name: Submit sitemap after deploy
+
+# On every push to main: wait until Vercel has deployed this exact commit to
+# production, then submit sitemap.xml to Search Console. Unlike the old
+# best-effort step in vercel-rebuild.yml this fails visibly (red run) when the
+# submission fails, e.g. when the service account lacks Search Console access.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sitemap-on-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  statuses: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Wait for the Vercel production deploy of this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do
+            state=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/status" \
+              --jq '[.statuses[] | select(.context == "Vercel")][0].state // "not reported yet"')
+            echo "Vercel deploy: $state"
+            case "$state" in
+              success) exit 0 ;;
+              failure|error) echo "::error::The Vercel deploy failed, so the sitemap was not submitted."; exit 1 ;;
+            esac
+            sleep 20
+          done
+          echo "::error::Timed out after 20 minutes waiting for the Vercel deploy."
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Check the live sitemap
+        run: |
+          count=$(curl -fsS --max-time 30 https://viikkonro.fi/sitemap.xml | grep -c "<loc>")
+          echo "Live sitemap.xml lists $count URLs."
+          test "$count" -gt 0
+
+      - name: Check Search Console access
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+            echo "::error::The GCP_SA_KEY secret is not set."
+            exit 1
+          fi
+          node src/cli.js check
+
+      - name: Submit sitemap to Search Console
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_SA_KEY }}
+        run: node src/cli.js submit-sitemap
