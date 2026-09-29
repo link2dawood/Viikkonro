@@ -32,10 +32,12 @@ if (process.env.SMTP_USER && process.env.SMTP_USER.trim() === (process.env.SMTP_
 
 const port = Number(process.env.SMTP_PORT || 587);
 const transport = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
+  host: (process.env.SMTP_HOST || "").trim(),
   port,
   secure: port === 465,
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
+  // Trimmed: a copy-pasted secret easily picks up a trailing line break,
+  // which Mailjet rejects as a wrong password (535).
+  auth: { user: (process.env.SMTP_USER || "").trim(), pass: (process.env.SMTP_PASSWORD || "").trim() },
 });
 try {
   await transport.verify();
