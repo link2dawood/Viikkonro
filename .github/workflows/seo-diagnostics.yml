@@ -1,0 +1,48 @@
+name: SEO automation diagnostics
+
+# Manual only. Shows what the Search Console and email secrets actually
+# resolve to, without printing any secret value: the service account's email
+# and the properties it can see, and the shape of the SMTP credentials plus
+# an SMTP login test (no email is sent).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-audit --no-fund nodemailer@6
+
+      - name: Search Console account and properties
+        if: always()
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_SA_KEY }}
+        run: node src/cli.js sites
+
+      - name: SMTP secrets and login
+        if: always()
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          REPORT_EMAIL_TO: ${{ secrets.REPORT_EMAIL_TO }}
+        run: node scripts/check-smtp.js
