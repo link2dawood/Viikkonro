@@ -1,0 +1,62 @@
+name: Weekly SEO report
+
+# Every Monday: build the SEO report (scripts/seo-report.js: Search Console
+# traffic, top queries and pages, new page families, sitemaps, indexing,
+# live site health and known backlinks) and email it over SMTP. The report is
+# also shown in the run summary and kept as an artifact, so it is never lost
+# even if the email fails.
+
+on:
+  schedule:
+    # Monday 06:00 UTC = 09:00 Finnish summer time, 08:00 winter time.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build the report
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          node scripts/seo-report.js > /dev/null
+          cat seo-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-report
+          path: |
+            seo-report.html
+            seo-report.md
+          if-no-files-found: ignore
+
+      - name: Email the report
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          REPORT_EMAIL_TO: ${{ secrets.REPORT_EMAIL_TO }}
+        run: |
+          npm install --no-save --no-audit --no-fund nodemailer@6
+          node scripts/send-report.js

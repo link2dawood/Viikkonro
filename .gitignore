@@ -8,6 +8,10 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+# Weekly SEO report output (scripts/seo-report.js)
+seo-report.html
+seo-report.md
+seo-report-subject.txt
 dist
 dist-ssr
 dist-server

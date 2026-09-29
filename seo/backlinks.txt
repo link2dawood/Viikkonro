@@ -1,0 +1,11 @@
+# Known backlinks to viikkonro.fi, checked weekly by scripts/check-backlinks.js
+# (part of the weekly SEO report; run on its own with `npm run check:backlinks`).
+#
+# One URL per line: the page ON THE OTHER SITE that should link to viikkonro.fi.
+# Anything after a # is a comment. Blank lines are ignored.
+#
+# Where to find them: Search Console -> Links -> "Top linking sites" and
+# "Top linked pages" (export the lists), or your own outreach notes.
+#
+# Example:
+# https://example.fi/hyodylliset-linkit   # partner page, added 2026-09

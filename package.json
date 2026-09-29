@@ -40,6 +40,8 @@
     "check:crawl": "node scripts/check-crawl.js",
     "check:ad-crawlers": "node scripts/check-ad-crawlers.js",
     "check:traffic": "node src/cli.js traffic",
+    "check:backlinks": "node scripts/check-backlinks.js",
+    "report:seo": "node scripts/seo-report.js",
     "sync:name-days": "node scripts/sync-name-days.js",
     "test": "vitest run"
   },

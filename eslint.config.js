@@ -36,7 +36,7 @@ export default defineConfig([
   },
   {
     // Build-tooling config files run under Node, not the browser.
-    files: ['vite.config.js', 'prerender.js', 'src/cli.js', 'scripts/*.js'],
+    files: ['vite.config.js', 'prerender.js', 'src/cli.js', 'src/gscClient.js', 'scripts/*.js'],
     languageOptions: {
       globals: globals.node,
     },

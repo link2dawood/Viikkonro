@@ -7,41 +7,20 @@
 // src/main.jsx or src/entry-server.jsx), so it can use Node-only packages
 // like google-auth-library without affecting the client bundle.
 //
-// Auth: a GCP service-account JSON key, provided as GOOGLE_APPLICATION_CREDENTIALS_JSON
-// (the raw JSON string — the standard way to pass a service-account key through a CI
-// secret without writing a file to disk). Falls back to GOOGLE_APPLICATION_CREDENTIALS
-// (a file path) for local use, via google-auth-library's own default resolution.
+// Auth and the API client live in gscClient.js, shared with scripts/seo-report.js.
 
-import { GoogleAuth } from "google-auth-library";
-import { SITE_URL } from "./data/seo.js";
-
-const SITE_PROPERTY = `sc-domain:${new URL(SITE_URL).hostname}`;
-// webmasters (not the newer searchconsole API) is what still exposes the
-// sites.get permission check and sitemap submission used here.
-const SCOPES = ["https://www.googleapis.com/auth/webmasters"];
-const FULL_ACCESS_LEVELS = new Set(["siteOwner", "siteFullUser"]);
-
-function credentialsFromEnv() {
-  const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  if (!raw) return {};
-  try {
-    return { credentials: JSON.parse(raw) };
-  } catch {
-    throw new Error(
-      "GOOGLE_APPLICATION_CREDENTIALS_JSON is set but isn't valid JSON — paste the whole service-account key file contents verbatim.",
-    );
-  }
-}
-
-async function getClient() {
-  const auth = new GoogleAuth({ ...credentialsFromEnv(), scopes: SCOPES });
-  return auth.getClient();
-}
+import {
+  API,
+  FULL_ACCESS_LEVELS,
+  SITE_PROPERTY,
+  SITE_URL,
+  getClient,
+  isoDateDaysAgo,
+} from "./gscClient.js";
 
 async function check() {
   const client = await getClient();
-  const url = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE_PROPERTY)}`;
-  const res = await client.request({ url });
+  const res = await client.request({ url: API });
   const { permissionLevel, siteUrl } = res.data;
 
   console.log(`Site:             ${siteUrl}`);
@@ -61,7 +40,7 @@ async function check() {
 async function submitSitemap() {
   const client = await getClient();
   const sitemapUrl = `${SITE_URL}/sitemap.xml`;
-  const url = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE_PROPERTY)}/sitemaps/${encodeURIComponent(sitemapUrl)}`;
+  const url = `${API}/sitemaps/${encodeURIComponent(sitemapUrl)}`;
   await client.request({ url, method: "PUT" });
   console.log(`Submitted ${sitemapUrl} to Search Console for ${SITE_PROPERTY}.`);
 }
@@ -111,18 +90,12 @@ async function inspect() {
   }
 }
 
-function isoDateDaysAgo(days) {
-  const date = new Date();
-  date.setUTCDate(date.getUTCDate() - days);
-  return date.toISOString().slice(0, 10);
-}
-
 async function traffic() {
   const client = await getClient();
   const impressionsMin = Number(process.env.GSC_IMPRESSIONS_MIN || 3500);
   const impressionsMax = Number(process.env.GSC_IMPRESSIONS_MAX || 5500);
   const clicksMin = Number(process.env.GSC_CLICKS_MIN || 30);
-  const url = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE_PROPERTY)}/searchAnalytics/query`;
+  const url = `${API}/searchAnalytics/query`;
 
   // Search Console normally finalizes data after 2–3 days. Query a wider
   // finalized window, then evaluate the latest seven rows actually returned

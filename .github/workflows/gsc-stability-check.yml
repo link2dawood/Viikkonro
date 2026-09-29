@@ -47,4 +47,7 @@ jobs:
           node src/cli.js inspect \
             "/tulosta-$year" \
             "/tyopaivat-$year" \
-            "/vuosi-$year"
+            "/vuosi-$year" \
+            "/kelan-maksupaivat-$year" \
+            "/isanpaiva-$year" \
+            "/paivamaaralaskuri"
