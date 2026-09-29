@@ -880,6 +880,13 @@ export const routeMeta = {
     breadcrumb: "Tuntilaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  "/kuukautislaskuri": {
+    title: "Kuukautislaskuri ja ovulaatiolaskuri | Viikko Nro",
+    description:
+      "Laske seuraavien kuukautisten päivä, arvioitu ovulaatio ja hedelmälliset päivät kierron pituuden mukaan. Näet myös kuusi seuraavaa kiertoa.",
+    breadcrumb: "Kuukautislaskuri",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
   "/raskauslaskuri": {
     title: "Raskauslaskuri: raskausviikot ja laskettu aika | Viikko Nro",
     description:
@@ -988,6 +995,7 @@ export function sitemapEntries(year) {
     { path: "/tuntilaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/vuosilomalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/raskauslaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: "/kuukautislaskuri", changefreq: "monthly", priority: "0.7" },
     { path: SUN_HUB_PATH, changefreq: "daily", priority: "0.7" },
     ...SUN_CITIES.map((c) => ({ path: sunCityPath(c.slug), changefreq: "daily", priority: "0.6" })),
     ...OFFSETS.map((n) => ({ path: offsetPath(n), changefreq: "daily", priority: "0.6" })),

@@ -157,6 +157,7 @@ import { AGE_PATH, AGE_STEPS, ageFaqs } from "./src/data/ageCalculator.js";
 import { HOURS_PATH, HOURS_STEPS, hoursFaqs } from "./src/data/hoursCalculator.js";
 import { LEAVE_PATH, LEAVE_STEPS, leaveFaqs } from "./src/data/annualLeave.js";
 import { PREGNANCY_PATH, PREGNANCY_STEPS, pregnancyFaqs } from "./src/data/pregnancyCalculator.js";
+import { PERIOD_PATH, PERIOD_STEPS, periodFaqs } from "./src/data/periodCalculator.js";
 import { moonFaqs, phaseList } from "./src/data/moonPhases.js";
 import { SUN_CITIES, SUN_HUB_PATH, sunCityFaqs, sunCityPath, sunHubFaqs } from "./src/data/sunCities.js";
 import { dstChanges, dstFaqs } from "./src/data/dstPages.js";
@@ -3353,6 +3354,9 @@ for (const url of routes) {
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
       if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());
       if (url === AGE_PATH) nodes.push(...ageCalculatorNodes());
+      if (url === PERIOD_PATH) {
+        nodes.push(faqPageNode(url, periodFaqs()), howToNode(url, "Näin lasket seuraavat kuukautiset ja ovulaation", PERIOD_STEPS));
+      }
       if (url === PREGNANCY_PATH) {
         nodes.push(faqPageNode(url, pregnancyFaqs()), howToNode(url, "Näin lasket raskausviikon ja lasketun ajan", PREGNANCY_STEPS));
       }
@@ -4710,6 +4714,7 @@ const llmsFull =
     "  /paivamaaralaskuri  - add or subtract days, weeks, months or working days from any date",
     "  /ikalaskuri  - exact age in years, months and days, next birthday, milestones (18 years, 10 000 days), and the age reached this year by birth year",
     "  /tuntilaskuri  - hours between two clock times minus breaks (night shifts included), a weekly working-hours sum, and minutes as decimal hours (table 1-60 min)",
+    "  /kuukautislaskuri  - next period (last period start + cycle length), estimated ovulation (12-14 days before the next period) and fertile days, and the next six cycles; an estimate, not contraception",
     "  /raskauslaskuri  - pregnancy week (e.g. 12+3) and due date (last period + 280 days) from the last period or a known due date, key dates (ultrasound 11+0-13+6, Kela pregnancy allowance from 154 days, pregnancy leave 30-14 Kela working days before the due date) and a week calendar; an estimate, the clinic's due date comes first",
     "  /vuosilomalaskuri  - annual leave: days a holiday uses (Saturdays count, Sundays and holidays do not, per the Annual Holidays Act), days accrued (2 or 2.5 per full month), and the weeks of this and next year when a week of leave uses fewer than 6 days",
     `  /{${OFFSETS.join("|")}}-paivaa-eteenpain  - the date N days from today (rebuilt daily), plus N days from the 1st of every month`,
