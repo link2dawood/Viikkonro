@@ -18,6 +18,34 @@ import {
   isoDateDaysAgo,
 } from "./gscClient.js";
 
+// Which service account the key belongs to (client_email is an identifier,
+// not a credential): the address to add in Search Console.
+async function whoami() {
+  const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (!raw) throw new Error("GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
+  const key = JSON.parse(raw);
+  console.log(`Service account: ${key.client_email}`);
+  console.log(`GCP project:     ${key.project_id}`);
+  console.log(`Key type:        ${key.type}`);
+}
+
+// Every Search Console property this service account can see, with its
+// permission level. Empty = it was never added as a user anywhere.
+async function sites() {
+  await whoami();
+  const client = await getClient();
+  const res = await client.request({ url: "https://www.googleapis.com/webmasters/v3/sites" });
+  const entries = res.data.siteEntry || [];
+  console.log(`
+Properties visible to this account (${entries.length}):`);
+  for (const s of entries) console.log(`  ${s.siteUrl}  ->  ${s.permissionLevel}`);
+  if (!entries.length) console.log("  none: add the service account above as a user in Search Console.");
+  const target = entries.find((s) => s.siteUrl === SITE_PROPERTY);
+  console.log(target ? `
+${SITE_PROPERTY} is visible with ${target.permissionLevel}.` : `
+${SITE_PROPERTY} is NOT visible to this account.`);
+}
+
 async function check() {
   const client = await getClient();
   const res = await client.request({ url: API });
@@ -166,7 +194,7 @@ async function traffic() {
   console.log("\nOK — the latest seven finalized days meet the traffic gate.");
 }
 
-const commands = { check, inspect, traffic, "submit-sitemap": submitSitemap };
+const commands = { check, inspect, traffic, whoami, sites, "submit-sitemap": submitSitemap };
 const [, , commandName] = process.argv;
 const run = commands[commandName];
 
