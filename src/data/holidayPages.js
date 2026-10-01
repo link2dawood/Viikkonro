@@ -1,4 +1,5 @@
 import {
+  fmtDayRangeFi,
   fmtFullFi,
   fmtShortFi,
   isoWeek,
@@ -212,9 +213,48 @@ export function holidayWeekLinks(page) {
   };
 }
 
+// The three official Easter holidays (pitkäperjantai, pääsiäispäivä, toinen
+// pääsiäispäivä) as resolved pages, in date order. "Pääsiäinen <year>" is
+// searched as the whole long weekend, not only its Sunday, so the Easter
+// pages state all three dates; each date comes from holidays.js via
+// holidayPageFor(), never from a separate Easter calculation.
+export const EASTER_SLUGS = ["pitkaperjantai", "paasiaispaiva", "toinen-paasiaispaiva"];
+
+export function easterHolidays(year) {
+  const pages = EASTER_SLUGS.map((slug) => holidayPageFor(year, slug));
+  return pages.every(Boolean) ? pages : null;
+}
+
+// "Pitkäperjantai 26.3., pääsiäispäivä 28.3. ja toinen pääsiäispäivä 29.3.2027"
+function easterDatesText(easter) {
+  const [friday, sunday, monday] = easter;
+  const short = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
+  return `pitkäperjantai ${short(friday.date)}, pääsiäispäivä ${short(sunday.date)} ja toinen pääsiäispäivä ${short(monday.date)}${monday.date.getFullYear()}`;
+}
+
+function easterWeeksText(easter) {
+  const [friday, , monday] = easter;
+  return friday.week === monday.week
+    ? `viikolla ${friday.week}`
+    : `viikoilla ${friday.week}-${monday.week}`;
+}
+
 export function holidayPageMeta(year, slug) {
   const page = holidayPageFor(year, slug);
   if (!page) return null;
+  const easter = slug === "paasiaispaiva" ? easterHolidays(page.year) : null;
+  if (easter) {
+    const [friday, , monday] = easter;
+    const weeks = friday.week === monday.week ? `viikko ${friday.week}` : `viikot ${friday.week}-${monday.week}`;
+    let description = `Pääsiäinen ${page.year}: ${easterDatesText(easter)}. Pääsiäisen pyhät ovat ${easterWeeksText(easter)}. Katso päivämäärät ja viikonpäivät.`;
+    if (description.length > 158) {
+      description = description.replace(" ja viikonpäivät", "");
+    }
+    return {
+      title: `Pääsiäinen ${page.year}: ${fmtDayRangeFi(friday.date, monday.date)}, ${weeks} | Viikko Nro`,
+      description,
+    };
+  }
   let description = `${page.displayName} vuonna ${page.year} on ${page.weekdayEssive} ${fmtFullFi(page.date)} ja kuuluu viikkoon ${page.week}. Katso päivämäärä, viikonpäivä, viikkonumero, asema ja määräytymissääntö.`;
   if (description.length > 158) {
     description = description.replace(", asema ja", " ja");
@@ -249,6 +289,23 @@ export function holidayFaqs(page) {
     {
       q: `Miten ${page.displayName.toLowerCase()} päivämäärä määräytyy?`,
       a: page.rule,
+    },
+    ...easterFaq(page),
+  ];
+}
+
+// Extra FAQ for the three Easter pages only: when the whole Easter weekend
+// falls. Part of holidayFaqs(), so the visible FAQ and FAQPage JSON-LD stay
+// identical (NamedHoliday.jsx and prerender.js both read holidayFaqs()).
+function easterFaq(page) {
+  if (!EASTER_SLUGS.includes(page.slug)) return [];
+  const easter = easterHolidays(page.year);
+  if (!easter) return [];
+  const text = easterDatesText(easter);
+  return [
+    {
+      q: `Milloin pääsiäinen ${page.year} on?`,
+      a: `Pääsiäisen pyhät ${page.year} ovat ${text}. Ne ovat ${easterWeeksText(easter)}, ja pääsiäispäivä on aina sunnuntai.`,
     },
   ];
 }

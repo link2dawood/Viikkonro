@@ -84,7 +84,7 @@ const YearCalendar = ({ year: pYear } = {}) => {
         <Link to="/">Etusivu</Link> / Viikot {year}
       </div>
 
-      <h1>Viikkonumerot {year}</h1>
+      <h1>Viikot {year} ja viikkonumerot</h1>
 
       <p className="lead">
         <span className="answer-sentence">

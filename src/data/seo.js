@@ -26,6 +26,7 @@ import {
   PRERENDER_MAX_YEAR,
   WD_ESSIVE,
   dateFromDayKey,
+  fmtDayRangeFi,
   helsinkiDayKey,
 } from "../components/dateUtils.js";
 import { CALCULATOR_PATH, OFFSETS, offsetMeta, offsetPath } from "./dateCalculator.js";
@@ -55,6 +56,7 @@ import {
   pageConfidenceTier,
   schoolHolidayMeta,
   schoolHolidayPage,
+  schoolHolidayPeriodsInWeek,
   schoolHolidayYears,
 } from "./schoolHolidayPages.js";
 import {
@@ -154,11 +156,24 @@ export function weekMeta(w, y) {
   const mo = mondayOf(w, y);
   const su = new Date(mo);
   su.setDate(mo.getDate() + 6);
+  // Weeks that are a confirmed school-holiday week (e.g. syysloma on week 42)
+  // say so in the snippet: these week pages are searched for exactly that
+  // reason, and WeekDays.jsx shows the same confirmed periods visibly (both
+  // read schoolHolidayPeriodsInWeek(), which returns CONFIRMED groups only).
+  const schoolPeriods = schoolHolidayPeriodsInWeek(y, w);
+  const schoolCities = schoolPeriods.flatMap((p) => p.cities);
+  // Only claim "monessa kunnassa" when several confirmed cities share the
+  // week; a single confirmed city (syysloma 2027: Helsinki) is named instead.
+  const schoolWeekText = schoolPeriods.length
+    ? `${schoolPeriods[0].type}viikko ${schoolCities.length > 1 ? "monessa kunnassa" : `(vahvistettu: ${schoolCities[0]})`}`
+    : null;
   return {
     title: `Viikko ${w} vuonna ${y} – ${fmtRangeCompactFi(mo, su)} | Viikko Nro`,
     // Short dates (fmtFullFi ran ~190 chars → truncated in SERPs). ~148 chars
     // keeps every keyword term within Google's snippet limit.
-    description: `Viikko ${w} vuonna ${y} alkaa maanantaina ${formatShort(mo)} ja päättyy sunnuntaina ${formatShort(su)}${su.getFullYear()}. Katso päivämäärät, juhlapäivät, työpäivät sekä tulostettava kalenteri.`,
+    description: schoolWeekText
+      ? `Viikko ${w} vuonna ${y} (${fmtDayRangeFi(mo, su)}${su.getFullYear()}) on ${schoolWeekText}. Katso päivämäärät, juhlapäivät, työpäivät ja tulostettava kalenteri.`
+      : `Viikko ${w} vuonna ${y} alkaa maanantaina ${formatShort(mo)} ja päättyy sunnuntaina ${formatShort(su)}${su.getFullYear()}. Katso päivämäärät, juhlapäivät, työpäivät sekä tulostettava kalenteri.`,
   };
 }
 export function monthMeta(m, y) {
@@ -378,9 +393,11 @@ export function quarterFaqs(quarter, year) {
 
 export function yearMeta(y) {
   const total = weeksInIsoYear(y);
+  // Leads with "Viikot <year>" (the literal query form, e.g. "viikot 2026")
+  // and keeps "viikkonumerot" right after it for the longer variant.
   return {
-    title: `Viikkonumerot ${y} – kaikki ${total} viikkoa | Viikko Nro`,
-    description: `Katso viikkonumerot ${y}: kaikki ${total} viikkoa päivämäärineen. Selaa viikkoja, työpäiviä ja arkipyhiä tai lataa tulostettava viikkokalenteri PDF-muodossa.`,
+    title: `Viikot ${y}: viikkonumerot ja kaikki ${total} viikkoa | Viikko Nro`,
+    description: `Viikot ${y} ja viikkonumerot: kaikki ${total} viikkoa päivämäärineen. Selaa työpäiviä ja arkipyhiä tai lataa tulostettava viikkokalenteri PDF-muodossa.`,
   };
 }
 
@@ -637,7 +654,7 @@ export function calendarMeta(y, half, print) {
   }
   const total = weeksInIsoYear(y);
   return {
-    title: `Viikkokalenteri ${y} – 12 kuukautta | Viikko Nro`,
+    title: `Viikkokalenteri ${y}: 12 kuukautta, ${total} viikkoa | Viikko Nro`,
     description: `Avaa viikkokalenteri ${y}: kaikki 12 kuukautta, ${total} ISO-viikkoa ja Suomen juhlapäivät. Selaa kuukausia ja avaa jokaisen viikon tarkat päivämäärät.`,
   };
 }
@@ -691,9 +708,10 @@ export function homeMeta(now) {
   const lead = `Juuri nyt on viikko ${week} (viikkonumero ${week}) vuonna ${year}. Viikko alkaa ${WD_ESSIVE[mo.getDay()]} ${fmtShortFi(mo)} ja päättyy ${WD_ESSIVE[su.getDay()]} ${fmtShortFi(su)}.`;
   return {
     title: `Mikä viikko nyt on? Viikkonumero ${week} (${startDate}) | Viikko Nro`,
-    // Lead with the short-query term while retaining "viikko", "kuluva viikko"
-    // and "viikon numero" naturally inside the 140–160-character budget.
-    description: `Katso viikkonumero heti: nyt on viikko ${week} vuonna ${year}. Kuluva viikko alkaa ${WD_ESSIVE[mo.getDay()]} ${formatShort(mo)} ja päättyy ${WD_ESSIVE[su.getDay()]} ${formatShort(su)} Tarkista muun päivän viikon numero.`,
+    // Opens with the other common word order of the head query ("mikä viikko
+    // on nyt"; the title carries "mikä viikko nyt on"), then the live answer,
+    // keeping "kuluva viikko" and "viikon numero" inside the 140-160 budget.
+    description: `Mikä viikko on nyt? Nyt on viikko ${week} vuonna ${year}. Kuluva viikko alkaa ${WD_ESSIVE[mo.getDay()]} ${formatShort(mo)} ja päättyy ${WD_ESSIVE[su.getDay()]} ${formatShort(su)} Katso minkä tahansa päivän viikon numero.`,
     lead,
   };
 }

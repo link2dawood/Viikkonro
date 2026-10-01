@@ -3,6 +3,7 @@ import { fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import {
   CONFIDENCE,
+  autumnSummary,
   SCHOOL_HOLIDAY_SOURCES,
   confidenceLabel,
   pageConfidenceTier,
@@ -98,7 +99,7 @@ const SchoolHolidays = ({ year }) => {
         <Link to="/">Etusivu</Link> / Koululomat {selectedYear}
       </div>
 
-      <h1>Koululomat {selectedYear} – hiihto- ja syyslomat</h1>
+      <h1>Koululomat {selectedYear}: syysloma ja hiihtoloma</h1>
 
       <div className="prose">
         {/* STEP 4: Tier B pages must show this exact sentence, visibly, not
@@ -173,6 +174,9 @@ const SchoolHolidays = ({ year }) => {
         />
 
         <h2>Milloin syysloma {selectedYear} on?</h2>
+        <p className="answer-sentence">
+          <strong>{autumnSummary(page)}</strong>
+        </p>
         <p>
           {selectedYear === 2026
             ? "Syysloma osuu vertailukaupungeissa viikolle 42 tai 43. Joissakin kunnissa loma kestää koko viikon, toisissa maanantaista perjantaihin."

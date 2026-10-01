@@ -7,6 +7,8 @@ import {
   fmtFullFi,
 } from "../components/dateUtils";
 import {
+  easterHolidays,
+  EASTER_SLUGS,
   holidayFaqs,
   holidayPageFor,
   holidayPageMeta,
@@ -33,6 +35,7 @@ const NamedHoliday = () => {
   // 13 fall under the Church Act or a different instrument not individually
   // re-verified here, so nothing is stated for them rather than guessed.
   const legalBasis = HOLIDAY_LEGAL_BASIS[page.displayName];
+  const easter = EASTER_SLUGS.includes(page.slug) ? easterHolidays(page.year) : null;
 
   return (
     <section className="app">
@@ -79,6 +82,25 @@ const NamedHoliday = () => {
           {page.displayName} on {page.weekdayEssive} {fmtFullFi(page.date)}.
           {" "}{page.rule} Vuonna {page.year} päivä on {page.kind}.
         </p>
+
+        {easter && (
+          <>
+            <h2>Pääsiäinen {page.year}: kaikki pääsiäisen pyhät</h2>
+            <ul>
+              {easter.map((item) => (
+                <li key={item.slug}>
+                  {item.slug === page.slug ? (
+                    <strong>{item.displayName}</strong>
+                  ) : (
+                    <Link to={item.path}>{item.displayName}</Link>
+                  )}
+                  : {item.weekday.toLowerCase()} {fmtFullFi(item.date)},{" "}
+                  <Link to={`/viikko-${item.week}-${item.weekYear}`}>viikko {item.week}</Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         <h2>Mille viikolle {page.displayName.toLowerCase()} {page.year} osuu?</h2>
         <p>

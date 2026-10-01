@@ -7,7 +7,7 @@ describe("homepage short-query metadata", () => {
     expect(meta.title).toBe(
       "Mikä viikko nyt on? Viikkonumero 32 (3.8.) | Viikko Nro",
     );
-    expect(meta.description).toContain("Katso viikkonumero heti");
+    expect(meta.description.startsWith("Mikä viikko on nyt?")).toBe(true);
     expect(meta.description).toContain("viikon numero");
   });
 
