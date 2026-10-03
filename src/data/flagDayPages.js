@@ -89,6 +89,37 @@ const ALT_NAME = {
   "Jean Sibeliuksen päivä": "suomalaisen musiikin päivä",
 };
 
+// English and Swedish names, for consumers that render in those languages
+// (the viikkonro-extension popup). Every key in FLAG_DAY_CATEGORY has one;
+// calendarTools.test.js checks the lists stay in step.
+export const FLAG_DAY_NAMES = {
+  "J. L. Runebergin päivä": { en: "J. L. Runeberg Day", sv: "J. L. Runebergs dag" },
+  "Kalevalan päivä": { en: "Kalevala Day", sv: "Kalevaladagen" },
+  "Minna Canthin päivä": { en: "Minna Canth Day", sv: "Minna Canths dag" },
+  "Mikael Agricolan päivä / Suomen kielen päivä": {
+    en: "Mikael Agricola Day / Day of the Finnish Language",
+    sv: "Mikael Agricolas dag / Finska språkets dag",
+  },
+  "Kansallinen veteraanipäivä": { en: "National Veterans' Day", sv: "Nationella veterandagen" },
+  "Vappu": { en: "May Day", sv: "Första maj" },
+  "Eurooppa-päivä": { en: "Europe Day", sv: "Europadagen" },
+  "J. V. Snellmanin päivä": { en: "J. V. Snellman Day", sv: "J. V. Snellmans dag" },
+  "Äitienpäivä": { en: "Mother's Day", sv: "Mors dag" },
+  "Kaatuneitten muistopäivä": { en: "Remembrance Day for the Fallen", sv: "De stupades minnesdag" },
+  "Puolustusvoimain lippujuhlan päivä": { en: "Flag Day of the Finnish Defence Forces", sv: "Försvarsmaktens fanfest" },
+  "Juhannuspäivä": { en: "Midsummer Day", sv: "Midsommardagen" },
+  "Eino Leinon päivä": { en: "Eino Leino Day", sv: "Eino Leinos dag" },
+  "Suomen luonnon päivä": { en: "Day of Finnish Nature", sv: "Finska naturens dag" },
+  "Miina Sillanpään päivä": { en: "Miina Sillanpää Day", sv: "Miina Sillanpääs dag" },
+  "Aleksis Kiven päivä": { en: "Aleksis Kivi Day", sv: "Aleksis Kivis dag" },
+  "YK:n päivä": { en: "United Nations Day", sv: "FN-dagen" },
+  "Ruotsalaisuuden päivä": { en: "Finnish Swedish Heritage Day", sv: "Svenska dagen" },
+  "Isänpäivä": { en: "Father's Day", sv: "Fars dag" },
+  "Lapsen oikeuksien päivä": { en: "Day of Children's Rights", sv: "Barnets rättigheters dag" },
+  "Itsenäisyyspäivä": { en: "Independence Day", sv: "Självständighetsdagen" },
+  "Jean Sibeliuksen päivä": { en: "Jean Sibelius Day", sv: "Jean Sibelius dag" },
+};
+
 // All of a year's flag days, in date order, each carrying the same
 // week/weekday/holiday-overlap facts the rest of the site already exposes —
 // computed from getLiputuspaivat()/getJuhlapaivat() (juhlapaivat.js) and
@@ -105,6 +136,8 @@ export function flagDaysInYear(year) {
       rows.push({
         name,
         altName: ALT_NAME[name] ?? null,
+        nameEn: FLAG_DAY_NAMES[name].en,
+        nameSv: FLAG_DAY_NAMES[name].sv,
         slug: FLAG_DAY_SLUGS[name],
         category: FLAG_DAY_CATEGORY[name],
         categoryLabel: CATEGORY_LABEL[FLAG_DAY_CATEGORY[name]],

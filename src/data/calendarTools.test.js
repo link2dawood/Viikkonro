@@ -376,6 +376,15 @@ describe("flag days", () => {
     expect(find(2023, "Miina Sillanpään päivä")).toBeDefined();
   });
 
+  it("names every flag day in English and Swedish too", () => {
+    for (let year = 2020; year <= 2035; year++) {
+      for (const day of flagDaysInYear(year)) {
+        expect(day.nameEn, day.name).toMatch(/\S/);
+        expect(day.nameSv, day.name).toMatch(/\S/);
+      }
+    }
+  });
+
   it("has exactly the seven official flag days of the decree", () => {
     const official = flagDaysInYear(2026).filter((d) => d.category === "virallinen").map((d) => d.name);
     expect(official).toEqual([
