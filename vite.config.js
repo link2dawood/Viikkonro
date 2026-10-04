@@ -24,6 +24,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       target: "es2020",
       reportCompressedSize: false,
       chunkSizeWarningLimit: 900,
+      // Never preload the lazy Sentry chunk on first paint.
+      modulePreload: {
+        resolveDependencies: (_file, deps) => deps.filter((d) => !d.includes("sentry")),
+      },
       // Split framework code into stable, long-cacheable vendor chunks.
       // Skipped for the SSR build (prerendering), which is a single bundle.
       rollupOptions: isSsrBuild
@@ -33,6 +37,9 @@ export default defineConfig(({ mode, isSsrBuild }) => {
               // rolldown (Vite 8) requires the function form of manualChunks.
               manualChunks(id) {
                 if (!id.includes("node_modules")) return;
+                // Sentry is lazy-loaded (src/sentry.js); keep it in its own
+                // chunk instead of matching the "/react/" check below.
+                if (id.includes("@sentry")) return "sentry";
                 if (id.includes("react-router")) return "router";
                 if (
                   id.includes("/react-dom/") ||

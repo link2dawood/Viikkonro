@@ -6,10 +6,14 @@ import App from "./App.jsx";
 import { registerWebMCPTools } from "./webmcp.js";
 import { trackPdfDownloads } from "./analytics.js";
 import { applyStoredConsent } from "./consent.js";
+import { initSentry } from "./sentry.js";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 // A returning visitor's analytics consent, queued before clarity.js loads
 // (it waits for idle), so Clarity starts with the right cookie setting.
 applyStoredConsent();
+// Error tracking (no-op without VITE_SENTRY_DSN); loads lazily when idle.
+initSentry();
 // Before hydration, so a download clicked on the prerendered page is counted.
 trackPdfDownloads();
 
@@ -24,7 +28,9 @@ startTransition(() => {
   hydrateRoot(
     document.getElementById("root"),
     <HelmetProvider>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </HelmetProvider>,
   );
 });

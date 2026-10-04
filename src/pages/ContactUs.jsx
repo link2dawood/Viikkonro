@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import SocialLinks from "../components/SocialLinks";
 import { routeMeta } from "../data/seo";
+import { validateContact, LIMITS } from "../contactValidation";
+import { captureError } from "../sentry";
 
 // ── Web3Forms setup ─────────────────────────────────────────────────────────
 // 1. Go to https://web3forms.com and enter your email: dawood.dixeam@gmail.com
@@ -67,12 +69,22 @@ function ContactUs() {
 
   //  The universal input handler logic
   // This updates the exact field being typed into using the HTML 'name' attribute
+  const [fieldErrors, setFieldErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+    // Clear a field's error as soon as the user edits it
+    setFieldErrors((prev) => (prev[name] ? { ...prev, [name]: undefined } : prev));
+  };
+
+  // Validate one field when the user leaves it
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setFieldErrors((prev) => ({ ...prev, [name]: validateContact(formData)[name] }));
   };
 
   //  Form submission handler logic
@@ -121,24 +133,21 @@ function ContactUs() {
     }
 
     // ── Validation ──────────────────────────────────────────────────────────
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      setStatus({ type: "error", message: "Täytä kaikki kentät." });
+    const errors = validateContact(formData);
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      setStatus({ type: "error", message: "Tarkista lomakkeen kentät ja yritä uudelleen." });
+      document.getElementById(Object.keys(errors)[0])?.focus();
       return;
     }
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
-    if (!emailOk) {
-      setStatus({ type: "error", message: "Anna kelvollinen sähköpostiosoite." });
-      return;
-    }
+    setFieldErrors({});
 
     if (WEB3FORMS_ACCESS_KEY === "YOUR_WEB3FORMS_ACCESS_KEY") {
       setStatus({
         type: "error",
         message: "Lomaketta ei ole vielä määritetty. Yritä myöhemmin uudelleen.",
       });
-      console.error(
-        "Web3Forms access key missing: set VITE_WEB3FORMS_ACCESS_KEY or replace the placeholder in ContactUs.jsx.",
-      );
+      captureError(new Error("Web3Forms access key missing (VITE_WEB3FORMS_ACCESS_KEY)"));
       return;
     }
 
@@ -164,7 +173,8 @@ function ContactUs() {
         }),
       });
 
-      const data = await res.json();
+      // A non-JSON body (proxy error page etc.) must not look like a network failure
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok && data.success) {
         // Record this successful send for the rate limiter
@@ -172,12 +182,20 @@ function ContactUs() {
         setStatus({ type: "success", message: "Kiitos! Viestisi on lähetetty." });
         setFormData({ name: "", email: "", message: "" });
       } else {
+        captureError(new Error("Web3Forms rejected submission"), {
+          httpStatus: res.status,
+          apiMessage: data.message,
+        });
         setStatus({
           type: "error",
-          message: "Viestin lähettäminen epäonnistui. Yritä uudelleen myöhemmin.",
+          message:
+            res.status === 429
+              ? "Liian monta pyyntöä. Yritä hetken kuluttua uudelleen."
+              : "Viestin lähettäminen epäonnistui. Yritä uudelleen myöhemmin.",
         });
       }
-    } catch {
+    } catch (err) {
+      captureError(err, { stage: "contact-form-fetch" });
       setStatus({
         type: "error",
         message:
@@ -205,12 +223,12 @@ function ContactUs() {
 
           {/* Status Notification Banner */}
           {status.message && (
-            <div className={`status-banner ${status.type}`}>
+            <div className={`status-banner ${status.type}`} role={status.type === "error" ? "alert" : "status"}>
               {status.message}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="contact-form">
+          <form onSubmit={handleSubmit} className="contact-form" noValidate>
             {/* Honeypot field — visually hidden, ignored by humans, filled by bots */}
             <input
               type="text"
@@ -239,8 +257,15 @@ function ContactUs() {
                 placeholder="Syötä nimesi"
                 value={formData.name}
                 onChange={handleChange}
+                onBlur={handleBlur}
+                maxLength={LIMITS.name}
+                aria-invalid={!!fieldErrors.name}
+                aria-describedby={fieldErrors.name ? "name-error" : undefined}
                 required
               />
+              {fieldErrors.name && (
+                <p id="name-error" className="field-error">{fieldErrors.name}</p>
+              )}
             </div>
 
             {/* Email Field */}
@@ -253,8 +278,15 @@ function ContactUs() {
                 placeholder="Syötä sähköpostiosoitteesi"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleBlur}
+                maxLength={LIMITS.email}
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? "email-error" : undefined}
                 required
               />
+              {fieldErrors.email && (
+                <p id="email-error" className="field-error">{fieldErrors.email}</p>
+              )}
             </div>
 
             {/* Message Field */}
@@ -267,8 +299,15 @@ function ContactUs() {
                 placeholder="Kirjoita viestisi tähän..."
                 value={formData.message}
                 onChange={handleChange}
+                onBlur={handleBlur}
+                maxLength={LIMITS.message}
+                aria-invalid={!!fieldErrors.message}
+                aria-describedby={fieldErrors.message ? "message-error" : undefined}
                 required
               ></textarea>
+              {fieldErrors.message && (
+                <p id="message-error" className="field-error">{fieldErrors.message}</p>
+              )}
             </div>
 
             {/* Submit Button */}

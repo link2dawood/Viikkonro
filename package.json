@@ -46,6 +46,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sentry/react": "^11.4.0",
     "@vercel/og": "^1.0.1",
     "pdfkit": "^0.19.1",
     "react": "^19.2.6",
