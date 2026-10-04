@@ -1,32 +1,17 @@
 import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
+import PlayStoreButton from "../components/PlayStoreButton";
 import { canonicalFor, routeMeta } from "../data/seo";
 import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
+  ANDROID_APP_RELEASED,
   ANDROID_APP_PATH,
   ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
   androidAppFaqs,
 } from "../data/androidAppContent";
-
-const PlayStoreButton = () => (
-  <a
-    className="android-store-link"
-    href={ANDROID_APP_FACTS.storeUrl}
-    target="_blank"
-    rel="noopener noreferrer external"
-    aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
-  >
-    <img
-      src="/mobile/android/google-play-logo.png"
-      alt="Google Play"
-      width="388"
-      height="432"
-    />
-  </a>
-);
 
 const AndroidApp = () => {
   const meta = routeMeta[ANDROID_APP_PATH];
@@ -70,6 +55,13 @@ const AndroidApp = () => {
             <PlayStoreButton />
             <a className="ext-link" href="#widgetit">Katso widgetit →</a>
           </div>
+          {!ANDROID_APP_RELEASED && (
+            <p className="android-soon-note" role="status">
+              <strong>Tulossa pian Google Playhin.</strong> Sovellus ei ole vielä
+              ladattavissa. Siihen asti voit käyttää viikkonro.fi-sivustoa suoraan
+              selaimessa.
+            </p>
+          )}
           <p className="note-soft">
             Maksuton · ei rekisteröitymistä · {ANDROID_APP_FACTS.minimumAndroid}
           </p>
@@ -93,7 +85,7 @@ const AndroidApp = () => {
         role="group"
         aria-label="Sovelluksen perustiedot"
       >
-        <div className="stat-box"><div className="n">{ANDROID_APP_FACTS.price}</div><div className="l">Maksuton lataus</div></div>
+        <div className="stat-box"><div className="n">{ANDROID_APP_FACTS.price}</div><div className="l">Maksuton</div></div>
         <div className="stat-box"><div className="n">{ANDROID_APP_FACTS.widgetCount}</div><div className="l">Android-widgetiä</div></div>
         <div className="stat-box"><div className="n">{ANDROID_APP_FACTS.languageCount}</div><div className="l">Käyttöliittymäkieltä</div></div>
         <div className="stat-box"><div className="n">Offline</div><div className="l">Kalenteri mukana</div></div>
@@ -190,7 +182,7 @@ const AndroidApp = () => {
       </div>
 
       <div className="prose">
-        <h2 id="asennus">Näin asennat Viikkonro-sovelluksen</h2>
+        <h2 id="asennus">Näin asennat Viikkonro-sovelluksen (kun se julkaistaan)</h2>
         <ol className="ext-steps">
           {ANDROID_INSTALL_STEPS.map((step) => (
             <li key={step.name}>
@@ -219,7 +211,8 @@ const AndroidApp = () => {
               <tr><th scope="row">Android</th><td>{ANDROID_APP_FACTS.minimumAndroid}</td></tr>
               <tr><th scope="row">Kielet</th><td>{ANDROID_APP_FACTS.languageCount} käyttöliittymäkieltä</td></tr>
               <tr><th scope="row">Widgetit</th><td>{ANDROID_APP_FACTS.widgetCount} aloitusnäytön widgetiä</td></tr>
-              <tr><th scope="row">Hinta</th><td>Maksuton lataus</td></tr>
+              <tr><th scope="row">Hinta</th><td>Maksuton</td></tr>
+              {!ANDROID_APP_RELEASED && <tr><th scope="row">Saatavuus</th><td>Tulossa pian Google Playhin</td></tr>}
               <tr><th scope="row">Paketin tunnus</th><td><code>{ANDROID_APP_FACTS.packageId}</code></td></tr>
             </tbody>
           </table>
@@ -238,7 +231,7 @@ const AndroidApp = () => {
         <div className="android-final-cta">
           <img src="/mobile/android/app-icon.png" alt="" width="72" height="72" aria-hidden="true" />
           <div>
-            <h2>Lataa Viikkonro Androidille</h2>
+            <h2>{ANDROID_APP_RELEASED ? "Lataa Viikkonro Androidille" : "Viikkonro Androidille: tulossa pian"}</h2>
             <p>Viikkonumerot, kalenteri, laskurit ja widgetit yhdessä sovelluksessa.</p>
           </div>
           <PlayStoreButton />

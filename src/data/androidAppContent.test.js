@@ -3,6 +3,7 @@ import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
   ANDROID_APP_PATH,
+  ANDROID_APP_RELEASED,
   ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
   androidAppFaqs,
@@ -42,5 +43,12 @@ describe("Android app landing content", () => {
     ]);
     expect(ANDROID_APP_FEATURES.length).toBeGreaterThanOrEqual(6);
     expect(ANDROID_INSTALL_STEPS).toHaveLength(4);
+  });
+});
+
+describe("Android app release state", () => {
+  it("is marked as not yet released and says so in the FAQ", () => {
+    expect(ANDROID_APP_RELEASED).toBe(false);
+    expect(androidAppFaqs[0].a).toContain("tulossa pian");
   });
 });

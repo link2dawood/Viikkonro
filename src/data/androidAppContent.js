@@ -1,4 +1,8 @@
 export const ANDROID_APP_PATH = "/android-sovellus";
+// Flip to true (and run the build) once the app is live on Google Play. While
+// false, the download button is disabled and no store URL is published in
+// structured data.
+export const ANDROID_APP_RELEASED = false;
 export const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=fi.viikkonro.app";
 
@@ -97,7 +101,7 @@ export const ANDROID_WIDGETS = [
 export const ANDROID_INSTALL_STEPS = [
   {
     name: "Avaa Google Play",
-    text: "Avaa Viikkonro-sovelluksen sivu Google Playssa Android-puhelimella tai tabletilla.",
+    text: "Kun sovellus on julkaistu, avaa Viikkonro-sovelluksen sivu Google Playssa Android-puhelimella tai tabletilla.",
   },
   {
     name: "Asenna sovellus",
@@ -115,12 +119,16 @@ export const ANDROID_INSTALL_STEPS = [
 
 export const androidAppFaqs = [
   {
+    q: "Onko Viikkonro-sovellus jo Google Playssa?",
+    a: "Ei vielä. Android-sovellus on tulossa pian Google Playhin, eikä sitä voi vielä ladata. Lataus avautuu tällä sivulla heti julkaisun jälkeen. Siihen asti viikkonro.fi toimii suoraan selaimessa.",
+  },
+  {
     q: "Mikä Viikkonro-sovellus on?",
     a: "Viikkonro on Android-sovellus ISO 8601 -viikkonumeroiden, kalenteriviikkojen, pyhäpäivien ja päivämäärälaskureiden käyttöön. Sen tekee sama Viikkonro-palvelu kuin viikkonro.fi-sivuston.",
   },
   {
     q: "Onko Viikkonro-sovellus ilmainen?",
-    a: "Kyllä. Sovelluksen voi ladata maksutta Google Playsta. Android-versiossa voidaan näyttää yksi suostumuksenhallinnalla ohjattu mainospaikka etusivulla.",
+    a: "Kyllä. Sovellus on maksuton, kun se julkaistaan Google Playssa. Android-versiossa voidaan näyttää yksi suostumuksenhallinnalla ohjattu mainospaikka etusivulla.",
   },
   {
     q: "Toimiiko sovellus ilman verkkoyhteyttä?",

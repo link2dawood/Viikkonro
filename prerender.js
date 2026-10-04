@@ -54,6 +54,7 @@ import {
 import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
+  ANDROID_APP_RELEASED,
   ANDROID_APP_PATH,
   ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
@@ -1575,9 +1576,10 @@ function androidAppNodes() {
       description:
         "Android-sovellus ISO 8601 -viikkonumeroihin, suomalaiseen kalenteriin, päivämäärälaskureihin ja seitsemään aloitusnäytön widgetiin.",
       url,
-      sameAs: f.storeUrl,
-      installUrl: f.storeUrl,
-      downloadUrl: f.storeUrl,
+      // No store URLs until the app is live (ANDROID_APP_RELEASED).
+      ...(ANDROID_APP_RELEASED
+        ? { sameAs: f.storeUrl, installUrl: f.storeUrl, downloadUrl: f.storeUrl }
+        : {}),
       image: `${SITE_URL}/mobile/android/app-icon.png`,
       screenshot: [
         `${SITE_URL}/mobile/android/app-weeks.png`,
@@ -1595,7 +1597,9 @@ function androidAppNodes() {
         "@type": "Offer",
         price: "0",
         priceCurrency: "EUR",
-        url: f.storeUrl,
+        ...(ANDROID_APP_RELEASED
+          ? { url: f.storeUrl }
+          : { availability: "https://schema.org/PreOrder" }),
       },
       featureList: [
         ...ANDROID_APP_FEATURES.map((x) => `${x.name}: ${x.desc}`),
@@ -1607,7 +1611,8 @@ function androidAppNodes() {
       publisher: { "@id": `${SITE_URL}/#organization` },
       mainEntityOfPage: { "@id": `${url}#webpage` },
     },
-    {
+    // An install guide for an app that is not downloadable yet would mislead.
+    ...(!ANDROID_APP_RELEASED ? [] : [{
       "@type": "HowTo",
       "@id": `${url}#howto`,
       name: "Näin asennat Viikkonro-sovelluksen Androidille",
@@ -1621,7 +1626,7 @@ function androidAppNodes() {
         text: step.text,
         url: `${url}#asennus`,
       })),
-    },
+    }]),
     {
       "@type": "FAQPage",
       "@id": `${url}#faq`,

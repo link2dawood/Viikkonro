@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { CHROME_EXTENSION_PATH, EXTENSION_FACTS } from "../data/chromeExtensionContent";
 import { ANDROID_APP_FACTS, ANDROID_APP_PATH } from "../data/androidAppContent";
+import PlayStoreButton from "./PlayStoreButton";
 
 // Homepage promo for the Chrome extension and Android app. Store URLs and
 // facts come from the same content modules as their landing pages
@@ -43,7 +44,7 @@ const AppsPromo = () => (
             loading="lazy"
           />
           <div>
-            <div className="eyebrow">Android-sovellus</div>
+            <div className="eyebrow">Android-sovellus · tulossa pian</div>
             <h3>Viikot, kalenteri ja {ANDROID_APP_FACTS.widgetCount} widgetiä</h3>
           </div>
         </div>
@@ -53,21 +54,7 @@ const AppsPromo = () => (
           aloitusnäytöllä.
         </p>
         <div className="apps-actions">
-          <a
-            className="android-store-link"
-            href={ANDROID_APP_FACTS.storeUrl}
-            target="_blank"
-            rel="noopener noreferrer external"
-            aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
-          >
-            <img
-              src="/mobile/android/google-play-logo.png"
-              alt="Google Play"
-              width="388"
-              height="432"
-              loading="lazy"
-            />
-          </a>
+          <PlayStoreButton lazy />
           <Link className="ext-link" to={ANDROID_APP_PATH}>
             Lue lisää →
           </Link>

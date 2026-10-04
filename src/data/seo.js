@@ -786,7 +786,7 @@ export const routeMeta = {
   "/android-sovellus": {
     title: "Viikkonro Android-sovellus ja widgetit",
     description:
-      "Lataa Viikkonro Androidille: ISO-viikot, suomalainen kalenteri, päivämäärälaskurit ja seitsemän aloitusnäytön widgetiä myös offline-käyttöön.",
+      "Viikkonro Androidille tulossa pian Google Playhin: ISO-viikot, suomalainen kalenteri, päivämäärälaskurit ja seitsemän aloitusnäytön widgetiä myös offline-käyttöön.",
     breadcrumb: "Android-sovellus",
   },
   "/ajanhallinta": {
