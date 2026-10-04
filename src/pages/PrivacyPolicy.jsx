@@ -15,7 +15,7 @@ const PrivacyPolicy = () => {
         </div>
         <h1>Tietosuojaseloste</h1>
         <div className="prose">
-          <p>Päivitetty viimeksi: 27. syyskuuta 2026</p>
+          <p>Päivitetty viimeksi: 4. lokakuuta 2026</p>
         </div>
         <h2>1. Rekisterinpitäjä ja yhteydenotto</h2>
         <div className="prose">
@@ -51,6 +51,11 @@ const PrivacyPolicy = () => {
             napsautuksiin, vierityksiin ja hiiren liikkeisiin liittyviä tietoja
             lämpökarttojen, käyttötietojen ja istuntotallenteiden tuottamiseksi.
             Lomakekenttien sisältö peitetään Clarity-tallenteissa.
+          </p>
+          <p>
+            <strong>Virheseuranta:</strong> Sentry voi käsitellä
+            virheilmoituksia, suorituskykymittauksia ja peitettyjä
+            istuntotallenteita sivuston vikojen korjaamiseksi. Katso kohta 7.
           </p>
           <p>
             <strong>Yhteydenottolomake:</strong> Jos lähetät viestin, nimi,
@@ -109,6 +114,7 @@ const PrivacyPolicy = () => {
             <li>Verkkosivustomme tarjoaminen, ylläpito ja huolto.</li>
             <li>Alustamme työkalujen parantaminen, mukauttaminen ja laajentaminen.</li>
             <li>Sen ymmärtäminen ja analysointi, miten käytät verkkosivustoamme.</li>
+            <li>Verkkosivuston virheiden ja hitauden seuranta Sentryllä.</li>
             <li>Teknisten vikojen ja petollisen toiminnan seuranta ja estäminen.</li>
             <li>Android-sovelluksen kaatumisten diagnosointi ja korjaaminen.</li>
             <li>Mainosten näyttäminen käyttäjän suostumusvalintojen mukaisesti.</li>
@@ -200,12 +206,45 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>7. Tietojen vastaanottajat ja säilytys</h2>
+        <h2>7. Sentry-virheseuranta</h2>
+        <div className="prose">
+          <p>
+            Käytämme Sentry-palvelua verkkosivuston teknisten virheiden
+            löytämiseen ja korjaamiseen sekä sivuston nopeuden mittaamiseen.
+            Virheen sattuessa Sentry vastaanottaa virheilmoituksen, selaimen ja
+            laitteen teknisiä tietoja, sivun osoitteen, tapahtumaa edeltäneet
+            toiminnot sekä sivulatausten suorituskykymittauksia. Emme lähetä
+            Sentrylle sähköpostiosoitteita tai muita tunnisteita, ja
+            yhteydenottolomakkeen sisältöä ei liitetä virheilmoituksiin.
+          </p>
+          <p>
+            Sentryn istuntotoisto tallentaa osasta käynneistä (noin 10 %
+            istunnoista) sekä kaikista virheeseen päättyneistä istunnoista
+            sivun rakenteen ja käyttäjän toimintojen, kuten napsautusten ja
+            vierityksen, tallenteen vianetsintää varten. Kaikki tekstisisältö,
+            lomakekentät ja media peitetään tallenteissa, eikä niiden todellista
+            sisältöä siirretä Sentrylle.
+          </p>
+          <p>
+            Virheseuranta perustuu oikeutettuun etuumme pitää palvelu toimivana
+            ja turvallisena. Voit vastustaa käsittelyä ottamalla yhteyttä
+            sivun <Link to="/ota-yhteytta">yhteydenottolomakkeella</Link>. Sentry
+            ei aseta mainos- eikä seurantaevästeitä; istuntotoisto käyttää
+            selaimen <code>sessionStorage</code>-muistia istunnon tunnistamiseen,
+            ja tieto poistuu selaimen sulkemisen yhteydessä. Lisätietoja:{" "}
+            <a href="https://sentry.io/privacy/" rel="external noopener">
+              Sentryn tietosuojakäytäntö
+            </a>
+            .
+          </p>
+        </div>
+
+        <h2>8. Tietojen vastaanottajat ja säilytys</h2>
         <div className="prose">
           <p>
             Palvelun tekniseen toimittamiseen osallistuvat Vercel ja Cloudflare.
             Yhteydenottoviestit käsittelee Web3Forms ja käyttöanalytiikkaa
-            Microsoft Clarity. Jos AdSense-mainonta on käytössä ja siihen on
+            Microsoft Clarity sekä virheseurantaa Sentry. Jos AdSense-mainonta on käytössä ja siihen on
             annettu tarvittava suostumus, Google ja CMP:ssä luetellut
             mainosteknologian tarjoajat voivat käsitellä tietoja omien
             tietosuojakäytäntöjensä mukaisesti. Emme myy henkilötietoja.
@@ -227,14 +266,16 @@ const PrivacyPolicy = () => {
             lähetysaikoja käytetään vain tunnin mittaisen lähetysrajan
             laskentaan; sitä vanhemmat merkinnät poistetaan seuraavan
             lomakekäytön yhteydessä. Tiedot voi poistaa myös tyhjentämällä
-            selaimen sivustotiedot. Microsoftin ilmoituksen mukaan Clarityn
+            selaimen sivustotiedot. Sentryn virhe- ja tallennetietoja säilytetään
+            Sentry-projektin säilytysasetusten mukaisesti, enintään sen
+            palvelutason mukaisen ajan. Microsoftin ilmoituksen mukaan Clarityn
             istuntotallenteita säilytetään tavallisesti 30 päivää. Koottuja
             napsautus- ja lämpökarttatietoja sekä merkittyjä tai otantaan
             valittuja tallenteita voidaan säilyttää enintään yhdeksän kuukautta.
           </p>
         </div>
 
-        <h2>8. Oikeutesi ja suostumuksen peruuttaminen</h2>
+        <h2>9. Oikeutesi ja suostumuksen peruuttaminen</h2>
         <div className="prose">
           <p>
             Sinulla on soveltuvan tietosuojalainsäädännön mukaisesti oikeus
