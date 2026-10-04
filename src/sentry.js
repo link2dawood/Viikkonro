@@ -1,9 +1,13 @@
-// Sentry error tracking (client only). Does nothing unless VITE_SENTRY_DSN is
-// set at build time, so local dev and forks stay silent.
+// Sentry error tracking (client only). A DSN is public by design (it can only
+// send events), so it is safe to ship; VITE_SENTRY_DSN overrides it, and an
+// empty value disables tracking. Local dev stays silent.
 //
 // The SDK is loaded lazily after the page is idle so it never competes with
 // LCP/INP. Errors thrown before it loads are buffered and replayed.
-const DSN = import.meta.env.VITE_SENTRY_DSN;
+const DEFAULT_DSN =
+  "https://1ae2cecc5e24d5d63d03f083901d3e07@o4510551843143680.ingest.us.sentry.io/4512197245403136";
+const DSN =
+  import.meta.env.VITE_SENTRY_DSN ?? (import.meta.env.PROD ? DEFAULT_DSN : "");
 
 let sentry = null;
 const pending = [];
@@ -31,7 +35,14 @@ export function initSentry() {
           sendDefaultPii: false,
           ignoreErrors: IGNORE_ERRORS,
           denyUrls: DENY_URLS,
-          tracesSampleRate: 0,
+          integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+          // Tracing: capture 100% of transactions
+          tracesSampleRate: 1.0,
+          // No backend of our own, so no distributed-tracing targets
+          tracePropagationTargets: [],
+          // Session Replay: 10% of sessions, 100% of sessions with an error
+          replaysSessionSampleRate: 0.1,
+          replaysOnErrorSampleRate: 1.0,
         });
         sentry = Sentry;
         pending.splice(0).forEach(([err, ctx]) => Sentry.captureException(err, ctx));
