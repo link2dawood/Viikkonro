@@ -1,9 +1,12 @@
 import { useToday } from "./useToday";
 import { Link } from "react-router-dom";
 import { navigationYearTargets } from "./dateUtils";
+import { schoolHolidayPage } from "../data/schoolHolidayPages";
 const QuickLinks = () => {
   const NOW = useToday();
   const { currentYear, promotedYear } = navigationYearTargets(NOW);
+  // Only years with a sourced school-holiday page get a link (no 404s).
+  const schoolYear = schoolHolidayPage(currentYear) ? currentYear : null;
   return (
     <>
       <section>
@@ -14,7 +17,7 @@ const QuickLinks = () => {
             to={`/kalenteri-${promotedYear}`}
             onClick={() => window.scrollTo(0, 0)}
           >
-            <b>Vuoden {promotedYear} kalenteri</b>
+            <b>Viikkokalenteri {promotedYear}</b>
             <span>Kaikki viikot ja juhlapäivät yhdellä sivulla</span>
           </Link>
           <Link
@@ -33,6 +36,16 @@ const QuickLinks = () => {
             <b>Suomen pyhäpäivät {currentYear}</b>
             <span>Arkipyhät, viikonpäivät ja viikkonumerot</span>
           </Link>
+          {schoolYear && (
+            <Link
+              className="ql"
+              to={`/koululomat-${schoolYear}`}
+              onClick={() => window.scrollTo(0, 0)}
+            >
+              <b>Syysloma ja koululomat {schoolYear}</b>
+              <span>Syys- ja hiihtolomaviikot alueittain</span>
+            </Link>
+          )}
           <Link
             className="ql"
             to={`/tyopaivat-${currentYear}`}

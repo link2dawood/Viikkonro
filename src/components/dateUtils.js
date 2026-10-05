@@ -390,6 +390,15 @@ export function fmtRangeCompactFi(mo, su) {
   }
   return `${fmtShortFi(mo)}–${fmtShortFi(su)}`;
 }
+// Short day range with a plain hyphen and no year: "12.-16.10." (same month)
+// or "30.3.-2.4." (different months). Used in newer metadata copy, which
+// avoids the en dash fmtRangeCompactFi() still carries for older titles.
+export function fmtDayRangeFi(start, end) {
+  if (start.getMonth() === end.getMonth()) {
+    return `${start.getDate()}.-${end.getDate()}.${end.getMonth() + 1}.`;
+  }
+  return `${start.getDate()}.${start.getMonth() + 1}.-${end.getDate()}.${end.getMonth() + 1}.`;
+}
 // Range: "20.–26. heinäkuuta 2026" (same month); "29.6.–5.7.2026" (same year,
 // different months); "29.12.2026–4.1.2027" (spanning a year boundary).
 export function fmtRangeFi(mo, su) {

@@ -1,4 +1,4 @@
-import { mondayOf } from "../components/dateUtils.js";
+import { fmtDayRangeFi, mondayOf } from "../components/dateUtils.js";
 
 // Confidence-tier vocabulary (STEP 2 of the koululomat trust redesign).
 // Tier A/CONFIRMED: an official source (ministry or municipality) has
@@ -210,13 +210,34 @@ export function pageConfidenceTier(year) {
   return tierFromGroups([...page.winter, ...page.autumn]);
 }
 
+// "Syysloma 2026 on viikolla 42 (12.-16.10.) tai 43 (19.-25.10.) kunnasta
+// riippuen." Built from the page's own autumn groups, so the snippet can only
+// state weeks and dates the visible table also shows. A single confirmed city
+// (2027: Helsinki only) is named rather than generalized to every municipality.
+export function autumnSummary(page) {
+  const groups = page.autumn;
+  if (groups.length === 0) {
+    return `Syysloma ${page.year} ajoittuu yleensä lokakuulle, viikolle 42 tai 43.`;
+  }
+  const part = (g) => `${g.week} (${fmtDayRangeFi(g.startDate, g.endDate)})`;
+  if (groups.length === 1 && groups[0].cities.length === 1) {
+    return `Syysloma ${page.year}: ${groups[0].cities[0]} viikolla ${part(groups[0])}, muut kunnat ilmoittavat omansa.`;
+  }
+  const weeks = groups.map(part);
+  const list =
+    weeks.length === 1 ? weeks[0] : `${weeks.slice(0, -1).join(", ")} tai ${weeks[weeks.length - 1]}`;
+  return `Syysloma ${page.year} on viikolla ${list} kunnasta riippuen.`;
+}
+
 export function schoolHolidayMeta(year) {
   const page = schoolHolidayPage(year);
   if (!page) return null;
   const tier = pageConfidenceTier(year);
+  // Leads with "Syysloma <year>", the page's largest query, and states the
+  // real autumn weeks and dates from page.autumn instead of generic copy.
   const base = {
-    title: `Koululomat ${year} – hiihto- ja syysloma | Viikko Nro`,
-    description: `Koululomat ${year} alueittain: hiihtoloma viikoilla 8–10 sekä syys-, joulu- ja kesälomien ajankohdat. Vertaa Helsinkiä, Tamperetta, Oulua ja muita kaupunkeja.`,
+    title: `Syysloma ${year} ja hiihtoloma ${year}: koululomat | Viikko Nro`,
+    description: `${autumnSummary(page)} Hiihtoloma ${year} on viikoilla 8-10. Katso koululomat alueittain.`,
   };
   // STEP 4: Tier B pages must noindex,follow and their description must
   // carry the exact required disclaimer — not a paraphrase, so it reads
@@ -253,7 +274,7 @@ export function schoolHolidayFaqs(year) {
       q: `Milloin syysloma ${year} on?`,
       a:
         year === 2026
-          ? "Syysloma 2026 osuu vertailukaupungeissa viikolle 42 tai 43. Tarkka päivämäärä riippuu kunnasta ja koulusta."
+          ? `${autumnSummary(page)} ${page.autumn.map((g) => `Viikolla ${g.week} lomailevat esimerkiksi ${g.cities.slice(0, 3).join(", ")}.`).join(" ")} Tarkka päivämäärä riippuu kunnasta ja koulusta.`
           : "Helsingin vahvistettu syysloma 2027 on viikolla 42 eli 18.–22.10. Muiden kuntien päivät on tarkistettava kunnan omalta sivulta.",
     },
     {
