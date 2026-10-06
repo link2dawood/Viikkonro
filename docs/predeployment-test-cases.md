@@ -20,7 +20,7 @@ bundle removed by prerendering, and completes the internal crawl check.
 | PD-06 | Inspect PDF output and Vercel headers | At least 1,000 PDFs remain generated and each PDF family maps to its matching HTML canonical. |
 | PD-07 | Inspect the English surface | `/en` retains English document signals and reciprocal hreflang, and the Finnish site links to it. |
 | PD-08 | Scan deployable text artifacts | No unresolved merge marker reaches generated HTML, XML, text, or JSON. |
-| PD-09 | Inspect `/yrityskalenteri` | One H1, a self-canonical, indexable, WebPage, FAQPage, HowTo and breadcrumb schema, the watermarked free preview, a sitemap entry, and links from the calendar and print pages. |
+| PD-09 | Inspect `/yrityskalenteri` | One H1, a self-canonical, indexable, WebPage, FAQPage, HowTo and breadcrumb schema, the watermarked free preview, a sitemap entry, links from the calendar and print pages, and its own styles (no other page carries them). |
 | PD-10 | Scan production scripts | No script contains the development unlock or its text; the PDF library is a separate chunk that the entry script neither embeds nor preloads. |
 
 The crawl phase separately requires every sitemap page within three clicks,

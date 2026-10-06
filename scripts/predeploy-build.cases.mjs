@@ -186,6 +186,11 @@ test("PD-09 publishes the company calendar page as an indexable, linked, schema-
   const types = schemaTypes(structuredData(html));
   for (const type of ["WebPage", "FAQPage", "HowTo", "BreadcrumbList"]) assert.ok(types.has(type), type);
   assert.ok(sitemapLocations().includes(`${siteOrigin}/yrityskalenteri`));
+  // The builder's styles belong to this page only; every other page inlines the global stylesheet.
+  assert.ok(html.includes(".cc-frame"), "the builder page carries its own styles");
+  for (const route of ["/", "/kalenteri-2027", "/viikko-24-2026", "/tyopaivalaskuri"]) {
+    assert.ok(!pageHtml(route).includes(".cc-frame"), `${route} must not carry the builder's styles`);
+  }
   // Reachable from the existing calendar and print pages.
   for (const route of ["/kalenteri-2027", "/tulostettava-kalenteri-2027", "/tulosta-2027"]) {
     assert.ok(pageHtml(route).includes('href="/yrityskalenteri"'), route);

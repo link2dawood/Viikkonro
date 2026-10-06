@@ -12,6 +12,7 @@ import {
   companyCalendarYears,
   exportFilename,
 } from "../data/companyCalendar";
+import builderCss from "../components/companyCalendar/companyCalendar.css?raw";
 import Editor from "../components/companyCalendar/Editor";
 import Exports from "../components/companyCalendar/Exports";
 import Preview from "../components/companyCalendar/Preview";
@@ -178,6 +179,9 @@ const CompanyCalendar = () => {
 
   return (
     <section className="app cc-page">
+      {/* Builder-only styles are rendered with this page, not added to the stylesheet
+          that is inlined into every other page. The CSS is our own static text. */}
+      <style dangerouslySetInnerHTML={{ __html: builderCss }} />
       <SEO {...routeMeta[COMPANY_CALENDAR_PATH]} canonical={canonicalFor(COMPANY_CALENDAR_PATH)} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> / Yrityskalenteri
