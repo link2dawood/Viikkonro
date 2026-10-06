@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fmtFullFi, WD } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import DayRuleNote from "../components/DayRuleNote";
+import usePlannerCreated from "../components/usePlannerCreated";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta } from "../data/seo";
 import { dm, dmy, nextMonday, parseIsoDate, toIsoDate } from "../data/planningDates";
@@ -81,6 +82,16 @@ const ProjectTimeline = () => {
     toIsoDate(new Date(defaultStart.getFullYear(), defaultStart.getMonth() + 3, defaultStart.getDate())),
   );
   const plan = projectPlan(parseIsoDate(start), mode === "days" ? { workingDays: days } : { end: parseIsoDate(end) });
+  usePlannerCreated(
+    plan
+      ? {
+          planner_type: "projektiaikataulu",
+          start_month: toIsoDate(plan.start).slice(0, 7),
+          end_month: toIsoDate(plan.end).slice(0, 7),
+          size: plan.workingDays,
+        }
+      : null,
+  );
   const faqs = projectFaqs();
 
   return (

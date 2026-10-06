@@ -5,6 +5,7 @@ import { MAX_PROJECT_DAYS, projectExample, projectFaqs, projectPlan } from "./pr
 import { SPRINT_WEEKS, sprintExample, sprintFaqs, sprintOn, sprintPlan } from "./sprintPlanner.js";
 import { parseIsoDate, nextMonday, toIsoDate } from "./planningDates.js";
 import { isWorkingDay } from "./dateCalculator.js";
+import { calculateDaysBetween } from "./workingDaysContent.js";
 import { routeMeta, sitemapEntries } from "./seo.js";
 import { sitemapLastmod } from "./sitemapMetadata.js";
 import { ProjectResult } from "../pages/ProjectTimeline.jsx";
@@ -202,6 +203,7 @@ describe("day rule modes", () => {
     expect(Object.keys(DAY_RULES)).toEqual([
       "FINLAND_STATUTORY_LEAVE",
       "FINLAND_PLANNER",
+      "FINLAND_WORKDAY",
       "FINLAND_PROJECT",
       "FINLAND_SPRINT",
     ]);
@@ -219,6 +221,7 @@ describe("day rule modes", () => {
   it("treats the eves as off for leave and planning, but as working days for project and sprint", () => {
     expect(countsAsDay("FINLAND_STATUTORY_LEAVE", eve)).toBe(false);
     expect(countsAsDay("FINLAND_PLANNER", eve)).toBe(false);
+    expect(countsAsDay("FINLAND_WORKDAY", eve)).toBe(true);
     expect(countsAsDay("FINLAND_PROJECT", eve)).toBe(true);
     expect(countsAsDay("FINLAND_SPRINT", eve)).toBe(true);
   });
@@ -231,6 +234,7 @@ describe("day rule modes", () => {
   });
   it("keeps the project and sprint modes identical to the existing workday logic", () => {
     for (let d = new Date(2026, 0, 1); d < new Date(2029, 0, 1); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+      expect(countsAsDay("FINLAND_WORKDAY", d)).toBe(isWorkingDay(d));
       expect(countsAsDay("FINLAND_PROJECT", d)).toBe(isWorkingDay(d));
       expect(countsAsDay("FINLAND_SPRINT", d)).toBe(isWorkingDay(d));
     }
@@ -244,5 +248,24 @@ describe("day rule modes", () => {
     const html = renderToStaticMarkup(<DayRuleNote mode="FINLAND_SPRINT" />);
     expect(html).toContain("Käytetty sääntö");
     expect(html).toContain(DAY_RULES.FINLAND_SPRINT.disclosure);
+  });
+});
+
+describe("workday calculator on the shared engine", () => {
+  it("counts the same working days as isWorkingDay, with eves as working days", () => {
+    const r = calculateDaysBetween("2026-12-21", "2027-01-10", "work");
+    let expected = 0;
+    for (let d = new Date(2026, 11, 21); d <= new Date(2027, 0, 10); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+      if (isWorkingDay(d)) expected += 1;
+    }
+    expect(r.working).toBe(expected);
+    expect(r.working + r.holidays + r.weekend).toBe(r.total);
+    // Jouluaatto (Thu 24.12.2026) is a working day, joulupäivä and tapaninpäivä are not.
+    expect(calculateDaysBetween("2026-12-24", "2026-12-24", "work").working).toBe(1);
+    expect(calculateDaysBetween("2026-12-25", "2026-12-26", "work").working).toBe(0);
+  });
+  it("keeps the Kela mode counting Saturdays", () => {
+    expect(calculateDaysBetween("2027-04-03", "2027-04-03", "kela").working).toBe(1);
+    expect(calculateDaysBetween("2027-04-03", "2027-04-03", "work").working).toBe(0);
   });
 });

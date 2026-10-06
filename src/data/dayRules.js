@@ -14,9 +14,10 @@
 //   and every holiday in holidaysInYear() are off, including jouluaatto and
 //   juhannusaatto, which are not statutory but close most workplaces
 //   (holidays.js, reviewed 2026-07-23).
-// - FINLAND_PROJECT and FINLAND_SPRINT: working days as in /tyopaivalaskuri
-//   (isWorkingDay): Monday-Friday except statutory holidays; the two eves
-//   count as working days.
+// - FINLAND_WORKDAY: working days for /tyopaivalaskuri (isWorkingDay):
+//   Monday-Friday except statutory holidays; the two eves count as working
+//   days. FINLAND_PROJECT and FINLAND_SPRINT apply the same rule under their
+//   own names, so a tool can change its rule without touching the others.
 import { WD } from "../components/dateUtils.js";
 import { holidaysInYear } from "./holidays.js";
 import { leaveFreeReason } from "./annualLeave.js";
@@ -50,6 +51,14 @@ export const DAY_RULES = {
     reason: (date) => anyHoliday(date) ?? weekend(date),
     disclosure:
       "Lomapäivä suunnittelussa: maanantain ja perjantain välinen päivä, joka ei ole arkipyhä. Lauantait, sunnuntait, arkipyhät sekä jouluaatto ja juhannusaatto ovat vapaata.",
+  },
+  FINLAND_WORKDAY: {
+    id: "FINLAND_WORKDAY",
+    unit: "työpäivä",
+    units: "työpäivää",
+    reason: workingDayReason,
+    disclosure:
+      "Työpäivä työpäivälaskurissa: maanantain ja perjantain välinen päivä, joka ei ole arkipyhä. Jouluaatto ja juhannusaatto lasketaan työpäiviksi. Kelan arkipäivät -vaihtoehto laskee myös lauantait.",
   },
   FINLAND_PROJECT: {
     id: "FINLAND_PROJECT",

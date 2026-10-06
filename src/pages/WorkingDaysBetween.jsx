@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { dateFromDayKey, fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import DayRuleNote from "../components/DayRuleNote";
 import { canonicalFor, routeMeta } from "../data/seo";
 import {
   DAY_COUNT_MODES,
@@ -129,6 +130,7 @@ const WorkingDaysBetween = () => {
           : "Työpäivä = maanantai-perjantai, pois lukien viralliset pyhäpäivät."}{" "}
         Molemmat päivämäärät lasketaan mukaan.
       </p>
+      <DayRuleNote mode="FINLAND_WORKDAY" />
 
       <div className="prose">
         <p className="note-soft">Sisältö päivitetty {fmtFullFi(dateFromDayKey(WORKING_DAYS_UPDATED))}.</p>

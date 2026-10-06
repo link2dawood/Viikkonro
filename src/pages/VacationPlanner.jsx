@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import DayRuleNote from "../components/DayRuleNote";
+import usePlannerCreated from "../components/usePlannerCreated";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta } from "../data/seo";
 import { dm, dmy, parseIsoDate, weekRangeLabel } from "../data/planningDates";
@@ -72,6 +73,7 @@ const VacationPlanner = () => {
   const leaveDays = Math.trunc(Number(leave));
   const valid = Number.isFinite(leaveDays) && leaveDays >= 0 && leaveDays <= MAX_LEAVE_DAYS;
   const breaks = valid ? bestBreaks(Number(selected), leaveDays, 3) : [];
+  usePlannerCreated(valid && breaks.length ? { planner_type: "lomasuunnittelija", year: selected, size: leaveDays } : null);
   const faqs = plannerFaqs();
 
   return (

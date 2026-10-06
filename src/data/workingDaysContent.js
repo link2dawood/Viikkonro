@@ -1,5 +1,6 @@
 import { dWritten } from "../components/dateUtils.js";
 import { holidaysInYear } from "./holidays.js";
+import { dayReason } from "./dayRules.js";
 
 export const WORKING_DAYS_UPDATED = "2026-10-05";
 export const KELA_WORKDAY_SOURCE = "https://www.kela.fi/raskausaikana";
@@ -55,8 +56,12 @@ export function calculateDaysBetween(fromValue, toValue, mode = "work") {
     total += 1;
     const day = date.getDay();
     const excludedByWeek = mode === "kela" ? day === 0 : day === 0 || day === 6;
+    // The work mode follows the shared FINLAND_WORKDAY rule; the Kela mode
+    // (Monday-Saturday) has its own definition above.
+    const isHoliday =
+      mode === "work" ? dayReason("FINLAND_WORKDAY", date) !== null : officialHolidays.has(date.toDateString());
     if (excludedByWeek) weekend += 1;
-    else if (officialHolidays.has(date.toDateString())) holidays += 1;
+    else if (isHoliday) holidays += 1;
     else working += 1;
     date.setDate(date.getDate() + 1);
   }

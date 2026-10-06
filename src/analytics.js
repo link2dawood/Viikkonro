@@ -97,6 +97,27 @@ export function trackPdfDownloads() {
   document.addEventListener("auxclick", onClick, true);
 }
 
+// Planner tools (/lomasuunnittelija, /projektiaikataulu, /sprinttisuunnittelija):
+// one "planner_created" event when a visitor changes the inputs and gets a
+// result. Only coarse, non-personal values are sent: the tool, a year or a
+// month (YYYY-MM, never a full date) and a size. The page_type tag is already
+// set per page. The planners have no export, so there is no export_type.
+const PLANNER_KEYS = ["planner_type", "year", "start_month", "end_month", "size"];
+
+export function plannerCreatedEvents(props) {
+  const tags = PLANNER_KEYS.filter((k) => props?.[k] !== undefined && props[k] !== null).map((k) => [
+    "set",
+    k === "planner_type" ? k : `planner_${k}`,
+    String(props[k]),
+  ]);
+  return [...tags, ["event", "planner_created"], ["event", `planner_created_${props.planner_type}`]];
+}
+
+export function trackPlannerCreated(props) {
+  if (!props?.planner_type) return;
+  for (const args of plannerCreatedEvents(props)) clarity(...args);
+}
+
 // Page families that exist to offer a PDF (funnel step 2). Pages that merely
 // link one — like the homepage's season block — don't count as a step, or
 // every homepage visit would skip straight past it. Downloads from them are

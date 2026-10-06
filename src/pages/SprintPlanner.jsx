@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import DayRuleNote from "../components/DayRuleNote";
+import usePlannerCreated from "../components/usePlannerCreated";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta } from "../data/seo";
 import { dm, dmy, nextMonday, parseIsoDate, toIsoDate } from "../data/planningDates";
@@ -64,6 +65,16 @@ const SprintPlanner = () => {
   const [count, setCount] = useState("12");
   const plan = sprintPlan(parseIsoDate(start), weeks, count);
   const current = sprintOn(plan, today);
+  usePlannerCreated(
+    plan
+      ? {
+          planner_type: "sprinttisuunnittelija",
+          start_month: toIsoDate(plan[0].from).slice(0, 7),
+          end_month: toIsoDate(plan[plan.length - 1].to).slice(0, 7),
+          size: plan.length,
+        }
+      : null,
+  );
   const faqs = sprintFaqs();
 
   return (
