@@ -7,6 +7,7 @@ describe("sitemap content modification dates", () => {
     expect(sitemapLastmod("/auringonlasku-helsinki", "2026-10-06")).toBe("2026-10-06");
     expect(sitemapLastmod("/tyopaivalaskuri", "2026-10-06")).toBe("2026-10-05");
     expect(sitemapLastmod("/viikko-42-2024", "2026-10-06")).toBe("2026-10-05");
+    expect(sitemapLastmod("/ukk", "2026-10-06")).toBe("2026-10-06");
     expect(sitemapLastmod("/parillinen-pariton-viikko", "2026-10-06")).toBe("2026-10-06");
     expect(sitemapLastmod("/koululomat-2028", "2026-10-06")).toBe("2026-10-05");
   });

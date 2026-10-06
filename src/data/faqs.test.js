@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { faqCategories, faqs } from "./faqs.js";
+import { FAQ_UPDATED, faqCategories, faqs } from "./faqs.js";
 
 describe("FAQ content", () => {
+  it("leads with a direct answer to the primary viikkonumero intent", () => {
+    const firstCategory = faqCategories[0];
+    const firstItem = firstCategory.items[0];
+
+    expect(firstCategory.title).toBe("Viikkonumero nyt ja perusteet");
+    expect(firstItem.q).toBe("Mikä on viikkonumero?");
+    expect(firstItem.a).toContain("ISO 8601");
+    expect(firstItem.a).toContain("viikko alkaa maanantaina");
+    expect(firstItem.a).toContain("52 tai 53 viikkoa");
+    expect(FAQ_UPDATED).toBe("2026-10-06");
+  });
+
   it("includes the week abbreviation category in the flat FAQ source", () => {
     const category = faqCategories.find(
       (item) => item.title === "Viikkonumeron lyhenteet ja merkintätavat",

@@ -786,10 +786,10 @@ export const routeMeta = {
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
   "/ukk": {
-    title: "Usein kysytyt kysymykset viikkonumeroista | Viikko Nro",
+    title: "Viikkonumero: usein kysytyt kysymykset | Viikko Nro",
     description:
-      "Vastauksia viikkonumeroista: mikä viikko nyt on, alkaako viikko maanantaista, kuinka monta viikkoa vuodessa on ja miten viikkonumero lasketaan.",
-    breadcrumb: "UKK",
+      "Viikkonumero selitettynä: tarkista mikä viikko nyt on, miten viikkonumero lasketaan, milloin viikko vaihtuu ja miksi vuodessa on 52 tai 53 viikkoa.",
+    breadcrumb: "Viikkonumero UKK",
   },
   "/avoin-data": {
     title: "Avoin data ja JSON-rajapinta | Viikko Nro",

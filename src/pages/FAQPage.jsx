@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
-import { faqCategories } from "../data/faqs";
+import { FAQ_UPDATED, faqCategories } from "../data/faqs";
 import SEO from "../components/SEO";
 import { routeMeta } from "../data/seo";
 import { dateFromDayKey, fmtFullFi } from "../components/dateUtils.js";
-import { PARITY_UPDATED } from "../data/weekParity.js";
 
 const FAQPage = () => {
   const meta = routeMeta["/ukk"];
@@ -12,14 +11,20 @@ const FAQPage = () => {
       <section className="app">
         <SEO title={meta.title} description={meta.description} />
         <div className="breadcrumb">
-          <Link to="/">Etusivu</Link> / UKK
+          <Link to="/">Etusivu</Link> / Viikkonumero UKK
         </div>
-        <h1>Usein kysytyt kysymykset</h1>
+        <h1>Viikkonumero: usein kysytyt kysymykset</h1>
         <p className="lead">
-          Vastauksia yleisimpiin kysymyksiin viikkonumeroista, viikon
-          alkamisesta ja ISO 8601 -standardista.
+          Viikkonumero kertoo, mihin vuoden kalenteriviikkoon tietty päivä
+          kuuluu. Löydä alta vastaukset viikkonumeron tarkistamiseen,
+          laskemiseen ja käyttöön Suomessa.
         </p>
-        <p className="note-soft">Sisältö päivitetty {fmtFullFi(dateFromDayKey(PARITY_UPDATED))}.</p>
+        <p>
+          <Link to="/">Tarkista nykyinen viikkonumero</Link>, lue tarkempi
+          opas siitä, <Link to="/mika-on-viikkonumero">mikä viikkonumero on</Link>,
+          tai <Link to="/paivamaara-viikoksi">muunna päivämäärä viikoksi</Link>.
+        </p>
+        <p className="note-soft">Sisältö päivitetty {fmtFullFi(dateFromDayKey(FAQ_UPDATED))}.</p>
 
         {faqCategories.map((category, categoryIndex) => (
           <div key={category.title} className="faq-group">

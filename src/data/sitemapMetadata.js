@@ -1,4 +1,5 @@
 import { PARITY_UPDATED } from "./weekParity.js";
+import { FAQ_UPDATED } from "./faqs.js";
 import { WORKING_DAYS_UPDATED } from "./workingDaysContent.js";
 import { PREGNANCY_UPDATED } from "./pregnancyCalculator.js";
 import { COMPANY_CALENDAR_PATH, COMPANY_CALENDAR_UPDATED } from "./companyCalendar.js";
@@ -31,7 +32,8 @@ export function sitemapLastmod(path, buildDay) {
   if (/^\/kalenteri-\d{4}$/.test(path)) return CALENDAR_CONTENT_UPDATED;
   const schoolHolidayMatch = path.match(/^\/koululomat-(\d{4})$/);
   if (schoolHolidayMatch) return schoolHolidayVerifiedAt(Number(schoolHolidayMatch[1]));
-  if (path === "/ukk" || /^\/(?:viikko-\d+|vuosi)-\d{4}$/.test(path)) {
+  if (path === "/ukk") return FAQ_UPDATED;
+  if (/^\/(?:viikko-\d+|vuosi)-\d{4}$/.test(path)) {
     return PARITY_UPDATED;
   }
   // lastmod is optional. Unknown dates (including PDF modification dates)
