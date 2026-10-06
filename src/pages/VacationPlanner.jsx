@@ -71,7 +71,7 @@ const VacationPlanner = () => {
   const [selected, setSelected] = useState(String(year));
   const [leave, setLeave] = useState("4");
   const leaveDays = Math.trunc(Number(leave));
-  const valid = Number.isFinite(leaveDays) && leaveDays >= 0 && leaveDays <= MAX_LEAVE_DAYS;
+  const valid = leave.trim() !== "" && Number.isFinite(leaveDays) && leaveDays >= 0 && leaveDays <= MAX_LEAVE_DAYS;
   const breaks = valid ? bestBreaks(Number(selected), leaveDays, 3) : [];
   usePlannerCreated(valid && breaks.length ? { planner_type: "lomasuunnittelija", year: selected, size: leaveDays } : null);
   const faqs = plannerFaqs();
