@@ -3,22 +3,23 @@
 // project spans, working days per week and quarter-way milestones. Plain .js
 // so prerender.js can import it.
 //
-// A working day is Monday-Friday that is not a statutory holiday, the same
-// rule as /tyopaivalaskuri and /paivamaaralaskuri (isWorkingDay). Jouluaatto
-// and juhannusaatto are not statutory holidays, so they count as working days
-// here; the page says so.
+// Day rule: FINLAND_PROJECT in dayRules.js, the same working days as
+// /tyopaivalaskuri; the two eves count as working days.
 import { isoWeek, isoYear } from "../components/dateUtils.js";
-import { addDays, atMidnight, dmy, isWorkingDay, officialHolidayOn } from "./planningDates.js";
+import { addDays, atMidnight, dmy } from "./planningDates.js";
+import { countsAsDay, dayReason } from "./dayRules.js";
 
 export const PROJECT_PATH = "/projektiaikataulu";
 export const PROJECT_UPDATED = "2026-10-06";
+const MODE = "FINLAND_PROJECT";
+const counts = (d) => countsAsDay(MODE, d);
 export const MAX_PROJECT_DAYS = 520;
 export const MILESTONES = [25, 50, 75, 100];
 
 // First working day on or after `date`.
 function firstWorkingDay(date) {
   let d = atMidnight(date);
-  while (!isWorkingDay(d)) d = addDays(d, 1);
+  while (!counts(d)) d = addDays(d, 1);
   return d;
 }
 
@@ -33,13 +34,13 @@ export function projectPlan(start, { workingDays, end } = {}) {
     const last = atMidnight(end);
     if (last < first) return null;
     for (let d = first; d <= last && days.length <= MAX_PROJECT_DAYS; d = addDays(d, 1)) {
-      if (isWorkingDay(d)) days.push(d);
+      if (counts(d)) days.push(d);
     }
     if (!days.length || days.length > MAX_PROJECT_DAYS) return null;
   } else {
     const n = Math.trunc(Number(workingDays));
     if (!Number.isFinite(n) || n < 1 || n > MAX_PROJECT_DAYS) return null;
-    for (let d = first; days.length < n; d = addDays(d, 1)) if (isWorkingDay(d)) days.push(d);
+    for (let d = first; days.length < n; d = addDays(d, 1)) if (counts(d)) days.push(d);
   }
   const lastDay = days[days.length - 1];
 
@@ -54,11 +55,9 @@ export function projectPlan(start, { workingDays, end } = {}) {
       rows.push(row);
     }
     row.to = d;
-    if (isWorkingDay(d)) row.workingDays += 1;
-    else {
-      const holiday = officialHolidayOn(d);
-      if (holiday && d.getDay() >= 1 && d.getDay() <= 5) row.holidays.push({ date: d, name: holiday });
-    }
+    const reason = dayReason(MODE, d);
+    if (reason === null) row.workingDays += 1;
+    else if (d.getDay() >= 1 && d.getDay() <= 5) row.holidays.push({ date: d, name: reason });
   }
 
   const milestones = MILESTONES.map((percent) => {

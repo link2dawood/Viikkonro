@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { fmtFullFi, WD } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import DayRuleNote from "../components/DayRuleNote";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta } from "../data/seo";
 import { dm, dmy, nextMonday, parseIsoDate, toIsoDate } from "../data/planningDates";
@@ -131,6 +132,8 @@ const ProjectTimeline = () => {
         )}
         {plan ? <ProjectResult plan={plan} /> : <p className="note-soft">Tarkista päivämäärät ja kesto.</p>}
       </div>
+
+      <DayRuleNote mode="FINLAND_PROJECT" />
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {fmtFullFi(parseIsoDate(PROJECT_UPDATED))}.</p>

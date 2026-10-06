@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { mondayOf } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import DayRuleNote from "../components/DayRuleNote";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
 import {
@@ -136,6 +137,8 @@ const AnnualLeave = () => {
           </div>
         </div>
       </div>
+
+      <DayRuleNote mode="FINLAND_STATUTORY_LEAVE" />
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>

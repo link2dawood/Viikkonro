@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import DayRuleNote from "../components/DayRuleNote";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta } from "../data/seo";
 import { dm, dmy, parseIsoDate, weekRangeLabel } from "../data/planningDates";
@@ -125,6 +126,8 @@ const VacationPlanner = () => {
           <p className="note-soft">Kirjoita lomapäivien määrä, 0-{MAX_LEAVE_DAYS}.</p>
         )}
       </div>
+
+      <DayRuleNote mode="FINLAND_PLANNER" />
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {fmtFullFi(parseIsoDate(PLANNER_UPDATED))}.</p>

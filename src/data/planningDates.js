@@ -2,9 +2,9 @@
 // /projektiaikataulu, /sprinttisuunnittelija). Plain .js so prerender.js can
 // import the data modules that use it.
 import { isoWeek, isoYear } from "../components/dateUtils.js";
-import { addDays, atMidnight, isWorkingDay, officialHolidayOn } from "./dateCalculator.js";
+import { addDays, atMidnight } from "./dateCalculator.js";
 
-export { addDays, atMidnight, isWorkingDay, officialHolidayOn };
+export { addDays, atMidnight };
 
 const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
 

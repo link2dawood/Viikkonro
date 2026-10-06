@@ -939,23 +939,23 @@ export const routeMeta = {
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
   "/lomasuunnittelija": {
-    title: "Lomasuunnittelija: pitkä loma vähillä lomapäivillä | Viikko Nro",
+    title: "Lomasuunnittelija: pitkä loma vähällä | Viikko Nro",
     description:
-      "Näe pisimmät tauot, jotka saat omilla lomapäivilläsi, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin. Pitkät viikonloput, pääsiäinen ja joulu vuosittain.",
+      "Näe pisimmät tauot, jotka saat omilla lomapäivilläsi, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin. Pääsiäinen, joulu ja pitkät viikonloput.",
     breadcrumb: "Lomasuunnittelija",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
   "/projektiaikataulu": {
-    title: "Projektiaikataulu: päättymispäivä ja viikot työpäivistä | Viikko Nro",
+    title: "Projektiaikataulu: päättymispäivä työpäivistä | Viikko Nro",
     description:
       "Laske projektin päättymispäivä työpäivinä tai työpäivät alku- ja loppupäivän välillä. Viikkokohtainen aikataulu ISO-viikkoineen, arkipyhät ja välitavoitteet.",
     breadcrumb: "Projektiaikataulu",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
   "/sprinttisuunnittelija": {
-    title: "Sprinttisuunnittelija: sprinttien päivät ja viikot | Viikko Nro",
+    title: "Sprinttisuunnittelija: päivät ja viikot | Viikko Nro",
     description:
-      "Laske peräkkäisten sprinttien päivämäärät, ISO-viikkonumerot ja työpäivät. Arkipyhät näkyvät sprinttien kapasiteetissa. Valitse pituus yhdestä kuuteen viikkoa.",
+      "Laske peräkkäisten sprinttien päivämäärät, ISO-viikkonumerot ja työpäivät. Arkipyhät näkyvät kapasiteetissa. Valitse pituus yhdestä kuuteen viikkoa.",
     breadcrumb: "Sprinttisuunnittelija",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },

@@ -2,18 +2,12 @@
 // number of leave days buys when it is placed between weekends and public
 // holidays. Plain .js so prerender.js can import it.
 //
-// Rules used, all from data the site already carries (holidays.js, reviewed
-// there 2026-07-23 and 2026-08-07):
-// - A day off is a Saturday, a Sunday, or any day in holidaysInYear(): the 13
-//   statutory holidays plus jouluaatto and juhannusaatto. The two eves are not
-//   statutory, but holidays.js records that most workplaces are closed, so the
-//   planner treats them as days off and the page says so.
-// - A leave day is a Monday-Friday that is not a day off. This is a five-day
-//   week count. Under the Annual Holidays Act a Saturday is also a leave day;
-//   /vuosilomalaskuri counts leave that way.
+// Day rule: FINLAND_PLANNER in dayRules.js (a five-day week; the two eves are
+// days off). Under the Annual Holidays Act a Saturday is also a leave day;
+// /vuosilomalaskuri counts leave that way (FINLAND_STATUTORY_LEAVE).
 // - A break starts on the first day of a run of days off and ends on a day off,
 //   so leave days are never spent at the edge of a break.
-import { holidaysInYear } from "./holidays.js";
+import { dayReason } from "./dayRules.js";
 import { addDays, dm } from "./planningDates.js";
 
 export const PLANNER_PATH = "/lomasuunnittelija";
@@ -23,23 +17,10 @@ export const MAX_LEAVE_DAYS = 30;
 const EXAMPLE_YEAR = 2027;
 const EXAMPLE_BUDGET = 4;
 
-const holidayCache = new Map();
-function holidayMap(year) {
-  if (!holidayCache.has(year)) {
-    holidayCache.set(year, new Map(holidaysInYear(year).map((h) => [h.date.toDateString(), h.name])));
-  }
-  return holidayCache.get(year);
-}
+const MODE = "FINLAND_PLANNER";
 
 // Why a date is a day off ("Lauantai", "Helatorstai"), or null for a workday.
-export function dayOffReason(date) {
-  const holiday = holidayMap(date.getFullYear()).get(date.toDateString());
-  if (holiday) return holiday;
-  const dow = date.getDay();
-  if (dow === 0) return "Sunnuntai";
-  if (dow === 6) return "Lauantai";
-  return null;
-}
+export const dayOffReason = (date) => dayReason(MODE, date);
 
 // Leave days a break from `from` to `to` (inclusive) needs under the
 // five-day-week rule.

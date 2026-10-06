@@ -10,6 +10,9 @@ import { sitemapLastmod } from "./sitemapMetadata.js";
 import { ProjectResult } from "../pages/ProjectTimeline.jsx";
 import { SprintTable } from "../pages/SprintPlanner.jsx";
 import { MemoryRouter } from "react-router-dom";
+import { DAY_RULES, countsAsDay, dayReason } from "./dayRules.js";
+import { leaveFreeReason } from "./annualLeave.js";
+import DayRuleNote from "../components/DayRuleNote.jsx";
 
 const ymd = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 const PATHS = ["/lomasuunnittelija", "/projektiaikataulu", "/sprinttisuunnittelija"];
@@ -175,13 +178,71 @@ describe("planning tools: SEO registration", () => {
     const titles = new Set();
     for (const path of PATHS) {
       const meta = routeMeta[path];
-      expect(meta.title.length).toBeLessThanOrEqual(75);
+      // The build rejects longer titles and descriptions (prerender.js).
+      expect(meta.title.length).toBeLessThanOrEqual(60);
       expect(meta.description.length).toBeGreaterThan(80);
+      expect(meta.description.length).toBeLessThanOrEqual(158);
       expect(meta.title + meta.description).not.toMatch(/–/);
       titles.add(meta.title);
       expect(sitemapEntries().some((e) => e.path === path)).toBe(true);
       expect(sitemapLastmod(path, "2099-01-01")).toBe("2026-10-06");
     }
     expect(titles.size).toBe(PATHS.length);
+  });
+});
+
+describe("day rule modes", () => {
+  const sat = new Date(2027, 3, 3); // an ordinary Saturday (27.3. is pääsiäislauantai)
+  const eve = new Date(2026, 11, 24); // jouluaatto, a Thursday
+  const goodFriday = new Date(2027, 2, 26);
+  const plainTuesday = new Date(2027, 2, 30);
+  const sunday = new Date(2027, 2, 28);
+
+  it("defines the four explicit modes, each with a disclosure", () => {
+    expect(Object.keys(DAY_RULES)).toEqual([
+      "FINLAND_STATUTORY_LEAVE",
+      "FINLAND_PLANNER",
+      "FINLAND_PROJECT",
+      "FINLAND_SPRINT",
+    ]);
+    for (const rule of Object.values(DAY_RULES)) {
+      expect(rule.disclosure.length).toBeGreaterThan(40);
+      expect(rule.disclosure).not.toMatch(/–/);
+    }
+  });
+  it("counts Saturday only as a statutory leave day", () => {
+    expect(countsAsDay("FINLAND_STATUTORY_LEAVE", sat)).toBe(true);
+    expect(countsAsDay("FINLAND_PLANNER", sat)).toBe(false);
+    expect(countsAsDay("FINLAND_PROJECT", sat)).toBe(false);
+    expect(countsAsDay("FINLAND_SPRINT", sat)).toBe(false);
+  });
+  it("treats the eves as off for leave and planning, but as working days for project and sprint", () => {
+    expect(countsAsDay("FINLAND_STATUTORY_LEAVE", eve)).toBe(false);
+    expect(countsAsDay("FINLAND_PLANNER", eve)).toBe(false);
+    expect(countsAsDay("FINLAND_PROJECT", eve)).toBe(true);
+    expect(countsAsDay("FINLAND_SPRINT", eve)).toBe(true);
+  });
+  it("agrees on holidays, Sundays and ordinary weekdays", () => {
+    for (const mode of Object.keys(DAY_RULES)) {
+      expect(countsAsDay(mode, goodFriday)).toBe(false);
+      expect(countsAsDay(mode, sunday)).toBe(false);
+      expect(countsAsDay(mode, plainTuesday)).toBe(true);
+    }
+  });
+  it("keeps the project and sprint modes identical to the existing workday logic", () => {
+    for (let d = new Date(2026, 0, 1); d < new Date(2029, 0, 1); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+      expect(countsAsDay("FINLAND_PROJECT", d)).toBe(isWorkingDay(d));
+      expect(countsAsDay("FINLAND_SPRINT", d)).toBe(isWorkingDay(d));
+    }
+  });
+  it("keeps the statutory mode identical to the annual leave calculator", () => {
+    for (let d = new Date(2026, 0, 1); d < new Date(2029, 0, 1); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+      expect(dayReason("FINLAND_STATUTORY_LEAVE", d)).toBe(leaveFreeReason(d));
+    }
+  });
+  it("shows the disclosure from the engine", () => {
+    const html = renderToStaticMarkup(<DayRuleNote mode="FINLAND_SPRINT" />);
+    expect(html).toContain("Käytetty sääntö");
+    expect(html).toContain(DAY_RULES.FINLAND_SPRINT.disclosure);
   });
 });

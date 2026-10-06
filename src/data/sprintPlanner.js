@@ -4,10 +4,12 @@
 // prerender.js can import it.
 //
 // The page states no methodology rules. It only lays out consecutive date
-// ranges, so the sprint length and start weekday are the user's choice. A
-// working day is Monday-Friday and not a statutory holiday (isWorkingDay).
+// ranges, so the sprint length and start weekday are the user's choice. Day
+// rule: FINLAND_SPRINT in dayRules.js (the same working days as
+// /tyopaivalaskuri; the two eves count as working days).
 import { isoWeek, isoYear } from "../components/dateUtils.js";
-import { addDays, atMidnight, dm, dmy, isWorkingDay, officialHolidayOn } from "./planningDates.js";
+import { addDays, atMidnight, dm, dmy } from "./planningDates.js";
+import { dayReason } from "./dayRules.js";
 
 export const SPRINT_PATH = "/sprinttisuunnittelija";
 export const SPRINT_UPDATED = "2026-10-06";
@@ -27,11 +29,9 @@ export function sprintPlan(start, weeks, count) {
     let workingDays = 0;
     const holidays = [];
     for (let d = from; d <= to; d = addDays(d, 1)) {
-      if (isWorkingDay(d)) workingDays += 1;
-      else {
-        const name = officialHolidayOn(d);
-        if (name && d.getDay() >= 1 && d.getDay() <= 5) holidays.push({ date: d, name });
-      }
+      const reason = dayReason("FINLAND_SPRINT", d);
+      if (reason === null) workingDays += 1;
+      else if (d.getDay() >= 1 && d.getDay() <= 5) holidays.push({ date: d, name: reason });
     }
     return {
       number: i + 1,
