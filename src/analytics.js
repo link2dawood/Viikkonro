@@ -11,6 +11,8 @@
 // Break any step down by the tags page_type, entry_page_type, pdf_type,
 // pdf_file.
 
+import { platformEventCommands } from "./platform/analytics.js";
+
 function clarity(...args) {
   if (typeof window !== "undefined" && typeof window.clarity === "function") {
     window.clarity(...args);
@@ -116,6 +118,12 @@ export function plannerCreatedEvents(props) {
 export function trackPlannerCreated(props) {
   if (!props?.planner_type) return;
   for (const args of plannerCreatedEvents(props)) clarity(...args);
+}
+
+// Platform product events (cta_click, builder_start, export_download,
+// checkout_start, purchase): see src/platform/analytics.js for the allowed tags.
+export function trackPlatformEvent(name, props) {
+  for (const args of platformEventCommands(name, props)) clarity(...args);
 }
 
 // Page families that exist to offer a PDF (funnel step 2). Pages that merely

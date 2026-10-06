@@ -14,6 +14,10 @@
 //   and every holiday in holidaysInYear() are off, including jouluaatto and
 //   juhannusaatto, which are not statutory but close most workplaces
 //   (holidays.js, reviewed 2026-07-23).
+// - FINLAND_BANKING: the days a payment can be made: not a Saturday, a Sunday
+//   or a Bank of Finland bank holiday (paydayPages.js documents the source).
+//   The set equals FINLAND_PLANNER's, kept as its own mode because the reason
+//   for it is different and may diverge.
 // - FINLAND_WORKDAY: working days for /tyopaivalaskuri (isWorkingDay):
 //   Monday-Friday except statutory holidays; the two eves count as working
 //   days. FINLAND_PROJECT and FINLAND_SPRINT apply the same rule under their
@@ -51,6 +55,14 @@ export const DAY_RULES = {
     reason: (date) => anyHoliday(date) ?? weekend(date),
     disclosure:
       "Lomapäivä suunnittelussa: maanantain ja perjantain välinen päivä, joka ei ole arkipyhä. Lauantait, sunnuntait, arkipyhät sekä jouluaatto ja juhannusaatto ovat vapaata.",
+  },
+  FINLAND_BANKING: {
+    id: "FINLAND_BANKING",
+    unit: "pankkipäivä",
+    units: "pankkipäivää",
+    reason: (date) => anyHoliday(date) ?? weekend(date),
+    disclosure:
+      "Pankkipäivä: maanantain ja perjantain välinen päivä, joka ei ole pankkipyhä. Jouluaatto ja juhannusaatto ovat pankkipyhiä. Jos sovittu palkanmaksupäivä ei ole pankkipäivä, palkka maksetaan edellisenä pankkipäivänä.",
   },
   FINLAND_WORKDAY: {
     id: "FINLAND_WORKDAY",

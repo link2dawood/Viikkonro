@@ -19,24 +19,15 @@
 // any holidaysInYear() date" is exactly the Bank of Finland's list.
 import { fmtShortFi, isoWeek, isoYear, M_FULL, WD, WD_ESSIVE } from "../components/dateUtils.js";
 import { holidaysInYear } from "./holidays.js";
+import { dayReason } from "./dayRules.js";
 
 export const PAYDAY_LAST = "last";
 export const DEFAULT_PAYDAY = 15;
 
-function bankHolidayNames(year) {
-  const map = new Map();
-  for (const h of holidaysInYear(year)) map.set(h.date.toDateString(), h.name);
-  return map;
-}
-
 // Why a date is not a banking day ("Lauantai", "Loppiainen", …), or null
-// when it is one.
+// when it is one. The rule itself is FINLAND_BANKING in dayRules.js.
 export function nonBankingReason(date) {
-  const holiday = bankHolidayNames(date.getFullYear()).get(date.toDateString());
-  if (holiday) return holiday;
-  const dow = date.getDay();
-  if (dow === 0 || dow === 6) return WD[dow];
-  return null;
+  return dayReason("FINLAND_BANKING", date);
 }
 
 // `day` is 1–31 or PAYDAY_LAST. A day past the month's end (e.g. 31 in

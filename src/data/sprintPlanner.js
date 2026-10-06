@@ -10,9 +10,11 @@
 import { isoWeek, isoYear } from "../components/dateUtils.js";
 import { addDays, atMidnight, dm, dmy } from "./planningDates.js";
 import { dayReason } from "./dayRules.js";
+import { plannerMode, plannerPath } from "../platform/planners.js";
 
-export const SPRINT_PATH = "/sprinttisuunnittelija";
+export const SPRINT_PATH = plannerPath("sprint");
 export const SPRINT_UPDATED = "2026-10-06";
+const MODE = plannerMode("sprint");
 export const SPRINT_WEEKS = [1, 2, 3, 4, 5, 6];
 export const MAX_SPRINTS = 26;
 
@@ -29,7 +31,7 @@ export function sprintPlan(start, weeks, count) {
     let workingDays = 0;
     const holidays = [];
     for (let d = from; d <= to; d = addDays(d, 1)) {
-      const reason = dayReason("FINLAND_SPRINT", d);
+      const reason = dayReason(MODE, d);
       if (reason === null) workingDays += 1;
       else if (d.getDay() >= 1 && d.getDay() <= 5) holidays.push({ date: d, name: reason });
     }

@@ -8,16 +8,17 @@
 // - A break starts on the first day of a run of days off and ends on a day off,
 //   so leave days are never spent at the edge of a break.
 import { dayReason } from "./dayRules.js";
+import { plannerMode, plannerPath } from "../platform/planners.js";
 import { addDays, dm } from "./planningDates.js";
 
-export const PLANNER_PATH = "/lomasuunnittelija";
+export const PLANNER_PATH = plannerPath("vacation");
 export const PLANNER_UPDATED = "2026-10-06";
 export const PLANNER_BUDGETS = [1, 2, 3, 4, 5, 7, 10];
 export const MAX_LEAVE_DAYS = 30;
 const EXAMPLE_YEAR = 2027;
 const EXAMPLE_BUDGET = 4;
 
-const MODE = "FINLAND_PLANNER";
+const MODE = plannerMode("vacation");
 
 // Why a date is a day off ("Lauantai", "Helatorstai"), or null for a workday.
 export const dayOffReason = (date) => dayReason(MODE, date);

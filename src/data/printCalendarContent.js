@@ -8,14 +8,11 @@ import {
   getJuhlapaivat,
   getLiputuspaivat,
 } from "./juhlapaivat.js";
+import { toCsv } from "../platform/export/csv.js";
+import { downloadBlob } from "../platform/export/download.js";
 
 function pad(value) {
   return String(value).padStart(2, "0");
-}
-
-function csvCell(value) {
-  const text = String(value ?? "");
-  return /[;"\r\n]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text;
 }
 
 export function calendarCsv(year) {
@@ -41,21 +38,12 @@ export function calendarCsv(year) {
     ]);
   }
 
-  return "\uFEFF" + rows.map((row) => row.map(csvCell).join(";")).join("\r\n");
+  // Semicolon, CRLF and a BOM: what Finnish-locale Excel opens correctly.
+  return toCsv(rows, { delimiter: ";", eol: "\r\n", bom: true });
 }
 
 export function downloadCalendarCsv(year) {
-  const blob = new Blob([calendarCsv(year)], {
-    type: "text/csv;charset=utf-8",
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `viikkokalenteri-${year}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  downloadBlob(`viikkokalenteri-${year}.csv`, calendarCsv(year), "text/csv;charset=utf-8");
 }
 
 export function printListFaqs(year) {

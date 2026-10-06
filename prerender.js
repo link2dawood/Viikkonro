@@ -20,6 +20,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import React from "react";
 import { ImageResponse } from "@vercel/og";
 import PDFDocument from "pdfkit";
+import { toCsv } from "./src/platform/export/csv.js";
+import { monthRows } from "./src/platform/calendar/model.js";
 import {
   metaFor,
   canonicalFor,
@@ -3595,12 +3597,8 @@ function writeJson(filePath, data) {
 // consumed as whole datasets, not one row at a time, unlike the JSON API.
 function writeCsv(filePath, header, rows) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  const esc = (v) => {
-    const s = String(v ?? "");
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
-  const lines = [header.join(","), ...rows.map((r) => r.map(esc).join(","))];
-  fs.writeFileSync(filePath, lines.join("\n") + "\n");
+  // Comma, LF, trailing newline; quoted on " , and LF only (the dataset dialect).
+  fs.writeFileSync(filePath, toCsv([header, ...rows], { trailingEol: true, quoteWhen: /[",\n]/ }));
 }
 function xmlEscape(v) {
   return String(v ?? "")
@@ -5655,24 +5653,9 @@ console.log(`patched robots.txt Sitemap: line -> ${SITE_URL}/sitemap.xml`);
     return `${pdfPad2(date.getMonth() + 1)}-${pdfPad2(date.getDate())}`;
   }
 
-  // Splits a month into Monday-first week rows (array[7], null for days
-  // outside the month) so a month that doesn't start on Monday still lines
-  // its first real day up under the correct weekday column.
-  function pdfMonthRows(year, monthIndex) {
-    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-    const rows = [];
-    let current = null;
-    for (let d = 1; d <= daysInMonth; d += 1) {
-      const date = new Date(year, monthIndex, d);
-      const col = (date.getDay() + 6) % 7; // 0=Mon..6=Sun
-      if (col === 0 || !current) {
-        current = new Array(7).fill(null);
-        rows.push(current);
-      }
-      current[col] = { day: d, date };
-    }
-    return rows;
-  }
+  // Monday-first week rows for a month (array[7], null outside the month): the
+  // planning platform's shared monthRows(), identical to what lived here.
+  const pdfMonthRows = monthRows;
 
   // "<isoYear>-<isoWeek>" keys for every CONFIRMED-or-not week schoolHolidayPage()
   // lists (winter + autumn) — used to tint those week-rows on the grid. Reuses

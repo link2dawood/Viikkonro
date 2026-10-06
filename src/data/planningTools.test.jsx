@@ -199,10 +199,11 @@ describe("day rule modes", () => {
   const plainTuesday = new Date(2027, 2, 30);
   const sunday = new Date(2027, 2, 28);
 
-  it("defines the four explicit modes, each with a disclosure", () => {
+  it("defines the six explicit modes, each with a disclosure", () => {
     expect(Object.keys(DAY_RULES)).toEqual([
       "FINLAND_STATUTORY_LEAVE",
       "FINLAND_PLANNER",
+      "FINLAND_BANKING",
       "FINLAND_WORKDAY",
       "FINLAND_PROJECT",
       "FINLAND_SPRINT",

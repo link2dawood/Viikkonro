@@ -8,10 +8,11 @@
 import { isoWeek, isoYear } from "../components/dateUtils.js";
 import { addDays, atMidnight, dmy } from "./planningDates.js";
 import { countsAsDay, dayReason } from "./dayRules.js";
+import { plannerMode, plannerPath } from "../platform/planners.js";
 
-export const PROJECT_PATH = "/projektiaikataulu";
+export const PROJECT_PATH = plannerPath("project");
 export const PROJECT_UPDATED = "2026-10-06";
-const MODE = "FINLAND_PROJECT";
+const MODE = plannerMode("project");
 const counts = (d) => countsAsDay(MODE, d);
 export const MAX_PROJECT_DAYS = 520;
 export const MILESTONES = [25, 50, 75, 100];
