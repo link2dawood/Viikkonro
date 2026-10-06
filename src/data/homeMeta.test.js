@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { homeMeta } from "./seo.js";
 
 describe("homepage short-query metadata", () => {
-  it("keeps the exact head query first and promotes viikkonumero", () => {
+  it("leads with viikkonumero while retaining the current-week question", () => {
     const meta = homeMeta(new Date(2026, 7, 3));
     expect(meta.title).toBe(
-      "Mikä viikko nyt on? Viikkonumero 32 (3.8.) | Viikko Nro",
+      "Viikkonumero 32 (3.8.): Mikä viikko nyt on? | Viikko Nro",
     );
     expect(meta.description.startsWith("Mikä viikko on nyt?")).toBe(true);
     expect(meta.description).toContain("viikon numero");

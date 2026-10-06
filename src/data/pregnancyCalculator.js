@@ -17,8 +17,12 @@ import { fmtFullFi, isoWeek, isoYear, WD, WD_ESSIVE } from "../components/dateUt
 import { holidaysInYear } from "./holidays.js";
 
 export const PREGNANCY_PATH = "/raskauslaskuri";
+export const PREGNANCY_UPDATED = "2026-10-05";
 export const FACTS_CHECKED = "28.9.2026";
 export const SOURCES = {
+  // Calculation overview checked 2026-10-05; worked examples below use our
+  // existing arithmetic, not a claim about an individual pregnancy.
+  calculation: "https://www.terveyskyla.fi/naistalo/raskaus/raskauslaskuri",
   hospital: "https://www.hyvaks.fi/sairaala-nova/synnytykset/raskausaikana",
   kela: "https://www.kela.fi/tyonantajat-raskaus-ja-vanhempainvapaat",
   kelaCalculator: "https://laskurit.kela.fi/raskaus-ja-vanhempainrahapaivien-laskuri/",
@@ -109,6 +113,12 @@ export function weekCalendar(start) {
 const whenFi = (d) => `${WD_ESSIVE[d.getDay()]} ${fmtFullFi(d)}`;
 const dmy = (d) => `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
 
+export function pregnancyExample() {
+  const lmp = new Date(2027, 0, 1);
+  const date = dateAtWeek(lmp, 12, 3);
+  return { date, ...pregnancyReport({ lmp }, date) };
+}
+
 // FAQ with fixed example dates, so the answers never depend on the build day.
 export function pregnancyFaqs() {
   const lmp = new Date(2027, 0, 1);
@@ -116,6 +126,10 @@ export function pregnancyFaqs() {
   const leaveEarliest = workingDaysBefore(due, 30);
   const leaveLatest = workingDaysBefore(due, 14);
   return [
+    {
+      q: "Onko raskausviikko sama asia kuin kalenterin viikkonumero?",
+      a: "Ei. Raskausviikko ilmaisee raskauden laskennallisen keston muodossa viikot+päivät. Kalenterin ISO-viikkonumero kertoo viikon paikan viikkovuodessa. Raskausviikko ei siis määräydy kalenterin maanantaista alkavan viikon mukaan.",
+    },
     {
       q: "Miten laskettu aika lasketaan?",
       a: `Laskettu aika on päivä, jolloin viimeisten kuukautisten alkamispäivästä on kulunut 40 viikkoa eli 280 päivää. Esimerkiksi jos viimeiset kuukautiset alkoivat ${dmy(lmp)}, laskettu aika on ${whenFi(due)}.`,

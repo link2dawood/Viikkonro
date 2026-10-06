@@ -62,6 +62,14 @@ import {
 import { dataSourcesFaqs, methodologyFaqs, editorialPolicyFaqs } from "./src/data/trustPages.js";
 import { datasetPageFaqs } from "./src/data/datasetPages.js";
 import { faqs, faqCategories, featuredFaqs } from "./src/data/faqs.js";
+import { WORKING_DAYS_UPDATED, workingDaysBetweenFaqs } from "./src/data/workingDaysContent.js";
+import {
+  PARITY_PATH,
+  PARITY_UPDATED,
+  parityMeta,
+  parityPageFaqs,
+} from "./src/data/weekParity.js";
+import { CALENDAR_CONTENT_UPDATED, sitemapLastmod } from "./src/data/sitemapMetadata.js";
 import {
   fmtShortFi,
   getWeekdayName,
@@ -118,6 +126,7 @@ import {
   SCHOOL_HOLIDAY_SOURCES,
   schoolHolidayFaqs,
   schoolHolidayPage,
+  schoolHolidayVerifiedAt,
 } from "./src/data/schoolHolidayPages.js";
 import {
   currentMonthFaqs,
@@ -156,7 +165,7 @@ import {
 import { AGE_PATH, AGE_STEPS, ageFaqs } from "./src/data/ageCalculator.js";
 import { HOURS_PATH, HOURS_STEPS, hoursFaqs } from "./src/data/hoursCalculator.js";
 import { LEAVE_PATH, LEAVE_STEPS, leaveFaqs } from "./src/data/annualLeave.js";
-import { PREGNANCY_PATH, PREGNANCY_STEPS, pregnancyFaqs } from "./src/data/pregnancyCalculator.js";
+import { PREGNANCY_PATH, PREGNANCY_UPDATED, PREGNANCY_STEPS, pregnancyFaqs } from "./src/data/pregnancyCalculator.js";
 import { PERIOD_PATH, PERIOD_STEPS, periodFaqs } from "./src/data/periodCalculator.js";
 import { moonFaqs, phaseList } from "./src/data/moonPhases.js";
 import { SUN_CITIES, SUN_HUB_PATH, sunCityFaqs, sunCityPath, sunHubFaqs } from "./src/data/sunCities.js";
@@ -1307,7 +1316,7 @@ function faqNodes() {
     "@type": "FAQPage",
     "@id": `${SITE_URL}/ukk#faq`,
     inLanguage: "fi-FI",
-    dateModified: CONTENT_UPDATED,
+    dateModified: PARITY_UPDATED,
     mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,
@@ -1664,7 +1673,7 @@ function homepageFaqNodes() {
     "@type": "FAQPage",
     "@id": `${SITE_URL}/#faq`,
     inLanguage: "fi-FI",
-    dateModified: CONTENT_UPDATED,
+    dateModified: PARITY_UPDATED,
     mainEntity: featuredFaqs.map((item) => ({
       "@type": "Question",
       name: item.q,
@@ -1835,6 +1844,49 @@ function currentDateIntentNodes(url) {
     });
   }
   return graph;
+}
+
+function weekParityPageNodes() {
+  const now = new Date();
+  const meta = parityMeta(now);
+  const faq = parityPageFaqs(now);
+  const canonical = canonicalFor(PARITY_PATH);
+  return [
+    pageNode(PARITY_PATH, "WebPage", {
+      name: "Parillinen vai pariton viikko?",
+      description: meta.description,
+      datePublished: PARITY_UPDATED,
+      dateModified: RENDER_DAY,
+      mainEntity: { "@id": `${canonical}#article` },
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: [".answer-sentence"],
+      },
+    }),
+    {
+      "@type": "Article",
+      "@id": `${canonical}#article`,
+      headline: "Parillinen vai pariton viikko?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: PARITY_UPDATED,
+      dateModified: RENDER_DAY,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${canonical}#webpage` },
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${canonical}#faq`,
+      inLanguage: "fi-FI",
+      dateModified: RENDER_DAY,
+      mainEntity: faq.map(({ q, a }) => ({
+        "@type": "Question",
+        name: q,
+        acceptedAnswer: { "@type": "Answer", text: a },
+      })),
+    },
+  ];
 }
 
 // Article + FAQPage structured data for the /mika-on-viikkonumero explainer.
@@ -2035,6 +2087,7 @@ function schoolHolidayNodes(year) {
   const meta = metaFor(pathname);
   const page = schoolHolidayPage(year);
   if (!meta || !page) return [];
+  const dateModified = schoolHolidayVerifiedAt(year);
   const faq = schoolHolidayFaqs(year);
   const citations = page.sourceKeys.map(
     (key) => SCHOOL_HOLIDAY_SOURCES[key].url,
@@ -2047,7 +2100,7 @@ function schoolHolidayNodes(year) {
         description: meta.description,
         inLanguage: "fi-FI",
         datePublished: "2026-08-04",
-        dateModified: CONTENT_UPDATED,
+        dateModified,
         author: { "@id": `${SITE_URL}/#organization` },
         publisher: { "@id": `${SITE_URL}/#organization` },
         mainEntityOfPage: { "@id": `${url}#webpage` },
@@ -2061,7 +2114,7 @@ function schoolHolidayNodes(year) {
       pageNode(pathname, "WebPage", {
         description: meta.description,
         datePublished: "2026-08-04",
-        dateModified: CONTENT_UPDATED,
+        dateModified,
         mainEntity: { "@id": `${url}#article` },
         speakable: {
           "@type": "SpeakableSpecification",
@@ -2081,7 +2134,7 @@ function schoolHolidayNodes(year) {
               "@id": `${url}#faq`,
               inLanguage: "fi-FI",
               datePublished: "2026-08-04",
-              dateModified: CONTENT_UPDATED,
+              dateModified,
               mainEntity: faq.map((item) => ({
                 "@type": "Question",
                 name: item.q,
@@ -2505,7 +2558,7 @@ function calendarPageNodes(year) {
       pageNode(`/kalenteri-${year}`, "CollectionPage", {
         description: meta.description,
         datePublished: "2026-08-03",
-        dateModified: CONTENT_UPDATED,
+        dateModified: CALENDAR_CONTENT_UPDATED,
         author: { "@id": `${SITE_URL}/#organization` },
         // Downloadable twin of this page (STEP: PDF calendars) — same
         // associatedMedia/MediaObject shape schema.org uses for a
@@ -2538,7 +2591,7 @@ function calendarPageNodes(year) {
         "@id": `${url}#faq`,
         inLanguage: "fi-FI",
         datePublished: "2026-08-03",
-        dateModified: CONTENT_UPDATED,
+        dateModified: CALENDAR_CONTENT_UPDATED,
         mainEntity: faq.map((item) => ({
           "@type": "Question",
           name: item.q,
@@ -2802,26 +2855,15 @@ const CALCULATOR_SCHEMA = {
     ],
   },
   "/tyopaivalaskuri": {
+    dateModified: WORKING_DAYS_UPDATED,
     howToName: "Näin lasket työpäivät kahden päivämäärän välillä",
     steps: [
+      "Valitse työpäivät tai Kelan arkipäivät.",
       "Valitse alkupäivä.",
       "Valitse loppupäivä.",
-      "Näet heti työpäivien, viikonlopun päivien ja arkipyhien määrän sekä päivien kokonaismäärän.",
+      "Näet heti laskettavien päivien, pois jäävien viikonpäivien, pyhäpäivien ja kaikkien kalenteripäivien määrän.",
     ],
-    faq: [
-      [
-        "Lasketaanko jouluaatto ja juhannusaatto työpäiviksi?",
-        "Kyllä. Kumpikaan ei ole Suomen lain mukaan virallinen arkipyhä, vaikka suurin osa työpaikoista on kiinni tai lyhentää työaikaa niinä päivinä. Tämä laskuri noudattaa lain mukaista listaa virallisista arkipyhistä.",
-      ],
-      [
-        "Lasketaanko alku- ja loppupäivä mukaan?",
-        "Kyllä, molemmat syöttämäsi päivämäärät sisältyvät laskentaan.",
-      ],
-      [
-        "Mistä arkipyhät haetaan?",
-        "Suomen 13 virallisesta arkipyhästä, mukaan lukien liikkuvat pyhät kuten pääsiäinen, helatorstai, helluntai ja juhannuspäivä. Koko lista löytyy vuoden pyhäpäivät-sivulta.",
-      ],
-    ],
+    faq: workingDaysBetweenFaqs.map(({ q, a }) => [q, a]),
   },
   "/paivien-erotus": {
     howToName: "Näin lasket päivien erotuksen kahden päivämäärän välillä",
@@ -2849,12 +2891,12 @@ const CALCULATOR_SCHEMA = {
 
 // FAQPage node for pages whose Q&A list comes from a shared *Faqs()
 // function that the page's JSX also renders (invariant 9).
-function faqPageNode(url, items) {
+function faqPageNode(url, items, dateModified = CONTENT_UPDATED) {
   return {
     "@type": "FAQPage",
     "@id": `${canonicalFor(url)}#faq`,
     inLanguage: "fi-FI",
-    dateModified: CONTENT_UPDATED,
+    dateModified,
     mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.q,
@@ -2970,10 +3012,10 @@ function dstNodes(year) {
 const SUN_CITY_BY_PATH = Object.fromEntries(SUN_CITIES.map((c) => [sunCityPath(c.slug), c]));
 function sunNodes(url) {
   const today = dateFromDayKey(RENDER_DAY);
-  if (url === SUN_HUB_PATH) return [faqPageNode(url, sunHubFaqs(today))];
+  if (url === SUN_HUB_PATH) return [faqPageNode(url, sunHubFaqs(today), RENDER_DAY)];
   const city = SUN_CITY_BY_PATH[url];
   return [
-    faqPageNode(url, sunCityFaqs(city.slug, today)),
+    faqPageNode(url, sunCityFaqs(city.slug, today), RENDER_DAY),
     {
       "@type": "Place",
       "@id": `${canonicalFor(url)}#place`,
@@ -3085,7 +3127,7 @@ function calculatorNodes(url) {
       {
         "@type": "HowTo",
         name: entry.howToName,
-        dateModified: CONTENT_UPDATED,
+        dateModified: entry.dateModified || CONTENT_UPDATED,
         step: entry.steps.map((s, i) => ({
           "@type": "HowToStep",
           position: i + 1,
@@ -3096,7 +3138,7 @@ function calculatorNodes(url) {
         "@type": "FAQPage",
         "@id": `${canonicalFor(url)}#faq`,
         inLanguage: "fi-FI",
-        dateModified: CONTENT_UPDATED,
+        dateModified: entry.dateModified || CONTENT_UPDATED,
         mainEntity: entry.faq.map(([q, a]) => ({
           "@type": "Question",
           name: q,
@@ -3277,6 +3319,9 @@ for (const url of routes) {
       if (url === "/mika-on-viikkonumero") {
         nodes.push(...mikaOnViikkonumeroNodes());
       }
+      if (url === PARITY_PATH) {
+        nodes.push(...weekParityPageNodes());
+      }
       if (url === "/viikko-alkaa-maanantaista") {
         nodes.push(...weekStartsMondayNodes());
       }
@@ -3358,7 +3403,7 @@ for (const url of routes) {
         nodes.push(faqPageNode(url, periodFaqs()), howToNode(url, "Näin lasket seuraavat kuukautiset ja ovulaation", PERIOD_STEPS));
       }
       if (url === PREGNANCY_PATH) {
-        nodes.push(faqPageNode(url, pregnancyFaqs()), howToNode(url, "Näin lasket raskausviikon ja lasketun ajan", PREGNANCY_STEPS));
+        nodes.push(faqPageNode(url, pregnancyFaqs(), PREGNANCY_UPDATED), howToNode(url, "Näin lasket raskausviikon ja lasketun ajan", PREGNANCY_STEPS));
       }
       if (url === LEAVE_PATH) {
         nodes.push(faqPageNode(url, leaveFaqs()), howToNode(url, "Näin lasket lomapäivät", LEAVE_STEPS));
@@ -3375,9 +3420,11 @@ for (const url of routes) {
 
       const pageId = `${canonical}#webpage`;
       if (!nodes.some((node) => node["@id"] === pageId)) {
+        const pageDateModified = sitemapLastmod(url, RENDER_DAY);
         nodes.unshift(
           pageNode(url, "WebPage", {
             description,
+            ...(pageDateModified ? { dateModified: pageDateModified } : {}),
             ...speakableExtra(url),
             ...weekHolidayMentionsExtra(url),
             ...ogImageExtra(url),
@@ -4462,19 +4509,13 @@ feedFileCount += 1;
 
 console.log(`generated ${feedFileCount} JSON feed files under dist/data/ (2020-${currentYear + 9})`);
 
-// Generate sitemap.xml with a fresh <lastmod> and current-year page entries.
+// Generate sitemap.xml with known content dates and current-year page entries.
 // (currentYear is defined above, alongside the prerender route list.)
 const sitemapDate = todayNameDayPage().date;
 const today = `${sitemapDate.getFullYear()}-${String(sitemapDate.getMonth() + 1).padStart(2, "0")}-${String(sitemapDate.getDate()).padStart(2, "0")}`;
-// Per-URL <lastmod>: a page describing a finalized past year (its week/date
-// content can never change again) is frozen to that year's end — an honest
-// "stable, old" signal that keeps crawl budget off the deep archive. The
-// homepage, current/future-year pages, and editable static pages use the build
-// date. Self-maintaining: the boundary moves automatically as currentYear rolls.
-const lastmodFor = (p) => {
-  const m = p.match(/-(\d{4})(?:-[12])?(?:\/[a-z0-9-]+)?$/);
-  if (m && Number(m[1]) < currentYear) return `${m[1]}-12-31`;
-  return today;
+const lastmodLines = (resourcePath) => {
+  const date = sitemapLastmod(resourcePath, today);
+  return date ? [`    <lastmod>${date}</lastmod>`] : [];
 };
 // isIndexable(e.path) alone matched the year-window gate but not a
 // per-route meta.robots noindex override — the actual noindex-flip logic
@@ -4499,7 +4540,7 @@ const urlset = indexableEntries
     return [
       "  <url>",
       `    <loc>${loc}</loc>`,
-      `    <lastmod>${lastmodFor(e.path)}</lastmod>`,
+      ...lastmodLines(e.path),
       `    <changefreq>${e.changefreq}</changefreq>`,
       `    <priority>${e.priority}</priority>`,
       ...(img ? [`    <image:image><image:loc>${img}</image:loc></image:image>`] : []),
@@ -4508,64 +4549,13 @@ const urlset = indexableEntries
     ].join("\n");
   })
   .join("\n");
-// The PDF twin of each indexable full-year /kalenteri-<year> page gets its
-// own <url> entry — a PDF is a real, independently indexable document (Google
-// crawls and ranks PDFs directly), not a sub-resource of the HTML page the
-// way the <image:image> extension above treats OG images. Tied to the same
-// isIndexable() gate as the HTML page itself: a PDF for a noindexed archive
-// year isn't worth a sitemap entry any more than that year's HTML page is.
-const pdfUrlset = indexableEntries
-  .filter((e) => /^\/kalenteri-\d+$/.test(e.path))
-  .map((e) => {
-    const year = e.path.match(/\d+/)[0];
-    const loc = `${SITE_URL}${calendarPdfPath(year)}`;
-    return [
-      "  <url>",
-      `    <loc>${loc}</loc>`,
-      `    <lastmod>${lastmodFor(e.path)}</lastmod>`,
-      `    <changefreq>${e.changefreq}</changefreq>`,
-      `    <priority>${e.priority}</priority>`,
-      "  </url>",
-    ].join("\n");
-  })
-  .join("\n");
-// Same reasoning as pdfUrlset above, one level down: the PDF twin of each
-// indexable /viikko-<w>-<y> page.
-const weekPdfUrlset = indexableEntries
-  .filter((e) => /^\/viikko-\d+-\d+$/.test(e.path))
-  .map((e) => {
-    const [, week, year] = e.path.match(/^\/viikko-(\d+)-(\d+)$/);
-    const loc = `${SITE_URL}${weekPdfPath(week, year)}`;
-    return [
-      "  <url>",
-      `    <loc>${loc}</loc>`,
-      `    <lastmod>${lastmodFor(e.path)}</lastmod>`,
-      `    <changefreq>${e.changefreq}</changefreq>`,
-      `    <priority>${e.priority}</priority>`,
-      "  </url>",
-    ].join("\n");
-  })
-  .join("\n");
-// Same reasoning again, for /kuukausi-<m>-<y>.
-const monthPdfUrlset = indexableEntries
-  .filter((e) => /^\/kuukausi-\d+-\d+$/.test(e.path))
-  .map((e) => {
-    const [, month, year] = e.path.match(/^\/kuukausi-(\d+)-(\d+)$/);
-    const loc = `${SITE_URL}${monthPdfPath(month, year)}`;
-    return [
-      "  <url>",
-      `    <loc>${loc}</loc>`,
-      `    <lastmod>${lastmodFor(e.path)}</lastmod>`,
-      `    <changefreq>${e.changefreq}</changefreq>`,
-      `    <priority>${e.priority}</priority>`,
-      "  </url>",
-    ].join("\n");
-  })
-  .join("\n");
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urlset}\n${pdfUrlset}\n${weekPdfUrlset}\n${monthPdfUrlset}\n</urlset>\n`;
+// PDFs stay generated, visibly linked, and described as associated media.
+// They are excluded from the sitemap so each HTML page remains the canonical
+// search result; vercel.json supplies the corresponding HTTP Link canonical.
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urlset}\n</urlset>\n`;
 fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemap);
 console.log(
-  `generated sitemap.xml (${indexableEntries.length} indexable urls + ${indexableEntries.filter((e) => /^\/kalenteri-\d+$/.test(e.path)).length} calendar PDFs + ${indexableEntries.filter((e) => /^\/viikko-\d+-\d+$/.test(e.path)).length} week PDFs + ${indexableEntries.filter((e) => /^\/kuukausi-\d+-\d+$/.test(e.path)).length} month PDFs, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today})`,
+  `generated sitemap.xml (${indexableEntries.length} indexable HTML urls, PDFs excluded for canonical consolidation, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today})`,
 );
 
 // Generate llms-full.txt: a comprehensive English-language reference for AI
@@ -4763,7 +4753,7 @@ const llmsFull =
     `  ${SITE_URL}/llms-glossary.txt — ISO 8601 rules, holiday/flag-day definitions, entity relationships`,
     `  ${SITE_URL}/ai.txt            — AI crawler policy and machine-readable resource pointers`,
     `  ${SITE_URL}/ai-manifest.txt   — priority-ordered "fetch these first" manifest`,
-    `  ${SITE_URL}/sitemap.xml       — full XML sitemap of every indexable page and PDF`,
+    `  ${SITE_URL}/sitemap.xml       — full XML sitemap of every indexable HTML page`,
     `  ${SITE_URL}/robots.txt        — crawler access rules`,
     "  Every prerendered HTML page additionally carries schema.org JSON-LD (WebSite/Organization/WebApplication graph on every page, plus FAQPage/BreadcrumbList/Article/Dataset/ImageObject nodes on relevant pages) — prefer the JSON-LD or the /data/ JSON feeds over parsing HTML for structured facts.",
     "",

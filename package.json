@@ -42,6 +42,7 @@
     "check:traffic": "node src/cli.js traffic",
     "check:backlinks": "node scripts/check-backlinks.js",
     "report:seo": "node scripts/seo-report.js",
+    "report:seo-growth": "node scripts/seo-growth-report.js",
     "sync:name-days": "node scripts/sync-name-days.js",
     "test": "vitest run"
   },

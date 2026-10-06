@@ -79,6 +79,11 @@ changes remain gated where the evidence needed to preserve rankings is absent.
 | F-06 description/content mismatch | Fixed locally | Week, month, and year descriptions now promise only consistently rendered date, working-day, holiday, and download content. Incomplete name-day coverage is no longer advertised. |
 | F-07 English island | Single-page constraint retained; mixed chrome fixed locally | `/en` remains the only English route, keeps reciprocal `fi`, `en`, and `x-default` alternates with `/`, and now renders English navigation and footer chrome. Every Finnish destination is labeled. |
 | F-08 PDF duplication | No public index evidence found; monitor pending Search Console | The full build generates 1,043 user-download PDFs, while the rolling sitemap submits 456. Do not change headers, sitemap membership, or robots rules until PDF indexing/query evidence establishes a real conflict. |
+
+**Superseded 2026-10-06 by explicit user direction:** keep all PDF files,
+visible download links, alternate links, and associated-media schema, while
+removing PDF URLs from the sitemap and sending an HTTP canonical Link header
+to each matching HTML page. The PDFs remain crawlable and downloadable.
 | F-09 breadcrumb collision | Fixed locally | Both print artifacts now have distinct leaf labels, a same-year calendar parent, and matching visible and JSON-LD trails. |
 | F-10 self-link | Fixed locally | The printable A4 page is excluded from its own related-links list. |
 | F-11 meta keywords | Fixed locally | The obsolete global tag and its prerender rewrite have been removed. |
@@ -298,6 +303,11 @@ labels return, if `/en` becomes noindexed, or if it leaves the sitemap.
 
 ### F-08 downloadable PDF surface
 
+**Historical baseline note:** the recommendation below was superseded by the
+explicit 2026-10-06 user decision recorded near the findings table. The files
+remain downloadable, but PDF sitemap entries are removed and canonical Link
+response headers now point to the corresponding HTML pages.
+
 The report correctly states that PDFs are indexable by default, but it does
 not establish that any Viikko Nro PDF is indexed or competing with HTML.
 Targeted public searches for the `/pdf/` directory and both cited files did
@@ -346,8 +356,9 @@ The next evidence import should include:
 4. Queries for which more than one calendar/print URL receives impressions.
 5. PDF clicks and impressions separated from their corresponding HTML pages.
 
-No redirect, canonical, sitemap, PDF-indexing, or broad title-template changes
-should ship until the relevant evidence gate above is satisfied.
+The PDF canonical and sitemap changes are now authorized as described above.
+Other redirect, broad title-template, or indexing-policy changes still require
+their relevant evidence gate.
 
 ## Remediation log
 

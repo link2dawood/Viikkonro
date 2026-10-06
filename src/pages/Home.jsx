@@ -11,6 +11,7 @@ import QuickLinks from "../components/QuickLinks";
 import Information from "../components/Information";
 import AppsPromo from "../components/AppsPromo";
 import SeasonYear from "../components/SeasonYear";
+import WeekParity from "../components/WeekParity";
 
 const Home = () => {
   // Computed directly in the render body (not an effect) so it's correct
@@ -33,6 +34,7 @@ const Home = () => {
       <div className="app">
         <Weekcounter lead={meta.lead} />
         <SeasonYear />
+        <WeekParity />
         <WeeklySearch />
         <WeeksOfMonth />
         <YearsWeek />

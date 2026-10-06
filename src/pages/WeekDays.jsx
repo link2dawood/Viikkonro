@@ -26,9 +26,14 @@ import { holidaysInWeek } from "../data/holidays";
 import { holidayLinkPath } from "../data/holidayPages";
 import { flagDaysInYear } from "../data/flagDayPages";
 import { hasNameDayPage, nameDaySlug, nameDaysForWeek } from "../data/nameDays";
-import { schoolHolidayPeriodsInWeek } from "../data/schoolHolidayPages";
+import {
+  schoolHolidayPeriodsInWeek,
+  shouldLinkSchoolHolidayPage,
+} from "../data/schoolHolidayPages";
 import { sunTimesForWeek, formatHelsinkiTime, HELSINKI } from "../data/sunTimes";
 import { dateKeyFor } from "../data/nameDayPages";
+import { PARITY_PATH, weekParity } from "../data/weekParity.js";
+import { sameWeekOtherYears } from "../data/weekNavigation.js";
 
 function sameDay(a, b) {
   return (
@@ -183,17 +188,7 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
     nextW = 1;
   }
 
-  // Same week number, previous/next year (D-06) — only linked when that
-  // year actually has that many weeks. Week 53 doesn't exist in every year,
-  // so blindly linking /week/53/(y-1) or /week/53/(y+1) could point at a
-  // year with only 52 weeks, forcing a redirect on click — exactly what D-06
-  // rules out ("zero internal links to... redirect chains").
-  // ...and only when that adjacent year is itself within the prerendered range,
-  // so we never link a page that would 404 at the floor/ceiling of the horizon.
-  const sameWeekPrevYearValid =
-    y - 1 >= YEAR_MIN && w <= weeksInIsoYear(y - 1);
-  const sameWeekNextYearValid =
-    y + 1 <= YEAR_MAX && w <= weeksInIsoYear(y + 1);
+  const sameWeekYears = sameWeekOtherYears(w, y);
 
   // D-01–D-04 data for this week. nameDaysForWeek/sunTimesForWeek return
   // exactly 7 entries Monday–Sunday, aligned index-for-index with the `days`
@@ -203,6 +198,7 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
   const weekNameDays = nameDaysForWeek(y, w);
   const weekHolidays = holidaysInWeek(y, w);
   const weekSchoolPeriods = schoolHolidayPeriodsInWeek(y, w);
+  const linkSchoolHolidayPage = shouldLinkSchoolHolidayPage(y, w);
   const weekSunTimes = sunTimesForWeek(y, w, HELSINKI);
   // Flag days are calendar-year dates, so (like holidaysInWeek) check both the
   // Monday's and the Sunday's year for a week straddling New Year.
@@ -303,6 +299,17 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
         facts={[
           { label: "Viikko", value: w },
           {
+            label: "Parillinen vai pariton viikko",
+            value: (
+              <Link
+                className={`week-parity-badge parity-${weekParity(w)}`}
+                to={PARITY_PATH}
+              >
+                {weekParity(w)}
+              </Link>
+            ),
+          },
+          {
             label: "ISO 8601 -merkintä",
             value: <code>{isoWeekDateLabel(w, y)}</code>,
           },
@@ -365,6 +372,12 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
         <p className="lead">
           Koululoma tällä viikolla: {weekSchoolPeriods.map(schoolPeriodLabel).join(", ")}.{" "}
           <Link to={`/koululomat-${y}`}>Katso koululomat {y} alueittain</Link>.
+        </p>
+      )}
+      {weekSchoolPeriods.length === 0 && linkSchoolHolidayPage && (
+        <p className="lead">
+          Tämä viikko kuuluu tavalliseen koulujen hiihto- tai syyslomien
+          vertailujaksoon. <Link to={`/koululomat-${y}`}>Katso koululomat {y} alueittain</Link>.
         </p>
       )}
 
@@ -451,19 +464,17 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
         )}
       </div>
 
-      {(sameWeekPrevYearValid || sameWeekNextYearValid) && (
-        <div className="prevnext" onClick={() => window.scrollTo(0, 0)}>
-          {sameWeekPrevYearValid && (
-            <Link to={`/viikko-${w}-${y - 1}`}>
-              <span className="lbl">Viikko {w} viime vuonna</span>Viikko {w}, {y - 1}
-            </Link>
-          )}
-          {sameWeekNextYearValid && (
-            <Link to={`/viikko-${w}-${y + 1}`}>
-              <span className="lbl">Viikko {w} ensi vuonna</span>Viikko {w}, {y + 1}
-            </Link>
-          )}
-        </div>
+      {sameWeekYears.length > 0 && (
+        <section className="related">
+          <h2>Viikko {w} muina vuosina</h2>
+          <div className="pills">
+            {sameWeekYears.map((item) => (
+              <Link key={item.year} className="pill" to={`/viikko-${w}-${item.year}`}>
+                Viikko {w}, {item.year}
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
 
       <section className="prose">
@@ -566,6 +577,11 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
 
         <h3>ISO 8601</h3>
         <ul className="links">
+          <li>
+            <Link to={`/vuosi-${y}#parilliset-ja-parittomat-viikot`}>
+              Parilliset ja parittomat viikot {y}
+            </Link>
+          </li>
           <li>
             <Link to="/mika-on-viikkonumero" onClick={() => window.scrollTo(0, 0)}>
               Mikä on viikkonumero?

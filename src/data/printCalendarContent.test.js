@@ -30,8 +30,8 @@ describe("print and PDF calendar content", () => {
     expect(list.title).toContain("viikkolista");
     expect(list.title).toContain("ISO-viikkoa");
     expect(calendar.title).toContain("A4-kuukausikalenteri");
-    expect(browsable.title).toContain("Viikkokalenteri");
-    expect(browsable.title).toContain("12 kuukautta");
+    expect(browsable.title).toMatch(/^Viikkokalenteri 2026: /);
+    expect(browsable.description).toContain("12 kuukautta");
     expect(browsable.title).not.toContain("PDF");
     for (const meta of [list, calendar, browsable]) {
       expect(meta.title.length).toBeLessThanOrEqual(60);

@@ -165,7 +165,7 @@ export function sunCityMeta(slug, today) {
       ? "Tänään aurinko ei laske lainkaan."
       : "Tänään aurinko ei nouse lainkaan.";
   return {
-    title: `Auringonlasku ja -nousu ${city.in} | Viikko Nro`,
+    title: `Auringonlasku ${city.name} tänään | Viikko Nro`,
     description: `${todayText} Auringonnousu- ja laskuajat ${city.in} koko vuodelle, päivän pituus sekä pisin ja lyhyin päivä.`,
   };
 }
@@ -177,6 +177,10 @@ export function sunCityFaqs(slug, today) {
   const s = sunSummary(city, y);
   const t = sunToday(city, today);
   const faqs = [
+    {
+      q: "Näytetäänkö auringonlaskuajat Suomen ajassa?",
+      a: "Kyllä. Ajat esitetään Europe/Helsinki-aikavyöhykkeellä, joten talvi- ja kesäaika huomioidaan päivämäärän mukaan. Kellonaikoihin ei tarvitse itse lisätä kesäaikatuntia.",
+    },
     {
       q: `Mihin aikaan aurinko laskee ${city.in} tänään?`,
       a: t.sunrise

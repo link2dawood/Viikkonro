@@ -79,6 +79,7 @@ import { dstMeta } from "./dstPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
 import { WIDGET_EMBED_PAGE_PATH, widgetEmbedMeta } from "./weekWidget.js";
+import { PARITY_PATH, parityMeta } from "./weekParity.js";
 
 // Fixed date the FAQ/explainer/calculator page COPY (not just computed data)
 // was last substantively edited. Bump both by hand when that prose actually
@@ -490,8 +491,8 @@ export function holidaysMeta(y) {
 }
 export function workingDaysMeta(y) {
   return {
-    title: `Työpäivät ${y} – montako työpäivää vuodessa | Viikko Nro`,
-    description: `Montako työpäivää vuonna ${y}? Työpäivien määrä kuukausittain, viikonloput ja arkipyhät huomioiden – hyödyksi palkanlaskentaan ja työajan suunnitteluun.`,
+    title: `Työpäivät ${y}: montako työpäivää vuodessa | Viikko Nro`,
+    description: `Montako työpäivää vuonna ${y}? Työpäivät ja Kelan arkipäivät, kuukausittaiset määrät, viikonloput ja pyhäpäivät palkanlaskentaan ja suunnitteluun.`,
   };
 }
 
@@ -509,15 +510,17 @@ function workingDaySplit(y) {
   let working = 0;
   let weekend = 0;
   let holiday = 0;
+  let kela = 0;
   const d = new Date(y, 0, 1);
   while (d.getFullYear() === y) {
     const dow = d.getDay();
+    if (dow !== 0 && !officialSet.has(d.toDateString())) kela += 1;
     if (dow === 0 || dow === 6) weekend += 1;
     else if (officialSet.has(d.toDateString())) holiday += 1;
     else working += 1;
     d.setDate(d.getDate() + 1);
   }
-  return { working, weekend, holiday };
+  return { working, weekend, holiday, kela };
 }
 
 // Shared by WorkingDays.jsx and prerender.js so the visible FAQ and its
@@ -529,7 +532,7 @@ function workingDaySplit(y) {
 // falls on a Saturday doesn't reduce the working-day count at all, since
 // that day was already a weekend).
 export function workingDaysFaqs(y) {
-  const { working, weekend, holiday } = workingDaySplit(y);
+  const { working, weekend, holiday, kela } = workingDaySplit(y);
   return [
     {
       q: `Montako työpäivää vuonna ${y} on?`,
@@ -545,6 +548,14 @@ export function workingDaysFaqs(y) {
         holiday > 0
           ? `Kyllä. Vuonna ${y} arkipyhät vähentävät työpäivien määrää ${holiday} päivällä, koska ne osuvat maanantain ja perjantain väliin.`
           : `Ei suoraan vuonna ${y}: jokainen virallinen arkipyhä osuu tänä vuonna viikonloppuun, joten yksikään ei vähennä työpäivien määrää enää erikseen.`,
+    },
+    {
+      q: `Montako Kelan arkipäivää vuonna ${y} on?`,
+      a: `Vuonna ${y} on ${kela} Kelan arkipäivää, kun mukaan lasketaan maanantai-lauantai ja pois jätetään sunnuntait sekä viralliset pyhäpäivät. Kelan etuuden päätös ja ehdot ratkaisevat, miltä päiviltä etuutta maksetaan.`,
+    },
+    {
+      q: "Vaikuttaako työehtosopimus työpäivien määrään?",
+      a: "Kyllä, käytännön työvuorot ja palkalliset vapaat voivat määräytyä työehtosopimuksen, työsopimuksen ja työnantajan käytännön mukaan. Sivun yleinen työpäivälaskenta ei tunne sopimusalaa tai henkilökohtaista työvuorolistaa.",
     },
   ];
 }
@@ -606,9 +617,9 @@ export function monthlyWorkingDayFaqs(month, year) {
 // prerender.js), covering the full year regardless of which /kalenteri-*
 // variant links to it. Single source of truth for the path so the download
 // button (CalendarYear.jsx/YearCalendar.jsx), the <link rel="alternate">, the
-// associatedMedia schema, and the sitemap entry (all in prerender.js) can't
-// drift apart. Singular "/pdf/", not "/pdfs/" — matches the route family's
-// own naming convention exactly (kalenteri-<year>.pdf inside it), same as
+// associatedMedia schema and canonical response-header mapping in vercel.json
+// stay aligned with this path builder.
+// Paths use singular /pdf/ (kalenteri-<year>.pdf inside it), matching
 // every other single-segment family this site uses (/data/, not /datas/).
 export function calendarPdfPath(y) {
   return `/pdf/kalenteri-${y}.pdf`;
@@ -617,8 +628,8 @@ export function calendarPdfPath(y) {
 // One downloadable PDF per ISO week (dist/pdf/viikko-<week>-<year>.pdf),
 // same single-source-of-truth reasoning as calendarPdfPath() above — the
 // download link on WeekDays.jsx, the <link rel="alternate">, the
-// associatedMedia/DownloadAction schema, and the sitemap entry (all in
-// prerender.js) all read this one function.
+// associatedMedia/DownloadAction schema and canonical response-header mapping
+// stay aligned with this path builder.
 export function weekPdfPath(week, year) {
   return `/pdf/viikko-${week}-${year}.pdf`;
 }
@@ -669,6 +680,10 @@ export function calendarFaqs(y) {
       a: `Viikkokalenteri ${y} näyttää vuoden kaikki ${total} ISO-viikkoa, päivämäärät, viikkonumerot ja Suomen juhlapäivät yhdessä näkymässä.`,
     },
     {
+      q: `Mihin viikkoihin vuoden ${y} ensimmäinen ja viimeinen päivä kuuluvat?`,
+      a: `Päivä 1.1.${y} kuuluu viikkoon ${isoWeek(new Date(y, 0, 1))}/${isoYear(new Date(y, 0, 1))} ja 31.12.${y} viikkoon ${isoWeek(new Date(y, 11, 31))}/${isoYear(new Date(y, 11, 31))}. ISO-viikkovuosi voi vaihtua eri päivänä kuin kalenterivuosi: viikon vuosi määräytyy sen torstain mukaan.`,
+    },
+    {
       q: `Kuinka monta viikkoa vuodessa ${y} on?`,
       a: `Vuodessa ${y} on ${total} ISO-viikkoa. Viikko alkaa maanantaina ja päättyy sunnuntaina.`,
     },
@@ -707,7 +722,7 @@ export function homeMeta(now) {
   // head query while drawing its dates from these same computed values.
   const lead = `Juuri nyt on viikko ${week} (viikkonumero ${week}) vuonna ${year}. Viikko alkaa ${WD_ESSIVE[mo.getDay()]} ${fmtShortFi(mo)} ja päättyy ${WD_ESSIVE[su.getDay()]} ${fmtShortFi(su)}.`;
   return {
-    title: `Mikä viikko nyt on? Viikkonumero ${week} (${startDate}) | Viikko Nro`,
+    title: `Viikkonumero ${week} (${startDate}): Mikä viikko nyt on? | Viikko Nro`,
     // Opens with the other common word order of the head query ("mikä viikko
     // on nyt"; the title carries "mikä viikko nyt on"), then the live answer,
     // keeping "kuluva viikko" and "viikon numero" inside the 140-160 budget.
@@ -720,7 +735,7 @@ export const routeMeta = {
   "/": {
     // Brand-last ("| Viikko Nro"), matching every other page's convention.
     // Replaced at build time with homeMeta(); kept as a safe fallback.
-    title: "Mikä viikko nyt on? Viikkonumero | Viikko Nro",
+    title: "Viikkonumero: Mikä viikko nyt on? | Viikko Nro",
     description:
       "Katso viikkonumero heti ja selvitä mikä viikko nyt on. Viikkolaskuri näyttää kuluvan viikon sekä minkä tahansa päivämäärän viikon numeron ISO 8601:n mukaan.",
   },
@@ -729,10 +744,14 @@ export const routeMeta = {
     breadcrumb: "English",
   },
   "/mika-on-viikkonumero": {
-    title: "Mikä on viikkonumero? ISO 8601 -viikkolaskenta selitettynä",
+    title: "Viikkonumero: määritelmä ja laskenta | Viikko Nro",
     description:
       "Viikkonumero on 1–53 välinen luku vuoden kuluvasta viikosta. Suomessa noudatetaan ISO 8601:tä: viikko alkaa maanantaista, 4. tammikuuta on aina viikolla 1.",
     breadcrumb: "Mikä on viikkonumero",
+  },
+  [PARITY_PATH]: {
+    ...parityMeta(new Date()),
+    breadcrumb: "Parillinen vai pariton viikko",
   },
   "/viikko-alkaa-maanantaista": {
     title: "Viikko alkaa maanantaista – ISO 8601 -sääntö | Viikko Nro",
@@ -983,6 +1002,7 @@ export function sitemapEntries(year) {
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/en", changefreq: "daily", priority: "0.4" },
     { path: "/mika-on-viikkonumero", changefreq: "monthly", priority: "0.8" },
+    { path: PARITY_PATH, changefreq: "weekly", priority: "0.8" },
     { path: "/viikko-alkaa-maanantaista", changefreq: "monthly", priority: "0.7" },
     { path: "/kuinka-monta-viikkoa-vuodessa", changefreq: "monthly", priority: "0.8" },
     { path: "/suomi-vs-usa-viikkonumerot", changefreq: "monthly", priority: "0.7" },
@@ -1184,6 +1204,7 @@ export function sitemapEntries(year) {
 // dynamic page (week/month/year/print). Returns null for routes not prerendered.
 export function metaFor(url) {
   if (url === "/") return { ...routeMeta["/"], ...homeMeta(new Date()) };
+  if (url === PARITY_PATH) return { ...routeMeta[url], ...parityMeta(new Date()) };
   if (url === "/en") return { ...routeMeta[url], ...englishMeta() };
   if (url === "/mika-kuukausi-nyt") return { ...routeMeta[url], ...currentMonthMeta() };
   if (url === "/mika-vuosi-nyt") return { ...routeMeta[url], ...currentYearMeta() };

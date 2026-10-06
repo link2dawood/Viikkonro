@@ -5,10 +5,13 @@
 // the FAQPage JSON-LD injected into /ukk by prerender.js, and the generated
 // dist/llms-full.txt. Edit here only.
 
+import { parityFaq } from "./weekParity.js";
+
 export const faqCategories = [
   {
     title: "Kuluva viikko",
     items: [
+      parityFaq,
       {
         featured: true,
         q: "Mikä viikko nyt on?",

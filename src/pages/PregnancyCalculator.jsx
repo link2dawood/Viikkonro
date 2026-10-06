@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { fmtFullFi } from "../components/dateUtils";
+import { dateFromDayKey, fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import { useToday } from "../components/useToday";
-import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
+import { canonicalFor, routeMeta } from "../data/seo";
 import {
   FACTS_CHECKED,
   PREGNANCY_PATH,
+  PREGNANCY_UPDATED,
   PREGNANCY_STEPS,
   SOURCES,
   pregnancyFaqs,
+  pregnancyExample,
   pregnancyReport,
   weekCalendar,
 } from "../data/pregnancyCalculator";
@@ -58,7 +60,7 @@ export const PregnancyDetails = ({ r }) => {
           <tbody>
             {weekCalendar(r.start).map((w) => (
               <tr key={w.week}>
-                <th scope="row">rv {w.week}</th>
+                <th scope="row">rv {w.week}+0 - {w.week}+6</th>
                 <td>{dm(w.from)}{w.from.getFullYear()}</td>
                 <td>{dm(w.to)}{w.to.getFullYear()}</td>
               </tr>
@@ -79,6 +81,7 @@ const PregnancyCalculator = () => {
   const input = parse(date);
   const r = input ? pregnancyReport(mode === "lmp" ? { lmp: input } : { due: input }, today) : null;
   const faqs = pregnancyFaqs();
+  const example = pregnancyExample();
 
   return (
     <section className="app">
@@ -140,7 +143,7 @@ const PregnancyCalculator = () => {
       <PregnancyDetails r={r} />
 
       <section className="prose">
-        <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
+        <p className="note-soft">Sisältö päivitetty {fmtFullFi(dateFromDayKey(PREGNANCY_UPDATED))}.</p>
 
         <h2>Näin käytät raskauslaskuria</h2>
         <ol>
@@ -160,6 +163,23 @@ const PregnancyCalculator = () => {
           raskausviikolla 11+0-13+6. Suurimmassa osassa raskauksista synnytys
           käynnistyy raskausviikkojen 38+0 ja 41+6 välillä, ja ennen
           raskausviikkoa 37+0 syntyvä lapsi on ennenaikainen.
+        </p>
+
+        <h2>Esimerkki raskausviikkojen laskemisesta</h2>
+        <p>
+          Jos viimeiset kuukautiset alkoivat {fmtFullFi(example.start)}, laskurin
+          antama laskettu aika on {fmtFullFi(example.due)}. Päivänä{" "}
+          {fmtFullFi(example.date)} alkamispäivästä on kulunut {example.days} päivää,
+          joten raskausviikko on <strong>{example.week}</strong> ja laskettuun
+          aikaan on {example.daysToDue} päivää. Tämä on laskuesimerkki.
+        </p>
+        <p>
+          Raskausviikko ja kalenteriviikko tarkoittavat eri asioita. Esimerkin
+          laskettu aika osuu kalenteriviikolle {example.dueIsoWeek}/{example.dueIsoYear},
+          mutta raskauden laskennallinen kesto on silloin 40+0. Jos neuvola on
+          määrittänyt sinulle lasketun ajan, valitse se laskurin lähtötiedoksi.
+          Laskennan perusteista kertoo myös{" "}
+          <a href={SOURCES.calculation}>Terveyskylän raskauslaskuri</a>.
         </p>
 
         <h2>Raskausvapaa ja raskausraha</h2>

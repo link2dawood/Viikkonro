@@ -1860,6 +1860,30 @@ body:has(.cal-print) footer {
   background: rgba(120, 120, 120, 0.14);
   color: #5a5a5a;
 }
+.week-parity-badge {
+  display: inline-block;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.week-parity-badge.parity-parillinen {
+  background: rgba(25, 118, 210, 0.12);
+  border-color: rgba(25, 118, 210, 0.28);
+  color: #15599a;
+}
+.week-parity-badge.parity-pariton {
+  background: rgba(224, 162, 59, 0.16);
+  border-color: rgba(224, 162, 59, 0.34);
+  color: #76530d;
+}
+.week-parity-badge:hover {
+  border-color: currentColor;
+}
 .stat-row {
   display: flex;
   flex-wrap: wrap;

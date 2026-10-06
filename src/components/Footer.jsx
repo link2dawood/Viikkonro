@@ -130,6 +130,11 @@ function Footer() {
               </Link>
             </li>
             <li>
+              <Link to="/parillinen-pariton-viikko" onClick={() => window.scrollTo(0, 0)}>
+                Parillinen vai pariton viikko?
+              </Link>
+            </li>
+            <li>
               <Link to="/avoin-data" onClick={() => window.scrollTo(0, 0)}>
                 Avoin data
               </Link>
@@ -196,6 +201,11 @@ function Footer() {
         <div className="footer-links-col">
           <h3>Yritys</h3>
           <ul>
+            <li>
+              <Link to="/en" hrefLang="en" onClick={() => window.scrollTo(0, 0)}>
+                English
+              </Link>
+            </li>
             <li>
               <Link to="/tietoa-meista" onClick={() => window.scrollTo(0, 0)}>
                 Tietoa meistä

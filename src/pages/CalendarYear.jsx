@@ -325,6 +325,21 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
 
       {!half && !print && (
         <section className="prose noprint">
+          <h2>Kalenteri {y} viikkonumeroilla: näin luet vuodenvaihteen</h2>
+          <p>
+            Kalenteri näyttää päivät kalenterivuoden mukaan, mutta viikkonumero
+            kuuluu ISO-viikkovuoteen. Vuoden ensimmäinen päivä 1.1.{y} on viikolla{" "}
+            {isoWeek(new Date(y, 0, 1))}/{isoYear(new Date(y, 0, 1))} ja viimeinen
+            päivä 31.12.{y} viikolla {isoWeek(new Date(y, 11, 31))}/{isoYear(new Date(y, 11, 31))}.
+            Viikon vuosi määräytyy sen torstain mukaan.
+          </p>
+          <p>
+            <Link to={`/vuosi-${y}#parilliset-ja-parittomat-viikot`}>
+              Parilliset ja parittomat viikot {y}
+            </Link>{" "}
+            löytyvät vuosiluettelosta. Valmiin PDF:n voit ladata yllä olevasta
+            painikkeesta, ja Excel-CSV sisältää päivämäärät taulukkolaskentaa varten.
+          </p>
           <h2>Miten viikkokalenteria {y} käytetään?</h2>
           <ol>
             <li>Etsi kuukausi ja päivämäärä koko vuoden viikkonäkymästä.</li>

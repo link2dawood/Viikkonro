@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PregnancyDetails } from "./PregnancyCalculator.jsx";
-import { pregnancyReport } from "../data/pregnancyCalculator.js";
+import { pregnancyExample, pregnancyReport } from "../data/pregnancyCalculator.js";
 
 const today = new Date(2026, 8, 29);
 
 describe("PregnancyDetails", () => {
+  it("computes the editorial example from the same arithmetic as the calculator", () => {
+    const example = pregnancyExample();
+    expect(example.week).toBe("12+3");
+    expect(example.days).toBe(87);
+    expect(example.daysToDue).toBe(193);
+    expect(example.due.getFullYear()).toBe(2027);
+    expect(example.due.getMonth()).toBe(9);
+    expect(example.due.getDate()).toBe(8);
+  });
   it("lists the key dates and the week calendar within a pregnancy", () => {
     const html = renderToStaticMarkup(<PregnancyDetails r={pregnancyReport({ lmp: new Date(2026, 6, 1) }, today)} />);
     expect(html).toContain("Raskausrahaa voi hakea");

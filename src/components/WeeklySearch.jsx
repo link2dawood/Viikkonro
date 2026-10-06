@@ -2,6 +2,7 @@ import { useToday } from "./useToday";
 import React, { useState, useEffect } from "react";
 import { isoWeek, isoYear, mondayOf } from "./dateUtils";
 import { Link } from "react-router-dom";
+import { weekParity } from "../data/weekParity.js";
 // FORMATTING HELPERS
 function pad(n) {
   return n < 10 ? "0" + n : "" + n;
@@ -110,6 +111,7 @@ const WeeklySearch = () => {
               <div className="main-text">
                 <strong>{result.writtenDay}</strong> on{" "}
                 <span className="num">viikolla {result.weekNum}</span>.
+                {" "}Viikko on {weekParity(result.weekNum)}.
               </div>
 
               <div className="sub">

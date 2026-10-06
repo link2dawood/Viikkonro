@@ -28,10 +28,10 @@ export function confidenceLabel(confidence) {
 }
 
 // Reusable source-metadata shape (STEP 9), attached to every school-holiday
-// dataset. verifiedAt mirrors seo.js's CONTENT_UPDATED (2026-08-05) — not
-// imported directly, to avoid a circular import (seo.js imports this file),
-// so keep the two in sync by hand when either is next bumped.
-const SOURCES_VERIFIED_AT = "2026-08-05";
+// dataset. This date changes only after the official sources are reviewed;
+// it is independent of the sitewide editorial date in seo.js.
+export const SCHOOL_HOLIDAY_UPDATED = "2026-10-05";
+const SOURCES_VERIFIED_AT = SCHOOL_HOLIDAY_UPDATED;
 
 export const SCHOOL_HOLIDAY_SOURCES = {
   oph2025: {
@@ -63,6 +63,30 @@ export const SCHOOL_HOLIDAY_SOURCES = {
     label: "Oulun kaupunki: koulujen työ- ja loma-ajat",
     url: "https://www.ouka.fi/opiskelu-perusopetuksessa/koulujen-tyo-ja-loma-ajat",
     sourceUrl: "https://www.ouka.fi/opiskelu-perusopetuksessa/koulujen-tyo-ja-loma-ajat",
+    verifiedAt: SOURCES_VERIFIED_AT,
+    confidence: CONFIDENCE.CONFIRMED,
+  },
+  turku: {
+    source: "Turun kaupunki",
+    label: "Turun kaupunki: lukuvuosi 2027-2028",
+    url: "https://www.turku.fi/perusopetus/tyo-ja-loma-ajat-koulussa",
+    sourceUrl: "https://www.turku.fi/perusopetus/tyo-ja-loma-ajat-koulussa",
+    verifiedAt: SOURCES_VERIFIED_AT,
+    confidence: CONFIDENCE.CONFIRMED,
+  },
+  tampere: {
+    source: "Tampereen kaupunki",
+    label: "Tampereen kaupunki: lukuvuosi 2027-2028",
+    url: "https://www.tampere.fi/koulutus/perusopetus/koulujen-loma-ajat",
+    sourceUrl: "https://www.tampere.fi/koulutus/perusopetus/koulujen-loma-ajat",
+    verifiedAt: SOURCES_VERIFIED_AT,
+    confidence: CONFIDENCE.CONFIRMED,
+  },
+  joensuu: {
+    source: "Joensuun kaupunki",
+    label: "Joensuun kaupunki: lukuvuodet 2027-2029",
+    url: "https://www.joensuu.fi/arjen-palvelut/perusopetus/koulujen-tyo-ja-loma-ajat/",
+    sourceUrl: "https://www.joensuu.fi/arjen-palvelut/perusopetus/koulujen-tyo-ja-loma-ajat/",
     verifiedAt: SOURCES_VERIFIED_AT,
     confidence: CONFIDENCE.CONFIRMED,
   },
@@ -179,12 +203,51 @@ const PAGES = {
       "Talvilomavertailu kattaa Manner-Suomen maakuntien pääkaupunkeja. Syksyn 2027 taulukossa näytetään vain erikseen vahvistettu Helsinki; tarkista muut kunnat niiden omilta sivuilta.",
     sourceKeys: ["oph2026", "helsinki", "oulu"],
   },
+  2028: {
+    year: 2028,
+    winter: [
+      weekGroup(2028, 8, ["Helsinki"], "helsinki"),
+      weekGroup(2028, 8, ["Turku"], "turku", true),
+      weekGroup(2028, 9, ["Tampere"], "tampere"),
+      weekGroup(2028, 10, ["Joensuu"], "joensuu"),
+      weekGroup(2028, 10, ["Oulu"], "oulu"),
+    ],
+    autumn: [
+      {
+        ...weekGroup(2028, 42, ["Joensuu"], "joensuu"),
+        coverage: "confirmed-city",
+      },
+    ],
+    autumnUnknownCities: [
+      "Helsinki", "Espoo", "Vantaa", "Hämeenlinna", "Jyväskylä", "Kajaani",
+      "Kokkola", "Kotka", "Kouvola", "Kuopio", "Lahti", "Lappeenranta",
+      "Mikkeli", "Oulu", "Pori", "Rovaniemi", "Seinäjoki", "Tampere",
+      "Turku", "Vaasa",
+    ],
+    otherPeriods: [
+      "Lukuvuosi 2027-2028 päättyy peruskouluissa lauantaina 3.6.2028.",
+      "Joensuun lukuvuosi 2028-2029 alkaa 10.8.2028; muiden kuntien aloituspäivät tarkistetaan niiden omista päätöksistä.",
+      "Joensuun vahvistettu syysloma on 16.-20.10.2028. Tätä ajankohtaa ei yleistetä muihin kuntiin.",
+    ],
+    coverageNote:
+      "Talvilomataulukko näyttää vain erikseen vahvistetut vertailukaupungit. Syksyn 2028 taulukossa näytetään vahvistettu Joensuu; valtakunnallinen kuntavertailu lisätään Opetushallituksen julkaistua sen.",
+    sourceKeys: ["helsinki", "turku", "tampere", "joensuu", "oulu"],
+  },
 };
 
 export const schoolHolidayYears = Object.keys(PAGES).map(Number);
 
 export function schoolHolidayPage(year) {
   return PAGES[Number(year)] || null;
+}
+
+export function schoolHolidayVerifiedAt(year) {
+  const page = schoolHolidayPage(year);
+  if (!page) return null;
+  return page.sourceKeys.reduce((latest, key) => {
+    const checked = SCHOOL_HOLIDAY_SOURCES[key].verifiedAt;
+    return checked > latest ? checked : latest;
+  }, "");
 }
 
 // The page's overall trust tier (STEP 2), computed from its data rather than
@@ -265,6 +328,12 @@ export function schoolHolidayFaqs(year) {
   const winter = page.winter
     .map((group) => `viikko ${group.week}: ${group.cities.join(", ")}`)
     .join("; ");
+  const autumn = page.autumn
+    .map((group) => `viikko ${group.week}: ${group.cities.join(", ")}`)
+    .join("; ");
+  const sourceNames = [...new Set(page.sourceKeys.map(
+    (key) => SCHOOL_HOLIDAY_SOURCES[key].source,
+  ))].join(", ");
   return [
     {
       q: `Milloin hiihtoloma ${year} on?`,
@@ -272,10 +341,7 @@ export function schoolHolidayFaqs(year) {
     },
     {
       q: `Milloin syysloma ${year} on?`,
-      a:
-        year === 2026
-          ? `${autumnSummary(page)} ${page.autumn.map((g) => `Viikolla ${g.week} lomailevat esimerkiksi ${g.cities.slice(0, 3).join(", ")}.`).join(" ")} Tarkka päivämäärä riippuu kunnasta ja koulusta.`
-          : "Helsingin vahvistettu syysloma 2027 on viikolla 42 eli 18.–22.10. Muiden kuntien päivät on tarkistettava kunnan omalta sivulta.",
+      a: `Vahvistettu kaupunkivertailu vuodelle ${year}: ${autumn}. Muiden kuntien päivät on tarkistettava kunnan tai koulun omalta sivulta.`,
     },
     {
       q: "Onko hiihtoloma samaan aikaan koko Suomessa?",
@@ -287,7 +353,7 @@ export function schoolHolidayFaqs(year) {
     },
     {
       q: "Mistä koululomien päivämäärät on tarkistettu?",
-      a: "Päivämäärät perustuvat Opetushallituksen kuntavertailuihin sekä Helsingin ja Oulun kaupunkien virallisiin työ- ja loma-aikoihin.",
+      a: `Päivämäärät perustuvat näiden virallisten lähteiden työ- ja loma-aikoihin: ${sourceNames}.`,
     },
     {
       q: "Mistä löydän oman kouluni varmasti ajantasaiset loma-ajat?",
@@ -314,4 +380,11 @@ export function schoolHolidayPeriodsInWeek(year, week) {
       regionName: group.cities.join(", "),
       sourceUrl: SCHOOL_HOLIDAY_SOURCES[group.sourceKey].url,
     }));
+}
+
+const SCHOOL_HOLIDAY_LINK_WEEKS = new Set([8, 9, 10, 42, 43]);
+
+export function shouldLinkSchoolHolidayPage(year, week) {
+  return SCHOOL_HOLIDAY_LINK_WEEKS.has(Number(week)) &&
+    pageConfidenceTier(Number(year)) === CONFIDENCE.CONFIRMED;
 }
