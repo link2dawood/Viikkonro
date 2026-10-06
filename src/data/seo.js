@@ -938,6 +938,27 @@ export const routeMeta = {
     breadcrumb: "Vuosilomalaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  "/lomasuunnittelija": {
+    title: "Lomasuunnittelija: pitkä loma vähillä lomapäivillä | Viikko Nro",
+    description:
+      "Näe pisimmät tauot, jotka saat omilla lomapäivilläsi, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin. Pitkät viikonloput, pääsiäinen ja joulu vuosittain.",
+    breadcrumb: "Lomasuunnittelija",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
+  "/projektiaikataulu": {
+    title: "Projektiaikataulu: päättymispäivä ja viikot työpäivistä | Viikko Nro",
+    description:
+      "Laske projektin päättymispäivä työpäivinä tai työpäivät alku- ja loppupäivän välillä. Viikkokohtainen aikataulu ISO-viikkoineen, arkipyhät ja välitavoitteet.",
+    breadcrumb: "Projektiaikataulu",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
+  "/sprinttisuunnittelija": {
+    title: "Sprinttisuunnittelija: sprinttien päivät ja viikot | Viikko Nro",
+    description:
+      "Laske peräkkäisten sprinttien päivämäärät, ISO-viikkonumerot ja työpäivät. Arkipyhät näkyvät sprinttien kapasiteetissa. Valitse pituus yhdestä kuuteen viikkoa.",
+    breadcrumb: "Sprinttisuunnittelija",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
   [SUN_HUB_PATH]: {
     ...sunHubMeta(),
     breadcrumb: "Auringonnousu ja -lasku",
@@ -1032,6 +1053,9 @@ export function sitemapEntries(year) {
     { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/tuntilaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/vuosilomalaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: "/lomasuunnittelija", changefreq: "monthly", priority: "0.7" },
+    { path: "/projektiaikataulu", changefreq: "monthly", priority: "0.7" },
+    { path: "/sprinttisuunnittelija", changefreq: "monthly", priority: "0.7" },
     { path: "/raskauslaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/kuukautislaskuri", changefreq: "monthly", priority: "0.7" },
     { path: SUN_HUB_PATH, changefreq: "daily", priority: "0.7" },

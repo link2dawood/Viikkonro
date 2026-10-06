@@ -20,7 +20,7 @@ const year = Number(new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Helsink
 const FAMILIES = [
   ["Kela and pension payment days", /\/(kelan|elakkeen)-maksupaivat-\d{4}$/],
   ["Observance days", /\/(isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|adventti)-\d{4}$/],
-  ["Calculators", /\/(paivamaaralaskuri|\d+-paivaa-eteenpain|ikalaskuri|tuntilaskuri|vuosilomalaskuri|raskauslaskuri|kuukautislaskuri)$/],
+  ["Calculators", /\/(paivamaaralaskuri|\d+-paivaa-eteenpain|ikalaskuri|tuntilaskuri|vuosilomalaskuri|lomasuunnittelija|projektiaikataulu|sprinttisuunnittelija|raskauslaskuri|kuukautislaskuri)$/],
   ["Moon phases", /\/kuun-vaiheet-\d{4}$/],
   ["Sunrise and sunset", /\/auringonlasku(-[a-z]+)?$/],
   ["Flag days", /\/liputuspaivat-\d{4}$/],

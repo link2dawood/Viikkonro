@@ -18,6 +18,22 @@ in an actual Finnish practice or law — several reuse the same research
 already done for `long-tail-pages.md`, so a calculator and its
 explanatory page can link to each other rather than exist in isolation.
 
+## Status (2026-10-06)
+
+Built, under Finnish slugs chosen to match the site's naming:
+
+- `/sprinttisuunnittelija` covers idea 8 (sprint end dates and ISO weeks),
+  and adds working days and holiday-adjusted capacity per sprint.
+- `/projektiaikataulu` covers ideas 9 and 14 (project duration in weeks and a
+  week-by-week schedule), and adds 25/50/75/100 percent milestones.
+- `/lomasuunnittelija` is new: the longest breaks a number of leave days buys
+  between weekends and public holidays. It is not in the list below.
+
+Each page uses the `FAQPage` + `HowTo` pattern below, fed from one data module
+(`src/data/sprintPlanner.js`, `projectTimeline.js`, `vacationPlanner.js`).
+Slugs such as `/sprinttilaskuri` listed below were not used, so do not add a
+second URL for the same content.
+
 ## Shared schema pattern
 
 All 5 existing calculators use the same structure (`CALCULATOR_SCHEMA` in
