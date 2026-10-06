@@ -184,3 +184,26 @@ describe("draft saved in the browser", () => {
     expect(keep("https://example.com/logo.png")).toBeNull();
   });
 });
+
+describe("messages for the visitor", () => {
+  it("turns platform validation messages into Finnish", async () => {
+    const { issueToFinnish } = await import("./formModel.js");
+    expect(issueToFinnish("SVG logo must not contain scripts, event handlers or embedded frames.")).toMatch(/^SVG-logo ei saa/);
+    expect(issueToFinnish("Logo is larger than 512 KB.")).toMatch(/512 kt/);
+    expect(issueToFinnish("Logo must be a PNG, JPEG or SVG data URI (base64).")).toMatch(/PNG- tai SVG/);
+    expect(issueToFinnish('School holiday data for "Atlantis" is not available for 2029.')).toBe("Koululomatietoja ei ole kaupungille Atlantis vuodelle 2029.");
+    expect(issueToFinnish("Company name is longer than 80 characters.")).toMatch(/80 merkkiä/);
+    expect(issueToFinnish("At most 500 company events are allowed.")).toMatch(/liikaa/);
+    expect(issueToFinnish("something unexpected")).toBe("Kalenterin asetuksissa on virhe: something unexpected");
+  });
+  it("never shows an English message for any issue the form can produce", async () => {
+    const { issueToFinnish } = await import("./formModel.js");
+    const f = createForm(2029);
+    f.schoolOn = true;
+    f.schoolCity = "Helsinki";
+    f.companyName = "x".repeat(81);
+    const issues = validateCalendarConfig(formToConfigInput(f).input).issues;
+    expect(issues.length).toBeGreaterThan(0);
+    for (const issue of issues) expect(issueToFinnish(issue)).not.toMatch(/must|is not|longer|available/);
+  });
+});

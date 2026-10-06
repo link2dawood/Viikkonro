@@ -1,7 +1,8 @@
 import { LAYOUT_OPTIONS, PAYDAY_RULES } from "../../data/companyCalendar.js";
 import { schoolHolidayCities, schoolHolidayCoverage } from "../../platform/calendar/sources.js";
 import { PAPER } from "../../platform/design/layouts.js";
-import { newRowId, MAX_CLOSURES } from "./formModel.js";
+import { newRowId, MAX_CLOSURES, issueToFinnish } from "./formModel.js";
+import { validateBranding } from "../../platform/design/branding.js";
 import { MAX_COMPANY_EVENTS, MAX_PAYDAY_DATES } from "../../platform/calendar/config.js";
 
 const MAX_LOGO_FILE = 512 * 1024;
@@ -45,8 +46,10 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
     const file = e.target.files?.[0];
     e.target.value = "";
     const { error, logo } = await readLogo(file);
-    setLogoError(error);
-    if (logo) set({ logo });
+    // The same safety checks the calendar itself applies, shown in Finnish before the logo is kept.
+    const issues = logo ? validateBranding({ logo }).issues : [];
+    setLogoError(error ?? (issues.length ? issueToFinnish(issues[0]) : null));
+    if (logo && issues.length === 0) set({ logo });
   };
 
   return (

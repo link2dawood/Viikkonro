@@ -174,3 +174,39 @@ test("PD-08 rejects unresolved merge markers in deployable text artifacts", () =
     .map((file) => path.relative(dist, file));
   assert.deepEqual(affected, []);
 });
+
+test("PD-09 publishes the company calendar page as an indexable, linked, schema-complete landing page", () => {
+  const html = withoutComments(pageHtml("/yrityskalenteri"));
+  assert.match(html, /<title>[^<]{10,60}<\/title>/);
+  assert.ok(html.includes('<link rel="canonical" href="https://viikkonro.fi/yrityskalenteri" />'));
+  assert.ok(!/noindex/i.test(html));
+  assert.equal((html.match(/<h1[ >]/g) || []).length, 1);
+  assert.ok(html.includes("Luo yrityksellesi oma kalenteri"));
+  assert.ok(html.includes("cc-watermark"), "the free preview is watermarked");
+  const types = schemaTypes(structuredData(html));
+  for (const type of ["WebPage", "FAQPage", "HowTo", "BreadcrumbList"]) assert.ok(types.has(type), type);
+  assert.ok(sitemapLocations().includes(`${siteOrigin}/yrityskalenteri`));
+  // Reachable from the existing calendar and print pages.
+  for (const route of ["/kalenteri-2027", "/tulostettava-kalenteri-2027", "/tulosta-2027"]) {
+    assert.ok(pageHtml(route).includes('href="/yrityskalenteri"'), route);
+  }
+});
+
+test("PD-10 keeps the development unlock and the 2 MB PDF library out of every page load", () => {
+  const assets = fs.readdirSync(path.join(dist, "assets")).filter((name) => name.endsWith(".js"));
+  const sources = Object.fromEntries(assets.map((name) => [name, read(path.join("dist", "assets", name))]));
+  // No production script contains the development unlock or its UI text.
+  for (const [name, source] of Object.entries(sources)) {
+    for (const needle of ["dev-unlock", "Avaa lataukset (testi)", "Kehitystila", "viikkonro:dev-license"]) {
+      assert.ok(!source.includes(needle), `${name} contains "${needle}"`);
+    }
+  }
+  // The PDF library is its own chunk, and the entry script does not embed it.
+  const pdfChunks = assets.filter((name) => sources[name].includes("StartFontMetrics"));
+  assert.deepEqual(pdfChunks.length, 1, "exactly one chunk carries pdfkit");
+  assert.ok(pdfChunks[0].startsWith("pdfkit-"), `pdfkit chunk is ${pdfChunks[0]}`);
+  const entry = /<script type="module"[^>]*src="\/assets\/([^"]+\.js)"/.exec(pageHtml("/yrityskalenteri"))[1];
+  assert.ok(!sources[entry].includes("StartFontMetrics"), "the entry script must not embed pdfkit");
+  const preloaded = [...pageHtml("/yrityskalenteri").matchAll(/rel="modulepreload"[^>]*href="\/assets\/([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(!preloaded.some((name) => name.startsWith("pdfkit-")), "pdfkit must not be preloaded");
+});

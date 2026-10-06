@@ -121,6 +121,28 @@ export function limitedPreviewInput(input) {
   };
 }
 
+/**
+ * A platform validation message in Finnish for the visitor. The platform's own
+ * messages are English because they are for developers; unknown ones get a
+ * generic Finnish lead so the page never shows an unexplained English line.
+ */
+export function issueToFinnish(issue) {
+  const rules = [
+    [/SVG logo must not contain/, () => "SVG-logo ei saa sisältää skriptejä, tapahtumankäsittelijöitä tai upotettuja kehyksiä."],
+    [/Logo is larger than/, () => "Logo on liian suuri. Enimmäiskoko on 512 kt."],
+    [/Logo must be a PNG, JPEG or SVG/, () => "Valitse PNG- tai SVG-tiedosto."],
+    [/Company name is longer than/, () => "Yrityksen nimi on liian pitkä. Enimmäispituus on 80 merkkiä."],
+    [/must be a hex colour/, () => "Valitse väri uudelleen."],
+    [/School holiday data for "(.+)" is not available for (\d+)/, (m) => `Koululomatietoja ei ole kaupungille ${m[1]} vuodelle ${m[2]}.`],
+    [/At most \d+/, () => "Rivejä on liikaa. Poista joitakin rivejä."],
+  ];
+  for (const [re, make] of rules) {
+    const m = re.exec(issue);
+    if (m) return make(m);
+  }
+  return `Kalenterin asetuksissa on virhe: ${issue}`;
+}
+
 // ── Draft in the browser (never sent anywhere) ─────────────────────────────
 
 export const serializeDraft = (form) => JSON.stringify({ v: 1, form });

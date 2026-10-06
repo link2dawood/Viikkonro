@@ -6,7 +6,9 @@ import { eventsToIcs } from "../calendar/events.js";
 import { weekList } from "../calendar/model.js";
 import { buildIcs } from "./ics.js";
 import { toCsv } from "./csv.js";
-import { buildXlsx } from "./xlsx.js";
+import { XLSX_MIME, buildXlsx } from "./xlsx.js";
+
+export { XLSX_MIME };
 
 export const TABLE_HEADER = Object.freeze(["Päivämäärä", "Viikonpäivä", "Viikko", "Vapaapäivä", "Tapahtumat"]);
 

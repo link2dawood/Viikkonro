@@ -7,7 +7,9 @@ const FORMATS = [
   { kind: "ics", label: "Lataa ICS", hint: "Google, Outlook, iPhone" },
 ];
 
-export default function Exports({ unlocked, busy, message, warnings, unlockOpen, canPurchase, devProvider, onExport, onUnlock, onRelock, onContactClick }) {
+// `devPanel` and `devNote` are passed only by a development build (the page builds
+// them behind import.meta.env.DEV), so production code contains no unlock path.
+export default function Exports({ unlocked, busy, message, warnings, unlockOpen, devPanel, devNote, onExport, onContactClick }) {
   return (
     <div className="cc-exports">
       <h2>Lataa kalenteri</h2>
@@ -35,12 +37,7 @@ export default function Exports({ unlocked, busy, message, warnings, unlockOpen,
       )}
       {!unlocked && unlockOpen && (
         <div className="cc-unlock" role="region" aria-label="Lataukset">
-          {canPurchase ? (
-            <>
-              <p><b>Kehitystila.</b> Tämä painike ohittaa maksun, ja se on käytössä vain paikallisessa testauksessa.</p>
-              <button type="button" className="btn" onClick={onUnlock}>Avaa lataukset (testi)</button>
-            </>
-          ) : (
+          {devPanel ?? (
             <>
               <p><b>Maksaminen ei ole vielä käytössä.</b> Tiedostojen lataus avataan, kun maksu on otettu käyttöön. Jos haluat kalenterin yrityksellesi, kerro siitä meille.</p>
               <Link className="btn" to="/ota-yhteytta" onClick={onContactClick}>Ota yhteyttä</Link>
@@ -48,9 +45,7 @@ export default function Exports({ unlocked, busy, message, warnings, unlockOpen,
           )}
         </div>
       )}
-      {unlocked && devProvider && (
-        <p className="note-soft">Kehitystila: lataukset on avattu testausta varten. <button type="button" className="btn-link" onClick={onRelock}>Lukitse uudelleen</button></p>
-      )}
+      {unlocked && devNote}
     </div>
   );
 }

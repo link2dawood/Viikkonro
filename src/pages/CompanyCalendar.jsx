@@ -19,6 +19,7 @@ import {
   DRAFT_KEY,
   createForm,
   formToConfigInput,
+  issueToFinnish,
   limitedPreviewInput,
   parseDraft,
   serializeDraft,
@@ -26,10 +27,8 @@ import {
 import { validateCalendarConfig } from "../platform/calendar/config";
 import { buildCalendarModel } from "../platform/calendar/model";
 import { hasFeature } from "../platform/business/licensing";
-import { clearDevLicense, resolvePaymentProvider } from "../platform/business/payment";
-import { calendarToCsv, calendarToIcs, calendarToXlsx } from "../platform/export/calendar";
+import { clearDevLicense, resolvePaymentProvider, unavailableProvider } from "../platform/business/payment";
 import { downloadBlob } from "../platform/export/download";
-import { XLSX_MIME } from "../platform/export/xlsx";
 
 const browserStorage = () => {
   try {
@@ -55,7 +54,12 @@ const CompanyCalendar = () => {
   const [warnings, setWarnings] = useState([]);
   const touched = useRef(false);
   const seen = useRef({ started: false, previews: new Set() });
-  const provider = useMemo(() => resolvePaymentProvider(import.meta.env, { storage: browserStorage() }), []);
+  // import.meta.env.DEV is a build-time constant: in a production build this is
+  // `unavailableProvider` and the development unlock code is pruned from the bundle.
+  const provider = useMemo(
+    () => (import.meta.env.DEV ? resolvePaymentProvider(import.meta.env, { storage: browserStorage() }) : unavailableProvider),
+    [],
+  );
   const faqs = companyCalendarFaqs();
 
   // After hydration: restore the draft and any licence (never during render).
@@ -110,7 +114,7 @@ const CompanyCalendar = () => {
 
   const notes = [
     ...(skipped > 0 ? [`${skipped} riviä jätettiin pois, koska ne ovat keskeneräisiä tai päivä ei ole vuodessa ${form.year}.`] : []),
-    ...result.issues,
+    ...result.issues.map(issueToFinnish),
   ];
 
   async function handleExport(kind) {
@@ -131,9 +135,13 @@ const CompanyCalendar = () => {
         const pdf = await exportCalendarPdf(model, { logo: config.branding.logo, generatedOn: new Date() });
         downloadBlob(name, pdf.bytes, "application/pdf");
         setWarnings(pdf.warnings);
-      } else if (kind === "xlsx") downloadBlob(name, calendarToXlsx(model), XLSX_MIME);
-      else if (kind === "csv") downloadBlob(name, calendarToCsv(model), "text/csv;charset=utf-8");
-      else downloadBlob(name, calendarToIcs(model, { stamp: icsStamp(new Date()) }), "text/calendar;charset=utf-8");
+      } else {
+        // The spreadsheet and calendar writers load only when a file is requested.
+        const files = await import("../platform/export/calendar");
+        if (kind === "xlsx") downloadBlob(name, files.calendarToXlsx(model), files.XLSX_MIME);
+        else if (kind === "csv") downloadBlob(name, files.calendarToCsv(model), "text/csv;charset=utf-8");
+        else downloadBlob(name, files.calendarToIcs(model, { stamp: icsStamp(new Date()) }), "text/calendar;charset=utf-8");
+      }
       trackPlatformEvent(`company_calendar_${kind}_export`, { layout: form.layout, year: form.year });
       setMessage("Tiedosto on ladattu.");
     } catch {
@@ -201,11 +209,20 @@ const CompanyCalendar = () => {
             message={message}
             warnings={warnings}
             unlockOpen={unlockOpen}
-            canPurchase={provider.canPurchase}
-            devProvider={provider.id === "dev-unlock"}
+            devPanel={
+              import.meta.env.DEV ? (
+                <>
+                  <p><b>Kehitystila.</b> Tämä painike ohittaa maksun, ja se on käytössä vain paikallisessa testauksessa.</p>
+                  <button type="button" className="btn" onClick={handleUnlock}>Avaa lataukset (testi)</button>
+                </>
+              ) : null
+            }
+            devNote={
+              import.meta.env.DEV && provider.id === "dev-unlock" ? (
+                <p className="note-soft">Kehitystila: lataukset on avattu testausta varten. <button type="button" className="btn-link" onClick={relock}>Lukitse uudelleen</button></p>
+              ) : null
+            }
             onExport={handleExport}
-            onUnlock={handleUnlock}
-            onRelock={relock}
             onContactClick={() => trackPlatformEvent("company_calendar_cta_click", { source: "contact" })}
           />
         </aside>
