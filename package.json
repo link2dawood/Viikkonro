@@ -44,7 +44,9 @@
     "report:seo": "node scripts/seo-report.js",
     "report:seo-growth": "node scripts/seo-growth-report.js",
     "sync:name-days": "node scripts/sync-name-days.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:predeploy:artifacts": "node --test scripts/predeploy-build.cases.mjs",
+    "test:predeploy": "npm run lint && npm test && npm run build && npm run test:predeploy:artifacts && npx vite build --ssr src/entry-server.jsx --outDir dist-server && npm run check:crawl"
   },
   "dependencies": {
     "@vercel/og": "^1.0.1",
