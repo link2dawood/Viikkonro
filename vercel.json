@@ -5,37 +5,138 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/week/:week/:year", "destination": "/viikko-:week-:year", "statusCode": 301 },
-    { "source": "/month/:month/:year", "destination": "/kuukausi-:month-:year", "statusCode": 301 },
-    { "source": "/year/:year", "destination": "/vuosi-:year", "statusCode": 301 },
-    { "source": "/print/:year", "destination": "/tulosta-:year", "statusCode": 301 },
-    { "source": "/pdfs/:file", "destination": "/pdf/:file", "statusCode": 301 },
-    { "source": "/api/week/:week/:year.json", "destination": "/data/week/:year/:week.json", "statusCode": 301 },
-    { "source": "/api/month/:month/:year.json", "destination": "/data/month/:year/:month.json", "statusCode": 301 },
-    { "source": "/api/year/:year.json", "destination": "/data/year/:year.json", "statusCode": 301 },
-    { "source": "/api/holiday/:slug/:year.json", "destination": "/data/holiday/:year/:slug.json", "statusCode": 301 },
-    { "source": "/kalenteri-:y(\\d+)-1", "destination": "/kalenteri-:y-alkuvuosi", "statusCode": 301 },
-    { "source": "/kalenteri-:y(\\d+)-2", "destination": "/kalenteri-:y-loppuvuosi", "statusCode": 301 },
-    { "source": "/what-is-a-week-number", "destination": "/mika-on-viikkonumero", "statusCode": 301 },
-    { "source": "/weeks-in-a-year", "destination": "/kuinka-monta-viikkoa-vuodessa", "statusCode": 301 },
-    { "source": "/about-us", "destination": "/tietoa-meista", "statusCode": 301 },
-    { "source": "/contact-us", "destination": "/ota-yhteytta", "statusCode": 301 },
-    { "source": "/faq", "destination": "/ukk", "statusCode": 301 },
-    { "source": "/privacy-policy", "destination": "/tietosuoja", "statusCode": 301 },
-    { "source": "/terms-and-conditions", "destination": "/kayttoehdot", "statusCode": 301 },
-    { "source": "/sv/vecka-:w(\\d+)-:y(\\d+)", "destination": "/viikko-:w-:y", "statusCode": 301 },
-    { "source": "/sv/veckor-:y(\\d+)", "destination": "/vuosi-:y", "statusCode": 301 },
-    { "source": "/sv/helgdagar-:y(\\d+)", "destination": "/pyhapaivat-:y", "statusCode": 301 },
-    { "source": "/sv", "destination": "/", "statusCode": 301 },
-    { "source": "/sv/:path*", "destination": "/", "statusCode": 301 }
+    {
+      "source": "/week/:week/:year",
+      "destination": "/viikko-:week-:year",
+      "statusCode": 301
+    },
+    {
+      "source": "/month/:month/:year",
+      "destination": "/kuukausi-:month-:year",
+      "statusCode": 301
+    },
+    {
+      "source": "/year/:year",
+      "destination": "/vuosi-:year",
+      "statusCode": 301
+    },
+    {
+      "source": "/print/:year",
+      "destination": "/tulosta-:year",
+      "statusCode": 301
+    },
+    {
+      "source": "/pdfs/:file",
+      "destination": "/pdf/:file",
+      "statusCode": 301
+    },
+    {
+      "source": "/api/week/:week/:year.json",
+      "destination": "/data/week/:year/:week.json",
+      "statusCode": 301
+    },
+    {
+      "source": "/api/month/:month/:year.json",
+      "destination": "/data/month/:year/:month.json",
+      "statusCode": 301
+    },
+    {
+      "source": "/api/year/:year.json",
+      "destination": "/data/year/:year.json",
+      "statusCode": 301
+    },
+    {
+      "source": "/api/holiday/:slug/:year.json",
+      "destination": "/data/holiday/:year/:slug.json",
+      "statusCode": 301
+    },
+    {
+      "source": "/kalenteri-:y(\\d+)-1",
+      "destination": "/kalenteri-:y-alkuvuosi",
+      "statusCode": 301
+    },
+    {
+      "source": "/kalenteri-:y(\\d+)-2",
+      "destination": "/kalenteri-:y-loppuvuosi",
+      "statusCode": 301
+    },
+    {
+      "source": "/what-is-a-week-number",
+      "destination": "/mika-on-viikkonumero",
+      "statusCode": 301
+    },
+    {
+      "source": "/weeks-in-a-year",
+      "destination": "/kuinka-monta-viikkoa-vuodessa",
+      "statusCode": 301
+    },
+    {
+      "source": "/about-us",
+      "destination": "/tietoa-meista",
+      "statusCode": 301
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/ota-yhteytta",
+      "statusCode": 301
+    },
+    {
+      "source": "/faq",
+      "destination": "/ukk",
+      "statusCode": 301
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/tietosuoja",
+      "statusCode": 301
+    },
+    {
+      "source": "/terms-and-conditions",
+      "destination": "/kayttoehdot",
+      "statusCode": 301
+    },
+    {
+      "source": "/sv/vecka-:w(\\d+)-:y(\\d+)",
+      "destination": "/viikko-:w-:y",
+      "statusCode": 301
+    },
+    {
+      "source": "/sv/veckor-:y(\\d+)",
+      "destination": "/vuosi-:y",
+      "statusCode": 301
+    },
+    {
+      "source": "/sv/helgdagar-:y(\\d+)",
+      "destination": "/pyhapaivat-:y",
+      "statusCode": 301
+    },
+    {
+      "source": "/sv",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sv/:path*",
+      "destination": "/",
+      "statusCode": 301
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-        { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
@@ -63,14 +164,52 @@
       ]
     },
     {
+      "source": "/pdf/kalenteri-:year(\\d{4}).pdf",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://viikkonro.fi/kalenteri-:year>; rel=\"canonical\""
+        }
+      ]
+    },
+    {
+      "source": "/pdf/viikko-:week(\\d{1,2})-:year(\\d{4}).pdf",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://viikkonro.fi/viikko-:week-:year>; rel=\"canonical\""
+        }
+      ]
+    },
+    {
+      "source": "/pdf/kuukausi-:month(\\d{1,2})-:year(\\d{4}).pdf",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://viikkonro.fi/kuukausi-:month-:year>; rel=\"canonical\""
+        }
+      ]
+    },
+    {
       "source": "/((?!widget/).*)",
-      "headers": [{ "key": "X-Frame-Options", "value": "SAMEORIGIN" }]
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
     },
     {
       "source": "/widget/(.*)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, follow" },
-        { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        },
         {
           "key": "Content-Security-Policy-Report-Only",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors *; base-uri 'self'; object-src 'none'"
@@ -80,10 +219,22 @@
     {
       "source": "/ics/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "text/calendar; charset=utf-8" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Content-Type",
+          "value": "text/calendar; charset=utf-8"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=3600, stale-while-revalidate=86400"
@@ -119,7 +270,10 @@
     {
       "source": "/(sitemap.xml|robots.txt|ads.txt|app-ads.txt|llms.txt|llms-full.txt|llms-api.txt|llms-data.txt|llms-glossary.txt|ai-manifest.txt|og.png|ai.txt)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=3600, stale-while-revalidate=86400"
@@ -129,10 +283,22 @@
     {
       "source": "/data/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=86400, stale-while-revalidate=604800"
@@ -142,10 +308,22 @@
     {
       "source": "/data/(.*).csv",
       "headers": [
-        { "key": "Content-Type", "value": "text/csv; charset=utf-8" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Content-Type",
+          "value": "text/csv; charset=utf-8"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=86400, stale-while-revalidate=604800"
@@ -155,10 +333,22 @@
     {
       "source": "/data/(.*).xml",
       "headers": [
-        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=86400, stale-while-revalidate=604800"
@@ -168,8 +358,14 @@
     {
       "source": "/pdf/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "application/pdf" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Content-Type",
+          "value": "application/pdf"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=86400, stale-while-revalidate=604800"
@@ -179,8 +375,14 @@
     {
       "source": "/og/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "image/png" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Content-Type",
+          "value": "image/png"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=86400, stale-while-revalidate=604800"
@@ -190,8 +392,14 @@
     {
       "source": "/discover/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "image/png" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        {
+          "key": "Content-Type",
+          "value": "image/png"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=86400, stale-while-revalidate=604800"

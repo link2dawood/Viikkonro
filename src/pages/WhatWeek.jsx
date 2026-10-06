@@ -93,6 +93,30 @@ const WhatWeek = () => {
           </ul>
         </div>
 
+        <h2>Viikkonumero {Y_NOW}</h2>
+        <p>
+          Vuoden {Y_NOW} tämänhetkinen viikkonumero on <strong>{W_NOW}</strong>.
+          Vuodessa on {weeksInYear} ISO-viikkoa. Katso kaikki päivämäärät{" "}
+          <Link to={`/vuosi-${Y_NOW}`}>vuoden {Y_NOW} viikkoluettelosta</Link> tai{" "}
+          <Link to={`/kalenteri-${Y_NOW}`}>kalenterista viikkonumeroineen</Link>.
+        </p>
+
+        <h2>Mitä Viikkonro.fi näyttää?</h2>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Toiminto</th><th>Viikkonro.fi</th><th>Perustaulukko</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Kuluvan viikon suora vastaus</td><td>Kyllä</td><td>Vaihtelee</td></tr>
+              <tr><td>Oma sivu jokaiselle viikolle</td><td>Kyllä</td><td>Harvoin</td></tr>
+              <tr><td>Pyhät, liputuspäivät ja nimipäivät</td><td>Samalla viikkosivulla</td><td>Vaihtelee</td></tr>
+              <tr><td>Päivämäärä- ja työpäivälaskurit</td><td>Kyllä</td><td>Vaihtelee</td></tr>
+              <tr><td>Avoin JSON-, CSV- ja XML-data</td><td>Kyllä</td><td>Harvoin</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <h2>Miten viikkonumero määräytyy ISO 8601:ssä?</h2>
         <p>
           ISO 8601 -viikkonumerot määräytyvät kolmen säännön perusteella.
@@ -218,9 +242,10 @@ const WhatWeek = () => {
           </li>
         </ul>
 
-        <h2>Mihin viikkonumeroa käytetään Suomessa?</h2>
+        <h2>Viikkonumerot Suomessa</h2>
         <p>
-          Viikkonumero on suomalaisessa arjessa niin luonteva, että sitä
+          Viikkonumeroita käytetään Suomessa työssä, kouluissa ja arjen
+          suunnittelussa. Käytäntö on niin luonteva, että viikkonumeroa
           käytetään ilman että sitä huomaa. Tavallisimmat käyttöalueet:
         </p>
         <ul>
@@ -325,6 +350,10 @@ const WhatWeek = () => {
           <Link className="ql" to="/viikko-alkaa-maanantaista">
             <b>Miksi viikko alkaa maanantaista?</b>
             <span>Viikon alku ja torstaisääntö selitettynä</span>
+          </Link>
+          <Link className="ql" to="/parillinen-pariton-viikko">
+            <b>Parillinen vai pariton viikko?</b>
+            <span>Tarkista vuoroviikko ja vuodenvaihteen poikkeus</span>
           </Link>
           <Link className="ql" to="/suomi-vs-usa-viikkonumerot">
             <b>Suomi vs. USA</b>

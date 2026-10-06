@@ -10,9 +10,10 @@ import {
   schoolHolidayFaqs,
   schoolHolidayMeta,
   schoolHolidayPage,
+  schoolHolidayVerifiedAt,
   schoolHolidayYears,
 } from "../data/schoolHolidayPages";
-import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
+import { canonicalFor } from "../data/seo";
 import NotFound from "./NotFound";
 
 // Confidence badge — same plain-text string rendered here as
@@ -80,13 +81,11 @@ const SchoolHolidays = ({ year }) => {
   const meta = schoolHolidayMeta(selectedYear);
   const faqs = schoolHolidayFaqs(selectedYear);
   const sources = page.sourceKeys.map((key) => SCHOOL_HOLIDAY_SOURCES[key]);
-  // The most recent of this page's own sources' verifiedAt dates (STEP 8/9)
-  // — not CONTENT_UPDATED directly, so this stays correct even if a future
-  // source is verified on a different date than the sitewide constant.
-  const verifiedAt = sources.reduce(
-    (latest, s) => (s.verifiedAt > latest ? s.verifiedAt : latest),
-    sources[0]?.verifiedAt ?? "",
-  );
+  // The most recent of this page's own source-review dates.
+  const verifiedAt = schoolHolidayVerifiedAt(selectedYear);
+  const autumnCitiesSummary = page.autumn
+    .map((group) => `${group.cities.join(", ")}: viikko ${group.week}`)
+    .join("; ");
 
   return (
     <section className="app">
@@ -132,9 +131,7 @@ const SchoolHolidays = ({ year }) => {
             <li><strong>Hiihto- eli talviloma:</strong> viikot 8–10 alueittain.</li>
             <li>
               <strong>Syysloma:</strong>{" "}
-              {selectedYear === 2026
-                ? "viikko 42 tai 43 vertailukaupungista riippuen."
-                : "Helsingissä vahvistetusti viikko 42; muut kunnat tarkistettava erikseen."}
+              {autumnCitiesSummary}. Muut kunnat tarkistettava erikseen.
             </li>
             <li><strong>Päätöksentekijä:</strong> opetuksen järjestäjä, yleensä kunta.</li>
             <li><strong>Kohderyhmä:</strong> ensisijaisesti perusopetus.</li>
@@ -158,14 +155,14 @@ const SchoolHolidays = ({ year }) => {
           </ul>
         </div>
 
-        <p className="note-soft">Sisältö ja lähteet tarkistettu {CONTENT_UPDATED_FI}.</p>
+        <p className="note-soft">Sisältö ja lähteet tarkistettu {verifiedAt}.</p>
 
         <h2>Milloin hiihtoloma {selectedYear} on?</h2>
         <p>
-          Talviloma porrastetaan kolmen viikon jaksolle. Alla olevat kaupungit
-          ovat Opetushallituksen Manner-Suomen maakuntapääkaupunkien
-          vertailusta; lista ei tarkoita, että jokainen samalla alueella oleva
-          kunta noudattaa täsmälleen samaa aikaa.
+          Talviloma porrastetaan kolmen viikon jaksolle. Jokainen taulukon rivi
+          perustuu siinä nimettyyn viralliseen lähteeseen. Lista ei tarkoita,
+          että jokainen samalla alueella oleva kunta noudattaa täsmälleen samaa
+          aikaa.
         </p>
         <HolidayTable
           groups={page.winter}
@@ -178,9 +175,9 @@ const SchoolHolidays = ({ year }) => {
           <strong>{autumnSummary(page)}</strong>
         </p>
         <p>
-          {selectedYear === 2026
-            ? "Syysloma osuu vertailukaupungeissa viikolle 42 tai 43. Joissakin kunnissa loma kestää koko viikon, toisissa maanantaista perjantaihin."
-            : "Syksyn 2027 valtakunnallista kuntavertailua ei ole vielä julkaistu. Taulukossa näkyy vain Helsingin virallisesti vahvistettu aika, eikä sitä yleistetä muihin kuntiin."}
+          Taulukossa näkyvät vain kaupunkien virallisesti vahvistamat ajat.
+          Ajankohtaa ei yleistetä muihin kuntiin, ja valtakunnallista vertailua
+          täydennetään vasta Opetushallituksen julkaistua kyseisen vuoden tiedot.
         </p>
         <HolidayTable
           groups={page.autumn}

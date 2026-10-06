@@ -34,6 +34,10 @@ const SunCity = ({ slug }) => {
   const faqs = sunCityFaqs(slug, today);
   const polar = polarSentence(s);
   const weekPath = `/viikko-${isoWeek(today)}-${isoYear(today)}`;
+  const upcoming = Array.from({ length: 7 }, (_, offset) => {
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset);
+    return { date, ...sunToday(city, date) };
+  });
 
   return (
     <section className="app">
@@ -43,7 +47,7 @@ const SunCity = ({ slug }) => {
         <Link to={SUN_HUB_PATH}>Auringonnousu ja -lasku</Link> / {city.name}
       </div>
 
-      <h1>Auringonnousu ja -lasku {city.in}</h1>
+      <h1>Auringonlasku ja -nousu {city.in} tänään</h1>
 
       <p className="lead">
         <span className="answer-sentence">
@@ -71,6 +75,32 @@ const SunCity = ({ slug }) => {
           { label: "Muutos eilisestä", value: signed(t.change) },
         ]}
       />
+
+      <section className="prose">
+        <h2>Auringonlasku {city.in} seuraavina seitsemänä päivänä</h2>
+        <p>
+          Taulukko alkaa tästä päivästä. Nousu- ja laskuajat ovat Suomen
+          paikallista aikaa, ja päivän pituus tarkoittaa nousun ja laskun
+          välistä aikaa.
+        </p>
+      </section>
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead><tr>
+            <th scope="col">Päivä</th><th scope="col">Nousu</th>
+            <th scope="col">Lasku</th><th scope="col">Valoisaa</th>
+          </tr></thead>
+          <tbody>
+            {upcoming.map((day) => (
+              <tr key={day.date.getTime()}>
+                <th scope="row">{fmtFullFi(day.date)}</th>
+                <td>{cell(day, "sunrise")}</td><td>{cell(day, "sunset")}</td>
+                <td>{fmtDaylight(day.daylight)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <section className="prose">
         <h2>
@@ -133,7 +163,10 @@ const SunCity = ({ slug }) => {
         Ajat on laskettu tähtitieteellisellä kaavalla kunnan keskustan
         koordinaateille ({city.lat.toFixed(2)}° N, {city.lon.toFixed(2)}° E).
         Auringonnousu ja -lasku ovat hetkiä, jolloin auringon yläreuna on
-        horisontissa ilmakehän taittuminen huomioiden. Tarkkuus on noin minuutti.
+        horisontissa ilmakehän taittuminen huomioiden. Ajat ovat laskennallisia
+        arvioita. Paikallinen maasto ja rakennukset voivat peittää näkyvän
+        horisontin. Laskennassa käytetään{" "}
+        <a href="https://github.com/mourner/suncalc">SunCalc-kirjastoa</a>.
       </p>
 
       <section className="prose">

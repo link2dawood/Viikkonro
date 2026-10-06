@@ -46,13 +46,14 @@ describe("English page chrome", () => {
     expect(html).not.toContain("All rights reserved.");
   });
 
-  it("puts the app links under the social links, with no English link", () => {
+  it("puts the app links under the social links and exposes the indexed English page", () => {
     const html = renderChrome("/");
     const brand = html.slice(html.indexOf("footer-brand-col"), html.indexOf(">Palvelu<"));
 
     expect(brand).toContain("footer-apps-sep");
     expect(brand).toContain('href="/android-sovellus"');
     expect(brand).toContain('href="/chrome-extension"');
-    expect(html).not.toContain('href="/en"');
+    expect(html).toContain('href="/en"');
+    expect(html).toContain('hrefLang="en"');
   });
 });

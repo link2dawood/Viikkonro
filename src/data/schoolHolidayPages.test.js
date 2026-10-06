@@ -7,23 +7,44 @@ import {
   schoolHolidayMeta,
   schoolHolidayPage,
   schoolHolidayPeriodsInWeek,
+  schoolHolidayVerifiedAt,
   schoolHolidayYears,
+  shouldLinkSchoolHolidayPage,
   tierFromGroups,
 } from "./schoolHolidayPages.js";
 
 describe("school holiday landing-page data", () => {
   it("publishes only years backed by official data", () => {
-    expect(schoolHolidayYears).toEqual([2026, 2027]);
-    expect(schoolHolidayPage(2028)).toBeNull();
+    expect(schoolHolidayYears).toEqual([2026, 2027, 2028]);
+    expect(schoolHolidayPage(2028)).not.toBeNull();
   });
 
   it("groups winter holidays into weeks 8, 9 and 10", () => {
     for (const year of schoolHolidayYears) {
-      expect(schoolHolidayPage(year).winter.map((group) => group.week)).toEqual([8, 9, 10]);
+      expect([...new Set(schoolHolidayPage(year).winter.map((group) => group.week))]).toEqual([8, 9, 10]);
     }
     expect(schoolHolidayPeriodsInWeek(2027, 8)[0].cities).toContain("Helsinki");
     expect(schoolHolidayPeriodsInWeek(2027, 9)[0].cities).toContain("Tampere");
     expect(schoolHolidayPeriodsInWeek(2027, 10)[0].cities).toContain("Oulu");
+  });
+
+  it("keeps 2028 claims city-specific and tied to official sources", () => {
+    const page = schoolHolidayPage(2028);
+    expect(page.winter.flatMap((group) => group.cities).sort()).toEqual(
+      ["Helsinki", "Joensuu", "Oulu", "Tampere", "Turku"].sort(),
+    );
+    expect(page.autumn).toHaveLength(1);
+    expect(page.autumn[0]).toMatchObject({ week: 42, cities: ["Joensuu"] });
+    expect(page.autumnUnknownCities).not.toContain("Joensuu");
+    expect(schoolHolidayVerifiedAt(2028)).toBe("2026-10-05");
+  });
+
+  it("links verified holiday hubs only during weeks 8-10 and 42-43", () => {
+    for (const week of [8, 9, 10, 42, 43]) {
+      expect(shouldLinkSchoolHolidayPage(2028, week)).toBe(true);
+    }
+    expect(shouldLinkSchoolHolidayPage(2028, 11)).toBe(false);
+    expect(shouldLinkSchoolHolidayPage(2099, 8)).toBe(false);
   });
 
   it("does not generalize Helsinki's autumn 2027 dates nationwide", () => {
@@ -61,7 +82,7 @@ describe("confidence-tier architecture", () => {
     expect(confidenceLabel(CONFIDENCE.UNKNOWN)).toBe("— Ei vahvistettu");
   });
 
-  it("both currently-published school years are fully CONFIRMED (Tier A)", () => {
+  it("all currently-published school years are fully CONFIRMED (Tier A)", () => {
     for (const year of schoolHolidayYears) {
       expect(pageConfidenceTier(year)).toBe(CONFIDENCE.CONFIRMED);
     }

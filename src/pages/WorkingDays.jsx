@@ -6,11 +6,17 @@ import AdSlot from "../components/AdSlot";
 import { canonicalFor, workingDaysFaqs, workingDaysMeta } from "../data/seo";
 import { HOLIDAY_LEGAL_BASIS, holidaysInYear } from "../data/holidays";
 import {
+  dateFromDayKey,
+  fmtFullFi,
   M_INESSIVE,
   M_SLUG,
   PRERENDER_MIN_YEAR as YEAR_MIN,
   PRERENDER_MAX_YEAR as YEAR_MAX,
 } from "../components/dateUtils";
+import {
+  KELA_WORKDAY_SOURCE,
+  WORKING_DAYS_UPDATED,
+} from "../data/workingDaysContent.js";
 
 const M_FULL = [
   "Tammikuu",
@@ -51,11 +57,13 @@ const WorkingDays = ({ year: pYear } = {}) => {
   let totalWorking = 0;
   let totalWeekend = 0;
   let totalHoliday = 0;
+  let totalKelaDays = 0;
 
   const d = new Date(y, 0, 1);
   while (d.getFullYear() === y) {
     const mi = d.getMonth();
     const dow = d.getDay();
+    if (dow !== 0 && !officialSet.has(d.toDateString())) totalKelaDays += 1;
     if (dow === 0 || dow === 6) {
       months[mi].weekend += 1;
       totalWeekend += 1;
@@ -68,6 +76,13 @@ const WorkingDays = ({ year: pYear } = {}) => {
     }
     d.setDate(d.getDate() + 1);
   }
+  const mostWorking = Math.max(...months.map((month) => month.working));
+  const fewestWorking = Math.min(...months.map((month) => month.working));
+  const monthNamesFor = (count) => months
+    .map((month, index) => ({ month, index }))
+    .filter(({ month }) => month.working === count)
+    .map(({ index }) => M_INESSIVE[index])
+    .join(", ");
 
   // Shared with prerender.js's FAQPage JSON-LD (workingDaysFaqNodes) so the
   // visible list and the schema can't drift — same discipline as the
@@ -97,7 +112,8 @@ const WorkingDays = ({ year: pYear } = {}) => {
         facts={[
           { label: "Työpäivää", value: totalWorking },
           { label: "Viikonlopun päivää", value: totalWeekend },
-          { label: "Arkipyhää (ma–pe)", value: totalHoliday },
+          { label: "Arkipyhää (ma-pe)", value: totalHoliday },
+          { label: "Kelan arkipäivää (ma-la)", value: totalKelaDays },
         ]}
       />
 
@@ -144,6 +160,35 @@ const WorkingDays = ({ year: pYear } = {}) => {
       </p>
 
       <section className="prose">
+        <p className="note-soft">
+          Sisältö ja laskusäännöt tarkistettu{" "}
+          {fmtFullFi(dateFromDayKey(WORKING_DAYS_UPDATED))}.
+        </p>
+
+        <h2>Työpäivien määrä vuonna {year}</h2>
+        <p>
+          Vuoden {year} {totalWorking} työpäivää muodostuvat arkipäivistä,
+          joista on vähennetty {totalHoliday} maanantain ja perjantain välille osuvaa
+          virallista pyhäpäivää. Viikonlopun päiviä on {totalWeekend}.
+          Eniten työpäiviä on {monthNamesFor(mostWorking)}: {mostWorking}.
+          Vähiten työpäiviä on {monthNamesFor(fewestWorking)}: {fewestWorking}.
+        </p>
+
+        <h2>Työpäivä, Kelan arkipäivä ja TES</h2>
+        <p>
+          Tämän sivun työpäivä tarkoittaa ma-pe-päivää, joka ei ole virallinen
+          pyhäpäivä. Kelan päivärahojen arkipäivissä lauantai lasketaan mukaan,
+          jos se ei ole pyhäpäivä. Siksi vuonna {year} Kelan laskutavalla on{" "}
+          <strong>{totalKelaDays} arkipäivää</strong>. Määritelmä on tarkistettu{" "}
+          <a href={KELA_WORKDAY_SOURCE}>Kelan raskausaikana-sivulta</a>.
+        </p>
+        <p>
+          Työehtosopimus eli TES voi vaikuttaa todellisiin työvuoroihin,
+          palkallisiin vapaisiin ja arkipyhien käsittelyyn. Yleinen kalenteriluku
+          ei korvaa oman sopimusalan ehtoja tai työvuorolistaa. Kahden päivämäärän
+          työ- tai Kela-päivät voit laskea <Link to="/tyopaivalaskuri">työpäivälaskurilla</Link>.
+        </p>
+
         <h2>Usein kysytyt kysymykset</h2>
         {faqs.map((item, index) => (
           <details key={item.q} open={index === 0}>

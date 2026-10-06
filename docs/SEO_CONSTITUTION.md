@@ -47,6 +47,7 @@ same content shape. Routes are single-segment Finnish keyword slugs
 `/pyhat-{year}/{slug}`, `/liputuspaivat-{year}`, `/tyopaivat-{year}`,
 `/tyopaivat-{monthSlug}-{year}`, `/koululomat-{year}`,
 `/nimipaivat/tanaan`, `/nimipaiva/{name}`, `/nimipaivat/{month}-{day}`,
+`/parillinen-pariton-viikko`,
 `/palkkapaivat-{year}`, `/kelan-maksupaivat-{year}`,
 `/elakkeen-maksupaivat-{year}`, `/kesaaika-{year}`, the observance days
 `/{isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|adventti}-{year}`, the
@@ -122,12 +123,13 @@ never an inline stub object, and (b) updating the `relationshipMap`/
 ### 4. Preserve sitemap generation
 
 **Rule**: `sitemap.xml` must keep listing every indexable HTML page, plus
-the calendar/week/month PDF URLs, plus one `<image:image>` entry per page
-that has an OG or Discover image.
+one `<image:image>` entry per page that has an OG or Discover image. Calendar,
+week, and month PDFs are deliberately excluded from the sitemap as of the
+user-approved 2026-10-06 canonical consolidation.
 
 **Lives in**: `sitemapEntries()` in `src/data/seo.js` (the page list) and
-the `urlset`/`pdfUrlset`/`weekPdfUrlset`/`monthPdfUrlset` template
-assembly plus the `<image:image>` block in `prerender.js`'s sitemap
+the `urlset` template assembly plus the `<image:image>` block in
+`prerender.js`'s sitemap
 section. Indexability is governed by `isIndexable()` against the
 `currentYear-2`..`currentYear+4` window — pages outside it are correctly
 *excluded* from the sitemap (this is intentional, not a bug — don't "fix"
@@ -137,24 +139,32 @@ it by including them).
 without adding it to `sitemapEntries()` — an unlisted-but-prerendered page
 is reachable but undiscoverable, the worst of both outcomes.
 
+Sitemap modification dates are selected by `sitemapLastmod()` in
+`src/data/sitemapMetadata.js`. Daily answers use their render date; reviewed
+content uses its recorded update date. Unknown dates are omitted, including
+PDF dates. Never infer a content modification date from a URL's calendar year
+or refresh unchanged content dates on every build. URL and image inclusion
+rules above remain unchanged.
+
 ### 5. Preserve PDF discoverability
 
 **Rule**: every calendar/week/month PDF must remain linked from (a) its
 HTML page as a visible download link, (b) an `associatedMedia`/
-`MediaObject` + `potentialAction`/`DownloadAction` schema pair, (c) a
-`<link rel="alternate">` pointer, and (d) the sitemap.
+`MediaObject` + `potentialAction`/`DownloadAction` schema pair, and (c) a
+`<link rel="alternate">` pointer. Each PDF response must also carry an HTTP
+`Link` header whose `rel="canonical"` target is its matching HTML page.
 
 **Lives in**: `calendarPdfPath()`/`weekPdfPath()`/`monthPdfPath()` in
 `seo.js` (the single-source-of-truth path builders — every consumer reads
 these, never reconstructs the path by hand), `weekPdfExtra()`/
 `monthPdfExtra()`/the inline calendar `associatedMedia` block in
-`prerender.js`, `pdfAlternateLink(url)`, and the sitemap PDF URLsets named
-above.
+`prerender.js`, `pdfAlternateLink(url)`, and the three PDF-specific Link
+header rules in `vercel.json`.
 
 **Never**: add a new PDF-generating page type using a hand-built path
 string instead of a new `*PdfPath()` function in `seo.js` — this is the
-exact pattern that has kept the download link, the schema, and the
-sitemap entry from drifting apart three times already (calendar, week,
+exact pattern that has kept the download link, schema, alternate pointer,
+and canonical mapping from drifting apart three times already (calendar, week,
 month).
 
 ### 6. Preserve image sitemap entries
@@ -427,6 +437,11 @@ Before considering an SEO/routing/schema-touching task done:
       state exactly what's confirmed, state nothing for what isn't).
 
 ## Amendments
+
+- 2026-10-06: the user explicitly approved excluding downloadable PDFs from
+  the sitemap and canonicalizing each PDF response to its HTML counterpart.
+  Visible downloads, alternate links, associated-media schema, generation,
+  crawlability, and direct access remain required.
 
 This document describes the system as it actually exists, verified
 against the code at time of writing — it is not aspirational. When the

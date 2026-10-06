@@ -12,6 +12,7 @@ node_modules
 seo-report.html
 seo-report.md
 seo-report-subject.txt
+seo-growth-report*.json
 dist
 dist-ssr
 dist-server

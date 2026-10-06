@@ -22,9 +22,13 @@ const DAY_OPTIONS = Array.from({ length: 28 }, (_, i) => i + 1);
 // One table cell: the actual payday, and the original date when it moved.
 const PaydayCell = ({ row }) => (
   <td>
-    <Link to={`/viikko-${row.week}-${row.weekYear}`}>
-      {row.weekday.slice(0, 2).toLowerCase()} {fmtShortFi(row.actual)}
-    </Link>
+    {row.weekYear >= YEAR_MIN && row.weekYear <= YEAR_MAX ? (
+      <Link to={`/viikko-${row.week}-${row.weekYear}`}>
+        {row.weekday.slice(0, 2).toLowerCase()} {fmtShortFi(row.actual)}
+      </Link>
+    ) : (
+      <>{row.weekday.slice(0, 2).toLowerCase()} {fmtShortFi(row.actual)}</>
+    )}
     {row.moved && (
       <span className="payday-moved">
         {" "}siirtyy ({row.reason.toLowerCase()} {fmtShortFi(row.nominal)})

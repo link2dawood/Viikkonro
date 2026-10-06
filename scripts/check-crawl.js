@@ -27,8 +27,8 @@
 //     name-day coverage
 //   - /en keeps English document/head signals, reciprocal hreflang, English
 //     shared chrome, and an indexable sitemap entry
-//   - every submitted PDF exists and is directly linked from rendered HTML;
-//     every generated PDF remains reachable as a user download
+//   - zero PDFs in the sitemap; every generated PDF remains directly linked
+//     from rendered HTML as a user download
 
 import { pathToFileURL } from "node:url";
 import fs from "node:fs";
@@ -134,9 +134,8 @@ const forbiddenGeneratedPath = (pathname) =>
 const forbiddenSitemapUrls = allSitemapPaths.filter(forbiddenGeneratedPath);
 const sitemapPdfUrls = allSitemapPaths.filter((pathname) => /\.pdf$/i.test(pathname));
 const sitemapUrls = allSitemapPaths
-  // The sitemap deliberately includes downloadable PDFs alongside HTML
-  // pages. Reachability for those assets is covered by the page-level link
-  // checks; this BFS compares only routes the React application can render.
+  // Asset reachability is covered by page-level link checks; this BFS
+  // compares only routes the React application can render.
   .filter((pathname) => !ASSET_EXT.test(pathname));
 
 const unreachable = sitemapUrls.filter((u) => !visited.has(u));
@@ -223,6 +222,7 @@ console.log(`Week pages with invalid title/body abbreviation coverage: ${invalid
 console.log(`Week/month/year pages with unsupported name-day descriptions: ${unsupportedNameDayDescriptionFiles.length}`);
 console.log(`Invalid English-surface signals: ${invalidEnglishSurfaceSignals.length}`);
 console.log(`Generated/submitted/directly linked PDFs: ${generatedPdfPaths.length}/${sitemapPdfUrls.length}/${discoveredPdfAnchors.size}`);
+console.log(`Unexpected PDF sitemap entries: ${sitemapPdfUrls.length}`);
 console.log(`Missing submitted PDF files: ${missingSitemapPdfFiles.length}`);
 console.log(`Submitted PDFs without a direct HTML download link: ${unlinkedSitemapPdfs.length}`);
 console.log(`Generated PDFs without a direct HTML download link: ${unlinkedGeneratedPdfs.length}`);
@@ -274,6 +274,7 @@ const failed =
   invalidWeekMetadataFiles.length > 0 ||
   unsupportedNameDayDescriptionFiles.length > 0 ||
   invalidEnglishSurfaceSignals.length > 0 ||
+  sitemapPdfUrls.length > 0 ||
   missingSitemapPdfFiles.length > 0 ||
   unlinkedSitemapPdfs.length > 0 ||
   unlinkedGeneratedPdfs.length > 0 ||

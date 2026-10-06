@@ -1,10 +1,16 @@
 import { useToday } from "../components/useToday";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { dWritten, isoYear } from "../components/dateUtils";
+import { dateFromDayKey, fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
-import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
-import { holidaysInYear } from "../data/holidays";
+import { canonicalFor, routeMeta } from "../data/seo";
+import {
+  DAY_COUNT_MODES,
+  KELA_WORKDAY_SOURCE,
+  WORKING_DAYS_UPDATED,
+  calculateDaysBetween,
+  workingDaysBetweenFaqs,
+} from "../data/workingDaysContent.js";
 
 function pad(n) {
   return n < 10 ? "0" + n : "" + n;
@@ -12,47 +18,10 @@ function pad(n) {
 function toInput(d) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
-function parse(str) {
-  if (!str) return null;
-  const p = str.split("-");
-  if (p.length !== 3) return null;
-  const d = new Date(+p[0], +p[1] - 1, +p[2]);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-// Working days (Mon–Fri minus official Finnish public holidays) between two
-// dates, inclusive. Deterministic given the two inputs.
-function compute(fromStr, toStr) {
-  const a = parse(fromStr);
-  const b = parse(toStr);
-  if (!a || !b || a > b) return null;
-
-  const officialSet = new Set();
-  for (let y = a.getFullYear(); y <= b.getFullYear(); y++) {
-    holidaysInYear(y)
-      .filter((h) => h.official)
-      .forEach((h) => officialSet.add(h.date.toDateString()));
-  }
-
-  let working = 0;
-  let holidays = 0;
-  let weekend = 0;
-  let total = 0;
-  const d = new Date(a);
-  while (d <= b) {
-    total += 1;
-    const dow = d.getDay();
-    if (dow === 0 || dow === 6) weekend += 1;
-    else if (officialSet.has(d.toDateString())) holidays += 1;
-    else working += 1;
-    d.setDate(d.getDate() + 1);
-  }
-  return { working, holidays, weekend, total, from: dWritten(a), to: dWritten(b) };
-}
-
 const WorkingDaysBetween = () => {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [mode, setMode] = useState("work");
   useEffect(() => {
     const now = new Date();
     const end = new Date(now);
@@ -60,8 +29,19 @@ const WorkingDaysBetween = () => {
     setFrom(toInput(now));
     setTo(toInput(end));
   }, []);
-  const r = compute(from, to);
-  const Y_NOW = isoYear(useToday());
+  const r = calculateDaysBetween(from, to, mode);
+  const Y_NOW = useToday().getFullYear();
+  const examples = [
+    { label: "Tavallinen työviikko", from: "2026-10-05", to: "2026-10-11" },
+    { label: "Joulukuu", from: "2026-12-01", to: "2026-12-31" },
+    { label: "Vuodenvaihde", from: "2026-12-28", to: "2027-01-03" },
+    { label: "Yksi arkipäivä", from: "2026-10-05", to: "2026-10-05" },
+  ].map((example) => ({
+    ...example,
+    result: calculateDaysBetween(example.from, example.to),
+  }));
+  const decemberWork = calculateDaysBetween("2026-12-01", "2026-12-31", "work");
+  const decemberKela = calculateDaysBetween("2026-12-01", "2026-12-31", "kela");
 
   return (
     <section className="app">
@@ -75,11 +55,23 @@ const WorkingDaysBetween = () => {
       </div>
       <h1>Työpäivälaskuri</h1>
       <p className="lead">
-        Laske työpäivien määrä kahden päivämäärän välillä. Viikonloput ja Suomen
-        viralliset arkipyhät vähennetään automaattisesti.
+        Laske työpäivät tai Kelan arkipäivät kahden päivämäärän välillä.
+        Laskuri huomioi valitun viikkosäännön ja Suomen viralliset pyhäpäivät.
       </p>
 
       <div className="lookup">
+        <div>
+          <label htmlFor="day-count-mode">Laskutapa</label>
+          <select
+            id="day-count-mode"
+            value={mode}
+            onChange={(event) => setMode(event.target.value)}
+          >
+            {Object.entries(DAY_COUNT_MODES).map(([value, option]) => (
+              <option key={value} value={value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
         <div className="two-fields">
           <div>
             <label htmlFor="from">Alkupäivä</label>
@@ -104,7 +96,7 @@ const WorkingDaysBetween = () => {
           <>
             <div className="result">
               <div className="main-text">
-                Aikavälillä on <span className="num">{r.working} työpäivää</span>.
+                Aikavälillä on <span className="num">{r.working} {r.resultLabel}</span>.
               </div>
               <div className="sub">
                 {r.from} – {r.to}
@@ -113,15 +105,15 @@ const WorkingDaysBetween = () => {
             <div className="stat-row">
               <div className="stat-box">
                 <div className="n">{r.working}</div>
-                <div className="l">Työpäivää</div>
+                <div className="l">{r.resultLabel}</div>
               </div>
               <div className="stat-box">
                 <div className="n">{r.weekend}</div>
-                <div className="l">Viikonlopun päivää</div>
+                <div className="l">{r.excludedLabel}</div>
               </div>
               <div className="stat-box">
                 <div className="n">{r.holidays}</div>
-                <div className="l">Arkipyhää (ma–pe)</div>
+                <div className="l">Pyhäpäivää ({mode === "kela" ? "ma-la" : "ma-pe"})</div>
               </div>
               <div className="stat-box">
                 <div className="n">{r.total}</div>
@@ -132,12 +124,78 @@ const WorkingDaysBetween = () => {
         )}
       </div>
       <p className="note-soft">
-        Työpäivä = maanantai–perjantai, joista on vähennetty viralliset
-        arkipyhät. Molemmat päivämäärät lasketaan mukaan.
+        {mode === "kela"
+          ? "Kelan arkipäivä = maanantai-lauantai, pois lukien pyhäpäivät."
+          : "Työpäivä = maanantai-perjantai, pois lukien viralliset pyhäpäivät."}{" "}
+        Molemmat päivämäärät lasketaan mukaan.
       </p>
 
       <div className="prose">
-        <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
+        <p className="note-soft">Sisältö päivitetty {fmtFullFi(dateFromDayKey(WORKING_DAYS_UPDATED))}.</p>
+
+        <h2>Miten työpäivien määrä lasketaan?</h2>
+        <p>
+          Laskuri käy aikavälin läpi alkupäivästä loppupäivään. Lauantait ja
+          sunnuntait kuuluvat viikonloppuun. Muista päivistä vähennetään viralliset
+          pyhäpäivät. Jäljelle jäävät päivät ovat tämän laskurin työpäiviä.
+          Työpäivien, viikonlopun päivien ja arkipyhien summa on koko aikavälin
+          kalenteripäivien määrä.
+        </p>
+        <p>
+          Jos alku- ja loppupäivä ovat sama päivä, tulos on yksi työpäivä vain,
+          jos päivä on maanantain ja perjantain välillä eikä ole pyhäpäivä.
+          Lauantaista sunnuntaihin ulottuvalla aikavälillä työpäiviä on nolla.
+          Oma työvuorolistasi voi poiketa tästä viisipäiväisen työviikon mallista.
+        </p>
+
+        <h2>Työpäivä, arkipäivä ja Kelan arkipäivä</h2>
+        <p>
+          Tässä laskurissa työpäivä tarkoittaa maanantaita, tiistaita,
+          keskiviikkoa, torstaita tai perjantaita, joka ei ole pyhäpäivä.
+          Kelan päivärahojen arkipäivään voi kuulua myös lauantai. Kelan
+          laskutavassa sunnuntait ja pyhäpäivät jäävät pois.
+        </p>
+        <p>
+          Esimerkiksi joulukuussa 2026 on <strong>{decemberWork.working} työpäivää</strong>{" "}
+          tavallisella ma-pe-laskutavalla ja <strong>{decemberKela.working} Kelan
+          arkipäivää</strong> ma-la-laskutavalla. Tarkista etuuden omat ehdot ja
+          päätöksen päivät Kelasta. Laskutavan määritelmä on tarkistettu{" "}
+          <a href={KELA_WORKDAY_SOURCE}>Kelan raskausaikana-sivulta</a>.
+        </p>
+
+        <h2>Miten TES vaikuttaa työpäivien määrään?</h2>
+        <p>
+          Työehtosopimus eli TES tai työsopimus voi määrätä työvuoroista,
+          palkallisista vapaista ja arkipyhien vaikutuksesta eri tavalla kuin
+          tämä yleinen kalenterilaskuri. Laskuri ei päättele sopimusalaasi tai
+          työvuorojasi. Käytä tulosta kalenteripohjana ja tarkista palkkaan tai
+          vapaaseen vaikuttavat ehdot omasta sopimuksestasi tai työnantajalta.
+        </p>
+
+        <h2>Esimerkkejä työpäivälaskurista</h2>
+        <div className="table-wrap">
+          <table>
+            <caption>Molemmat rajapäivät sisältyvät jokaiseen esimerkkiin.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Aikaväli</th>
+                <th scope="col">Työpäiviä</th>
+                <th scope="col">Viikonlopun päiviä</th>
+                <th scope="col">Arkipyhiä</th>
+                <th scope="col">Yhteensä</th>
+              </tr>
+            </thead>
+            <tbody>
+              {examples.map(({ label, from, result }) => (
+                <tr key={`${label}-${from}`}>
+                  <th scope="row">{label}: {result.from} - {result.to}</th>
+                  <td>{result.working}</td><td>{result.weekend}</td>
+                  <td>{result.holidays}</td><td>{result.total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <h2>Esimerkki: joulukuu 2026</h2>
         <p>
@@ -161,32 +219,17 @@ const WorkingDaysBetween = () => {
 
         <h2>Usein kysytyt kysymykset</h2>
 
-        <details open>
-          <summary>Lasketaanko jouluaatto ja juhannusaatto työpäiviksi?</summary>
-          <p>
-            Kyllä. Kumpikaan ei ole Suomen lain mukaan virallinen arkipyhä,
-            vaikka suurin osa työpaikoista on kiinni tai lyhentää työaikaa
-            niinä päivinä. Tämä laskuri noudattaa lain mukaista listaa
-            virallisista arkipyhistä.
-          </p>
-        </details>
-
-        <details>
-          <summary>Lasketaanko alku- ja loppupäivä mukaan?</summary>
-          <p>
-            Kyllä, molemmat syöttämäsi päivämäärät sisältyvät laskentaan.
-          </p>
-        </details>
-
-        <details>
-          <summary>Mistä arkipyhät haetaan?</summary>
-          <p>
-            Suomen 13 virallisesta arkipyhästä, mukaan lukien liikkuvat pyhät
-            kuten pääsiäinen, helatorstai, helluntai ja juhannuspäivä. Koko
-            lista löytyy vuoden{" "}
-            <Link to={`/pyhapaivat-${Y_NOW}`}>pyhäpäivät-sivulta</Link>.
-          </p>
-        </details>
+        {workingDaysBetweenFaqs.map(({ q, a }, index) => (
+          <details key={q} open={index === 0}>
+            <summary>{q}</summary><p>{a}</p>
+          </details>
+        ))}
+        <p>
+          <Link to={`/tyopaivat-${Y_NOW}`}>Työpäivät {Y_NOW} kuukausittain</Link>{" "}
+          ja <Link to={`/pyhapaivat-${Y_NOW}`}>vuoden {Y_NOW} pyhäpäivät</Link>.
+          Jos haluat lisätä päivämäärään tietyn määrän työpäiviä, käytä{" "}
+          <Link to="/paivamaaralaskuri">päivämäärälaskuria</Link>.
+        </p>
       </div>
 
       <p>

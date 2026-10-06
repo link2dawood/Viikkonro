@@ -133,6 +133,30 @@ const YearCalendar = ({ year: pYear } = {}) => {
           <WeekCard key={w} w={w} y={selectedYear} />
         ))}
       </div>
+      <section className="prose" id="parilliset-ja-parittomat-viikot">
+        <h2>Parilliset ja parittomat viikot {year}</h2>
+        <p>
+          Vuonna {year} on {weeks.filter((w) => w % 2 === 0).length} parillista ja{" "}
+          {weeks.filter((w) => w % 2 !== 0).length} paritonta ISO-viikkoa.
+          Viikot alkavat maanantaina ja päättyvät sunnuntaina.
+        </p>
+        {[0, 1].map((remainder) => (
+          <div key={remainder}>
+            <h3>{remainder === 0 ? "Parilliset viikot" : "Parittomat viikot"}</h3>
+            <div className="pills">
+              {weeks.filter((w) => w % 2 === remainder).map((w) => (
+                <Link className="pill" key={w} to={`/viikko-${w}-${selectedYear}`}>
+                  Viikko {w}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+        <p>
+          Viikon 53 jälkeen alkava viikko 1 on myös pariton.
+          <Link to="/parillinen-pariton-viikko"> Tarkista kuluvan viikon parillisuus</Link>.
+        </p>
+      </section>
       <h2 id="mh">Viikot kuukausittain {year} </h2>
       <div className="pills">
         {M_FULL.map((month, index) => (

@@ -20,6 +20,7 @@ import WeekDays from "./pages/WeekDays";
 import WeeksInEachMonth from "./pages/WeeksInEachMonth";
 import QuarterPage from "./pages/QuarterPage";
 import WhatWeek from "./pages/WhatWeek";
+import WeekParityPage from "./pages/WeekParityPage";
 import WeekStartsMonday from "./pages/WeekStartsMonday";
 import PrintCalendar from "./pages/PrintCalendar";
 import PublicHolidays from "./pages/PublicHolidays";
@@ -149,6 +150,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/en" element={<EnglishHome />} />
         <Route path="/mika-on-viikkonumero" element={<WhatWeek />} />
+        <Route path="/parillinen-pariton-viikko" element={<WeekParityPage />} />
         <Route path="/viikko-alkaa-maanantaista" element={<WeekStartsMonday />} />
         <Route path="/kuinka-monta-viikkoa-vuodessa" element={<WeeksInYear />} />
         <Route path="/suomi-vs-usa-viikkonumerot" element={<FinlandVsUsa />} />

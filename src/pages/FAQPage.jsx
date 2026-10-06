@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { faqCategories } from "../data/faqs";
 import SEO from "../components/SEO";
-import { routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
+import { routeMeta } from "../data/seo";
+import { dateFromDayKey, fmtFullFi } from "../components/dateUtils.js";
+import { PARITY_UPDATED } from "../data/weekParity.js";
 
 const FAQPage = () => {
   const meta = routeMeta["/ukk"];
@@ -17,7 +19,7 @@ const FAQPage = () => {
           Vastauksia yleisimpiin kysymyksiin viikkonumeroista, viikon
           alkamisesta ja ISO 8601 -standardista.
         </p>
-        <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
+        <p className="note-soft">Sisältö päivitetty {fmtFullFi(dateFromDayKey(PARITY_UPDATED))}.</p>
 
         {faqCategories.map((category, categoryIndex) => (
           <div key={category.title} className="faq-group">
