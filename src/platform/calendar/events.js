@@ -24,9 +24,22 @@ export const EVENT_KINDS = Object.freeze([
   "closure",
   "leave",
   "season",
+  "school",
   "company",
   "week",
 ]);
+
+export const EVENT_KIND_LABELS_FI = Object.freeze({
+  holiday: "Pyhäpäivä",
+  "flag-day": "Liputuspäivä",
+  payday: "Palkkapäivä",
+  closure: "Sulkupäivä",
+  leave: "Loma",
+  season: "Lomakausi",
+  school: "Koululoma",
+  company: "Yrityksen päivä",
+  week: "Viikkonumero",
+});
 
 export const MAX_EVENT_SPAN_DAYS = 400;
 export const MAX_TITLE_LENGTH = 120;

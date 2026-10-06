@@ -79,6 +79,7 @@ export function resolveLayout({ id = "year-glance", paper = "A4", orientation, m
     page,
     margin,
     content,
+    gap: { column: layout.columnGap, row: layout.rowGap },
     grid: {
       columns: layout.columns,
       rows: layout.rows,

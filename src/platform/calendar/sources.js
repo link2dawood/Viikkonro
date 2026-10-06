@@ -7,7 +7,8 @@ import { addDays } from "../../data/planningDates.js";
 import { holidaysInYear } from "../../data/holidays.js";
 import { flagDaysInYear } from "../../data/flagDayPages.js";
 import { DEFAULT_PAYDAY, paydaysInYear } from "../../data/paydayPages.js";
-import { createEvent, dayKey, sortEvents } from "./events.js";
+import { CONFIDENCE, SCHOOL_HOLIDAY_SOURCES, schoolHolidayPage } from "../../data/schoolHolidayPages.js";
+import { createEvent, dayKey, sortEvents, toDate } from "./events.js";
 import { periodToEvent } from "./periods.js";
 
 // "1. pääsiäispäivä" -> "1-paasiaispaiva"
@@ -80,13 +81,70 @@ export function paydayCalendarEvents(year, day = DEFAULT_PAYDAY) {
   );
 }
 
+/** Individual payday dates a company lists by hand ("YYYY-MM-DD" or Date). */
+export function paydayDateEvents(dates, taken = new Set()) {
+  return dates
+    .map((value) => createEvent({ id: `payday-date-${dayKey(toDate(value))}`, date: value, title: "Palkkapäivä", kind: "payday", source: "company" }))
+    .filter((e) => !taken.has(dayKey(e.date)));
+}
+
+/** Cities the school-holiday data names for a year (empty when the year has no data). */
+export function schoolHolidayCities(year) {
+  const page = schoolHolidayPage(year);
+  if (!page) return [];
+  const names = new Set();
+  for (const group of [...page.winter, ...page.autumn]) for (const city of group.cities) names.add(city);
+  return [...names].sort((a, b) => a.localeCompare(b, "fi"));
+}
+
+/** Which of a city's school holidays the data has for a year. */
+export function schoolHolidayCoverage(year, city) {
+  const page = schoolHolidayPage(year);
+  const has = (groups) => Boolean(page) && groups.some((g) => g.cities.includes(city));
+  return { winter: has(page?.winter ?? []), autumn: has(page?.autumn ?? []) };
+}
+
+/**
+ * Winter (hiihtoloma) and autumn (syysloma) holidays of one city, from the
+ * site's existing school-holiday data. A holiday the data does not have for
+ * that city and year is left out, never guessed.
+ */
+export function schoolHolidayCalendarEvents(year, city) {
+  const page = schoolHolidayPage(year);
+  if (!page || !city) return [];
+  const events = [];
+  const add = (groups, name, idPart) => {
+    for (const g of groups) {
+      if (!g.cities.includes(city)) continue;
+      const estimated = g.confidence !== CONFIDENCE.CONFIRMED;
+      events.push(
+        createEvent({
+          id: `school-${idPart}-${year}-${g.week}`,
+          date: g.startDate,
+          endDate: g.endDate,
+          title: `${name} (viikko ${g.week})${estimated ? ", arvio" : ""}`,
+          kind: "school",
+          source: "viikkonro:school-holidays",
+          description: `${SCHOOL_HOLIDAY_SOURCES[g.sourceKey].label}. Tarkista oman koulusi päivät.`,
+        }),
+      );
+    }
+  };
+  add(page.winter, "Hiihtoloma", "winter");
+  add(page.autumn, "Syysloma", "autumn");
+  return events;
+}
+
 /** Every event a calendar configuration asks for, sorted. */
 export function finnishCalendarEvents(config) {
   const { year, include } = config;
+  const ruleDays = new Set(include.paydays ? paydayCalendarEvents(year, include.paydays.day).map((e) => dayKey(e.date)) : []);
   return sortEvents([
     ...(include.holidays ? holidayCalendarEvents(year) : []),
     ...(include.flagDays ? flagDayCalendarEvents(year) : []),
     ...(include.paydays ? paydayCalendarEvents(year, include.paydays.day) : []),
+    ...paydayDateEvents(config.paydayDates, ruleDays),
+    ...(include.schoolHolidays ? schoolHolidayCalendarEvents(year, include.schoolHolidays.city) : []),
     ...(include.weekNumbers ? weekNumberEvents(year) : []),
     ...config.periods.map(periodToEvent),
     ...config.events,

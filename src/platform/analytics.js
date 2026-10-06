@@ -11,9 +11,19 @@ export const PLATFORM_EVENTS = Object.freeze([
   "export_download", // a file export was downloaded
   "checkout_start",
   "purchase",
+  // Company calendar builder (/yrityskalenteri)
+  "company_calendar_view",
+  "company_calendar_started",
+  "company_calendar_preview",
+  "company_calendar_export_attempt",
+  "company_calendar_pdf_export",
+  "company_calendar_xlsx_export",
+  "company_calendar_csv_export",
+  "company_calendar_ics_export",
+  "company_calendar_cta_click",
 ]);
 
-export const PLATFORM_TAG_KEYS = Object.freeze(["product", "source", "export_type", "tier", "year", "size"]);
+export const PLATFORM_TAG_KEYS = Object.freeze(["product", "source", "export_type", "tier", "year", "size", "layout"]);
 
 const FULL_DATE = /\d{4}-\d{2}-\d{2}/;
 

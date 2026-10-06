@@ -37,6 +37,7 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Auringonnousu ja -lasku](https://viikkonro.fi/auringonlasku): ajat tänään 15 kaupungissa Helsingistä Utsjoelle, pisin ja lyhyin päivä, yötön yö ja kaamos
 - [Tuntilaskuri](https://viikkonro.fi/tuntilaskuri): työtunnit kellonajoista taukoineen, viikon tunnit ja minuutit desimaalitunteina
 - [Vuosilomalaskuri](https://viikkonro.fi/vuosilomalaskuri): montako lomapäivää loma kuluttaa ja kertyy, ja lomavinkit: viikot, joilla loma kuluttaa vähemmän
+- [Yrityskalenteri](https://viikkonro.fi/yrityskalenteri): tee yrityksellesi oma kalenteri logolla, sulkupäivillä, palkkapäivillä ja viikkonumeroilla; esikatselu ilmainen, lataus PDF-, Excel-, CSV- ja ICS-muodossa ei vielä myynnissä
 - [Lomasuunnittelija](https://viikkonro.fi/lomasuunnittelija): pisimmät tauot omilla lomapäivillä, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin
 - [Projektiaikataulu](https://viikkonro.fi/projektiaikataulu): projektin päättymispäivä työpäivinä, viikkokohtainen aikataulu ISO-viikoilla ja välitavoitteet
 - [Sprinttisuunnittelija](https://viikkonro.fi/sprinttisuunnittelija): peräkkäisten sprinttien päivämäärät, ISO-viikot, työpäivät ja arkipyhien vaikutus kapasiteettiin

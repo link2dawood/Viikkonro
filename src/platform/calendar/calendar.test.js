@@ -6,6 +6,10 @@ import {
   flagDayCalendarEvents,
   holidayCalendarEvents,
   paydayCalendarEvents,
+  paydayDateEvents,
+  schoolHolidayCalendarEvents,
+  schoolHolidayCities,
+  schoolHolidayCoverage,
   weekNumberEvents,
 } from "./sources.js";
 import {
@@ -294,5 +298,66 @@ describe("calendar model", () => {
     const custom = buildCalendarModel(config, []);
     expect(custom.events).toEqual([]);
     expect(custom.months[1].rows.flatMap((r) => r.days).filter(Boolean).every((x) => x.events.length === 0)).toBe(true);
+  });
+});
+
+describe("school holidays by city", () => {
+  it("lists the cities the school-holiday data names for a year, and none for a year without data", () => {
+    expect(schoolHolidayCities(2026)).toContain("Helsinki");
+    expect(schoolHolidayCities(2026)).toContain("Oulu");
+    expect(schoolHolidayCities(2028).sort()).toEqual(["Helsinki", "Joensuu", "Oulu", "Tampere", "Turku"]);
+    expect(schoolHolidayCities(2029)).toEqual([]);
+    expect(schoolHolidayCities(2026)).toEqual([...schoolHolidayCities(2026)].sort((a, b) => a.localeCompare(b, "fi")));
+  });
+  it("turns a city's winter and autumn holidays into events, from the existing data", () => {
+    const events = schoolHolidayCalendarEvents(2026, "Helsinki");
+    expect(events.map((e) => [e.title, dayKey(e.date), dayKey(e.endDate)])).toEqual([
+      ["Hiihtoloma (viikko 8)", "2026-02-16", "2026-02-20"],
+      ["Syysloma (viikko 42)", "2026-10-12", "2026-10-16"],
+    ]);
+    expect(events[0]).toMatchObject({ kind: "school", source: "viikkonro:school-holidays" });
+    expect(events[0].description).toMatch(/Tarkista oman koulusi päivät/);
+    // Oulu's autumn break in 2026 is week 43, ending on Sunday.
+    expect(schoolHolidayCalendarEvents(2026, "Oulu").map((e) => dayKey(e.endDate))).toEqual(["2026-03-06", "2026-10-25"]);
+  });
+  it("leaves out a holiday the data does not have instead of guessing", () => {
+    expect(schoolHolidayCoverage(2027, "Helsinki")).toEqual({ winter: true, autumn: true });
+    expect(schoolHolidayCoverage(2027, "Tampere")).toEqual({ winter: true, autumn: false });
+    expect(schoolHolidayCalendarEvents(2027, "Tampere").map((e) => e.title)).toEqual(["Hiihtoloma (viikko 9)"]);
+    expect(schoolHolidayCalendarEvents(2027, "Atlantis")).toEqual([]);
+    expect(schoolHolidayCalendarEvents(2029, "Helsinki")).toEqual([]);
+    expect(schoolHolidayCoverage(2029, "Helsinki")).toEqual({ winter: false, autumn: false });
+  });
+  it("is part of a configuration only for a city the year has data for", () => {
+    const c = createCalendarConfig({ year: 2027, include: { schoolHolidays: { city: "Helsinki" } } });
+    expect(finnishCalendarEvents(c).filter((e) => e.kind === "school")).toHaveLength(2);
+    expect(createCalendarConfig({ year: 2027, include: { schoolHolidays: "Helsinki" } }).include.schoolHolidays).toEqual({ city: "Helsinki" });
+    expect(validateCalendarConfig({ year: 2027, include: { schoolHolidays: { city: "Atlantis" } } }).issues.join()).toMatch(/"Atlantis" is not available for 2027/);
+    expect(validateCalendarConfig({ year: 2029, include: { schoolHolidays: { city: "Helsinki" } } }).issues.join()).toMatch(/not available for 2029/);
+  });
+});
+
+describe("individual payday dates", () => {
+  it("become payday events, and a date the rule already covers is not repeated", () => {
+    const c = createCalendarConfig({ year: 2027, include: { paydays: { day: 15 } }, paydayDates: ["2027-01-15", "2027-01-20", "2027-01-20"] });
+    expect(c.paydayDates).toEqual(["2027-01-15", "2027-01-20"]); // sorted and de-duplicated
+    const paydays = finnishCalendarEvents(c).filter((e) => e.kind === "payday").map((e) => dayKey(e.date));
+    expect(paydays.filter((d) => d === "2027-01-15")).toHaveLength(1);
+    expect(paydays).toContain("2027-01-20");
+    expect(paydays).toHaveLength(13);
+    expect(paydayDateEvents(["2027-03-01"], new Set(["2027-03-01"]))).toEqual([]);
+  });
+  it("must lie in the calendar's year and are limited in number", () => {
+    expect(validateCalendarConfig({ year: 2027, paydayDates: ["2026-12-31"] }).issues.join()).toMatch(/paydayDates\[0\] must be a date in 2027/);
+    expect(validateCalendarConfig({ year: 2027, paydayDates: ["nope"] }).issues.join()).toMatch(/paydayDates\[0\]/);
+    const many = Array.from({ length: 61 }, (_, i) => `2027-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 27) + 1).padStart(2, "0")}`);
+    expect(validateCalendarConfig({ year: 2027, paydayDates: many }).issues.join()).toMatch(/At most 60/);
+  });
+  it("survive a round trip together with school holidays", () => {
+    const c = createCalendarConfig({ year: 2027, include: { schoolHolidays: { city: "Helsinki" } }, paydayDates: ["2027-06-15"] });
+    const json = JSON.parse(JSON.stringify(configToJson(c)));
+    expect(json.paydayDates).toEqual(["2027-06-15"]);
+    expect(json.include.schoolHolidays).toEqual({ city: "Helsinki" });
+    expect(configToJson(configFromJson(json))).toEqual(configToJson(c));
   });
 });

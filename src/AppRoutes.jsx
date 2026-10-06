@@ -65,6 +65,8 @@ import AnnualLeave from "./pages/AnnualLeave";
 import VacationPlanner from "./pages/VacationPlanner";
 import ProjectTimeline from "./pages/ProjectTimeline";
 import SprintPlanner from "./pages/SprintPlanner";
+import CompanyCalendar from "./pages/CompanyCalendar";
+import { COMPANY_CALENDAR_PATH } from "./data/companyCalendar";
 import PregnancyCalculator from "./pages/PregnancyCalculator";
 import PeriodCalculator from "./pages/PeriodCalculator";
 import { SUN_CITIES, SUN_HUB_PATH, sunCityPath } from "./data/sunCities";
@@ -189,6 +191,7 @@ const AppRoutes = () => {
         <Route path="/lomasuunnittelija" element={<VacationPlanner />} />
         <Route path="/projektiaikataulu" element={<ProjectTimeline />} />
         <Route path="/sprinttisuunnittelija" element={<SprintPlanner />} />
+        <Route path={COMPANY_CALENDAR_PATH} element={<CompanyCalendar />} />
         <Route path="/raskauslaskuri" element={<PregnancyCalculator />} />
         <Route path="/kuukautislaskuri" element={<PeriodCalculator />} />
         <Route path={SUN_HUB_PATH} element={<SunHub />} />

@@ -43,6 +43,7 @@ const PAGE_TYPES = [
   [/^\/ikalaskuri$/, "laskuri-ika"],
   [/^\/tuntilaskuri$/, "laskuri-tunnit"],
   [/^\/vuosilomalaskuri$/, "laskuri-vuosiloma"],
+  [/^\/yrityskalenteri$/, "yrityskalenteri"],
   [/^\/lomasuunnittelija$/, "laskuri-lomasuunnittelija"],
   [/^\/projektiaikataulu$/, "laskuri-projektiaikataulu"],
   [/^\/sprinttisuunnittelija$/, "laskuri-sprintit"],

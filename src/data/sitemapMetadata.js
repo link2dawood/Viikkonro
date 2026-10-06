@@ -1,6 +1,7 @@
 import { PARITY_UPDATED } from "./weekParity.js";
 import { WORKING_DAYS_UPDATED } from "./workingDaysContent.js";
 import { PREGNANCY_UPDATED } from "./pregnancyCalculator.js";
+import { COMPANY_CALENDAR_PATH, COMPANY_CALENDAR_UPDATED } from "./companyCalendar.js";
 import { PLANNER_UPDATED } from "./vacationPlanner.js";
 import { PROJECT_UPDATED } from "./projectTimeline.js";
 import { SPRINT_UPDATED } from "./sprintPlanner.js";
@@ -23,6 +24,7 @@ export function sitemapLastmod(path, buildDay) {
 
   if (path === "/tyopaivalaskuri") return WORKING_DAYS_UPDATED;
   if (path === "/raskauslaskuri") return PREGNANCY_UPDATED;
+  if (path === COMPANY_CALENDAR_PATH) return COMPANY_CALENDAR_UPDATED;
   if (path === "/lomasuunnittelija") return PLANNER_UPDATED;
   if (path === "/projektiaikataulu") return PROJECT_UPDATED;
   if (path === "/sprinttisuunnittelija") return SPRINT_UPDATED;

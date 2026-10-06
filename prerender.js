@@ -167,6 +167,12 @@ import {
 import { AGE_PATH, AGE_STEPS, ageFaqs } from "./src/data/ageCalculator.js";
 import { HOURS_PATH, HOURS_STEPS, hoursFaqs } from "./src/data/hoursCalculator.js";
 import { LEAVE_PATH, LEAVE_STEPS, leaveFaqs } from "./src/data/annualLeave.js";
+import {
+  COMPANY_CALENDAR_PATH,
+  COMPANY_CALENDAR_STEPS,
+  COMPANY_CALENDAR_UPDATED,
+  companyCalendarFaqs,
+} from "./src/data/companyCalendar.js";
 import { PLANNER_PATH, PLANNER_STEPS, PLANNER_UPDATED, plannerFaqs } from "./src/data/vacationPlanner.js";
 import { PROJECT_PATH, PROJECT_STEPS, PROJECT_UPDATED, projectFaqs } from "./src/data/projectTimeline.js";
 import { SPRINT_PATH, SPRINT_STEPS, SPRINT_UPDATED, sprintFaqs } from "./src/data/sprintPlanner.js";
@@ -3413,6 +3419,12 @@ for (const url of routes) {
       if (url === LEAVE_PATH) {
         nodes.push(faqPageNode(url, leaveFaqs()), howToNode(url, "Näin lasket lomapäivät", LEAVE_STEPS));
       }
+      if (url === COMPANY_CALENDAR_PATH) {
+        nodes.push(
+          faqPageNode(url, companyCalendarFaqs(), COMPANY_CALENDAR_UPDATED),
+          howToNode(url, "Näin teet yrityksellesi oman kalenterin", COMPANY_CALENDAR_STEPS),
+        );
+      }
       if (url === PLANNER_PATH) {
         nodes.push(faqPageNode(url, plannerFaqs(), PLANNER_UPDATED), howToNode(url, "Näin löydät pisimmän loman vähillä lomapäivillä", PLANNER_STEPS));
       }
@@ -4717,6 +4729,7 @@ const llmsFull =
     "  /kuukautislaskuri  - next period (last period start + cycle length), estimated ovulation (12-14 days before the next period) and fertile days, and the next six cycles; an estimate, not contraception",
     "  /raskauslaskuri  - pregnancy week (e.g. 12+3) and due date (last period + 280 days) from the last period or a known due date, key dates (ultrasound 11+0-13+6, Kela pregnancy allowance from 154 days, pregnancy leave 30-14 Kela working days before the due date) and a week calendar; an estimate, the clinic's due date comes first",
     "  /vuosilomalaskuri  - annual leave: days a holiday uses (Saturdays count, Sundays and holidays do not, per the Annual Holidays Act), days accrued (2 or 2.5 per full month), and the weeks of this and next year when a week of leave uses fewer than 6 days",
+    "  /yrityskalenteri  - company calendar builder: a Finnish company adds its logo, closure days, paydays, events, school holidays and ISO week numbers and exports a PDF, Excel, CSV or ICS calendar; the preview is free and the files are not yet for sale",
     "  /lomasuunnittelija  - vacation planner: the longest breaks a given number of leave days buys when placed between weekends and public holidays, per year, with the leave days each break uses",
     "  /projektiaikataulu  - project timeline: end date from a start date and a length in working days (or working days between two dates), ISO weeks spanned, working days per week and 25/50/75/100 percent milestones",
     "  /sprinttisuunnittelija  - sprint planner: consecutive sprints of 1-6 calendar weeks from a start date with their ISO weeks, working days and the public holidays that reduce capacity",

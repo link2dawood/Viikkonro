@@ -41,6 +41,11 @@ const TOOLS = [
     desc: "Montako lomapäivää loma kuluttaa ja kertyy, ja viikot, joilla loma kuluttaa vähemmän.",
   },
   {
+    to: "/yrityskalenteri",
+    name: "Yrityskalenteri",
+    desc: "Tee yrityksellesi oma kalenteri logolla, sulku- ja palkkapäivillä sekä viikkonumeroilla.",
+  },
+  {
     to: "/lomasuunnittelija",
     name: "Lomasuunnittelija",
     desc: "Pisimmät tauot omilla lomapäivillä, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin.",

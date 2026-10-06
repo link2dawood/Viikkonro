@@ -31,6 +31,49 @@ export function monthRows(year, monthIndex) {
   return rows;
 }
 
+const dm = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
+
+/**
+ * Every ISO week that touches the year, Monday to Sunday, as the week-number
+ * list needs it. Days outside the calendar year are shown in the range but
+ * never counted. Each week lists the events that overlap it once, with their
+ * full date range, so a multi-week closure reads the same in every week.
+ */
+export function weekList(model) {
+  const { year, config } = model;
+  const mode = config.dayRuleMode;
+  const first = addDays(new Date(year, 0, 1), -((new Date(year, 0, 1).getDay() + 6) % 7));
+  const lastDay = new Date(year, 11, 31);
+  const weeks = [];
+  for (let monday = first; monday <= lastDay; monday = addDays(monday, 7)) {
+    const sunday = addDays(monday, 6);
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const date = addDays(monday, i);
+      const inYear = date.getFullYear() === year;
+      return { date, inYear, counts: inYear && dayReason(mode, date) === null };
+    });
+    const events = model.events
+      .filter((e) => e.kind !== "week" && e.date <= sunday && (e.endDate ?? e.date) >= monday)
+      .map((e) => ({
+        title: e.title,
+        kind: e.kind,
+        from: e.date,
+        to: e.endDate ?? e.date,
+        text: e.endDate ? `${e.title} ${dm(e.date)}-${dm(e.endDate)}` : `${e.title} ${dm(e.date)}`,
+      }));
+    weeks.push({
+      week: isoWeek(monday),
+      weekYear: isoYear(monday),
+      from: monday,
+      to: sunday,
+      days,
+      workingDays: days.filter((d) => d.counts).length,
+      events,
+    });
+  }
+  return weeks;
+}
+
 /**
  * @param {import("./config.js").CalendarConfig} config
  * @param {import("./events.js").CalendarEvent[]} [events]  defaults to every event the configuration asks for

@@ -33,6 +33,9 @@ export default defineConfig(({ mode, isSsrBuild }) => {
               // rolldown (Vite 8) requires the function form of manualChunks.
               manualChunks(id) {
                 if (!id.includes("node_modules")) return;
+                // pdfkit (2 MB) is loaded on demand by the company calendar export;
+                // it must never be merged into the vendor chunk every page loads.
+                if (id.includes("pdfkit")) return "pdfkit";
                 if (id.includes("react-router")) return "router";
                 if (
                   id.includes("/react-dom/") ||

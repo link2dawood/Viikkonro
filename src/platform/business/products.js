@@ -31,8 +31,17 @@ export const PRODUCTS = Object.freeze({
     path: null,
     pricing: hypothesis("one-time", "year", 29, 59),
     features: {
-      free: ["preview", "standard-calendar"],
-      paid: ["logo", "company-days", "paydays", "xlsx", "ics", "no-watermark", "saved-configuration"],
+      free: ["preview", "watermark-preview"],
+      paid: [
+        "logo",
+        "branding",
+        "company-days",
+        "pdf-export",
+        "xlsx-export",
+        "csv-export",
+        "ics-export",
+        "no-watermark",
+      ],
     },
   },
   "excel-templates": {

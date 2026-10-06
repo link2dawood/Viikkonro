@@ -3,6 +3,7 @@
 // single tabular shape every spreadsheet export shares.
 import { WD } from "../../components/dateUtils.js";
 import { eventsToIcs } from "../calendar/events.js";
+import { weekList } from "../calendar/model.js";
 import { buildIcs } from "./ics.js";
 import { toCsv } from "./csv.js";
 import { buildXlsx } from "./xlsx.js";
@@ -69,6 +70,17 @@ export function calendarToXlsx(model) {
           { header: "Kuvaus", width: 60 },
         ],
         rows: events.map((e) => [e.date, e.endDate ?? e.date, e.kind, e.title, e.description ?? ""]),
+      },
+      {
+        name: "Viikot",
+        columns: [
+          { header: "Viikko", width: 9 },
+          { header: "Alkaa (ma)", width: 14 },
+          { header: "Päättyy (su)", width: 14 },
+          { header: `Työpäiviä ${model.year}`, width: 16 },
+          { header: "Merkittävät päivät", width: 70 },
+        ],
+        rows: weekList(model).map((w) => [w.week, w.from, w.to, w.workingDays, w.events.map((e) => e.text).join("; ")]),
       },
     ],
   });

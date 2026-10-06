@@ -7,7 +7,8 @@
  * @property {string} ink @property {string} inkSoft @property {string} accent
  * @property {string} flag @property {string} line @property {string} holidayTint
  * @property {string} weekendText @property {string} closureTint
- * @property {string} leaveTint @property {string} companyTint @property {string} background
+ * @property {string} leaveTint @property {string} seasonTint @property {string} schoolTint
+ * @property {string} companyTint @property {string} background
  */
 
 export const THEMES = Object.freeze({
@@ -24,7 +25,9 @@ export const THEMES = Object.freeze({
       weekendText: "#b5473a",
       closureTint: "#f4e3e0",
       leaveTint: "#e3ecf4",
-      companyTint: "#e3f0ea",
+      seasonTint: "#f1ecd9",
+      schoolTint: "#e3f0ea",
+      companyTint: "#e6e8f6",
       background: "#ffffff",
     },
   },
@@ -41,6 +44,8 @@ export const THEMES = Object.freeze({
       weekendText: "#6b6b6b",
       closureTint: "#e8e8e8",
       leaveTint: "#eeeeee",
+      seasonTint: "#f0f0f0",
+      schoolTint: "#f4f4f4",
       companyTint: "#f6f6f6",
       background: "#ffffff",
     },
@@ -58,6 +63,8 @@ export const THEMES = Object.freeze({
       weekendText: "#000000",
       closureTint: "#bbbbbb",
       leaveTint: "#cccccc",
+      seasonTint: "#d8d8d8",
+      schoolTint: "#e6e6e6",
       companyTint: "#eeeeee",
       background: "#ffffff",
     },

@@ -1,3 +1,4 @@
+import CompanyCalendarLink from "../components/CompanyCalendarLink";
 import { useToday } from "../components/useToday";
 import { useParams, Link } from "react-router-dom";
 import {
@@ -129,6 +130,13 @@ const PrintCalendar = ({ year: pYear } = {}) => {
           PDF sopii tulostamiseen ja jakamiseen. CSV sisältää vuoden jokaisen
           päivämäärän, viikonpäivän, ISO-viikon, viikkovuoden sekä juhla- ja
           liputuspäivät, ja sen voi avata Excelissä.
+        </p>
+        <p>
+          Tarvitsetko kalenterin yrityksellesi?{" "}
+          <CompanyCalendarLink source="tulosta">
+            Tee oma yrityskalenteri logolla ja yrityksen päivillä
+          </CompanyCalendarLink>
+          .
         </p>
         <p>
           Jos tarvitset kuukausinäkymän, avaa{" "}

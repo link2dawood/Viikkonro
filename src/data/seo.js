@@ -79,6 +79,7 @@ import { dstMeta } from "./dstPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
 import { WIDGET_EMBED_PAGE_PATH, widgetEmbedMeta } from "./weekWidget.js";
+import { COMPANY_CALENDAR_PATH, companyCalendarMeta } from "./companyCalendar.js";
 import { PARITY_PATH, parityMeta } from "./weekParity.js";
 
 // Fixed date the FAQ/explainer/calculator page COPY (not just computed data)
@@ -938,6 +939,10 @@ export const routeMeta = {
     breadcrumb: "Vuosilomalaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  [COMPANY_CALENDAR_PATH]: {
+    ...companyCalendarMeta,
+    breadcrumb: "Yrityskalenteri",
+  },
   "/lomasuunnittelija": {
     title: "Lomasuunnittelija: pitkä loma vähällä | Viikko Nro",
     description:
@@ -1053,6 +1058,7 @@ export function sitemapEntries(year) {
     { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/tuntilaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/vuosilomalaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: COMPANY_CALENDAR_PATH, changefreq: "monthly", priority: "0.8" },
     { path: "/lomasuunnittelija", changefreq: "monthly", priority: "0.7" },
     { path: "/projektiaikataulu", changefreq: "monthly", priority: "0.7" },
     { path: "/sprinttisuunnittelija", changefreq: "monthly", priority: "0.7" },

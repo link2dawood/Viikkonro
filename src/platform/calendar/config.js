@@ -12,7 +12,8 @@ import { validateBranding } from "../design/branding.js";
 import { DEFAULT_THEME, THEMES } from "../design/themes.js";
 import { DEFAULT_LAYOUT, resolveLayout } from "../design/layouts.js";
 import { PRODUCTS } from "../business/products.js";
-import { createEvent, dayKey } from "./events.js";
+import { createEvent, dayKey, toDate } from "./events.js";
+import { schoolHolidayCities } from "./sources.js";
 import { createPeriod } from "./periods.js";
 
 export const CONFIG_VERSION = 1;
@@ -20,6 +21,7 @@ export const MIN_YEAR = 2000;
 export const MAX_YEAR = 2100;
 export const MAX_COMPANY_EVENTS = 500;
 export const MAX_PERIODS = 100;
+export const MAX_PAYDAY_DATES = 60;
 export const DEFAULT_DAY_RULE = "FINLAND_PLANNER";
 
 function validatePayday(value, issues) {
@@ -30,11 +32,23 @@ function validatePayday(value, issues) {
   return null;
 }
 
+function validateSchoolHolidays(value, year, issues) {
+  if (value == null || value === false) return null;
+  const city = typeof value === "string" ? value : value.city;
+  if (Number.isInteger(year) && !schoolHolidayCities(year).includes(city)) {
+    issues.push(`School holiday data for "${city}" is not available for ${year}.`);
+    return null;
+  }
+  return Object.freeze({ city });
+}
+
 /**
  * @typedef {object} CalendarConfig
  * @property {number} year
  * @property {keyof typeof DAY_RULES} dayRuleMode
- * @property {{weekNumbers: boolean, holidays: boolean, flagDays: boolean, paydays: {day: number|string}|null}} include
+ * @property {{weekNumbers: boolean, holidays: boolean, flagDays: boolean, paydays: {day: number|string}|null,
+ *   schoolHolidays: {city: string}|null}} include
+ * @property {readonly string[]} paydayDates  individual payday dates, "YYYY-MM-DD"
  * @property {import("./events.js").CalendarEvent[]} events  company dates
  * @property {import("./periods.js").Period[]} periods  closures, leave and seasons
  * @property {import("../design/branding.js").Branding} branding
@@ -61,6 +75,16 @@ export function validateCalendarConfig(input = {}) {
     holidays: inc.holidays ?? true,
     flagDays: inc.flagDays ?? false,
     paydays: validatePayday(inc.paydays, issues),
+    schoolHolidays: validateSchoolHolidays(inc.schoolHolidays, year, issues),
+  });
+
+  const paydayDates = [];
+  const rawPaydayDates = input.paydayDates ?? [];
+  if (rawPaydayDates.length > MAX_PAYDAY_DATES) issues.push(`At most ${MAX_PAYDAY_DATES} payday dates are allowed.`);
+  rawPaydayDates.slice(0, MAX_PAYDAY_DATES).forEach((value, i) => {
+    const date = toDate(value);
+    if (!date || (Number.isInteger(year) && date.getFullYear() !== year)) issues.push(`paydayDates[${i}] must be a date in ${year}.`);
+    else paydayDates.push(dayKey(date));
   });
 
   const rawEvents = input.events ?? [];
@@ -112,6 +136,7 @@ export function validateCalendarConfig(input = {}) {
       year,
       dayRuleMode,
       include,
+      paydayDates: Object.freeze([...new Set(paydayDates)].sort()),
       events: Object.freeze(events),
       periods: Object.freeze(periods),
       branding: brandingResult.branding,
@@ -140,6 +165,7 @@ export function configToJson(config) {
     year: config.year,
     dayRuleMode: config.dayRuleMode,
     include: { ...config.include },
+    paydayDates: [...config.paydayDates],
     events: config.events.map((e) => ({
       id: e.id,
       date: dayKey(e.date),
