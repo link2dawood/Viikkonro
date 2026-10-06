@@ -6,7 +6,7 @@ import React from "react";
 export const SOCIAL_PROFILES = [
   { name: "LinkedIn", url: "https://www.linkedin.com/company/viikkonro" },
   { name: "Instagram", url: "https://www.instagram.com/viikkonro/" },
-  { name: "Pinterest", url: "https://www.pinterest.com/viikkonro/" },
+  { name: "Pinterest", url: "https://fi.pinterest.com/viikkonroo/" },
   { name: "Bluesky", url: "https://bsky.app/profile/viikkonro.bsky.social" },
 ];
 
