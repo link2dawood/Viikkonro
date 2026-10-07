@@ -3,6 +3,7 @@ import { Routes, Route, useParams, Navigate, useLocation } from "react-router-do
 import { M_SLUG, validateYear } from "./components/dateUtils";
 import { trackPageView } from "./analytics";
 import ConsentBanner from "./components/ConsentBanner";
+import NewsletterSignup from "./components/NewsletterSignup";
 import Home from "./pages/Home";
 import YearCalendar from "./pages/YearCalendar";
 import Navbar from "./components/Navbar";
@@ -150,7 +151,7 @@ const AppRoutes = () => {
       <Navbar />
       {/* Single <main> landmark wraps the routed page content (a11y: screen
           readers use it to jump to the primary content). */}
-      <main id="main">
+      <main id="main" tabIndex={-1}>
         <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/en" element={<EnglishHome />} />
@@ -231,6 +232,7 @@ const AppRoutes = () => {
       </main>
       <Footer />
       <ConsentBanner />
+      <NewsletterSignup />
     </>
   );
 };

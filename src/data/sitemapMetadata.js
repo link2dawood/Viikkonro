@@ -24,6 +24,7 @@ export function sitemapLastmod(path, buildDay) {
   ) return buildDay;
 
   if (path === "/tyopaivalaskuri") return WORKING_DAYS_UPDATED;
+  if (path === "/tietosuoja") return "2026-10-07";
   if (path === "/raskauslaskuri") return PREGNANCY_UPDATED;
   if (path === COMPANY_CALENDAR_PATH) return COMPANY_CALENDAR_UPDATED;
   if (path === "/lomasuunnittelija") return PLANNER_UPDATED;

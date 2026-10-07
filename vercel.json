@@ -151,7 +151,7 @@
         },
         {
           "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self' 'sha256-ODKUmDjr7AoAu/JjsqaTEjNqu0fmC78dp95KydrvEVo=' https://www.clarity.ms https://*.clarity.ms https://c.bing.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://api.web3forms.com; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self' 'sha256-ODKUmDjr7AoAu/JjsqaTEjNqu0fmC78dp95KydrvEVo=' https://www.clarity.ms https://*.clarity.ms https://c.bing.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://api.web3forms.com; object-src 'none'"
         },
         {
           "key": "CDN-Cache-Control",
@@ -161,6 +161,15 @@
           "key": "Link",
           "value": "</llms.txt>; rel=\"describedby\"; type=\"text/plain\"; title=\"LLM-readable site summary\", </ukk>; rel=\"help\", </tietosuoja>; rel=\"privacy-policy\", </kayttoehdot>; rel=\"terms-of-service\""
         }
+      ]
+    },
+    {
+      "source": "/api/newsletter",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "CDN-Cache-Control", "value": "no-store" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]
     },
     {

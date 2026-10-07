@@ -15,7 +15,7 @@ const PrivacyPolicy = () => {
         </div>
         <h1>Tietosuojaseloste</h1>
         <div className="prose">
-          <p>Päivitetty viimeksi: 27. syyskuuta 2026</p>
+          <p>Päivitetty viimeksi: 7. lokakuuta 2026</p>
         </div>
         <h2>1. Rekisterinpitäjä ja yhteydenotto</h2>
         <div className="prose">
@@ -56,6 +56,36 @@ const PrivacyPolicy = () => {
             <strong>Yhteydenottolomake:</strong> Jos lähetät viestin, nimi,
             sähköpostiosoite ja viestin sisältö välitetään Web3Forms-palvelulle
             viestin toimittamista varten.
+          </p>
+        </div>
+
+        <h2>Sähköpostimuistutukset</h2>
+        <div className="prose">
+          <p>
+            Jos tilaat viikoittaiset viikkonumero- ja pyhäpäivämuistutukset,
+            sähköpostiosoitteesi sekä suostumusversion, tilauspyynnön ajan ja
+            viestien kielen tiedot välitetään Brevo-palvelulle. Tilaus perustuu
+            suostumukseesi ja vahvistetaan sähköpostilinkillä. Voit perua
+            tilauksen jokaisen muistutusviestin peruutuslinkistä tai pyytää
+            tietojesi poistamista <Link to="/ota-yhteytta">ottamalla yhteyttä</Link>.
+            Tilauksen peruuttaminen ei vaikuta sivuston käyttöön.
+          </p>
+          <p>
+            Tilaajatietoja käytetään muistutusten toimittamiseen tilauksen ajan.
+            Peruutuksen jälkeen lähetysesto ja suostumuksen osoittamiseen
+            tarvittavat tiedot voidaan säilyttää vain näiden tarkoitusten
+            edellyttämän ajan. Brevon käsittelystä ja mahdollisista
+            kansainvälisistä tiedonsiirroista kerrotaan sen{" "}
+            <a href="https://www.brevo.com/legal/privacypolicy/" rel="external noopener">tietosuojakäytännössä</a>.
+          </p>
+          <p>
+            Lomakkeen avaaminen lataa Cloudflare Turnstile -varmennuksen
+            väärinkäytön estämiseksi. Cloudflare käsittelee tähän tarvittavia
+            selain- ja verkkoyhteystietoja. Lisätietoja on{" "}
+            <a href="https://www.cloudflare.com/privacypolicy/" rel="external noopener">Cloudflaren tietosuojakäytännössä</a>.
+            Lomakkeen sulkeminen tai hyväksytty tilauspyyntö tallentaa selaimeen
+            vain ajankohdan, jonka avulla pyyntö piilotetaan 30 päiväksi.
+            Sähköpostiosoitetta ei tallenneta selaimen paikalliseen muistiin.
           </p>
         </div>
 

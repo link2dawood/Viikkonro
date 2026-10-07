@@ -10,13 +10,14 @@ describe("sitemap content modification dates", () => {
     expect(sitemapLastmod("/ukk", "2026-10-06")).toBe("2026-10-06");
     expect(sitemapLastmod("/parillinen-pariton-viikko", "2026-10-06")).toBe("2026-10-06");
     expect(sitemapLastmod("/koululomat-2028", "2026-10-06")).toBe("2026-10-05");
+    expect(sitemapLastmod("/tietosuoja", "2026-10-08")).toBe("2026-10-07");
   });
 
   it("does not invent year-end or build dates for untracked resources", () => {
     for (const path of [
       "/pyhat-2020/joulu", "/kuukausi-1-2024", "/kalenteri-2027-alkuvuosi",
       "/pdf/kalenteri-2027.pdf", "/pdf/viikko-42-2026.pdf",
-      "/pdf/kuukausi-10-2026.pdf", "/tietosuoja",
+      "/pdf/kuukausi-10-2026.pdf",
     ]) expect(sitemapLastmod(path, "2026-10-06")).toBeNull();
   });
 });
