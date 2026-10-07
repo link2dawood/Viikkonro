@@ -1,3 +1,4 @@
+import CompanyCalendarLink from "../components/CompanyCalendarLink";
 import { Link } from "react-router-dom";
 import { useTodayKey } from "../components/useToday";
 import {
@@ -409,6 +410,11 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
           )}
           <li>
             <Link to={`/tulosta-${y}`}>Tulostettava viikkolista {y}</Link>
+          </li>
+          <li>
+            <CompanyCalendarLink source={print ? "tulostettava-kalenteri" : "kalenteri"}>
+              Tee yrityksellesi oma kalenteri logolla
+            </CompanyCalendarLink>
           </li>
           {!print && (
             <li>

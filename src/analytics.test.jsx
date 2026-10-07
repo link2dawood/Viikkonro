@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
-import { pageTypeOf, pdfDownloadEvents, pdfInfo } from "./analytics.js";
+import { pageTypeOf, pdfDownloadEvents, pdfInfo, plannerCreatedEvents } from "./analytics.js";
 import { homepageSeasonYear } from "./components/dateUtils.js";
 import SeasonYear from "./components/SeasonYear.jsx";
 
@@ -63,5 +63,29 @@ describe("homepage season year", () => {
     expect(html).toContain('href="/vuosi-2027"');
     expect(html).toContain('href="/tyopaivat-2027"');
     expect(html).toContain('href="/koululomat-2027"');
+  });
+});
+
+describe("planner tracking", () => {
+  it("types the three planner pages", () => {
+    expect(pageTypeOf("/lomasuunnittelija")).toBe("laskuri-lomasuunnittelija");
+    expect(pageTypeOf("/projektiaikataulu")).toBe("laskuri-projektiaikataulu");
+    expect(pageTypeOf("/sprinttisuunnittelija")).toBe("laskuri-sprintit");
+  });
+  it("sends a total and a per-planner event with coarse tags only", () => {
+    expect(
+      plannerCreatedEvents({ planner_type: "projektiaikataulu", start_month: "2027-01", end_month: "2027-04", size: 60 }),
+    ).toEqual([
+      ["set", "planner_type", "projektiaikataulu"],
+      ["set", "planner_start_month", "2027-01"],
+      ["set", "planner_end_month", "2027-04"],
+      ["set", "planner_size", "60"],
+      ["event", "planner_created"],
+      ["event", "planner_created_projektiaikataulu"],
+    ]);
+  });
+  it("ignores properties outside the allowed list, such as full dates", () => {
+    const events = plannerCreatedEvents({ planner_type: "lomasuunnittelija", year: "2027", start_date: "2027-03-22" });
+    expect(JSON.stringify(events)).not.toContain("2027-03-22");
   });
 });

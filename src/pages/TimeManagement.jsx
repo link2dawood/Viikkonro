@@ -74,8 +74,9 @@ const TimeManagement = () => {
         <p>
           Jaettava, tulostettava vuosikalenteri koko tiimin käyttöön:{" "}
           <Link to={`/kalenteri-${year}`}>Kalenteri {year}</Link>{" "}
-          (myös PDF- ja CSV-muodossa). Erillinen tiimiaikataulutyökalu on
-          suunnitteilla.
+          (myös PDF- ja CSV-muodossa). Projektin päättymispäivän ja
+          viikkoaikataulun saat <Link to="/projektiaikataulu">projektiaikataulusta</Link>{" "}
+          ja lomien ajoituksen <Link to="/lomasuunnittelija">lomasuunnittelijasta</Link>.
         </p>
 
         <h2>Sprinttisuunnittelu</h2>
@@ -84,9 +85,9 @@ const TimeManagement = () => {
           <Link to={`/q1-${year}`}>Q1</Link>,{" "}
           <Link to={`/q2-${year}`}>Q2</Link>,{" "}
           <Link to={`/q3-${year}`}>Q3</Link>,{" "}
-          <Link to={`/q4-${year}`}>Q4 {year}</Link>. Oma
-          sprinttilaskuri (aloituspäivä + kesto viikkoina → ISO-viikot) on
-          suunnitteilla.
+          <Link to={`/q4-${year}`}>Q4 {year}</Link>. Sprinttien
+          päivämäärät, ISO-viikot ja työpäivät saat{" "}
+          <Link to="/sprinttisuunnittelija">sprinttisuunnittelijasta</Link>.
         </p>
 
         <h2>Tuotantoaikataulut</h2>

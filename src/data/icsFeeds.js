@@ -4,12 +4,12 @@
 // window current); /kalenteritilaus documents them. Plain .js so both the
 // page and prerender.js read the same feed list and URLs.
 //
-// Output follows RFC 5545: CRLF line endings, content lines folded at 75
-// octets (UTF-8 aware, so "ä" is never split), TEXT values escaped.
+// Output follows RFC 5545 (see src/platform/export/ics.js).
 import { fmtShortFi, mondayOf, weeksInIsoYear } from "../components/dateUtils.js";
 import { holidaysInYear } from "./holidays.js";
 import { flagDaysInYear } from "./flagDayPages.js";
 import { holidayLinkPath } from "./holidayPages.js";
+import { buildIcs, escapeIcsText, foldIcsLine, icsDate } from "../platform/export/ics.js";
 
 export const CALENDAR_SUBSCRIPTION_PATH = "/kalenteritilaus";
 
@@ -43,74 +43,9 @@ export function icsYears(currentYear) {
   return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
 }
 
-const pad = (n) => String(n).padStart(2, "0");
-const icsDate = (d) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
-
-export function escapeIcsText(s) {
-  return String(s)
-    .replace(/\\/g, "\\\\")
-    .replace(/;/g, "\\;")
-    .replace(/,/g, "\\,")
-    .replace(/\r?\n/g, "\\n");
-}
-
-// Fold one content line at 75 octets without splitting a UTF-8 sequence.
-export function foldIcsLine(line) {
-  const enc = new TextEncoder();
-  if (enc.encode(line).length <= 75) return line;
-  const parts = [];
-  let current = "";
-  let bytes = 0;
-  let limit = 75;
-  for (const ch of line) {
-    const len = enc.encode(ch).length;
-    if (bytes + len > limit) {
-      parts.push(current);
-      current = "";
-      bytes = 0;
-      limit = 74; // continuation lines start with a space
-    }
-    current += ch;
-    bytes += len;
-  }
-  parts.push(current);
-  return parts.join("\r\n ");
-}
-
-function allDayEvent({ uid, date, summary, description, url }, stamp) {
-  const next = new Date(date);
-  next.setDate(next.getDate() + 1);
-  return [
-    "BEGIN:VEVENT",
-    `UID:${uid}`,
-    `DTSTAMP:${stamp}`,
-    `DTSTART;VALUE=DATE:${icsDate(date)}`,
-    `DTEND;VALUE=DATE:${icsDate(next)}`,
-    `SUMMARY:${escapeIcsText(summary)}`,
-    ...(description ? [`DESCRIPTION:${escapeIcsText(description)}`] : []),
-    ...(url ? [`URL:${url}`] : []),
-    "TRANSP:TRANSPARENT",
-    "END:VEVENT",
-  ];
-}
-
-export function buildIcs({ calName, calDesc, events, stamp }) {
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Viikko Nro//viikkonro.fi//FI",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
-    `X-WR-CALNAME:${escapeIcsText(calName)}`,
-    `X-WR-CALDESC:${escapeIcsText(calDesc)}`,
-    "X-WR-TIMEZONE:Europe/Helsinki",
-    "REFRESH-INTERVAL;VALUE=DURATION:P1D",
-    "X-PUBLISHED-TTL:P1D",
-    ...events.flatMap((e) => allDayEvent(e, stamp)),
-    "END:VCALENDAR",
-  ];
-  return lines.map(foldIcsLine).join("\r\n") + "\r\n";
-}
+// The serializer (escaping, folding, buildIcs) lives in the planning platform
+// so company calendars share it; the names are re-exported unchanged.
+export { buildIcs, escapeIcsText, foldIcsLine };
 
 // `inRange(year)` decides whether a page URL for that year exists, so a feed
 // never links a page that would 404.

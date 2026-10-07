@@ -79,6 +79,7 @@ import { dstMeta } from "./dstPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
 import { WIDGET_EMBED_PAGE_PATH, widgetEmbedMeta } from "./weekWidget.js";
+import { COMPANY_CALENDAR_PATH, companyCalendarMeta } from "./companyCalendar.js";
 import { PARITY_PATH, parityMeta } from "./weekParity.js";
 
 // Fixed date the FAQ/explainer/calculator page COPY (not just computed data)
@@ -938,6 +939,31 @@ export const routeMeta = {
     breadcrumb: "Vuosilomalaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  [COMPANY_CALENDAR_PATH]: {
+    ...companyCalendarMeta,
+    breadcrumb: "Yrityskalenteri",
+  },
+  "/lomasuunnittelija": {
+    title: "Lomasuunnittelija: pitkä loma vähällä | Viikko Nro",
+    description:
+      "Näe pisimmät tauot, jotka saat omilla lomapäivilläsi, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin. Pääsiäinen, joulu ja pitkät viikonloput.",
+    breadcrumb: "Lomasuunnittelija",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
+  "/projektiaikataulu": {
+    title: "Projektiaikataulu: päättymispäivä työpäivistä | Viikko Nro",
+    description:
+      "Laske projektin päättymispäivä työpäivinä tai työpäivät alku- ja loppupäivän välillä. Viikkokohtainen aikataulu ISO-viikkoineen, arkipyhät ja välitavoitteet.",
+    breadcrumb: "Projektiaikataulu",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
+  "/sprinttisuunnittelija": {
+    title: "Sprinttisuunnittelija: päivät ja viikot | Viikko Nro",
+    description:
+      "Laske peräkkäisten sprinttien päivämäärät, ISO-viikkonumerot ja työpäivät. Arkipyhät näkyvät kapasiteetissa. Valitse pituus yhdestä kuuteen viikkoa.",
+    breadcrumb: "Sprinttisuunnittelija",
+    breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
+  },
   [SUN_HUB_PATH]: {
     ...sunHubMeta(),
     breadcrumb: "Auringonnousu ja -lasku",
@@ -1032,6 +1058,10 @@ export function sitemapEntries(year) {
     { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/tuntilaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/vuosilomalaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: COMPANY_CALENDAR_PATH, changefreq: "monthly", priority: "0.8" },
+    { path: "/lomasuunnittelija", changefreq: "monthly", priority: "0.7" },
+    { path: "/projektiaikataulu", changefreq: "monthly", priority: "0.7" },
+    { path: "/sprinttisuunnittelija", changefreq: "monthly", priority: "0.7" },
     { path: "/raskauslaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/kuukautislaskuri", changefreq: "monthly", priority: "0.7" },
     { path: SUN_HUB_PATH, changefreq: "daily", priority: "0.7" },

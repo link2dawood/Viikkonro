@@ -133,6 +133,16 @@ remain visibly linked from its HTML page, represented in schema, exposed by a
 `Link` response header. The three canonical header mappings live in
 `vercel.json`.
 
+### Planning platform
+
+`src/platform/` is the shared foundation for the calendar and planning tools:
+calendar configuration, events, the month model, branding, themes, layouts,
+ICS/CSV/XLSX exports, the product catalogue and the planner registry. It sits on
+`src/data/dayRules.js`, which defines which days count per mode. Read
+[`docs/planning-platform.md`](docs/planning-platform.md) before adding a
+planner, an export or a paid product. It adds no URLs; any new page still
+follows the SEO constitution.
+
 ### Client bundles
 
 `vite.config.js` separates React, React Router, and other vendor modules into
