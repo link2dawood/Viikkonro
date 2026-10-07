@@ -7,11 +7,19 @@
 
 import { parityFaq } from "./weekParity.js";
 
+// Editorial review: 2026-10-06.
+// Week-number rules checked against the current ISO 8601-1 standard record:
+// https://www.iso.org/standard/70907.html
+export const FAQ_UPDATED = "2026-10-06";
+
 export const faqCategories = [
   {
-    title: "Kuluva viikko",
+    title: "Viikkonumero nyt ja perusteet",
     items: [
-      parityFaq,
+      {
+        q: "Mikä on viikkonumero?",
+        a: "Viikkonumero kertoo, mihin vuoden kalenteriviikkoon tietty päivä kuuluu. Suomessa käytetään ISO 8601 -standardia: viikko alkaa maanantaina, ja viikko 1 on se viikko, johon osuu vuoden ensimmäinen torstai. Vuodessa on 52 tai 53 viikkoa.",
+      },
       {
         featured: true,
         q: "Mikä viikko nyt on?",
@@ -33,6 +41,7 @@ export const faqCategories = [
         q: "Mikä on tämän viikon numero ja päivämäärät?",
         a: "Etusivu näyttää kuluvan viikon numeron sekä sen alkamis- (maanantai) ja päättymispäivän (sunnuntai).",
       },
+      parityFaq,
     ],
   },
   {

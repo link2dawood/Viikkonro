@@ -39,8 +39,10 @@ specific tradeoff and obtain an explicit user decision before implementing it.
 
 Viikko Nro (`viikkonro.fi`) is a Finnish ISO 8601 week-number, calendar, and
 date-utility site built with React, React Router, and Vite. It is a hydrated SPA
-whose indexable routes are prerendered to static HTML. There is no runtime
-application server. The contact form posts from the browser to Web3Forms.
+whose indexable routes are prerendered to static HTML. Pages have no runtime
+SSR server. The contact form posts from the browser to Web3Forms. The private
+`api/newsletter.js` Vercel Function validates signup requests and Turnstile
+tokens before requesting Brevo double opt-in. See `docs/email-signup.md`.
 
 Vercel serves the static output and Cloudflare fronts the production domain.
 

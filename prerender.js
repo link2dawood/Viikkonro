@@ -63,7 +63,7 @@ import {
 } from "./src/data/androidAppContent.js";
 import { dataSourcesFaqs, methodologyFaqs, editorialPolicyFaqs } from "./src/data/trustPages.js";
 import { datasetPageFaqs } from "./src/data/datasetPages.js";
-import { faqs, faqCategories, featuredFaqs } from "./src/data/faqs.js";
+import { FAQ_UPDATED, faqs, faqCategories, featuredFaqs } from "./src/data/faqs.js";
 import { WORKING_DAYS_UPDATED, workingDaysBetweenFaqs } from "./src/data/workingDaysContent.js";
 import {
   PARITY_PATH,
@@ -1327,7 +1327,7 @@ function faqNodes() {
     "@type": "FAQPage",
     "@id": `${SITE_URL}/ukk#faq`,
     inLanguage: "fi-FI",
-    dateModified: PARITY_UPDATED,
+    dateModified: FAQ_UPDATED,
     mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,

@@ -49,6 +49,7 @@ test("PD-01 generates every critical SEO landing page with indexable self-canoni
     ["/parillinen-pariton-viikko", /^Parillinen vai pariton viikko/],
     ["/koululomat-2028", /^Syysloma 2028/],
     ["/mika-on-viikkonumero", /^Viikkonumero:/],
+    ["/ukk", /^Viikkonumero:/],
     ["/tyopaivalaskuri", /^Työpäivälaskuri/],
     ["/tyopaivat-2026", /^Työpäivät 2026:/],
     ["/viikko-42-2026", /^Viikko 42 vuonna 2026/],
@@ -92,6 +93,7 @@ test("PD-03 emits parseable required schema on the new landing pages", () => {
     ["/parillinen-pariton-viikko", ["WebPage", "Article", "FAQPage", "BreadcrumbList"]],
     ["/koululomat-2028", ["WebPage", "Article", "FAQPage", "BreadcrumbList"]],
     ["/tyopaivalaskuri", ["WebPage", "FAQPage", "BreadcrumbList"]],
+    ["/ukk", ["WebPage", "FAQPage", "BreadcrumbList"]],
   ];
   for (const [route, requiredTypes] of cases) {
     const types = schemaTypes(structuredData(pageHtml(route)));
@@ -214,4 +216,20 @@ test("PD-10 keeps the development unlock and the 2 MB PDF library out of every p
   assert.ok(!sources[entry].includes("StartFontMetrics"), "the entry script must not embed pdfkit");
   const preloaded = [...pageHtml("/yrityskalenteri").matchAll(/rel="modulepreload"[^>]*href="\/assets\/([^"]+)"/g)].map((m) => m[1]);
   assert.ok(!preloaded.some((name) => name.startsWith("pdfkit-")), "pdfkit must not be preloaded");
+});
+
+test("PD-11 keeps the FAQ landing page focused on viikkonumero with matching schema", () => {
+  const html = withoutComments(pageHtml("/ukk"));
+  assert.ok(html.includes("<h1>Viikkonumero: usein kysytyt kysymykset</h1>"));
+  assert.ok(html.includes('href="/mika-on-viikkonumero"'));
+  assert.ok(html.includes('href="/paivamaara-viikoksi"'));
+
+  const documents = structuredData(html);
+  const faqNode = documents
+    .flatMap((document) => document["@graph"] || [document])
+    .find((node) => node["@type"] === "FAQPage" && node["@id"] === `${siteOrigin}/ukk#faq`);
+  assert.ok(faqNode, "expected /ukk FAQPage schema");
+  assert.equal(faqNode.dateModified, "2026-10-06");
+  assert.equal(faqNode.mainEntity[0].name, "Mikä on viikkonumero?");
+  assert.ok(html.indexOf("Mikä on viikkonumero?") < html.indexOf("Mikä viikko nyt on?"));
 });
