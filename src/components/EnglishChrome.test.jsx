@@ -26,6 +26,9 @@ describe("English page chrome", () => {
     expect(html).toContain("All weeks 2026 (Finnish)");
     expect(html).toContain("Calendar 2026 (Finnish)");
     expect(html).toContain("Follow us");
+    expect(html).toContain("About and contact");
+    expect(html).toContain('class="footer-featured-link" hrefLang="fi" href="/tietoa-meista"');
+    expect(html).toContain('class="footer-featured-link" hrefLang="fi" href="/ota-yhteytta"');
     expect(html).toContain("All rights reserved.");
     expect(html).toContain("Based on the international ISO 8601 standard");
     expect(html).toContain('hrefLang="fi"');
@@ -41,7 +44,10 @@ describe("English page chrome", () => {
 
     expect(html).toContain("Avaa navigointivalikko");
     expect(html).toContain(">Palvelu<");
-    expect(html).toContain(">Yritys<");
+    expect(html).toContain(">Tietoa ja yhteys<");
+    expect(html).toContain("Tutustu Viikko Nroon tai lähetä meille palautetta.");
+    expect(html).toContain('class="footer-featured-link" href="/tietoa-meista"');
+    expect(html).toContain('class="footer-featured-link" href="/ota-yhteytta"');
     expect(html).toContain("Kaikki oikeudet pidätetään");
     expect(html).not.toContain("All rights reserved.");
   });
