@@ -45,12 +45,16 @@ function Footer() {
             </ul>
           </div>
 
-          <div className="footer-links-col">
-            <h3>Information</h3>
+          <div className="footer-links-col footer-trust-col">
+            <h3>About and contact</h3>
+            <p className="footer-trust-intro">
+              Learn how Viikkonro is maintained or contact us in Finnish.
+            </p>
             <ul>
+              <li><Link className="footer-featured-link" to="/tietoa-meista" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>About us (Finnish)</Link></li>
+              <li><Link className="footer-featured-link" to="/ota-yhteytta" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Contact us (Finnish)</Link></li>
               <li><Link to="/menetelma" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Methodology (Finnish)</Link></li>
               <li><Link to="/tietolahteet" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Data sources (Finnish)</Link></li>
-              <li><Link to="/ota-yhteytta" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Contact (Finnish)</Link></li>
               <li><Link to="/tietosuoja" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Privacy notice (Finnish)</Link></li>
               <li><button type="button" className="footer-linkbtn" onClick={openConsentSettings}>Cookie settings</button></li>
             </ul>
@@ -198,27 +202,25 @@ function Footer() {
         </div>
 
         {/* Core Documents Column */}
-        <div className="footer-links-col">
-          <h3>Yritys</h3>
+        <div className="footer-links-col footer-trust-col">
+          <h3>Tietoa ja yhteys</h3>
+          <p className="footer-trust-intro">
+            Tutustu Viikko Nroon tai lähetä meille palautetta.
+          </p>
           <ul>
             <li>
-              <Link to="/en" hrefLang="en" onClick={() => window.scrollTo(0, 0)}>
-                English
+              <Link className="footer-featured-link" to="/tietoa-meista" onClick={() => window.scrollTo(0, 0)}>
+                Tietoa meistä
               </Link>
             </li>
             <li>
-              <Link to="/tietoa-meista" onClick={() => window.scrollTo(0, 0)}>
-                Tietoa meistä
+              <Link className="footer-featured-link" to="/ota-yhteytta" onClick={() => window.scrollTo(0, 0)}>
+                Yhteystiedot
               </Link>
             </li>
             <li>
               <Link to="/toimitusperiaatteet" onClick={() => window.scrollTo(0, 0)}>
                 Toimitusperiaatteet
-              </Link>
-            </li>
-            <li>
-              <Link to="/ota-yhteytta" onClick={() => window.scrollTo(0, 0)}>
-                Yhteystiedot
               </Link>
             </li>
             <li>
@@ -232,6 +234,11 @@ function Footer() {
             <li>
               <Link to="/tietosuoja" onClick={() => window.scrollTo(0, 0)}>
                 Tietosuojaseloste
+              </Link>
+            </li>
+            <li>
+              <Link to="/en" hrefLang="en" onClick={() => window.scrollTo(0, 0)}>
+                English
               </Link>
             </li>
             <li>
