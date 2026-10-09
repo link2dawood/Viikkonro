@@ -49,6 +49,7 @@
     "test:predeploy": "npm run lint && npm test && npm run build && npm run test:predeploy:artifacts && npx vite build --ssr src/entry-server.jsx --outDir dist-server && npm run check:crawl"
   },
   "dependencies": {
+    "@sentry/react": "^11.6.0",
     "@vercel/og": "^1.0.1",
     "pdfkit": "^0.19.1",
     "react": "^19.2.6",
