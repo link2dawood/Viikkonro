@@ -15,7 +15,7 @@ export function escapeIcsText(s) {
     .replace(/\\/g, "\\\\")
     .replace(/;/g, "\\;")
     .replace(/,/g, "\\,")
-    .replace(/\r?\n/g, "\\n");
+    .replace(/\r\n|\r|\n/g, "\\n");
 }
 
 // Fold one content line at 75 octets without splitting a UTF-8 sequence.
@@ -60,7 +60,16 @@ export function allDayEvent({ uid, date, endDate, summary, description, url }, s
   ];
 }
 
-export function buildIcs({ calName, calDesc, events, stamp, prodId = DEFAULT_PRODID }) {
+// UTC instants avoid floating times and ambiguous DST transitions. Calendar
+// applications display these in their selected time zone (Helsinki by default).
+export function timedEvent({ uid, startsAt, endsAt, summary, description }, stamp) {
+  const start = new Date(startsAt), end = new Date(endsAt);
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) throw new Error("Invalid timed event.");
+  const utc = (date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  return ["BEGIN:VEVENT", `UID:${uid}`, `DTSTAMP:${stamp}`, `DTSTART:${utc(start)}`, `DTEND:${utc(end)}`, `SUMMARY:${escapeIcsText(summary)}`, ...(description ? [`DESCRIPTION:${escapeIcsText(description)}`] : []), "TRANSP:OPAQUE", "END:VEVENT"];
+}
+
+export function buildIcs({ calName, calDesc, events, stamp, prodId = DEFAULT_PRODID, refresh = true }) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -70,9 +79,8 @@ export function buildIcs({ calName, calDesc, events, stamp, prodId = DEFAULT_PRO
     `X-WR-CALNAME:${escapeIcsText(calName)}`,
     `X-WR-CALDESC:${escapeIcsText(calDesc)}`,
     "X-WR-TIMEZONE:Europe/Helsinki",
-    "REFRESH-INTERVAL;VALUE=DURATION:P1D",
-    "X-PUBLISHED-TTL:P1D",
-    ...events.flatMap((e) => allDayEvent(e, stamp)),
+    ...(refresh ? ["REFRESH-INTERVAL;VALUE=DURATION:P1D", "X-PUBLISHED-TTL:P1D"] : []),
+    ...events.flatMap((e) => e.startsAt ? timedEvent(e, stamp) : allDayEvent(e, stamp)),
     "END:VCALENDAR",
   ];
   return lines.map(foldIcsLine).join("\r\n") + "\r\n";

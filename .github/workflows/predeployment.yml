@@ -31,3 +31,16 @@ jobs:
 
       - name: Run predeployment test suite
         run: npm run test:predeploy
+
+      - name: Test team authorization and tenant isolation in PostgreSQL
+        run: TEAM_POSTGRES_BIN="$(pg_config --bindir)" npm run test:team:database
+
+      - name: Install isolated browser test tooling
+        run: npm install --prefix /tmp/viikkonro-browser playwright && /tmp/viikkonro-browser/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Verify browser UI regressions
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/viikkonro-preview.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://localhost:4173/ > /dev/null && break; sleep 1; done
+          PLAYWRIGHT_MODULE=/tmp/viikkonro-browser/node_modules/playwright/index.mjs node scripts/ui-regressions.browser.mjs
+          CHECKOUT_TEST_URL=http://localhost:4173 PLAYWRIGHT_MODULE=/tmp/viikkonro-browser/node_modules/playwright/index.mjs node scripts/checkout.browser.mjs

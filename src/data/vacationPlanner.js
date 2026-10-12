@@ -7,12 +7,12 @@
 // /vuosilomalaskuri counts leave that way (FINLAND_STATUTORY_LEAVE).
 // - A break starts on the first day of a run of days off and ends on a day off,
 //   so leave days are never spent at the edge of a break.
-import { dayReason } from "./dayRules.js";
+import { dayReason, summarizeDayRange } from "./dayRules.js";
 import { plannerMode, plannerPath } from "../platform/planners.js";
 import { addDays, dm } from "./planningDates.js";
 
 export const PLANNER_PATH = plannerPath("vacation");
-export const PLANNER_UPDATED = "2026-10-06";
+export const PLANNER_UPDATED = "2026-10-10";
 export const PLANNER_BUDGETS = [1, 2, 3, 4, 5, 7, 10];
 export const MAX_LEAVE_DAYS = 30;
 const EXAMPLE_YEAR = 2027;
@@ -26,22 +26,13 @@ export const dayOffReason = (date) => dayReason(MODE, date);
 // Leave days a break from `from` to `to` (inclusive) needs under the
 // five-day-week rule.
 export function leaveDaysNeeded(from, to) {
-  let n = 0;
-  for (let d = from; d <= to; d = addDays(d, 1)) if (dayOffReason(d) === null) n += 1;
-  return n;
+  return summarizeDayRange(MODE, from, to).counted;
 }
 
 // Public holidays inside the break that fall on Monday-Friday: these are the
 // days that make the break cheap.
 function weekdayHolidays(from, to) {
-  const out = [];
-  for (let d = from; d <= to; d = addDays(d, 1)) {
-    const reason = dayOffReason(d);
-    if (reason && reason !== "Lauantai" && reason !== "Sunnuntai" && d.getDay() >= 1 && d.getDay() <= 5) {
-      out.push({ date: d, name: reason });
-    }
-  }
-  return out;
+  return summarizeDayRange(MODE, from, to).weekdayExclusions;
 }
 
 // The longest breaks that start in `year` and use at most `leaveDays` leave
@@ -120,6 +111,18 @@ export function plannerFaqs() {
     {
       q: "Mistä arkipyhät tulevat?",
       a: "Arkipyhät lasketaan samasta suomalaisesta pyhäpäivälaskennasta, jota käyttävät sivuston pyhäpäivä- ja työpäiväsivut. Liikkuvat pyhät, kuten pääsiäinen, helatorstai ja juhannus, lasketaan jokaiselle vuodelle erikseen.",
+    },
+    {
+      q: "Voinko suunnitella koko vuoden lomat samassa näkymässä?",
+      a: "Lomasuunnittelija Pro -osiossa voit lisätä henkilöiden tunnisteet, lomat, muut poissaolot, huomautukset ja yrityksen sulkupäivät yhteiseen kalenteriin. Esikatselu on ilmainen. PDF-, Excel- ja ICS-vienti ovat premium-valmiita, mutta maksaminen ei ole vielä käytössä.",
+    },
+    {
+      q: "Miten vuosiloman kulutus ja suunnittelun työpäivät erotetaan?",
+      a: "Pro-osiossa valitset loman laskentatavaksi viisipäiväisen suunnitteluviikon tai vuosilomalain mukaisen kulutuksen. Työpäivät ja käytettävyys lasketaan erikseen viisipäiväisellä suunnitteluviikolla. Sulut vähentävät käytettävyyttä, mutta eivät automaattisesti lakisääteistä loman kulutusta. Projekti- ja sprinttisääntöjä ei käytetä tässä lomasuunnittelijassa.",
+    },
+    {
+      q: "Tallennetaanko henkilöiden tiedot verkkoon?",
+      a: "Suunnitelma käsitellään selaimessa. Voit tallentaa luonnoksen samaan selaimeen erillisellä painikkeella tai tyhjentää sen. Henkilöiden nimiä, jaksoja ja huomautuksia ei lähetetä analytiikkaan eikä palvelimelle. Yhteinen näkymä tarkoittaa paikallista kalenteria, ei tiimiyhteistyötä tai julkista jakolinkkiä.",
     },
   ];
 }

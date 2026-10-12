@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { fmtFullFi, WD } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import DayRuleNote from "../components/DayRuleNote";
+import PlannerEditor from "../components/planning/PlannerEditor";
+import GrowthCTA from "../components/GrowthCTA";
 import usePlannerCreated from "../components/usePlannerCreated";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta } from "../data/seo";
@@ -145,6 +147,8 @@ const ProjectTimeline = () => {
       </div>
 
       <DayRuleNote mode="FINLAND_PROJECT" />
+      <GrowthCTA inline />
+      <PlannerEditor kind="project" start={start} workingDays={mode === "days" ? days : undefined} end={mode === "end" ? end : undefined} />
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {fmtFullFi(parseIsoDate(PROJECT_UPDATED))}.</p>
@@ -184,9 +188,10 @@ const ProjectTimeline = () => {
       </section>
 
       <p className="hub-links">
+        <Link to="/rakennuskalenteri">Rakennustyömaan viikkoaikataulu</Link>.{" "}
         Katso myös <Link to="/sprinttisuunnittelija">sprinttisuunnittelija</Link>, <Link to="/paivamaaralaskuri">päivämäärälaskuri</Link>,{" "}
         <Link to={`/tyopaivat-${year}`}>työpäivät {year}</Link>, <Link to={`/q1-${year}`}>Q1 {year}</Link> ja{" "}
-        <Link to="/laskurit">kaikki laskurit</Link>.
+        <Link to={`/vuosi-${year}`}>vuosikalenteri {year}</Link> ja <Link to="/laskurit">kaikki laskurit</Link>.
       </p>
     </section>
   );

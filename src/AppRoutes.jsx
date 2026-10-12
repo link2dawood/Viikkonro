@@ -2,6 +2,9 @@ import { useEffect } from "react";
 import { Routes, Route, useParams, Navigate, useLocation } from "react-router-dom";
 import { M_SLUG, validateYear } from "./components/dateUtils";
 import { trackPageView } from "./analytics";
+import GrowthCTA from "./components/GrowthCTA";
+import RelatedTools from "./components/RelatedTools";
+import TopicGuide from "./components/TopicGuide";
 import ConsentBanner from "./components/ConsentBanner";
 import NewsletterSignup from "./components/NewsletterSignup";
 import Home from "./pages/Home";
@@ -40,6 +43,7 @@ import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import RefundPolicy from "./pages/RefundPolicy";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
 import NamedHoliday from "./pages/NamedHoliday";
@@ -66,7 +70,12 @@ import AnnualLeave from "./pages/AnnualLeave";
 import VacationPlanner from "./pages/VacationPlanner";
 import ProjectTimeline from "./pages/ProjectTimeline";
 import SprintPlanner from "./pages/SprintPlanner";
+import ConstructionCalendar from "./pages/ConstructionCalendar";
+import HrCalendar from "./pages/HrCalendar";
+import TeamLeaveLanding from "./pages/TeamLeaveLanding";
 import CompanyCalendar from "./pages/CompanyCalendar";
+import { COMPANY_ICS_PATH } from "./data/companyIcs";
+import { TemplateCatalog, TemplateLanding } from "./pages/Templates";
 import { COMPANY_CALENDAR_PATH } from "./data/companyCalendar";
 import PregnancyCalculator from "./pages/PregnancyCalculator";
 import PeriodCalculator from "./pages/PeriodCalculator";
@@ -193,6 +202,12 @@ const AppRoutes = () => {
         <Route path="/projektiaikataulu" element={<ProjectTimeline />} />
         <Route path="/sprinttisuunnittelija" element={<SprintPlanner />} />
         <Route path={COMPANY_CALENDAR_PATH} element={<CompanyCalendar />} />
+        <Route path={COMPANY_ICS_PATH} element={<CompanyCalendar icsOnly />} />
+        <Route path="/rakennuskalenteri" element={<ConstructionCalendar />} />
+        <Route path="/hr-kalenteri" element={<HrCalendar />} />
+        <Route path="/tiimin-lomat" element={<TeamLeaveLanding />} />
+        <Route path="/kalenteripohjat" element={<TemplateCatalog />} />
+        <Route path="/kalenteripohjat/:slug" element={<TemplateLanding />} />
         <Route path="/raskauslaskuri" element={<PregnancyCalculator />} />
         <Route path="/kuukautislaskuri" element={<PeriodCalculator />} />
         <Route path={SUN_HUB_PATH} element={<SunHub />} />
@@ -211,6 +226,7 @@ const AppRoutes = () => {
         <Route path="/ota-yhteytta" element={<ContactUs />} />
         <Route path="/tietosuoja" element={<PrivacyPolicy />} />
         <Route path="/kayttoehdot" element={<TermsAndConditions />} />
+        <Route path="/palautusehdot" element={<RefundPolicy />} />
         <Route path="/nimipaivat/tanaan" element={<NameDaysToday />} />
         <Route path="/nimipaiva/:name" element={<NameDayName />} />
         <Route path="/nimipaivat/:monthDay" element={<NameDaysDate />} />
@@ -229,6 +245,9 @@ const AppRoutes = () => {
         <Route path="/:slug" element={<DynamicSlug />} />
         <Route path="*" element={<NotFound />} />
         </Routes>
+        <TopicGuide />
+        <RelatedTools />
+        <GrowthCTA />
       </main>
       <Footer />
       <ConsentBanner />

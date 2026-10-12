@@ -1,0 +1,13 @@
+select public.test_assert(not has_function_privilege('anon','public.commerce_consume(text,text)','execute'),'anonymous cannot consume commerce quotas');
+select public.test_assert(not has_function_privilege('authenticated','public.commerce_consume(text,text)','execute'),'browser users cannot bypass commerce limiter');
+select public.test_assert(not has_table_privilege('anon','public.commerce_rate_windows','select'),'commerce windows are private');
+select public.test_assert(not has_table_privilege('authenticated','public.commerce_rate_windows','insert'),'browser cannot reset commerce quotas');
+set role service_role;
+select public.commerce_consume(repeat('f',64),'checkout') from generate_series(1,6);
+reset role;
+select public.test_assert(not public.commerce_consume(repeat('f',64),'checkout'),'seventh checkout blocked');
+select public.test_assert(public.commerce_consume(repeat('e',64),'checkout'),'different bucket independent');
+select public.test_assert(public.commerce_consume(repeat('f',64),'status'),'different action independent');
+insert into public.commerce_rate_windows values(repeat('a',64),'checkout',now()-interval '2 days',1);
+select public.commerce_consume(repeat('e',64),'status');
+select public.test_assert(not exists(select 1 from public.commerce_rate_windows where bucket=repeat('a',64)),'expired pseudonymous buckets purged');

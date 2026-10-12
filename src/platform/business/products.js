@@ -8,7 +8,7 @@
  * @property {string} id
  * @property {string} name
  * @property {"consumer"|"business"} audience
- * @property {"live"|"planned"} status
+ * @property {"live"|"preview"|"planned"} status
  * @property {string|null} path  indexable URL once the product has a page
  * @property {{model: "free"|"one-time"|"subscription", period?: "year"|"month",
  *   hypothesisEur: [number, number]|null, validated: boolean}} pricing
@@ -19,16 +19,15 @@ export const PRICING_MODELS = Object.freeze(["free", "one-time", "subscription"]
 
 const free = { model: "free", hypothesisEur: null, validated: false };
 const hypothesis = (model, period, min, max) => ({ model, period, hypothesisEur: [min, max], validated: false });
-const open = { model: "subscription", period: "month", hypothesisEur: null, validated: false };
 
 /** @type {Record<string, Product>} */
 export const PRODUCTS = Object.freeze({
   "company-calendar": {
     id: "company-calendar",
-    name: "Yrityskalenteri",
+    name: "Viikkonro Yrityskalenteri",
     audience: "business",
-    status: "planned",
-    path: null,
+    status: "preview",
+    path: "/yrityskalenteri",
     pricing: hypothesis("one-time", "year", 29, 59),
     features: {
       free: ["preview", "watermark-preview"],
@@ -48,19 +47,25 @@ export const PRODUCTS = Object.freeze({
     id: "excel-templates",
     name: "Excel- ja Sheets-pohjat",
     audience: "business",
-    status: "planned",
-    path: null,
-    pricing: hypothesis("one-time", null, 9, 29),
-    features: {},
+    status: "live",
+    path: "/kalenteripohjat",
+    pricing: free,
+    features: { free: ["template-preview", "template-download"] },
   },
   "company-ics": {
     id: "company-ics",
     name: "Yrityksen ICS-kalenteri",
     audience: "business",
-    status: "planned",
-    path: null,
-    pricing: open,
+    status: "preview",
+    path: "/yrityskalenteri/ics",
+    // Included in the company-calendar export licence, not a hosted subscription.
+    pricing: hypothesis("one-time", "year", 29, 59),
     features: {},
+  },
+  "vacation-planner-pro": {
+    id: "vacation-planner-pro", name: "Lomasuunnittelija Pro", audience: "business", status: "preview", path: "/lomasuunnittelija",
+    pricing: { model: "one-time", period: "year", hypothesisEur: null, validated: false },
+    features: { free: ["preview"], paid: ["pdf-export", "xlsx-export", "ics-export"] },
   },
   "vacation-planner": {
     id: "vacation-planner",
@@ -93,37 +98,39 @@ export const PRODUCTS = Object.freeze({
     id: "construction-planner",
     name: "Rakennustyömaan viikkoaikataulu",
     audience: "business",
-    status: "planned",
-    path: null,
-    pricing: hypothesis("one-time", "year", 49, 99),
+    status: "live",
+    path: "/rakennuskalenteri",
+    pricing: free,
     features: {},
   },
   "hr-payroll-calendar": {
     id: "hr-payroll-calendar",
     name: "HR- ja palkkakalenteri",
     audience: "business",
-    status: "planned",
-    path: null,
-    pricing: hypothesis("subscription", "month", 29, 99),
+    status: "live",
+    path: "/hr-kalenteri",
+    pricing: free,
     features: {},
   },
   "team-leave-planner": {
     id: "team-leave-planner",
     name: "Tiimin lomat ja poissaolot",
     audience: "business",
-    status: "planned",
-    path: null,
-    pricing: hypothesis("subscription", "month", 12, 29),
+    status: "live",
+    path: "/tiimin-lomat",
+    pricing: free,
     features: {},
   },
   "shift-planner": {
     id: "shift-planner",
     name: "Työvuorosuunnittelu",
     audience: "business",
-    status: "planned",
+    // Implemented in the private team workspace; no indexable product URL or
+    // subscription checkout is claimed before Supabase activation.
+    status: "preview",
     path: null,
-    pricing: open,
-    features: {},
+    pricing: free,
+    features: { free: ["shift-roster", "shift-templates", "availability", "pdf-export", "xlsx-export", "ics-export"] },
   },
   "hr-deadline-toolkit": {
     id: "hr-deadline-toolkit",
@@ -151,6 +158,11 @@ export const PRODUCTS = Object.freeze({
     path: null,
     pricing: hypothesis("subscription", "month", 49, 299),
     features: {},
+  },
+  "multi-company-platform": {
+    id: "multi-company-platform", name: "Tilitoimiston asiakaskalenterit",
+    audience: "business", status: "preview", path: null, pricing: free,
+    features: { free: ["client-calendars", "company-branding", "reusable-templates", "client-permissions", "audit-history", "export-history", "pdf-export", "xlsx-export", "csv-export", "ics-export"] },
   },
 });
 

@@ -1,4 +1,4 @@
-import { isoWeek, isoYear, mondayOf } from "../components/dateUtils.js";
+import { dateFromDayKey, helsinkiDayKey, isoWeek, isoYear, mondayOf } from "../components/dateUtils.js";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -9,7 +9,9 @@ export function formatEnglishDate(date) {
   return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-export function englishWeekFacts(now = new Date()) {
+const renderDate = () => dateFromDayKey(globalThis.__VIIKKONRO_RENDER_DAY__ ?? helsinkiDayKey());
+
+export function englishWeekFacts(now = renderDate()) {
   const week = isoWeek(now);
   const year = isoYear(now);
   const monday = mondayOf(week, year);
@@ -18,7 +20,7 @@ export function englishWeekFacts(now = new Date()) {
   return { week, year, monday, sunday };
 }
 
-export function englishMeta(now = new Date()) {
+export function englishMeta(now = renderDate()) {
   const fact = englishWeekFacts(now);
   return {
     title: `Week Number Today: Week ${fact.week} of ${fact.year} | Viikko Nro`,

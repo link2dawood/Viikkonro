@@ -112,6 +112,14 @@ describe.skipIf(!hasPdftotext)("PDF renderer: text", () => {
     expect(text).toContain("Vuodenvaihteen sulku");
     expect(text).toContain("Joulusulku");
   });
+  it.each(["month-page", "week-list"])("retains every overlapping event's full Finnish title in the %s appendix", async (id) => {
+    const titles = Array.from({ length: 25 }, (_, i) => `Henkilöstön kehityspäivä ${i + 1}: Äänekosken työntekijät ja yhteistyökumppanit`);
+    const r = await render({ layout: { id }, events: titles.map((title) => ({ date: "2027-05-12", title })) });
+    const text = pdfText(r.bytes).replace(/\s+/g, " ");
+    for (const title of titles) expect(text).toContain(title);
+    expect(r.warnings.join()).toContain("Täydelliset merkinnät");
+    expect(r.pages).toBeGreaterThan(id === "month-page" ? 12 : 2);
+  });
 });
 
 describe("PDF renderer: robustness", () => {
@@ -145,13 +153,11 @@ describe("PDF renderer: robustness", () => {
     const r = await render({ branding: { companyName: "Ōsaka 東京 Oy" }, events: [{ date: "2027-03-03", title: "Päivä 🎉" }] });
     expect(r.warnings).toEqual(["Joitakin merkkejä ei voi tulostaa PDF:ään, ne on korvattu merkillä ?."]);
   });
-  it("copes with hundreds of events, many on the same day", async () => {
+  it.each(["year-glance", "month-page", "week-list"])("copes with hundreds of overlapping events in %s", async (id) => {
     const events = Array.from({ length: 300 }, (_, i) => ({ date: `2027-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 4) + 10)}`, title: `Tapahtuma numero ${i + 1} jolla on pitkä nimi` }));
-    for (const id of ["year-glance", "month-page", "week-list"]) {
-      const r = await render({ layout: { id }, events });
-      expect(latin1(r.bytes.subarray(0, 5))).toBe("%PDF-");
-      expect(r.pages).toBeGreaterThanOrEqual({ "year-glance": 4, "month-page": 12, "week-list": 2 }[id]);
-    }
+    const r = await render({ layout: { id }, events });
+    expect(latin1(r.bytes.subarray(0, 5))).toBe("%PDF-");
+    expect(r.pages).toBeGreaterThanOrEqual({ "year-glance": 4, "month-page": 12, "week-list": 2 }[id]);
   });
   it("handles overlapping closures, leave, season, school holidays and events on the same days", async () => {
     const input = {

@@ -7,48 +7,15 @@
 // ranges, so the sprint length and start weekday are the user's choice. Day
 // rule: FINLAND_SPRINT in dayRules.js (the same working days as
 // /tyopaivalaskuri; the two eves count as working days).
-import { isoWeek, isoYear } from "../components/dateUtils.js";
-import { addDays, atMidnight, dm, dmy } from "./planningDates.js";
-import { dayReason } from "./dayRules.js";
+import { atMidnight, dm, dmy } from "./planningDates.js";
+import { buildSprintTimeline, SPRINT_WEEKS, MAX_SPRINTS } from "../platform/planning/dates.js";
+export { SPRINT_WEEKS, MAX_SPRINTS };
 import { plannerMode, plannerPath } from "../platform/planners.js";
 
 export const SPRINT_PATH = plannerPath("sprint");
-export const SPRINT_UPDATED = "2026-10-06";
-const MODE = plannerMode("sprint");
-export const SPRINT_WEEKS = [1, 2, 3, 4, 5, 6];
-export const MAX_SPRINTS = 26;
+export const SPRINT_UPDATED = "2026-10-10";
 
-// The sprint plan, or null for unusable input.
-export function sprintPlan(start, weeks, count) {
-  const w = Math.trunc(Number(weeks));
-  const n = Math.trunc(Number(count));
-  if (!start || !SPRINT_WEEKS.includes(w) || !Number.isFinite(n) || n < 1 || n > MAX_SPRINTS) return null;
-  const first = atMidnight(start);
-  const nominal = w * 5;
-  return Array.from({ length: n }, (_, i) => {
-    const from = addDays(first, i * w * 7);
-    const to = addDays(from, w * 7 - 1);
-    let workingDays = 0;
-    const holidays = [];
-    for (let d = from; d <= to; d = addDays(d, 1)) {
-      const reason = dayReason(MODE, d);
-      if (reason === null) workingDays += 1;
-      else if (d.getDay() >= 1 && d.getDay() <= 5) holidays.push({ date: d, name: reason });
-    }
-    return {
-      number: i + 1,
-      from,
-      to,
-      weekFrom: isoWeek(from),
-      weekFromYear: isoYear(from),
-      weekTo: isoWeek(to),
-      weekToYear: isoYear(to),
-      workingDays,
-      capacity: Math.round((workingDays / nominal) * 100),
-      holidays,
-    };
-  });
-}
+export const sprintPlan = (start, weeks, count, firstNumber = 1) => buildSprintTimeline(start, weeks, count, firstNumber, plannerMode("sprint"));
 
 // The sprint a date falls in, or null.
 export function sprintOn(plan, date) {
@@ -73,6 +40,8 @@ export function sprintFaqs() {
   const { plan, easter, last } = sprintExample();
   const names = easter.holidays.map((h) => `${h.name.toLowerCase()} ${dm(h.date)}`);
   return [
+    { q: "Voinko jatkaa olemassa olevaa sprinttinumerointia?", a: "Voit valita ensimmäisen sprintin numeron. Seuraavat sprintit numeroidaan peräkkäin, ja sama numerointi näkyy PDF-, Excel- ja ICS-tiedostoissa." },
+    { q: "Voinko ladata sprinttisuunnitelman?", a: "Voit ladata PDF:n, Excel-tiedoston ja ICS-kalenteritiedoston maksutta ilman tiliä. Excel sisältää sprintit sekä viikko- ja kuukausikohtaiset työpäivät. Tiedot käsitellään omassa selaimessasi. ICS tuo sprintit kalenteriin eikä luo päivittyvää tilausta." },
     {
       q: "Miten sprinttien päivämäärät lasketaan?",
       a: `Ensimmäinen sprintti alkaa valitsemastasi päivästä, ja jokainen sprintti kestää valitsemasi määrän kalenteriviikkoja. Seuraava sprintti alkaa heti edellisen päätyttyä. Esimerkiksi kahden viikon sprintit ${dmy(easter.from)} alkaen päättyvät ${dmy(easter.to)}, ${dmy(plan[1].to)} ja niin edelleen, kuudes sprintti ${dmy(last.to)}.`,

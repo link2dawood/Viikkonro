@@ -97,6 +97,31 @@ const WidgetEmbed = () => {
         </ol>
       </section>
 
+      <section className="prose" id="yrityskalenteri-widget">
+        <h2>Yrityskalenteri omalle verkkosivulle</h2>
+        <p>Uusi versioitu kalenteriwidget näyttää kuukauden tai viikon, ISO-viikkonumerot ja Suomen pyhäpäivät. Voit vaihtaa väriä ja teemaa. Kalenterissa ei ole mainoksia, analytiikkaa tai kirjautumista.</p>
+        <iframe src="/widget/calendar/v1" title="Yrityskalenterin esikatselu" loading="lazy" referrerPolicy="no-referrer" style={{ width: "100%", maxWidth: 650, height: 650, border: 0 }} />
+        <h3>Upotuskoodi, versio 1</h3>
+        <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{`<iframe id="yrityskalenteri" src="${SITE_URL}/widget/calendar/v1?view=month&theme=light&color=%231f7a5c" title="Yrityskalenteri" loading="lazy" referrerpolicy="no-referrer" width="650" height="650" style="border:0;width:100%;max-width:650px"></iframe>`}</pre>
+        <p><code>view=week</code> näyttää viikon. <code>theme=dark</code> vaihtaa tummaan teemaan. <code>date=2028-02-29</code> avaa tietyn päivän; ilman päivää kalenteri seuraa Suomen aikaa. <code>holidays=false</code> piilottaa pyhät.</p>
+        <h3>Yrityksen nimi ja tapahtumat</h3>
+        <p>Lähetä tiedot upotuksen latauduttua suoraan iframeen. Tietoja ei tallenneta tai lähetetä palvelimelle. Älä lisää nimiä, tapahtumia, API-avaimia tai yksityisten kalenterien tunnisteita URL-osoitteeseen. Julkiselle verkkosivulle lisätyt tapahtumat näkyvät sen kävijöille, joten käytä vain julkaistavaksi tarkoitettuja tietoja.</p>
+        <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{`const frame = document.getElementById('yrityskalenteri');
+frame.addEventListener('load', () => {
+  frame.contentWindow.postMessage({
+    type: 'viikkonro-calendar:configure', version: 1,
+    config: {
+      view: 'month', theme: 'light', color: '#1f7a5c',
+      companyName: 'Yrityksen kalenteri',
+      events: [{ id: 'avoin-tilaisuus', date: '2027-06-15', title: 'Avoimet ovet' }]
+    }
+  }, '${SITE_URL}');
+});`}</pre>
+        <p>Asetusviesti korvaa koko määrityksen. Enintään 100 tapahtumaa, otsikko enintään 120 merkkiä. Jakson viimeinen päivä annetaan kentässä <code>endDate</code> ja se sisältyy tapahtumaan. Upotuksen korkeus on sivun ylläpitäjän määritettävä; pitkät tapahtumat tarvitsevat enemmän tilaa.</p>
+        <p>Ilmainen versio sisältää ulkoasun ja tapahtumat sekä Viikkonro.fi-lähdemerkinnän. Premium-version oma logo ja lähdemerkinnän korvaaminen odottavat varmennettua lisensointia. Maksamista tai selaimessa asetettavaa premium-avausta ei ole käytössä.</p>
+        <p>Yrityskalenterin suunnitteluun voit käyttää <Link to="/yrityskalenteri">Viikkonro Yrityskalenteria</Link>. Yksityinen tiimikalenteri säilyy erillisenä eikä sitä voi julkaista tällä upotuksella.</p>
+      </section>
+
       <section className="prose">
         <h2>Usein kysytyt kysymykset</h2>
         {faqs.map((item, index) => (

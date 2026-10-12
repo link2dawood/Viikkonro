@@ -416,6 +416,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
               Tee yrityksellesi oma kalenteri logolla
             </CompanyCalendarLink>
           </li>
+          <li><Link to="/projektiaikataulu">Projektiaikataulu ja lataukset</Link> · <Link to="/sprinttisuunnittelija">Sprinttisuunnittelija</Link></li>
           {!print && (
             <li>
               <Link to={`/tulostettava-kalenteri-${y}`}>

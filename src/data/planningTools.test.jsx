@@ -8,6 +8,7 @@ import { isWorkingDay } from "./dateCalculator.js";
 import { calculateDaysBetween } from "./workingDaysContent.js";
 import { routeMeta, sitemapEntries } from "./seo.js";
 import { sitemapLastmod } from "./sitemapMetadata.js";
+import { TOPIC_CONTENT_UPDATED } from "./pageTopics.js";
 import { ProjectResult } from "../pages/ProjectTimeline.jsx";
 import { SprintTable } from "../pages/SprintPlanner.jsx";
 import { MemoryRouter } from "react-router-dom";
@@ -186,7 +187,8 @@ describe("planning tools: SEO registration", () => {
       expect(meta.title + meta.description).not.toMatch(/–/);
       titles.add(meta.title);
       expect(sitemapEntries().some((e) => e.path === path)).toBe(true);
-      expect(sitemapLastmod(path, "2099-01-01")).toBe("2026-10-06");
+      expect(sitemapLastmod(path, "2026-10-10")).toBe("2026-10-10");
+      expect(sitemapLastmod(path, "2099-01-01")).toBe(TOPIC_CONTENT_UPDATED);
     }
     expect(titles.size).toBe(PATHS.length);
   });

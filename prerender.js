@@ -20,6 +20,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import React from "react";
 import { ImageResponse } from "@vercel/og";
 import PDFDocument from "pdfkit";
+import { buildTemplates } from "./scripts/build-templates.mjs";
+import { TEMPLATE_PATH, TEMPLATES, TEMPLATE_DEFAULT_YEAR, templateBySlug, templatePath } from "./src/platform/templates/catalog.js";
+import { templateNodes } from "./src/platform/templates/schema.js";
+import { templatePdfPath } from "./src/data/seo.js";
 import { toCsv } from "./src/platform/export/csv.js";
 import { monthRows } from "./src/platform/calendar/model.js";
 import {
@@ -72,6 +76,8 @@ import {
   parityPageFaqs,
 } from "./src/data/weekParity.js";
 import { CALENDAR_CONTENT_UPDATED, sitemapLastmod } from "./src/data/sitemapMetadata.js";
+import { PAGE_TOPICS, pageTopic, topicSchema } from "./src/data/pageTopics.js";
+import { REFUND_PATH, LEGAL_UPDATED, refundFaqs } from "./src/data/legalPolicies.js";
 import {
   fmtShortFi,
   getWeekdayName,
@@ -173,9 +179,13 @@ import {
   COMPANY_CALENDAR_UPDATED,
   companyCalendarFaqs,
 } from "./src/data/companyCalendar.js";
+import { COMPANY_ICS_PATH, COMPANY_ICS_UPDATED, COMPANY_ICS_STEPS, companyIcsFaqs } from "./src/data/companyIcs.js";
 import { PLANNER_PATH, PLANNER_STEPS, PLANNER_UPDATED, plannerFaqs } from "./src/data/vacationPlanner.js";
 import { PROJECT_PATH, PROJECT_STEPS, PROJECT_UPDATED, projectFaqs } from "./src/data/projectTimeline.js";
 import { SPRINT_PATH, SPRINT_STEPS, SPRINT_UPDATED, sprintFaqs } from "./src/data/sprintPlanner.js";
+import { CONSTRUCTION_PATH, CONSTRUCTION_UPDATED, CONSTRUCTION_STEPS, constructionFaqs } from "./src/data/constructionCalendar.js";
+import { HR_PATH, HR_UPDATED, HR_STEPS, hrFaqs } from "./src/data/hrCalendar.js";
+import { TEAM_PATH, TEAM_UPDATED, TEAM_STEPS, teamFaqs } from "./src/data/teamLeave.js";
 import { PREGNANCY_PATH, PREGNANCY_UPDATED, PREGNANCY_STEPS, pregnancyFaqs } from "./src/data/pregnancyCalculator.js";
 import { PERIOD_PATH, PERIOD_STEPS, periodFaqs } from "./src/data/periodCalculator.js";
 import { moonFaqs, phaseList } from "./src/data/moonPhases.js";
@@ -1770,6 +1780,8 @@ function jsonFeedAlternateLink(url) {
 // across — so this uses the identical regex rather than re-deriving the
 // grouping logic a second time.
 function pdfAlternateLink(url) {
+  const template = url.startsWith(`${TEMPLATE_PATH}/`) ? templateBySlug(url.slice(TEMPLATE_PATH.length + 1)) : null;
+  if (template && template.price.amount === 0) return template.yearApplicability.years.map((year) => `<link rel="alternate" type="application/pdf" title="${year}" href="${SITE_URL}${templatePdfPath(template, year)}" />`).join("\n");
   let m;
   if ((m = url.match(/^\/(?:tulostettava-)?kalenteri-(\d+)/))) {
     return `<link rel="alternate" type="application/pdf" href="${SITE_URL}${calendarPdfPath(m[1])}" />`;
@@ -2739,7 +2751,7 @@ function namedHolidayNodes(year, slug) {
       pageNode(page.path, "WebPage", {
         description: meta.description,
         datePublished: "2026-08-03",
-        dateModified: CONTENT_UPDATED,
+        dateModified: page.updated ?? CONTENT_UPDATED,
         author: { "@id": `${SITE_URL}/#organization` },
         about: { "@type": "Thing", name: `${page.displayName} ${page.year}` },
         // Holiday -> Week/Month/Year: mirrors NamedHoliday.jsx's visible
@@ -2763,7 +2775,7 @@ function namedHolidayNodes(year, slug) {
         "@id": `${url}#faq`,
         inLanguage: "fi-FI",
         datePublished: "2026-08-03",
-        dateModified: CONTENT_UPDATED,
+        dateModified: page.updated ?? CONTENT_UPDATED,
         mainEntity: faq.map((item) => ({
           "@type": "Question",
           name: item.q,
@@ -3308,6 +3320,7 @@ for (const url of routes) {
       nodes.push(...discoverImageNodes(url));
 
       if (url === "/ukk") nodes.push(...faqNodes());
+      if (url === REFUND_PATH) nodes.push(faqPageNode(url, refundFaqs(), LEGAL_UPDATED));
       if (url === "/") nodes.push(...homepageFaqNodes(), ...datasetNodes());
       // Dataset schema also lives on /avoin-data itself — the page that
       // documents these feeds is a better home for the full graph than
@@ -3419,6 +3432,11 @@ for (const url of routes) {
       if (url === LEAVE_PATH) {
         nodes.push(faqPageNode(url, leaveFaqs()), howToNode(url, "Näin lasket lomapäivät", LEAVE_STEPS));
       }
+      if (url === TEMPLATE_PATH || url.startsWith(`${TEMPLATE_PATH}/`)) nodes.push(...templateNodes(url, { siteUrl: SITE_URL, pageNode }));
+      if (url === COMPANY_ICS_PATH) nodes.push(faqPageNode(url, companyIcsFaqs(), COMPANY_ICS_UPDATED), howToNode(url, "ICS-kalenterin tuonti", COMPANY_ICS_STEPS));
+      if (url === CONSTRUCTION_PATH) nodes.push(faqPageNode(url, constructionFaqs(), CONSTRUCTION_UPDATED), howToNode(url, "Näin teet rakennuskalenterin", CONSTRUCTION_STEPS));
+      if (url === HR_PATH) nodes.push(faqPageNode(url, hrFaqs(), HR_UPDATED), howToNode(url, "Näin teet HR-kalenterin", HR_STEPS));
+      if (url === TEAM_PATH) nodes.push(faqPageNode(url, teamFaqs(), TEAM_UPDATED), howToNode(url, "Näin aloitat tiimin lomasuunnittelun", TEAM_STEPS));
       if (url === COMPANY_CALENDAR_PATH) {
         nodes.push(
           faqPageNode(url, companyCalendarFaqs(), COMPANY_CALENDAR_UPDATED),
@@ -3459,6 +3477,8 @@ for (const url of routes) {
           }),
         );
       }
+      const pageIndex = nodes.findIndex(node => node["@id"] === pageId);
+      nodes[pageIndex] = topicSchema(nodes[pageIndex],pageTopic(url,dateFromDayKey(RENDER_DAY)));
       html = html.replace(
         "</head>",
         `${jsonLdBlock([...globalJsonLdNodes, ...nodes])}</head>`,
@@ -4228,6 +4248,17 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   dateModified: FEED_BUILD_DATE,
   schemaVersion: FEED_SCHEMA_VERSION,
 
+  semanticTopics: Object.entries(PAGE_TOPICS).map(([id,topic]) => ({
+    id: `${canonicalFor(topic.hub)}#topic-${id}`,
+    name: topic.name,
+    hub: canonicalFor(topic.hub),
+    relationship: "WebPage.about; WebPage.relatedLink mirrors visible guide links",
+  })),
+  legalResources: ["/tietoa-meista", "/tietosuoja", "/kayttoehdot", REFUND_PATH].map(url => ({
+    url: canonicalFor(url), pageEntityId: `${canonicalFor(url)}#webpage`,
+    description: metaFor(url).description,
+  })),
+
   namingConventions: {
     pageEntityId: "{canonicalUrl}#webpage — every page's own node id",
     subResourceId:
@@ -4241,6 +4272,13 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   // pattern, the schema.org @type actually used for its #webpage node,
   // a real example, and (for finite families) the exact count.
   entityMap: [
+    { entity: "Construction Weekly Planner", schemaType: "WebPage, FAQPage, HowTo", urlPattern: CONSTRUCTION_PATH, idPattern: `${SITE_URL}${CONSTRUCTION_PATH}#webpage`, example: `${SITE_URL}${CONSTRUCTION_PATH}`, count: "1 local editor; private generated files, no public project feed" },
+    { entity: "HR Calendar", schemaType: "WebPage, FAQPage, HowTo", urlPattern: HR_PATH, idPattern: `${SITE_URL}${HR_PATH}#webpage`, example: `${SITE_URL}${HR_PATH}`, count: "1 local editor; separate calendar, company, statutory and agreement origins; private exports" },
+    { entity: "Team Leave Planner Guide", schemaType: "WebPage, FAQPage, HowTo", urlPattern: TEAM_PATH, idPattern: `${SITE_URL}${TEAM_PATH}#webpage`, example: `${SITE_URL}${TEAM_PATH}`, count: "1 public guide; authenticated organization records are not public resources" },
+    { entity: "Company ICS guide", schemaType: "WebPage, FAQPage, HowTo", urlPattern: COMPANY_ICS_PATH, idPattern: `${SITE_URL}${COMPANY_ICS_PATH}#webpage`, example: `${SITE_URL}${COMPANY_ICS_PATH}`, count: "1 private-file editor and import guide; no hosted company feed" },
+    { entity: "Template catalog", schemaType: "CollectionPage", urlPattern: TEMPLATE_PATH, idPattern: `${SITE_URL}${TEMPLATE_PATH}#webpage`, example: `${SITE_URL}${TEMPLATE_PATH}`, count: 1 },
+    { entity: "Planning template", schemaType: "WebPage / CreativeWork", urlPattern: `${TEMPLATE_PATH}/{slug}`, idPattern: `${SITE_URL}${TEMPLATE_PATH}/{slug}#webpage`, example: `${SITE_URL}${templatePath(TEMPLATES[0])}`, count: TEMPLATES.length },
+    { entity: "Template asset", schemaType: "MediaObject", urlPattern: "/pohjat/{slug}/{year}.{xlsx|csv|pdf}", example: `${SITE_URL}${templatePdfPath(TEMPLATES[0], TEMPLATE_DEFAULT_YEAR)}`, count: TEMPLATES.reduce((count, template) => count + template.downloadableAssets.length, 0) },
     {
       entity: "Week",
       schemaType: "WebPage",
@@ -4381,6 +4419,14 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
       count: `${ICS_FEEDS.length} feeds, documented on ${CALENDAR_SUBSCRIPTION_PATH}`,
     },
     {
+      entity: "BusinessWidget",
+      schemaType: "none (noindex iframe embed target)",
+      urlPattern: "/widget/calendar/v1",
+      idPattern: "n/a; documented on the existing embed page",
+      example: `${SITE_URL}/widget/calendar/v1`,
+      count: `1 versioned calendar widget, documented on ${WIDGET_EMBED_PAGE_PATH}#yrityskalenteri-widget`,
+    },
+    {
       entity: "Widget",
       schemaType: "none (noindex iframe embed target)",
       urlPattern: WEEK_WIDGET_PATH,
@@ -4419,6 +4465,9 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   // edge actually present in the live JSON-LD, described as (from, relation,
   // to, cardinality). "to"/"from" are entity types from entityMap above.
   relationshipMap: [
+    { from: "Template catalog", to: "Planning template", relation: "hasPart", cardinality: `one-to-${TEMPLATES.length}` },
+    { from: "Planning template", to: "Template asset", relation: "associatedMedia", cardinality: "one-to-many" },
+    { from: "Planning template", to: "Template catalog", relation: "isPartOf", cardinality: "many-to-one" },
     { from: "Week", relation: "isPartOf", to: "Year", cardinality: "many-to-one" },
     { from: "Month", relation: "isPartOf", to: "Quarter", cardinality: "many-to-one" },
     { from: "Month", relation: "isPartOf", to: "Year", cardinality: "many-to-one" },
@@ -4464,6 +4513,9 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   // entity so a consumer can look up "what does a Week page link to / get
   // linked from" in one place instead of scanning the whole edge list.
   internalLinkingMap: {
+    "Company ICS guide": { linksTo: ["Company calendar", "Calendar subscription"], linkedFrom: ["Company calendar"] },
+    "Template catalog": { linksTo: ["Planning template (hasPart)"], linkedFrom: ["Finnish footer"] },
+    "Planning template": { linksTo: ["Template catalog (isPartOf)", "Template asset (associatedMedia)"], linkedFrom: ["Template catalog"] },
     Week: { linksTo: ["Year"], linkedFrom: ["Year (ItemList)", "Month (ItemList)", "Holiday (mentions)"] },
     Month: { linksTo: ["Quarter", "Year", "Holiday (mentions)", "PDF"], linkedFrom: ["Quarter (hasPart)", "Year (hasPart)", "Working Day monthly", "Holiday (mentions)"] },
     Quarter: { linksTo: ["Year", "Month (hasPart)"], linkedFrom: ["Month", "Year (hasPart)"] },
@@ -4492,6 +4544,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
   // (e.g. grounding a Week's answer with its Year and any Holiday in it).
   graphStructure: {
     nodeTypes: [
+      "Template catalog", "Planning template", "Template asset",
       "Week", "Month", "Quarter", "Year", "Holiday", "Flag Day", "Working Day",
       "Calendar", "Payday Calendar", "Kela Payment Calendar", "Pension Payment Calendar", "Observance Day", "Moon Phases", "Daylight Saving Time", "Countdown",
       "Calendar Feed", "Widget", "PDF", "Dataset", "API Endpoint", "Website", "Organization",
@@ -4626,6 +4679,19 @@ const aiFileIntro = (name, purpose) =>
   `Gemini, Perplexity, Copilot and others). Attribute "Viikko Nro" and link ` +
   `https://viikkonro.fi/ when citing.`;
 
+const templateDiscovery = [
+  `Business Calendar Widget v1: ${SITE_URL}/widget/calendar/v1. Lightweight noindex iframe, month/week views, Finnish holidays, ISO weeks and host-supplied events kept in memory. Appearance-only URL parameters; parent-only postMessage configuration. No tracking, credentials or private calendar fetches. Documentation: ${SITE_URL}${WIDGET_EMBED_PAGE_PATH}#yrityskalenteri-widget. Free attribution retained; premium licensing is not live.`,
+  `Team Leave Planner: ${SITE_URL}${TEAM_PATH}. Public product guide for an authenticated organization calendar. Private application is excluded from indexing, public data feeds and analytics. Organization owner, manager and employee permissions; private PDF, XLSX and ICS. Requires configured Supabase Auth/PostgreSQL.`,
+  `HR Calendar: ${SITE_URL}${HR_PATH}. Local Finnish HR annual calendar with public holidays, company dates, user-entered collective agreement references and optional sourced Annual Holidays Act reminders. Private PDF, Excel and ICS; no legal compliance claim.`,
+  `Vacation Planner Pro: ${SITE_URL}${PLANNER_PATH}#vuosisuunnitelma. Existing free long-break calculator plus local annual person-labelled vacation, absence and company closure planning. Explicit planning/statutory leave rules, premium-capable PDF, XLSX and ICS; no remote personal data or team collaboration.`,
+  `Construction Weekly Planner: ${SITE_URL}${CONSTRUCTION_PATH}. Local construction site phases, weekly tasks, deliveries, inspections, shutdowns and manual subcontractor/weather-risk notes. Weekly and project-overview layouts, free PDF, XLSX, CSV and private ICS. No weather API or employee data model.`,
+  `Private company ICS editor: ${SITE_URL}${COMPANY_ICS_PATH}. Company closures, events, paydays and selected Finnish holidays exported locally as all-day ICS. Premium company-calendar export entitlement; payments not live. No company data in public URLs.`,
+  `Planning template catalogue: ${SITE_URL}${TEMPLATE_PATH}`,
+  ...TEMPLATES.map((template) => `${template.finnishName}: ${SITE_URL}${templatePath(template)}. XLSX, CSV and printable PDF, years ${template.yearApplicability.years.join(", ")}. Free, no account.`),
+  `Template assets: ${SITE_URL}/pohjat/{slug}/{year}.{xlsx|csv|pdf}. CSV is the main planning sheet; XLSX includes instructions and a daily date reference. Templates use the existing Finnish calendar engine.`,
+  `Example printable template: ${SITE_URL}${templatePdfPath(TEMPLATES[0], TEMPLATE_DEFAULT_YEAR)}. Canonical HTML: ${SITE_URL}${templatePath(TEMPLATES[0])}.`,
+].join("\n");
+
 const llmsFull =
   [
     "# Viikko Nro — Reference Index for AI Systems",
@@ -4729,10 +4795,13 @@ const llmsFull =
     "  /kuukautislaskuri  - next period (last period start + cycle length), estimated ovulation (12-14 days before the next period) and fertile days, and the next six cycles; an estimate, not contraception",
     "  /raskauslaskuri  - pregnancy week (e.g. 12+3) and due date (last period + 280 days) from the last period or a known due date, key dates (ultrasound 11+0-13+6, Kela pregnancy allowance from 154 days, pregnancy leave 30-14 Kela working days before the due date) and a week calendar; an estimate, the clinic's due date comes first",
     "  /vuosilomalaskuri  - annual leave: days a holiday uses (Saturdays count, Sundays and holidays do not, per the Annual Holidays Act), days accrued (2 or 2.5 per full month), and the weeks of this and next year when a week of leave uses fewer than 6 days",
+    "  /yrityskalenteri/ics - private company ICS file editor and Google, Outlook and Apple import instructions; no company subscription URLs or hosted private data",
     "  /yrityskalenteri  - company calendar builder: a Finnish company adds its logo, closure days, paydays, events, school holidays and ISO week numbers and exports a PDF, Excel, CSV or ICS calendar; the preview is free and the files are not yet for sale",
     "  /lomasuunnittelija  - vacation planner: the longest breaks a given number of leave days buys when placed between weekends and public holidays, per year, with the leave days each break uses",
-    "  /projektiaikataulu  - project timeline: end date from a start date and a length in working days (or working days between two dates), ISO weeks spanned, working days per week and 25/50/75/100 percent milestones",
-    "  /sprinttisuunnittelija  - sprint planner: consecutive sprints of 1-6 calendar weeks from a start date with their ISO weeks, working days and the public holidays that reduce capacity",
+    "  /projektiaikataulu  - project timeline: working days, ISO weeks, months, phases, finish-to-start dependencies and milestones. Free browser-generated PDF, XLSX and private ICS exports; no account or remote plan storage.",
+    "  /sprinttisuunnittelija  - sprint planner: consecutive sprints of 1-6 calendar weeks, continued numbering, ISO weeks, working days and public-holiday capacity. Free browser-generated PDF, XLSX and private ICS exports.",
+    "  /rakennuskalenteri - construction weekly planner: site phases, weekly tasks, deliveries, inspections, milestones, shutdowns and manual risk notes. Weekly/project overview, print, PDF, XLSX, CSV and private ICS; no account or weather API.",
+    "  /hr-kalenteri - HR annual calendar: public holidays, company dates, paydays, payroll deadlines, communication, vacation periods and sourced optional statutory reminders. Private PDF, XLSX and ICS; no compliance guarantee.",
     `  /{${OFFSETS.join("|")}}-paivaa-eteenpain  - the date N days from today (rebuilt daily), plus N days from the 1st of every month`,
     "  /viikonpaiva  — look up the weekday of any date (shareable result)",
     "",
@@ -4745,7 +4814,7 @@ const llmsFull =
     "  /ukk  — full FAQ page (Finnish; same content as the FAQ section of this document)",
     "  /avoin-data  — documentation for the /data/ JSON feeds and the /api/ alias",
     `  ${CHROME_EXTENSION_PATH}  — landing page for the free "${EXTENSION_FACTS.name}" Chrome extension (current ISO week number in the browser toolbar, week dates, flag days, school holidays, "vk 42" address-bar search): ${EXTENSION_FACTS.storeUrl}`,
-    "  /tietoa-meista, /ota-yhteytta, /tietosuoja, /kayttoehdot  — about, contact, privacy policy, terms",
+    "  /tietoa-meista, /ota-yhteytta, /tietosuoja, /kayttoehdot, /palautusehdot: service information, contact, privacy, purchase terms and withdrawal instructions",
     "",
     "## 3. Canonical URL examples",
     "",
@@ -4800,7 +4869,7 @@ const llmsFull =
     )
     .join("\n\n") +
   "\n";
-fs.writeFileSync(path.join(distDir, "llms-full.txt"), llmsFull);
+fs.writeFileSync(path.join(distDir, "llms-full.txt"), llmsFull + "\n\n" + templateDiscovery + "\n");
 console.log(`generated llms-full.txt (${faqs.length} Q&A, ${llmsFull.length} bytes)`);
 
 const llmsApi =
@@ -4854,7 +4923,7 @@ const llmsApi =
     `  ${SITE_URL}/llms-data.txt     — dataset field schemas`,
     `  ${SITE_URL}/llms-glossary.txt — term definitions`,
   ].join("\n") + "\n";
-fs.writeFileSync(path.join(distDir, "llms-api.txt"), llmsApi);
+fs.writeFileSync(path.join(distDir, "llms-api.txt"), llmsApi + "\n\n" + templateDiscovery + "\n");
 console.log(`generated llms-api.txt (${llmsApi.length} bytes)`);
 
 const llmsData =
@@ -4881,8 +4950,9 @@ const llmsData =
     `  ${SITE_URL}/llms-api.txt      — the /api/ aliases that redirect to these URLs`,
     `  ${SITE_URL}/llms-glossary.txt — term definitions`,
   ].join("\n") + "\n";
-fs.writeFileSync(path.join(distDir, "llms-data.txt"), llmsData);
+fs.writeFileSync(path.join(distDir, "llms-data.txt"), llmsData + `\nTeam Leave Planner guide: ${SITE_URL}${TEAM_PATH}. Authenticated private organization data are not published as feeds or datasets.\nHR plans: ${SITE_URL}${HR_PATH}. Private browser-generated exports, not a public dataset or API feed.\nConstruction plans: ${SITE_URL}${CONSTRUCTION_PATH}. Browser-generated private files, not a public dataset or API feed.\n`);
 console.log(`generated llms-data.txt (${llmsData.length} bytes)`);
+fs.appendFileSync(path.join(distDir, "llms-data.txt"), `\nBusiness Calendar Widget v1: ${SITE_URL}/widget/calendar/v1. It computes dates locally; host events are never published as feeds or datasets. No private calendar IDs or credentials in embed URLs.\n`);
 
 const llmsGlossary =
   [
@@ -4998,7 +5068,7 @@ const llmsGlossary =
     `  ${SITE_URL}/llms-api.txt  — how to fetch things`,
     `  ${SITE_URL}/llms-data.txt — dataset field schemas`,
   ].join("\n") + "\n";
-fs.writeFileSync(path.join(distDir, "llms-glossary.txt"), llmsGlossary);
+fs.writeFileSync(path.join(distDir, "llms-glossary.txt"), llmsGlossary + "\n\n" + templateDiscovery + "\n");
 console.log(`generated llms-glossary.txt (${llmsGlossary.length} bytes)`);
 
 // Generate ai-manifest.txt: a priority-ordered discovery manifest — "fetch
@@ -5074,6 +5144,7 @@ const aiManifest =
     "",
     "## Canonical resources",
     "",
+    `   ${SITE_URL}${REFUND_PATH} - company calendar refund instructions and cancellation action; purchaser data are private`,
     `   ${SITE_URL}/llms.txt        — concise curated index`,
     `   ${SITE_URL}/llms-full.txt   — full site-structure reference`,
     `   ${SITE_URL}/ai.txt          — AI crawler policy and resource pointers`,
@@ -5118,7 +5189,7 @@ const aiManifest =
     `   Individual: /pyhat-{year}/{slug}  — e.g. ${SITE_URL}/pyhat-${amCalYear}/${HOLIDAY_DEFINITIONS[0].slug}`,
     `   ${HOLIDAY_DEFINITIONS.length} named holidays per year: ${HOLIDAY_DEFINITIONS.map((h) => h.slug).join(", ")}.`,
   ].join("\n") + "\n";
-fs.writeFileSync(path.join(distDir, "ai-manifest.txt"), aiManifest);
+fs.writeFileSync(path.join(distDir, "ai-manifest.txt"), aiManifest + "\n\n" + templateDiscovery + "\n");
 console.log(`generated ai-manifest.txt (week ${amWeek}/${amWeekYear}, ${aiManifest.length} bytes)`);
 
 // public/robots.txt is copied verbatim by Vite and can't read env itself, so
@@ -6290,6 +6361,9 @@ console.log(`patched robots.txt Sitemap: line -> ${SITE_URL}/sitemap.xml`);
   }
   console.log(`generated ${monthPdfCount} month PDFs (dist/pdf/kuukausi-*.pdf)`);
 }
+
+// Static professional planning downloads reuse the same engine and exporters.
+await buildTemplates(distDir);
 
 // Remove the temporary SSR bundle so it never ships in the image.
 fs.rmSync(serverDir, { recursive: true, force: true });

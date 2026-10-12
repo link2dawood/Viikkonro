@@ -57,9 +57,10 @@ same content shape. Routes are single-segment Finnish keyword slugs
 `/kuinka-monta-paivaa-{target}` countdowns, plus static pages).
 Non-HTML resources outside the route table: `/ics/*.ics` calendar feeds
 (generated from `src/data/icsFeeds.js`) and the `/widget/viikko` iframe
-document (`src/data/weekWidget.js`) — the widget is deliberately
-`noindex` and absent from `sitemapEntries()`, and it is the only path
-exempt from `X-Frame-Options` in `vercel.json`.
+document (`src/data/weekWidget.js`) and versioned `/widget/calendar/v1`
+business calendar embed (`src/platform/widget/`) are deliberately
+`noindex` and absent from `sitemapEntries()`. The `/widget/` namespace is
+exempt from `X-Frame-Options` in `vercel.json` so these documents can be embedded.
 
 **Lives in**: `src/AppRoutes.jsx`'s `DynamicSlug` regex dispatcher (the
 single source of truth for which slug shapes are valid) and
@@ -203,6 +204,14 @@ being violated; find the standalone-node alternative instead (see how
 `discoverImageNodes()` solved this).
 
 ### 8. Preserve Dataset schema
+
+Data-family manifests at `/data/{family}/index.json` are machine-readable
+file lists, including nested year manifests, served as JSON with
+`X-Robots-Tag: noindex, follow`. They remain
+crawlable and downloadable at their existing URLs. This scoped rule does not
+apply to HTML documentation, per-year data, `dataset.json` or the knowledge
+graph. Keep the indexable `/avoin-data` and dataset documentation pages,
+Dataset schema/distributions and AI discovery links intact.
 
 **Rule**: every `/data/` feed family must have a corresponding
 `schema.org/Dataset` node, discoverable both embedded (homepage,

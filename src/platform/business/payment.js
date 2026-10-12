@@ -13,6 +13,10 @@
 // from browser storage until a provider that verifies them server-side exists.
 import { createLicense, licenseToJson } from "./licensing.js";
 
+// Commercial settlement/entitlements live in ../billing/service.js on the server.
+// This existing browser interface remains unavailable in production and is only
+// the public editor's presentation/development boundary, never proof of purchase.
+
 /**
  * @typedef {object} CheckoutRequest
  * @property {string} productId
@@ -63,7 +67,11 @@ export function createDevUnlockProvider({ storage = memoryStore() } = {}) {
         expiresOn: `${today.getFullYear() + 2}-12-31`,
         licensee: "Kehitystesti",
       });
-      storage.setItem(DEV_LICENSE_KEY, JSON.stringify(licenseToJson(license)));
+      try {
+        storage.setItem(DEV_LICENSE_KEY, JSON.stringify(licenseToJson(license)));
+      } catch {
+        /* A blocked store only makes the development unlock session-local. */
+      }
       return { status: "granted", license };
     },
     restoreLicense: () => {
@@ -71,7 +79,11 @@ export function createDevUnlockProvider({ storage = memoryStore() } = {}) {
         const raw = storage.getItem(DEV_LICENSE_KEY);
         return raw ? createLicense(JSON.parse(raw)) : null;
       } catch {
-        storage.removeItem(DEV_LICENSE_KEY);
+        try {
+          storage.removeItem(DEV_LICENSE_KEY);
+        } catch {
+          /* Storage may also block removal. */
+        }
         return null;
       }
     },
@@ -79,14 +91,21 @@ export function createDevUnlockProvider({ storage = memoryStore() } = {}) {
 }
 
 /** Forget a development licence (the "lock again" button in development). */
-export const clearDevLicense = (storage) => storage.removeItem(DEV_LICENSE_KEY);
+export const clearDevLicense = (storage) => {
+  try {
+    storage.removeItem(DEV_LICENSE_KEY);
+  } catch {
+    /* The in-memory licence is cleared by the caller regardless of storage. */
+  }
+};
 
 /**
  * Pick the provider for an environment. `env` is Vite's import.meta.env: the
- * development provider needs DEV to be true AND PROD to be false AND the mode
- * not to be "production", so a production build can never select it.
+ * development provider also requires a loopback hostname. Missing hostnames,
+ * shared development servers and production builds never select it.
  */
-export function resolvePaymentProvider(env, { storage } = {}) {
+export function resolvePaymentProvider(env, { storage, hostname } = {}) {
   const isDevelopment = env?.DEV === true && env?.PROD !== true && env?.MODE !== "production";
-  return isDevelopment ? createDevUnlockProvider({ storage }) : unavailableProvider;
+  const isLocal = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(hostname);
+  return isDevelopment && isLocal ? createDevUnlockProvider({ storage }) : unavailableProvider;
 }

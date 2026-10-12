@@ -15,6 +15,7 @@ import {
 } from "../data/companyCalendar.js";
 import { canonicalFor, routeMeta, sitemapEntries } from "../data/seo.js";
 import { sitemapLastmod } from "../data/sitemapMetadata.js";
+import { TOPIC_CONTENT_UPDATED } from "../data/pageTopics.js";
 import { PLATFORM_EVENTS, platformEventCommands } from "../platform/analytics.js";
 import { createLicense, hasFeature } from "../platform/business/licensing.js";
 import { pageTypeOf } from "../analytics.js";
@@ -74,6 +75,15 @@ describe("/yrityskalenteri page", () => {
     expect(html).toContain("Uudenvuodenpäivä");
     expect(html).not.toMatch(/NaN|undefined|\[object/);
   });
+  it("names the product and masks the editor and preview for session recordings", () => {
+    expect(html).toContain("Viikkonro Yrityskalenteri");
+    expect(html).toContain('class="cc-layout" data-clarity-mask="True"');
+    expect(html).toContain('class="cc-editor" data-clarity-mask="True"');
+    expect(html).toContain('data-clarity-mask="True" style="border-top-color:');
+    expect(html).toContain("Kaikki merkinnät");
+    expect(html).toContain("Osto avaa valitun vuoden");
+    expect(html).toContain("Palauta aiempi osto");
+  });
   it("shows locked exports, never a development unlock, in a production-like render", () => {
     for (const label of ["Lataa PDF", "Lataa Excel", "Lataa CSV", "Lataa ICS"]) expect(html).toContain(label);
     expect(html).toContain("🔒");
@@ -111,7 +121,8 @@ describe("SEO registration", () => {
   });
   it("is in the sitemap with a recorded modification date", () => {
     expect(sitemapEntries().some((e) => e.path === COMPANY_CALENDAR_PATH)).toBe(true);
-    expect(sitemapLastmod(COMPANY_CALENDAR_PATH, "2099-01-01")).toBe(COMPANY_CALENDAR_UPDATED);
+    expect(sitemapLastmod(COMPANY_CALENDAR_PATH, "2026-10-10")).toBe(COMPANY_CALENDAR_UPDATED);
+    expect(sitemapLastmod(COMPANY_CALENDAR_PATH, "2099-01-01")).toBe(TOPIC_CONTENT_UPDATED);
   });
   it("types the page for analytics and keeps en dashes out of its copy", () => {
     expect(pageTypeOf(COMPANY_CALENDAR_PATH)).toBe("yrityskalenteri");

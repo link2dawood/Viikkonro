@@ -9,18 +9,18 @@ const FORMATS = [
 
 // `devPanel` and `devNote` are passed only by a development build (the page builds
 // them behind import.meta.env.DEV), so production code contains no unlock path.
-export default function Exports({ unlocked, busy, message, warnings, unlockOpen, devPanel, devNote, onExport, onContactClick }) {
+export default function Exports({ unlocked, busy, message, warnings, unlockOpen, devPanel, devNote, onExport, onContactClick, paymentAvailable = false, unavailableMessage = "Tämän tuotteen maksullisia latauksia ei vielä myydä. Esikatselu on käytettävissä.", icsOnly = false, formats = ["pdf", "xlsx", "csv", "ics"] }) {
   return (
     <div className="cc-exports">
       <h2>Lataa kalenteri</h2>
       {!unlocked && (
         <p className="note-soft">
-          Esikatselu on ilmainen. Tiedostot, logo ja oma väri avautuvat maksun jälkeen.
+          {paymentAvailable ? "Esikatselu on ilmainen. Osto avaa valitun vuoden PDF-, Excel-, CSV- ja ICS-lataukset." : unavailableMessage}
         </p>
       )}
       <div className="cc-buttons">
-        {FORMATS.map((f) => (
-          <button key={f.kind} type="button" className="btn" disabled={busy !== null} onClick={() => onExport(f.kind)}>
+        {FORMATS.filter((f) => formats.includes(f.kind) && (!icsOnly || f.kind === "ics")).map((f) => (
+          <button key={f.kind} type="button" className="btn" aria-label={f.label} aria-description={f.hint} disabled={busy !== null} onClick={() => onExport(f.kind)}>
             {!unlocked && <span aria-hidden="true">🔒 </span>}
             {busy === f.kind ? "Luodaan..." : f.label}
             <small>{f.hint}</small>
@@ -37,12 +37,12 @@ export default function Exports({ unlocked, busy, message, warnings, unlockOpen,
       )}
       {!unlocked && unlockOpen && (
         <div className="cc-unlock" role="region" aria-label="Lataukset">
-          {devPanel ?? (
+          {devPanel ?? (paymentAvailable ? <p>Osta lataukset alla olevalla painikkeella tai palauta aiempi osto ostotunnuksella.</p> : (
             <>
-              <p><b>Maksaminen ei ole vielä käytössä.</b> Tiedostojen lataus avataan, kun maksu on otettu käyttöön. Jos haluat kalenterin yrityksellesi, kerro siitä meille.</p>
+              <p>{unavailableMessage}</p>
               <Link className="btn" to="/ota-yhteytta" onClick={onContactClick}>Ota yhteyttä</Link>
             </>
-          )}
+          ))}
         </div>
       )}
       {unlocked && devNote}

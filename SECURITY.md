@@ -50,8 +50,19 @@ Please give us reasonable time to fix the issue before disclosing it publicly.
 ## Scope
 
 **In scope**
+- Commercial billing state, provider event verification boundaries, entitlement
+  checks and atomic quotas. See [docs/commercial-billing.md](docs/commercial-billing.md)
+  for server-only access and paid-launch requirements.
+- Private team and multi-company workspaces, Supabase RLS, firm/client roles,
+  audit visibility and export authorization. See
+  [docs/multi-company-platform.md](docs/multi-company-platform.md) for the
+  Phase 13 security review and staging release requirements.
 - The website at viikkonro.fi and its subpages
 - The static data feeds under `/data/` and the `/api/` aliases
+- The versioned Business Calendar API under `/api/v1/`, API key authorization,
+  atomic usage limits and its server-only Supabase integration. The implementation
+  security review and deployment requirements are in
+  [docs/business-calendar-api.md](docs/business-calendar-api.md).
 - Build and deployment configuration in this repository, including `vercel.json` and the GitHub Actions workflows
 - Cross site scripting, injection into prerendered pages or structured data, open redirects, and leaked secrets
 

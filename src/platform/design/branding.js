@@ -55,9 +55,24 @@ function validateLogo(logo, issues) {
     return null;
   }
   if (match[1] === "image/svg+xml") {
-    const svg = atob(match[2]); // global in browsers and in Node 16+
+    let svg;
+    try {
+      svg = atob(match[2]);
+    } catch {
+      issues.push("Logo must be a PNG, JPEG or SVG data URI (base64).");
+      return null;
+    }
     if (/<script|\son[a-z]+\s*=|javascript:|<foreignObject|<iframe/i.test(svg)) {
       issues.push("SVG logo must not contain scripts, event handlers or embedded frames.");
+      return null;
+    }
+    // A logo must be self-contained: drawing it must never fetch company data
+    // or external fonts/images. Local fragment references remain supported.
+    const references = [...svg.matchAll(/(?:href|src)\s*=\s*["']([^"']*)["']/gi)].map((m) => m[1].trim());
+    const cssUrls = [...svg.matchAll(/url\(([^)]*)\)/gi)].map((m) => m[1].trim().replace(/^["']|["']$/g, "").trim());
+    if (!/<svg(?:\s|\/?>)/i.test(svg) || /<!DOCTYPE|<!ENTITY|@import/i.test(svg) ||
+      [...references, ...cssUrls].some((ref) => !ref.startsWith("#"))) {
+      issues.push("SVG logo must be self-contained without external resources.");
       return null;
     }
   }

@@ -37,10 +37,11 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Auringonnousu ja -lasku](https://viikkonro.fi/auringonlasku): ajat tänään 15 kaupungissa Helsingistä Utsjoelle, pisin ja lyhyin päivä, yötön yö ja kaamos
 - [Tuntilaskuri](https://viikkonro.fi/tuntilaskuri): työtunnit kellonajoista taukoineen, viikon tunnit ja minuutit desimaalitunteina
 - [Vuosilomalaskuri](https://viikkonro.fi/vuosilomalaskuri): montako lomapäivää loma kuluttaa ja kertyy, ja lomavinkit: viikot, joilla loma kuluttaa vähemmän
-- [Yrityskalenteri](https://viikkonro.fi/yrityskalenteri): tee yrityksellesi oma kalenteri logolla, sulkupäivillä, palkkapäivillä ja viikkonumeroilla; esikatselu ilmainen, lataus PDF-, Excel-, CSV- ja ICS-muodossa ei vielä myynnissä
-- [Lomasuunnittelija](https://viikkonro.fi/lomasuunnittelija): pisimmät tauot omilla lomapäivillä, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin
-- [Projektiaikataulu](https://viikkonro.fi/projektiaikataulu): projektin päättymispäivä työpäivinä, viikkokohtainen aikataulu ISO-viikoilla ja välitavoitteet
-- [Sprinttisuunnittelija](https://viikkonro.fi/sprinttisuunnittelija): peräkkäisten sprinttien päivämäärät, ISO-viikot, työpäivät ja arkipyhien vaikutus kapasiteettiin
+- [Yrityskalenteri](https://viikkonro.fi/yrityskalenteri): tee yrityksellesi oma kalenteri logolla, sulkupäivillä, palkkapäivillä ja viikkonumeroilla; esikatselu ilmainen, valitun kalenterivuoden PDF-, Excel-, CSV- ja ICS-lataukset avataan kertamaksulla
+- [Lomasuunnittelija](https://viikkonro.fi/lomasuunnittelija): ilmainen pitkien taukojen laskuri ja Pro-osio vuoden lomille, poissaoloille ja sulkupäiville. Paikallinen esikatselu, erilliset suunnittelun ja vuosilomalain laskentatavat, premium-valmis PDF-, Excel- ja ICS-vienti.
+- [Projektiaikataulu](https://viikkonro.fi/projektiaikataulu): työpäivät, ISO-viikot, vaiheet, riippuvuudet ja välitavoitteet. Maksuttomat PDF-, Excel- ja ICS-lataukset ilman tiliä.
+- [Rakennuskalenteri](https://viikkonro.fi/rakennuskalenteri): työmaan työvaiheet, viikkotehtävät, toimitukset, tarkastukset ja tauot. Viikkoaikataulu ja projektin yleiskuva; tulostus sekä PDF-, Excel-, CSV- ja ICS-lataukset.
+- [Sprinttisuunnittelija](https://viikkonro.fi/sprinttisuunnittelija): peräkkäiset sprintit, numerointi, ISO-viikot, työpäivät ja kapasiteetti. Maksuttomat PDF-, Excel- ja ICS-lataukset.
 - [Raskauslaskuri](https://viikkonro.fi/raskauslaskuri): raskausviikko ja laskettu aika, ultraäänen, raskausrahan haun ja raskausvapaan päivät (arvio; neuvolan laskettu aika on ensisijainen)
 - [Kuukautislaskuri](https://viikkonro.fi/kuukautislaskuri): seuraavat kuukautiset, arvioitu ovulaatio ja hedelmälliset päivät (arvio, ei ehkäisymenetelmä)
 - [Kesäaika 2026](https://viikkonro.fi/kesaaika-2026): kellojen siirto kesä- ja talviaikaan päivämäärineen ja viikkonumeroineen
@@ -82,4 +83,16 @@ Jokaiselle viikolle, kuukaudelle, vuodelle, vuosineljännekselle, pyhäpäivävu
 - [AI-manifesti](https://viikkonro.fi/ai-manifest.txt): tärkeysjärjestykseen laitettu lista tärkeimmistä osoitteista tekoälyjärjestelmille (kuluva viikko, kuukausi, vuosineljännes ja vuosi, juhlapäivä-, työpäivä- ja liputuspäiväkeskukset, data- ja API-rajapinnat, PDF:t)
 - [Käyttöehdot](https://viikkonro.fi/kayttoehdot)
 - [Tietosuojaseloste](https://viikkonro.fi/tietosuoja)
+- [Palautus- ja peruutusehdot](https://viikkonro.fi/palautusehdot): yrityskalenterin palautusohjeet ja peruuttamistoiminto
 - [Sivukartta (XML)](https://viikkonro.fi/sitemap.xml)
+
+## Downloadable planning templates
+https://viikkonro.fi/kalenteripohjat - Six free Finnish planning templates: company calendar, vacation, projects, shifts, construction and HR/payroll. Substantive landing pages at /kalenteripohjat/{slug}. XLSX, CSV and printable PDF for 2026, 2027 and 2028, without an account. Downloads: /pohjat/{slug}/{year}.{xlsx|csv|pdf}. Editable blank planning fields; no automatic payroll or legal deadline calculations.
+
+/yrityskalenteri/ics: Private company ICS file editor and Finnish import guidance for Google, Outlook and Apple. Local preview; premium export entitlement required. Company records are never published as subscription URLs.
+
+HR Calendar: https://viikkonro.fi/hr-kalenteri. Finnish HR annual calendar, four separate date origins, private PDF, Excel and ICS. Company deadlines are configurable; no legal compliance guarantee.
+
+Team Leave Planner guide: https://viikkonro.fi/tiimin-lomat. Authenticated organization planning with tenant isolation. Private app/data are not crawlable resources.
+
+Business Calendar Widget v1: https://viikkonro.fi/widget/calendar/v1 (month/week, Finnish holidays, host events in memory, no tracking, free attribution; documentation: https://viikkonro.fi/upota-viikkonumero#yrityskalenteri-widget).

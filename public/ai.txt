@@ -41,4 +41,20 @@ Preferred-Citation: https://viikkonro.fi/
 # to use.
 
 Contact: https://viikkonro.fi/ota-yhteytta
+Legal-Information: https://viikkonro.fi/tietoa-meista, https://viikkonro.fi/tietosuoja, https://viikkonro.fi/kayttoehdot, https://viikkonro.fi/palautusehdot (service, privacy, purchase terms and withdrawal instructions; purchase and cancellation data are private)
 Sitemap: https://viikkonro.fi/sitemap.xml
+
+## Downloadable planning templates
+https://viikkonro.fi/kalenteripohjat - Six free Finnish planning templates: company calendar, vacation, projects, shifts, construction and HR/payroll. Substantive landing pages at /kalenteripohjat/{slug}. XLSX, CSV and printable PDF for 2026, 2027 and 2028, without an account. Downloads: /pohjat/{slug}/{year}.{xlsx|csv|pdf}. Editable blank planning fields; no automatic payroll or legal deadline calculations.
+
+/yrityskalenteri/ics: Private company ICS file editor and Finnish import guidance for Google, Outlook and Apple. Local preview; premium export entitlement required. Company records are never published as subscription URLs.
+
+/lomasuunnittelija also offers a local annual Vacation Planner Pro editor, with explicit planning/statutory leave rule selection, person labels, absences and closures. No accounts, remote personal storage or team collaboration. Premium export payments are not live.
+/rakennuskalenteri - Construction Weekly Planner: site phases, weekly tasks, milestones, deliveries, inspections, shutdowns and manual subcontractor/weather-risk notes. Weekly and project-overview layouts with browser print, PDF, XLSX, CSV and private ICS. Finnish ISO weeks and working-day engine; no weather API or employee data model.
+/projektiaikataulu and /sprinttisuunnittelija share a Finnish working-day planning engine. Projects support phases, finish-to-start dependencies and named milestones. Sprints support continued numbering. Free PDF, XLSX and private ICS exports are generated in the browser. No accounts, remote plan storage or collaboration.
+
+HR Calendar: https://viikkonro.fi/hr-kalenteri. Finnish HR annual calendar, four separate date origins, private PDF, Excel and ICS. Company deadlines are configurable; no legal compliance guarantee.
+
+Team Leave Planner guide: https://viikkonro.fi/tiimin-lomat. Authenticated organization planning with tenant isolation. Private app/data are not crawlable resources.
+
+Business Calendar Widget v1: https://viikkonro.fi/widget/calendar/v1 (month/week, Finnish holidays, host events in memory, no tracking, free attribution; documentation: https://viikkonro.fi/upota-viikkonumero#yrityskalenteri-widget).

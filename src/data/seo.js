@@ -13,6 +13,7 @@ export const SITE_URL = process.env.SITE_ORIGIN || "https://viikkonro.fi";
 // Finnish date formatters live in one place (dateUtils.js). Imported with an
 // explicit .js extension so plain-Node prerender.js can resolve it too (the
 // ISO-week math below stays inline — untouched — per the no-touch rule).
+import { TEMPLATE_PATH, TEMPLATES, templatePath, templateAssetPath, templateCatalogMeta } from "../platform/templates/catalog.js";
 import {
   M_GENITIVE,
   M_INESSIVE,
@@ -79,7 +80,11 @@ import { dstMeta } from "./dstPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
 import { WIDGET_EMBED_PAGE_PATH, widgetEmbedMeta } from "./weekWidget.js";
+import { COMPANY_ICS_PATH, companyIcsMeta } from "./companyIcs.js";
 import { COMPANY_CALENDAR_PATH, companyCalendarMeta } from "./companyCalendar.js";
+import { CONSTRUCTION_PATH, constructionMeta } from "./constructionCalendar.js";
+import { HR_PATH, hrMeta } from "./hrCalendar.js";
+import { TEAM_PATH, teamMeta } from "./teamLeave.js";
 import { PARITY_PATH, parityMeta } from "./weekParity.js";
 
 // Fixed date the FAQ/explainer/calculator page COPY (not just computed data)
@@ -800,7 +805,7 @@ export const routeMeta = {
   "/tietoa-meista": {
     title: "Tietoa meistä | Viikko Nro",
     description:
-      "Viikko Nro on ilmainen suomalainen viikkolaskuri. Lue lisää palvelusta ja tehtävästämme tehdä viikkonumeroiden tarkistamisesta helppoa.",
+      "Tutustu Viikkonron maksuttomiin kalentereihin, laskureihin ja yritysten suunnittelutyökaluihin. Lue tietolähteistä ja ota yhteyttä ylläpitäjään.",
     breadcrumb: "Tietoa meistä",
   },
   "/ota-yhteytta": {
@@ -854,14 +859,19 @@ export const routeMeta = {
   "/tietosuoja": {
     title: "Tietosuojaseloste | Viikko Nro",
     description:
-      "Viikkonro-verkkopalvelun ja Android-sovelluksen tietosuojaseloste: analytiikka, mainonta, kaatumisraportit ja paikallisesti tallennetut tiedot.",
+      "Viikkonron tietosuojaseloste: ostot, yksityiset suunnittelutilat, analytiikka, evästeet ja Android-sovellus. Näin voit käyttää tietosuojaoikeuksiasi.",
     breadcrumb: "Tietosuojaseloste",
   },
   "/kayttoehdot": {
-    title: "Käyttöehdot | Viikko Nro",
+    title: "Käyttö- ja ostoehdot | Viikkonro",
     description:
-      "Viikko Nro -palvelun käyttöehdot: palvelun käyttö, vastuunrajoitukset ja sovellettava lainsäädäntö selkeästi selitettynä ennen palvelun käyttöä.",
+      "Viikkonron käyttö- ja ostoehdot: maksuttomat työkalut, yrityskalenterin kertamaksu, latausoikeus, Polar-maksut ja ostajan oikeudet.",
     breadcrumb: "Käyttöehdot",
+  },
+  "/palautusehdot": {
+    title: "Palautus- ja peruutusehdot | Viikkonro",
+    description: "Yrityskalenterin palautus- ja peruutusehdot. Lue kuluttajan oikeuksista, ilmoita peruuttamisesta ja saa apua maksun tai tiedoston virheeseen.",
+    breadcrumb: "Palautus- ja peruutusehdot",
   },
   "/laskurit": {
     title: "Viikkolaskurit ja päivämäärätyökalut | Viikko Nro",
@@ -939,28 +949,34 @@ export const routeMeta = {
     breadcrumb: "Vuosilomalaskuri",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
+  [TEMPLATE_PATH]: { ...templateCatalogMeta, breadcrumb: "Kalenteripohjat" },
+  ...Object.fromEntries(TEMPLATES.map((template) => [templatePath(template), { ...template.seo, breadcrumb: template.finnishName, breadcrumbParent: { name: "Kalenteripohjat", path: TEMPLATE_PATH } }])),
+  [COMPANY_ICS_PATH]: { ...companyIcsMeta, breadcrumb: "ICS-kalenteri", breadcrumbParent: { name: "Yrityskalenteri", path: COMPANY_CALENDAR_PATH } },
+  [CONSTRUCTION_PATH]: { ...constructionMeta, breadcrumb: "Rakennuskalenteri", breadcrumbParent: { name: "Laskurit", path: "/laskurit" } },
+  [HR_PATH]: { ...hrMeta, breadcrumb: "HR-kalenteri", breadcrumbParent: { name: "Laskurit", path: "/laskurit" } },
+  [TEAM_PATH]: { ...teamMeta, breadcrumb: "Tiimin lomasuunnittelija", breadcrumbParent: { name: "Laskurit", path: "/laskurit" } },
   [COMPANY_CALENDAR_PATH]: {
     ...companyCalendarMeta,
     breadcrumb: "Yrityskalenteri",
   },
   "/lomasuunnittelija": {
-    title: "Lomasuunnittelija: pitkä loma vähällä | Viikko Nro",
+    title: "Lomasuunnittelija ja vuoden lomasuunnitelma | Viikko Nro",
     description:
-      "Näe pisimmät tauot, jotka saat omilla lomapäivilläsi, kun ne sijoitetaan viikonloppujen ja arkipyhien väliin. Pääsiäinen, joulu ja pitkät viikonloput.",
+      "Etsi pitkät tauot lomapäivilläsi ja suunnittele koko vuoden lomat, poissaolot ja sulkupäivät. Ilmainen laskuri ja Pro-esikatselu ilman tilejä.",
     breadcrumb: "Lomasuunnittelija",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
   "/projektiaikataulu": {
     title: "Projektiaikataulu: päättymispäivä työpäivistä | Viikko Nro",
     description:
-      "Laske projektin päättymispäivä työpäivinä tai työpäivät alku- ja loppupäivän välillä. Viikkokohtainen aikataulu ISO-viikkoineen, arkipyhät ja välitavoitteet.",
+      "Laske projektin työpäivät ja ISO-viikot. Lisää vaiheet, riippuvuudet ja välitavoitteet. Lataa projektisuunnitelma PDF-, Excel- tai ICS-tiedostona ilman tiliä.",
     breadcrumb: "Projektiaikataulu",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
   "/sprinttisuunnittelija": {
     title: "Sprinttisuunnittelija: päivät ja viikot | Viikko Nro",
     description:
-      "Laske peräkkäisten sprinttien päivämäärät, ISO-viikkonumerot ja työpäivät. Arkipyhät näkyvät kapasiteetissa. Valitse pituus yhdestä kuuteen viikkoa.",
+      "Suunnittele peräkkäiset sprintit, valitse numerointi ja tarkista ISO-viikot, työpäivät ja arkipyhät. Lataa PDF-, Excel- tai ICS-tiedosto maksutta ilman tiliä.",
     breadcrumb: "Sprinttisuunnittelija",
     breadcrumbParent: { name: "Laskurit", path: "/laskurit" },
   },
@@ -1058,6 +1074,10 @@ export function sitemapEntries(year) {
     { path: "/ikalaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/tuntilaskuri", changefreq: "monthly", priority: "0.7" },
     { path: "/vuosilomalaskuri", changefreq: "monthly", priority: "0.7" },
+    { path: COMPANY_ICS_PATH, changefreq: "monthly", priority: "0.7" },
+    { path: CONSTRUCTION_PATH, changefreq: "monthly", priority: "0.7" },
+    { path: HR_PATH, changefreq: "monthly", priority: "0.7" },
+    { path: TEAM_PATH, changefreq: "monthly", priority: "0.7" },
     { path: COMPANY_CALENDAR_PATH, changefreq: "monthly", priority: "0.8" },
     { path: "/lomasuunnittelija", changefreq: "monthly", priority: "0.7" },
     { path: "/projektiaikataulu", changefreq: "monthly", priority: "0.7" },
@@ -1070,10 +1090,13 @@ export function sitemapEntries(year) {
     ...COUNTDOWNS.map((c) => ({ path: c.path, changefreq: "daily", priority: "0.7" })),
     { path: CALENDAR_SUBSCRIPTION_PATH, changefreq: "monthly", priority: "0.7" },
     { path: WIDGET_EMBED_PAGE_PATH, changefreq: "monthly", priority: "0.5" },
+    { path: TEMPLATE_PATH, changefreq: "monthly", priority: "0.7" },
+    ...TEMPLATES.map((template) => ({ path: templatePath(template), changefreq: "monthly", priority: "0.6" })),
     { path: "/tietoa-meista", changefreq: "yearly", priority: "0.4" },
     { path: "/ota-yhteytta", changefreq: "yearly", priority: "0.4" },
     { path: "/tietosuoja", changefreq: "yearly", priority: "0.3" },
     { path: "/kayttoehdot", changefreq: "yearly", priority: "0.3" },
+    { path: "/palautusehdot", changefreq: "yearly", priority: "0.3" },
   ];
   // STEP 5 of the koululomat trust redesign: sitemap inclusion follows the
   // page's computed confidence tier, not just "does a page exist for this
@@ -1444,3 +1467,6 @@ export function breadcrumbTrail(url) {
   }
   return null;
 }
+
+// Shared by download links, schema, PDF alternates and generated assets.
+export const templatePdfPath = (template, year) => templateAssetPath(template, year, "pdf");

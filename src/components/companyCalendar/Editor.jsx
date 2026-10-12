@@ -1,27 +1,9 @@
 import { LAYOUT_OPTIONS, PAYDAY_RULES } from "../../data/companyCalendar.js";
 import { schoolHolidayCities, schoolHolidayCoverage } from "../../platform/calendar/sources.js";
 import { PAPER } from "../../platform/design/layouts.js";
-import { newRowId, MAX_CLOSURES, issueToFinnish } from "./formModel.js";
-import { validateBranding } from "../../platform/design/branding.js";
+import { newRowId, MAX_CLOSURES } from "./formModel.js";
+import { readLogo } from "./logoUpload.js";
 import { MAX_COMPANY_EVENTS, MAX_PAYDAY_DATES } from "../../platform/calendar/config.js";
-
-const MAX_LOGO_FILE = 512 * 1024;
-
-function readLogo(file) {
-  return new Promise((resolve) => {
-    if (!file) return resolve({ error: null, logo: null });
-    if (!["image/png", "image/svg+xml"].includes(file.type)) {
-      return resolve({ error: "Valitse PNG- tai SVG-tiedosto.", logo: null });
-    }
-    if (file.size > MAX_LOGO_FILE) {
-      return resolve({ error: "Logo on liian suuri. Enimmäiskoko on 512 kt.", logo: null });
-    }
-    const reader = new FileReader();
-    reader.onload = () => resolve({ error: null, logo: { mime: file.type, dataUri: String(reader.result) } });
-    reader.onerror = () => resolve({ error: "Tiedoston lukeminen epäonnistui.", logo: null });
-    reader.readAsDataURL(file);
-  });
-}
 
 const Section = ({ n, title, hint, children }) => (
   <fieldset className="lookup cc-section">
@@ -33,7 +15,7 @@ const Section = ({ n, title, hint, children }) => (
   </fieldset>
 );
 
-export default function Editor({ form, setForm, years, logoError, setLogoError, notes, onClearDraft }) {
+export default function Editor({ form, setForm, years, logoError, setLogoError, notes, onClearDraft, onSaveDraft, onRestoreDraft, icsOnly = false }) {
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
   const setRow = (key, id, patch) => setForm((f) => ({ ...f, [key]: f[key].map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
   const addRow = (key, row) => setForm((f) => ({ ...f, [key]: [...f[key], { id: newRowId(), ...row }] }));
@@ -46,15 +28,13 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
     const file = e.target.files?.[0];
     e.target.value = "";
     const { error, logo } = await readLogo(file);
-    // The same safety checks the calendar itself applies, shown in Finnish before the logo is kept.
-    const issues = logo ? validateBranding({ logo }).issues : [];
-    setLogoError(error ?? (issues.length ? issueToFinnish(issues[0]) : null));
-    if (logo && issues.length === 0) set({ logo });
+    setLogoError(error);
+    if (logo) set({ logo });
   };
 
   return (
-    <div className="cc-editor">
-      <Section n="1" title="Yrityksen tiedot" hint="Nimi ja logo näkyvät kalenterin ylälaidassa.">
+    <div id="cc-editor" className="cc-editor" data-clarity-mask="True">
+      <Section n="1" title="Yrityksen tiedot" hint={icsOnly ? "Nimi näkyy ICS-tiedoston kalenterin nimessä. Logo ja värit eivät kuulu ICS-muotoon." : "Nimi ja logo näkyvät kalenterin ylälaidassa."}>
         <div className="two-fields">
           <div>
             <label htmlFor="cc-name">Yrityksen nimi</label>
@@ -62,13 +42,14 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
           </div>
           <div>
             <label htmlFor="cc-year">Kalenterin vuosi</label>
-            <select id="cc-year" value={form.year} onChange={(e) => set({ year: Number(e.target.value), schoolCity: "" })}>
+            <select id="cc-year" value={form.year} onChange={(e) => set({ year: Number(e.target.value), schoolCity: "", schoolOn: form.schoolOn && schoolHolidayCities(Number(e.target.value)).length > 0 })}>
               {years.map((y) => (
                 <option key={y} value={y}>{y}</option>
               ))}
             </select>
           </div>
         </div>
+        {!icsOnly && <>
         <div className="two-fields">
           <div>
             <label htmlFor="cc-logo">Logo (PNG tai SVG, enintään 512 kt)</label>
@@ -77,7 +58,7 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
             {form.logo && (
               <p className="cc-logo-row">
                 <img src={form.logo.dataUri} alt="Valittu logo" />
-                <button type="button" className="btn-ghost" onClick={() => set({ logo: null })}>Poista logo</button>
+                <button type="button" className="btn-ghost" onClick={() => { set({ logo: null }); setLogoError(null); }}>Poista logo</button>
               </p>
             )}
           </div>
@@ -105,6 +86,7 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
             </select>
           </div>
         </div>
+        </>}
       </Section>
 
       <Section n="2" title="Sulkupäivät ja tärkeät päivät" hint="Esimerkiksi kesäsulku, yhtiökokous tai kehityspäivä. Loppupäivän voi jättää tyhjäksi, jos päivä on yksittäinen.">
@@ -145,7 +127,7 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
         )}
       </Section>
 
-      <Section n="3" title="Palkkapäivät" hint="Jos sovittu päivä ei ole pankkipäivä, palkkapäivä siirtyy edelliseen pankkipäivään.">
+      <Section n="3" title="Palkkapäivät" hint="Toistuva palkkapäivä siirtyy tarvittaessa edelliseen pankkipäivään. Yksittäiset päivät merkitään antamillesi päiville.">
         <fieldset className="cc-radios">
           <legend className="cc-sr">Palkkapäivän sääntö</legend>
           {PAYDAY_RULES.map((o) => (
@@ -210,16 +192,20 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
       </Section>
 
       {notes.length > 0 && (
-        <ul className="cc-notes-list" aria-live="polite">
+        <ul className="cc-notes-list" id="cc-issues" aria-live="polite" tabIndex={-1}>
           {notes.map((n) => (
             <li key={n}>{n}</li>
           ))}
         </ul>
       )}
       <p className="note-soft">
-        Luonnos tallentuu vain tämän selaimen muistiin, eikä tietoja lähetetä palvelimelle.{" "}
+        Luonnos tallentuu tämän selaimen muistiin, kun tallennustila on käytettävissä. Tiedoston voi myös tallentaa omalle laitteelle.{" "}
         <button type="button" className="btn-link" onClick={onClearDraft}>Tyhjennä luonnos</button>
       </p>
+      <div className="cc-buttons">
+        <button type="button" className="btn btn-ghost" onClick={onSaveDraft}>Tallenna luonnos JSON-tiedostona</button>
+        <label>Avaa tallennettu luonnos<input type="file" accept="application/json,.json" onChange={event => { const file=event.target.files?.[0]; if (file) onRestoreDraft(file); event.target.value=""; }} /></label>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,12 @@
+export const HR_PATH = "/hr-kalenteri";
+export const HR_UPDATED = "2026-10-10";
+export const hrMeta = { title: "HR-kalenteri ja henkilöstön vuosikello | Viikko Nro", description: "Kokoa HR:n vuosikello: pyhäpäivät, palkkapäivät, palkanlaskennan määräpäivät, viestintä ja lomajaksot. ISO-viikot sekä PDF, Excel ja ICS ilman tiliä." };
+export const HR_STEPS = ["Valitse vuosi ja nimeä yritys halutessasi.", "Lisää palkkapäivät, omat määräpäivät, lomajaksot ja HR-tapahtumat.", "Erota yrityksen päivät TES-merkinnöistä. Ota lähteistetyt lakimuistutukset käyttöön halutessasi ja tarkista soveltuvuus.", "Tarkista esikatselu ja lataa PDF, Excel tai ICS."];
+export function hrFaqs() { return [
+  { q: "Mitä HR-kalenteriin voi merkitä?", a: "Voit koota palkkapäivät, palkanlaskennan omat määräpäivät, henkilöstöviestinnän, yrityksen vapaapäivät, lomajaksot ja HR:n vuositapahtumat. Suomen pyhäpäivät ja ISO-viikot auttavat aikatauluttamaan vuoden." },
+  { q: "Ovatko kaikki kalenterin päivät lakisääteisiä?", a: "Eivät. Kalenteri erottaa Suomen kalenteripäivät, yrityksen omat päivät, lähteestä tarkistetut lakimuistutukset ja käyttäjän TES-merkinnät. Palkanlaskennan määräpäivät syötetään itse palkkapalvelun ja sopimusten perusteella." },
+  { q: "Mitä tarkistetut lakimuistutukset sisältävät?", a: "Valinnaiset muistutukset näyttävät vuosilomalain 4 §:n lomanmääräytymisvuoden ja lomakauden rajat. Lähteenä on Finlex, tarkistettu 10.10.2026 vuosille 2026, 2027 ja 2028. Ne eivät ole ilmoitus- tai maksujen määräpäiviä. Tarkista lain ajantasaisuus, soveltamisala ja mahdolliset työ- tai virkaehtosopimuksen poikkeukset." },
+  { q: "Varmistaako kalenteri palkkojen tai lomien lainmukaisuuden?", a: "Ei. Tarkista päivät työnantajan käytännöistä, työ- tai virkaehtosopimuksesta, sopimuksista ja palkkapalvelulta. Kalenteri ei laske lomaoikeutta eikä siirrä palkkapäiviä tai määräpäiviä automaattisesti. TES-merkinnät ovat käyttäjän antamia ja tarkistamattomia." },
+  { q: "Mitä ladattavat tiedostot sisältävät?", a: "PDF sisältää vuosikellon, ISO-viikot sekä lähteet ja huomiot. Excelissä on merkinnät, vuoden jokainen päivä ja ohjeet. ICS sisältää kokopäiväiset tapahtumat ja ISO-viikkomerkinnät. Se on yksityinen tuontitiedosto, ei päivittyvä tilaus." },
+  { q: "Tallennetaanko yrityksen tiedot?", a: "Tiedot käsitellään vain tässä selaimessa. Tiliä ei tarvita eikä suunnitelmaa tallenneta palvelimelle. Sivun uudelleenlataus tyhjentää suunnitelman. Älä kirjaa henkilötietoja; käytä yrityksen yhteisiä suunnittelumerkintöjä." },
+]; }

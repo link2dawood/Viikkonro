@@ -1,0 +1,5 @@
+.growth-cta { max-width: 960px; margin: 24px auto; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.growth-cta h2 { font-size: 1.25rem; margin-top: 0; }
+.growth-cta a { font-weight: 600; }
+@media (max-width: 600px) { .growth-cta { margin: 20px 12px; } }
+@media print { .growth-cta { display: none !important; } }

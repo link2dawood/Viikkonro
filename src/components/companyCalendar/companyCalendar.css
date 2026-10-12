@@ -8,6 +8,15 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+.cc-purchase-steps {
+  margin-block: 20px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.cc-purchase-steps h2 { margin-top: 0; font-size: 20px; }
+.cc-purchase-steps li { margin-block: 10px; overflow-wrap: anywhere; }
 .cc-layout {
   display: grid;
   gap: 24px;
@@ -155,12 +164,12 @@
   border-radius: 8px;
   padding: 4px;
 }
-.btn-ghost,
-.btn-link {
+.cc-page .btn-ghost,
+.cc-page .btn-link {
   font: inherit;
   cursor: pointer;
 }
-.btn-ghost {
+.cc-page .btn-ghost {
   background: #fff;
   color: var(--ink);
   border: 1px solid var(--line);
@@ -168,10 +177,10 @@
   padding: 8px 14px;
   font-size: 14px;
 }
-.btn-ghost:hover {
+.cc-page .btn-ghost:hover {
   background: var(--accent-soft);
 }
-.btn-link {
+.cc-page .btn-link {
   background: none;
   border: 0;
   padding: 0;
@@ -244,6 +253,25 @@
 .cc-weeks {
   width: 100%;
   border-collapse: collapse;
+}
+.cc-bigmonth {
+  table-layout: fixed;
+}
+.cc-event-list {
+  margin-top: 14px;
+  overflow-wrap: anywhere;
+}
+.cc-event-list ul {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-left: 20px;
+}
+.cc-product {
+  color: var(--accent-deep);
+  font-weight: 700;
+}
+.cc-notes {
+  overflow-wrap: anywhere;
 }
 .cc-month th,
 .cc-month td {
@@ -440,4 +468,15 @@
   .cc-banner {
     display: none !important;
   }
+  .cc-side {
+    position: static;
+  }
+  .cc-layout {
+    display: block;
+  }
+  .cc-watermark {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
+.cc-page #cc-purchase, .cc-page #cc-editor { scroll-margin-top: 90px; }

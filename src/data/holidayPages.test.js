@@ -5,6 +5,7 @@ import {
   holidayLinkPath,
   holidayPageFor,
   holidayPageMeta,
+  vappuPlanning,
 } from "./holidayPages.js";
 import {
   PRERENDER_MIN_YEAR,
@@ -61,6 +62,38 @@ describe("named holiday pages", () => {
   it("rejects unknown holiday slugs", () => {
     expect(holidayPageFor(2026, "tuntematon")).toBeNull();
     expect(holidayPageMeta(2026, "tuntematon")).toBeNull();
+  });
+
+  it.each([
+    [2026, "Perjantai", 18, true],
+    [2027, "Lauantai", 17, false],
+    [2028, "Maanantai", 18, true],
+  ])("explains Vappu planning in %i without shifting a weekend holiday", (year, weekday, week, weekdayExcluded) => {
+    const page = holidayPageFor(year, "vappu"), planning = vappuPlanning(page);
+    expect(page.weekday).toBe(weekday);
+    expect(page.week).toBe(week);
+    expect(page.date.getMonth()).toBe(4);
+    expect(page.date.getDate()).toBe(1);
+    expect(planning.eve.getMonth()).toBe(3);
+    expect(planning.eve.getDate()).toBe(30);
+    expect(planning.weekdayExcluded).toBe(weekdayExcluded);
+    expect(planning.flag.category).toBe("virallinen");
+    expect(planning.flag.altName).toBe("suomalaisen työn päivä");
+    expect(planning.flag.date.getTime()).toBe(page.date.getTime());
+    expect(holidayFaqs(page)).toHaveLength(7);
+    expect(holidayFaqs(page).at(-2).a).toContain(planning.workdayExplanation);
+    expect(holidayFaqs(page).at(-2).a).toContain("työehtosopimuksen");
+  });
+
+  it("keeps nearby Vappu links within the generated horizon and leaves other holidays alone", () => {
+    for (const year of [PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR]) {
+      const planning = vappuPlanning(holidayPageFor(year, "vappu"));
+      expect(planning.nearbyYears).toHaveLength(2);
+      expect(planning.nearbyYears.every((page) => page.year >= PRERENDER_MIN_YEAR && page.year <= PRERENDER_MAX_YEAR)).toBe(true);
+    }
+    expect(vappuPlanning(null)).toBeNull();
+    expect(vappuPlanning(holidayPageFor(2027, "loppiainen"))).toBeNull();
+    expect(holidayPageFor(2027, "loppiainen").updated).toBeUndefined();
   });
 
   describe("holidayLinkPath (week-page → holiday internal links)", () => {

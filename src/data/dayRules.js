@@ -93,3 +93,21 @@ export const DAY_RULES = {
 // Why `date` does not count under `mode`, or null when it counts.
 export const dayReason = (mode, date) => DAY_RULES[mode].reason(date);
 export const countsAsDay = (mode, date) => dayReason(mode, date) === null;
+
+/** Count an inclusive date range under an explicit rule, using calendar days.
+ * Weekday exclusions retain the reason labels used by the existing planners.
+ * A reversed range is empty. Callers own their input validation.
+ * @returns {{counted: number, days: number, weekdayExclusions: Array<{date: Date, name: string}>}}
+ */
+export function summarizeDayRange(mode, from, to) {
+  let counted = 0;
+  let days = 0;
+  const weekdayExclusions = [];
+  for (let date = from; date <= to; date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)) {
+    days += 1;
+    const reason = dayReason(mode, date);
+    if (reason === null) counted += 1;
+    else if (date.getDay() >= 1 && date.getDay() <= 5) weekdayExclusions.push({ date, name: reason });
+  }
+  return { counted, days, weekdayExclusions };
+}

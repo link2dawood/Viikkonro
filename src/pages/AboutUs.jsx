@@ -1,77 +1,31 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import SocialLinks from "../components/SocialLinks";
-import { routeMeta } from "../data/seo";
-const AboutUs = () => {
-  const meta = routeMeta["/tietoa-meista"];
-  return (
-    <>
-      <section className="app">
-        <SEO title={meta.title} description={meta.description} />
-        <div className="breadcrumb">
-          <Link to="/">Etusivu</Link> / Tietoa meistä
-        </div>
-        <h1>Tietoa meistä</h1>
-        <div className="prose">
-          <p>
-            Tervetuloa palveluun <strong>Viikko Nro</strong> – digitaalinen
-            työkalusi ajan seurantaan, kalenterijärjestelmiin ja vuoden
-            suunnitteluun tarkasti.
-          </p>
-        </div>
-        <h2>Keitä me olemme?</h2>
-        <div className="prose">
-          <p>
-            Olemme joukko intohimoisia kehittäjiä ja tuottavuuden ystäviä, jotka
-            ovat omistautuneet yksinkertaistamaan sitä, miten ihmiset käyttävät
-            kalentereita. Uskomme, ettei ajan seurannan tulisi olla
-            monimutkaista, sekavaa tai vanhentuneiden alueellisten
-            kalenterisääntöjen kuormittamaa. Siksi rakensimme selkeän ja erittäin
-            tarkan, maailmanlaajuisiin standardeihin perustuvan alustan, joka
-            antaa sinulle välittömän selkeyden aikatauluusi.
-          </p>
-        </div>
-        <h2>Tehtävämme</h2>
-        <div className="prose">
-          <p>
-            Tehtävämme on yksinkertainen: tarjota selkeitä, salamannopeita ja
-            helppokäyttöisiä verkkotyökaluja, jotka auttavat yksityishenkilöitä,
-            projektipäälliköitä ja yrityksiä pysymään ajan tasalla. Käyttämällä
-            yleismaailmallisia standardeja kuten ISO 8601 -kalenterijärjestelmää
-            poistamme arvailun aikatauluttamisesta, päivämäärälaskennasta ja
-            kuluneen ajan seurannasta.
-          </p>
-        </div>
-        <h2>Miksi valita meidät?</h2>
-        <ul>
-          <li>
-            <strong>Yksinkertaisuus edellä:</strong> Ei sekavuutta eikä
-            monimutkaisia asetuksia – vain ne täsmälliset päivämäärä- ja
-            aikatiedot, joita tarvitset silloin kun tarvitset.
-          </li>
-          <li>
-            <strong>Tekninen tarkkuus:</strong> Rakennettu vankalla logiikalla
-            varmistaen, että tietosi ovat täydellisesti synkronoituja
-            maailmanlaajuisten standardien kanssa.
-          </li>
-          <li>
-            <strong>Käytettävissä kaikkialla:</strong> Täysin optimoitu mobiili-,
-            työpöytä- ja tablettiselaimille, joten voit tarkistaa aikataulusi
-            missä tahansa.
-          </li>
-        </ul>
-        <p>
-          Kiitos, että olemme osa päivittäistä tuottavuusrutiiniasi!
-        </p>
-        <h2>Seuraa meitä</h2>
-        <div className="prose">
-          <p>Löydät Viikko Nron myös sosiaalisessa mediassa:</p>
-        </div>
-        <SocialLinks />
-      </section>
-    </>
-  );
-};
+import { LegalNavigation, LegalOperator, LegalUpdated } from "../components/LegalContact.jsx";
+import { canonicalFor, routeMeta } from "../data/seo";
 
-export default AboutUs;
+export default function AboutUs() {
+  return <section className="app">
+    <SEO {...routeMeta["/tietoa-meista"]} canonical={canonicalFor("/tietoa-meista")} />
+    <div className="breadcrumb"><Link to="/">Etusivu</Link> / Tietoa meistä</div>
+    <h1>Tietoa Viikkonrosta</h1>
+    <p className="lead">Viikkonro.fi auttaa tarkistamaan viikkonumeron, löytämään kalenterin ja suunnittelemaan arjen tai yrityksen aikatauluja suomeksi.</p>
+    <LegalUpdated />
+    <div className="prose">
+      <h2>Maksuttomat kalenterit ja laskurit</h2>
+      <p>Voit tarkistaa ISO-viikkonumerot, Suomen pyhäpäivät ja työpäivät sekä ladata tavalliset tulostettavat kalenterit ilman käyttäjätiliä. <Link to="/laskurit">Työkaluhakemisto</Link> kokoaa laskurit ja suunnittelutyökalut käyttötarkoituksen mukaan.</p>
+      <h2>Yrityksen suunnitteluun</h2>
+      <p><Link to="/yrityskalenteri">Viikkonro Yrityskalenteri</Link> yhdistää yrityksen omat merkinnät, logon, sulkupäivät ja palkkapäivät samaan kalenteriin. Esikatselu on maksuton. Valitun kalenterivuoden PDF-, Excel-, CSV- ja ICS-lataukset avataan kertamaksulla, jonka hinta näytetään ennen ostoa.</p>
+      <p>Yrityskalenterin ostoon ei tarvita tiliä. Tiimin ja usean yrityksen yksityiset suunnitelmat ovat erillisiä kirjautumista ja käyttöoikeuksia edellyttäviä toimintoja. Kaikki suunnittelutuotteet eivät ole maksullisessa myynnissä, eikä yhden tuotteen ostos automaattisesti avaa muita tuotteita.</p>
+      <h2>Mihin tiedot ja laskenta perustuvat?</h2>
+      <p>Viikkonumerot perustuvat ISO-viikkoihin. <Link to="/tietolahteet">Tietolähteet</Link> kertovat aineistojen alkuperästä ja kattavuudesta. <Link to="/menetelma">Menetelmä</Link> selittää laskennan, ja <Link to="/toimitusperiaatteet">toimitusperiaatteet</Link> kuvaavat sisällön tarkistamista.</p>
+      <p>Työpäivien laskenta, viisipäiväisen työviikon lomasuunnittelu ja vuosilomalain mukainen lomapäivien kuluminen ovat erillisiä laskentatapoja. HR- ja suunnittelutyökalut eivät takaa työehtosopimuksen, työnantajan käytännön tai lakisääteisten velvoitteiden täyttymistä.</p>
+      <h2>Ylläpito, palaute ja virheiden korjaaminen</h2>
+      <p>Jos huomaat virheen, kerro sivun osoite, päivämäärä ja odottamasi tulos. Älä lähetä salasanaa, yksityistä ostotunnusta tai työntekijöiden arkaluonteisia tietoja.</p>
+      <LegalOperator />
+      <h2>Muut tavat käyttää Viikkonroa</h2>
+      <p>Viikkonrosta on myös <Link to="/android-sovellus">Android-sovellus</Link> ja <Link to="/chrome-extension">Chrome-laajennus</Link>. Kehittäjille on <Link to="/avoin-data">avoimia kalenteriaineistoja</Link> ja verkkosivuille <Link to="/upota-viikkonumero">upotettava viikkonumero ja kalenteri</Link>.</p>
+      <SocialLinks />
+    </div><LegalNavigation />
+  </section>;
+}

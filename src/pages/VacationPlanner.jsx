@@ -5,6 +5,8 @@ import SEO from "../components/SEO";
 import DayRuleNote from "../components/DayRuleNote";
 import usePlannerCreated from "../components/usePlannerCreated";
 import { useToday } from "../components/useToday";
+import VacationPro from "../components/vacationPro/VacationPro";
+import GrowthCTA from "../components/GrowthCTA";
 import { canonicalFor, routeMeta } from "../data/seo";
 import { dm, dmy, parseIsoDate, weekRangeLabel } from "../data/planningDates";
 import {
@@ -130,6 +132,8 @@ const VacationPlanner = () => {
       </div>
 
       <DayRuleNote mode="FINLAND_PLANNER" />
+      <GrowthCTA inline />
+      <VacationPro today={today} />
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {fmtFullFi(parseIsoDate(PLANNER_UPDATED))}.</p>
@@ -141,7 +145,10 @@ const VacationPlanner = () => {
           ))}
         </ol>
 
-        <h2>
+      </section>
+
+      <section className="vacation-comparison" aria-labelledby="vacation-comparison-title">
+        <h2 id="vacation-comparison-title">
           Pisin tauko lomapäivien mukaan {year} ja {year + 1}
         </h2>
         <p>
@@ -150,7 +157,9 @@ const VacationPlanner = () => {
         </p>
         <BreakTable year={year} />
         <BreakTable year={year + 1} />
+      </section>
 
+      <section className="prose">
         <h2>Näin suunnittelija laskee</h2>
         <ul>
           <li>

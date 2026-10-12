@@ -1,0 +1,14 @@
+.tool-directory-pro {
+  padding: 20px;
+  margin-block: 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+}
+.tool-directory-pro h3 { margin-top: 0; }
+.tool-tier {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-block: 8px;
+}

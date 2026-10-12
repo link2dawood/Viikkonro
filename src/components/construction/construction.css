@@ -1,0 +1,31 @@
+.construction-editor, .construction-preview { margin-block: 1.5rem; padding: 1.25rem; border: 1px solid var(--border, #b9c5ce); border-radius: 8px; }
+.construction-page fieldset { min-width: 0; margin-block: 1rem; padding: 1rem; }
+.construction-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.construction-page label { display: block; margin-block: .6rem; }
+.construction-page input, .construction-page select, .construction-page textarea { display: block; width: 100%; box-sizing: border-box; }
+.construction-page textarea { min-height: 5rem; }
+.construction-add, .construction-downloads { display: flex; flex-wrap: wrap; gap: .65rem; }
+.construction-add button { padding: .5rem .75rem; }
+.construction-preview { overflow-wrap: anywhere; }
+.construction-preview td p { margin: .4rem 0; white-space: pre-wrap; }
+.construction-preview th { overflow-wrap: anywhere; }
+.construction-conflicts { padding: .8rem; border-left: 3px solid #a45b0a; }
+@media (max-width: 600px) { .construction-fields { grid-template-columns: 1fr; } .construction-editor, .construction-preview { padding: .8rem; } }
+@page construction { size: A4 landscape; margin: 12mm; }
+@media print {
+  .construction-page > .breadcrumb, .construction-page > h1, .construction-page > .lead, .construction-editor, .construction-actions, .construction-help, .construction-links { display: none !important; }
+  .construction-preview { page: construction; margin: 0; padding: 0; border: 0; color: #111; }
+  .construction-preview .table-wrap { overflow: visible; }
+  .construction-preview table { width: 100%; table-layout: fixed; font-size: 9pt; }
+  .construction-preview h2 { font-size: 16pt; line-height: 1.2; margin: 0 0 4mm; }
+  .construction-preview h3 { font-size: 12pt; line-height: 1.2; margin: 4mm 0 2mm; }
+  .construction-preview p { font-size: 9pt; line-height: 1.35; margin: 2mm 0; }
+  .construction-preview td, .construction-preview th { padding: 2mm; }
+  .construction-preview .note-soft, .construction-preview .construction-conflicts { font-size: 8pt; padding: 2mm; }
+  .construction-records th:nth-child(1) { width: 25%; }
+  .construction-records th:nth-child(2) { width: 20%; }
+  .construction-records th:nth-child(3) { width: 10%; }
+  .construction-records th:nth-child(4) { width: 45%; }
+  .construction-preview thead { display: table-header-group; }
+  .construction-preview tr { break-inside: avoid; }
+}

@@ -6,17 +6,20 @@ import { DEFAULT_BRAND_COLOR, defaultCompanyCalendarInput } from "../../data/com
 import { dayKey, toDate } from "../../platform/calendar/events.js";
 import { MAX_COMPANY_EVENTS, MAX_PAYDAY_DATES } from "../../platform/calendar/config.js";
 import { LAYOUTS, PAPER } from "../../platform/design/layouts.js";
+import { validateBranding } from "../../platform/design/branding.js";
+import { isCalendarIdentity } from "../../platform/export/companyIcs.js";
 
 export const MAX_CLOSURES = 60;
 export const DRAFT_KEY = "viikkonro:company-calendar:draft:v1";
 export const DRAFT_MAX_CHARS = 1_200_000; // the logo (up to 512 KB) is stored as base64 text
 
 let rowCounter = 0;
-export const newRowId = () => `r${(rowCounter += 1)}`;
+export const newRowId = () => globalThis.crypto?.randomUUID ? `r${globalThis.crypto.randomUUID()}` : `r${(rowCounter += 1)}`;
 
 export function createForm(year) {
   return {
     year,
+    calendarId: null, // assigned after hydration and persisted with the draft
     companyName: "",
     logo: null, // { mime, dataUri }, validated before it gets here
     color: DEFAULT_BRAND_COLOR,
@@ -48,6 +51,7 @@ const inYear = (value, year) => {
  */
 export function formToConfigInput(form) {
   let skipped = 0;
+  const issues = [];
   const base = defaultCompanyCalendarInput(form.year);
 
   const periods = [];
@@ -62,7 +66,7 @@ export function formToConfigInput(form) {
     }
     periods.push({ id: `closure-${row.id}`, label: row.label.trim() || "Sulkupäivä", start: dayKey(start), end: dayKey(end), kind: "closure" });
   }
-  if (form.seasonOn && form.season.start) {
+  if (form.seasonOn) {
     const start = toDate(form.season.start);
     const end = toDate(form.season.end || form.season.start);
     if (start && end && end >= start && start <= new Date(form.year, 11, 31) && end >= new Date(form.year, 0, 1)) {
@@ -87,9 +91,14 @@ export function formToConfigInput(form) {
     else paydayDates.push(row.date);
   }
 
-  const day = Math.min(31, Math.max(1, Math.trunc(Number(form.paydayDay)) || 15));
+  const day = Number(form.paydayDay);
+  const validPayday = Number.isInteger(day) && day >= 1 && day <= 31;
+  if (form.paydayRule === "day" && !validPayday) issues.push("Anna toistuvaksi palkkapäiväksi kokonaisluku 1-31.");
+  if (form.schoolOn && !form.schoolCity) issues.push("Valitse koululomien kaupunki tai poista koululomat käytöstä.");
+  if (skipped > 0) issues.push(`Tarkista ${skipped} keskeneräistä tai valitun vuoden ulkopuolelle jäävää riviä ennen lataamista.`);
   return {
     skipped,
+    issues,
     input: {
       ...base,
       layout: { id: form.layout, paper: form.paper },
@@ -98,7 +107,7 @@ export function formToConfigInput(form) {
         weekNumbers: true,
         holidays: form.holidays,
         flagDays: form.flagDays,
-        paydays: form.paydayRule === "day" ? { day } : form.paydayRule === "last" ? { day: "last" } : null,
+        paydays: form.paydayRule === "day" && validPayday ? { day } : form.paydayRule === "last" ? { day: "last" } : null,
         schoolHolidays: form.schoolOn && form.schoolCity ? { city: form.schoolCity } : null,
       },
       paydayDates,
@@ -129,6 +138,9 @@ export function limitedPreviewInput(input) {
 export function issueToFinnish(issue) {
   const rules = [
     [/SVG logo must not contain/, () => "SVG-logo ei saa sisältää skriptejä, tapahtumankäsittelijöitä tai upotettuja kehyksiä."],
+    [/SVG logo must be self-contained/, () => "SVG-logon tulee sisältää kaikki kuvat ja muodot ilman ulkoisia linkkejä."],
+    [/An event can span at most/, () => "Sulkupäivien tai lomakauden jakso saa kestää enintään 400 päivää."],
+    [/Event title is longer than/, () => "Merkinnän nimi saa olla enintään 120 merkkiä."],
     [/Logo is larger than/, () => "Logo on liian suuri. Enimmäiskoko on 512 kt."],
     [/Logo must be a PNG, JPEG or SVG/, () => "Valitse PNG- tai SVG-tiedosto."],
     [/Company name is longer than/, () => "Yrityksen nimi on liian pitkä. Enimmäispituus on 80 merkkiä."],
@@ -140,16 +152,31 @@ export function issueToFinnish(issue) {
     const m = re.exec(issue);
     if (m) return make(m);
   }
-  return `Kalenterin asetuksissa on virhe: ${issue}`;
+  return "Kalenterin asetuksissa on virhe. Tarkista merkintöjen päivät ja nimet.";
 }
 
 // ── Draft in the browser (never sent anywhere) ─────────────────────────────
 
 export const serializeDraft = (form) => JSON.stringify({ v: 1, form });
 
+export function persistDraft(storage, form) {
+  try {
+    if (!storage) return false;
+    storage.setItem(DRAFT_KEY, serializeDraft(form));
+    return true;
+  } catch { return false; }
+}
+
 const str = (v, max = 200) => (typeof v === "string" ? v.slice(0, max) : "");
-const rows = (list, max, pick) =>
-  (Array.isArray(list) ? list.slice(0, max) : []).filter((r) => r && typeof r === "object").map((r) => ({ id: newRowId(), ...pick(r) }));
+const rows = (list, max, pick) => {
+  const used = new Set();
+  return (Array.isArray(list) ? list.slice(0, max) : []).filter((r) => r && typeof r === "object").map((r) => {
+    let id = typeof r.id === "string" && /^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(r.id) && !used.has(r.id) ? r.id : newRowId();
+    while (used.has(id)) id = newRowId();
+    used.add(id);
+    return { id, ...pick(r) };
+  });
+};
 
 /** A saved draft back into a safe form, or null. Unknown or malformed parts are ignored, never trusted. */
 export function parseDraft(text, { years, fallbackYear }) {
@@ -163,6 +190,7 @@ export function parseDraft(text, { years, fallbackYear }) {
   const f = data?.form;
   if (data?.v !== 1 || !f || typeof f !== "object") return null;
   const form = createForm(years.includes(f.year) ? f.year : fallbackYear);
+  form.calendarId = isCalendarIdentity(f.calendarId) ? f.calendarId : null;
   form.companyName = str(f.companyName, 80);
   form.color = /^#[0-9a-f]{6}$/i.test(f.color) ? f.color : DEFAULT_BRAND_COLOR;
   form.layout = LAYOUTS[f.layout] ? f.layout : "year-glance";
@@ -172,7 +200,7 @@ export function parseDraft(text, { years, fallbackYear }) {
   form.schoolOn = f.schoolOn === true;
   form.schoolCity = str(f.schoolCity, 60);
   form.paydayRule = ["none", "day", "last"].includes(f.paydayRule) ? f.paydayRule : "none";
-  form.paydayDay = Math.min(31, Math.max(1, Math.trunc(Number(f.paydayDay)) || 15));
+  form.paydayDay = typeof f.paydayDay === "number" || typeof f.paydayDay === "string" ? f.paydayDay : 15;
   form.paydayDates = rows(f.paydayDates, MAX_PAYDAY_DATES, (r) => ({ date: str(r.date, 10) }));
   form.closures = rows(f.closures, MAX_CLOSURES, (r) => ({ label: str(r.label, 120), start: str(r.start, 10), end: str(r.end, 10) }));
   form.events = rows(f.events, MAX_COMPANY_EVENTS, (r) => ({ date: str(r.date, 10), title: str(r.title, 120) }));
@@ -181,7 +209,7 @@ export function parseDraft(text, { years, fallbackYear }) {
   // The logo is kept only if it is a data URI of a type the builder accepts.
   const uri = f.logo?.dataUri;
   if (typeof uri === "string" && /^data:image\/(png|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(uri)) {
-    form.logo = { mime: uri.startsWith("data:image/png") ? "image/png" : "image/svg+xml", dataUri: uri };
+    form.logo = validateBranding({ logo: { dataUri: uri } }).branding?.logo ?? null;
   }
   return form;
 }

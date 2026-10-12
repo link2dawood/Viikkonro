@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { isoWeek, isoYear, navigationYearTargets } from "./dateUtils";
 
-const Navbar = () => {
+const Navbar = ({ reloadDocument = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
   const isEnglishPage = pathname === "/en";
@@ -30,7 +30,7 @@ const Navbar = () => {
     <header className="nav">
       <div className="wrap row">
         {/* Brand Text Block */}
-        <Link
+        <Link reloadDocument={reloadDocument}
           className="brand"
           to={isEnglishPage ? "/en" : "/"}
           onClick={closeMenu}
@@ -66,31 +66,31 @@ const Navbar = () => {
         >
           {isEnglishPage ? (
             <>
-              <Link to="/en" onClick={closeMenu}>English home</Link>
-              <Link to="/" hrefLang="fi" onClick={closeMenu}>Finnish site</Link>
-              <Link to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={closeMenu}>
+              <Link reloadDocument={reloadDocument} to="/en" onClick={closeMenu}>English home</Link>
+              <Link reloadDocument={reloadDocument} to="/" hrefLang="fi" onClick={closeMenu}>Finnish site</Link>
+              <Link reloadDocument={reloadDocument} to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={closeMenu}>
                 All weeks {currentYear} (Finnish)
               </Link>
-              <Link to={`/kalenteri-${promotedYear}`} hrefLang="fi" onClick={closeMenu}>
+              <Link reloadDocument={reloadDocument} to={`/kalenteri-${promotedYear}`} hrefLang="fi" onClick={closeMenu}>
                 Calendar {promotedYear} (Finnish)
               </Link>
-              <Link to="/avoin-data" hrefLang="fi" onClick={closeMenu}>
+              <Link reloadDocument={reloadDocument} to="/avoin-data" hrefLang="fi" onClick={closeMenu}>
                 Open data (Finnish)
               </Link>
             </>
           ) : (
             <>
-              <Link id="navYear" to={`/vuosi-${currentYear}`} onClick={closeMenu}>
+              <Link reloadDocument={reloadDocument} id="navYear" to={`/vuosi-${currentYear}`} onClick={closeMenu}>
                 Viikot {currentYear}
               </Link>
-              <Link id="navPrint" to={`/tulosta-${promotedYear}`} onClick={closeMenu}>
+              <Link reloadDocument={reloadDocument} id="navPrint" to={`/tulosta-${promotedYear}`} onClick={closeMenu}>
                 Viikkolista {promotedYear}
               </Link>
-              <Link id="navCalendar" to={`/kalenteri-${promotedYear}`} onClick={closeMenu}>
+              <Link reloadDocument={reloadDocument} id="navCalendar" to={`/kalenteri-${promotedYear}`} onClick={closeMenu}>
                 Kalenteri {promotedYear}
               </Link>
-              <Link to="/laskurit" onClick={closeMenu}>Laskurit</Link>
-              <Link to="/mika-on-viikkonumero" onClick={closeMenu}>Tietoa viikoista</Link>
+              <Link reloadDocument={reloadDocument} to="/laskurit" onClick={closeMenu}>Laskurit</Link>
+              <Link reloadDocument={reloadDocument} to="/mika-on-viikkonumero" onClick={closeMenu}>Tietoa viikoista</Link>
             </>
           )}
         </nav>
@@ -101,7 +101,7 @@ const Navbar = () => {
             Week {weekNow}
           </span>
         ) : (
-          <Link
+          <Link reloadDocument={reloadDocument}
             className="badge"
             id="navBadge"
             to={`/vuosi-${weekYear}`}

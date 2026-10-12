@@ -19,6 +19,7 @@ export * from "./design/branding.js";
 export * from "./design/themes.js";
 export * from "./design/layouts.js";
 export * from "./export/ics.js";
+export * from "./export/companyIcs.js";
 export * from "./export/csv.js";
 export * from "./export/xlsx.js";
 export * from "./export/calendar.js";
@@ -27,4 +28,22 @@ export * from "./business/licensing.js";
 export * from "./business/payment.js";
 export * from "./planners.js";
 export * from "./analytics.js";
-export { DAY_RULES, dayReason, countsAsDay } from "../data/dayRules.js";
+export { DAY_RULES, dayReason, countsAsDay, summarizeDayRange } from "../data/dayRules.js";
+export { renderCalendarPdf } from "./render/pdf.js";
+
+export * from "./templates/catalog.js";
+export * from "./templates/workbook.js";
+export * from "./templates/access.js";
+export { renderTemplatePdf } from "./templates/pdf.js";
+
+export * from "./vacation/config.js";
+export * from "./vacation/model.js";
+export * from "./vacation/exports.js";
+export { renderVacationPdf } from "./vacation/pdf.js";
+
+export * from "./planning/dates.js";
+export * from "./planning/model.js";
+export * from "./planning/exports.js";
+export * from "./construction/config.js";
+export * from "./construction/model.js";
+export * from "./construction/exports.js";

@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { englishFaqs, englishMeta, englishWeekFacts, formatEnglishDate } from "../data/englishContent";
 import { canonicalFor, CONTENT_UPDATED } from "../data/seo";
+import { useToday } from "../components/useToday.js";
 
 const EnglishHome = () => {
-  const fact = englishWeekFacts();
-  const meta = englishMeta();
+  const today = useToday();
+  const fact = englishWeekFacts(today);
+  const meta = englishMeta(today);
   return (
     <section className="app">
       <SEO

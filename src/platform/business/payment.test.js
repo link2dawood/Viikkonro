@@ -50,7 +50,9 @@ describe("payment providers", () => {
 
 describe("choosing the provider for an environment", () => {
   it("offers the development unlock only in development", () => {
-    expect(resolvePaymentProvider({ DEV: true, PROD: false, MODE: "development" }).id).toBe("dev-unlock");
+    for (const hostname of ["localhost", "127.0.0.1", "::1", "[::1]"]) {
+      expect(resolvePaymentProvider({ DEV: true, PROD: false, MODE: "development" }, { hostname }).id).toBe("dev-unlock");
+    }
   });
   it("can never offer it in a production build", () => {
     for (const env of [
@@ -63,7 +65,23 @@ describe("choosing the provider for an environment", () => {
       null,
       undefined,
     ]) {
-      expect(resolvePaymentProvider(env), JSON.stringify(env)).toBe(unavailableProvider);
+      expect(resolvePaymentProvider(env, { hostname: "localhost" }), JSON.stringify(env)).toBe(unavailableProvider);
     }
+  });
+  it("keeps shared or unknown development hosts locked", () => {
+    for (const hostname of [undefined, "example.com", "192.168.1.2", "localhost.example.com"]) {
+      expect(resolvePaymentProvider({ DEV: true, PROD: false, MODE: "development" }, { hostname })).toBe(unavailableProvider);
+    }
+  });
+  it("supports local testing when browser storage is blocked", async () => {
+    const storage = {
+      getItem() { throw new Error("blocked"); },
+      setItem() { throw new Error("blocked"); },
+      removeItem() { throw new Error("blocked"); },
+    };
+    const provider = createDevUnlockProvider({ storage });
+    expect(provider.restoreLicense()).toBeNull();
+    expect((await provider.startCheckout(request)).status).toBe("granted");
+    expect(() => clearDevLicense(storage)).not.toThrow();
   });
 });
