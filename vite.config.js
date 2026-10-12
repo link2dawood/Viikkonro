@@ -29,6 +29,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       rollupOptions: isSsrBuild
         ? {}
         : {
+            input: { main: "index.html", team: "tiimin-lomat/suunnittelu.html" },
             output: {
               // rolldown (Vite 8) requires the function form of manualChunks.
               manualChunks(id) {
@@ -36,6 +37,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 // pdfkit (2 MB) is loaded on demand by the company calendar export;
                 // it must never be merged into the vendor chunk every page loads.
                 if (id.includes("pdfkit")) return "pdfkit";
+                if (id.includes("@supabase/")) return "team-backend";
                 if (id.includes("react-router")) return "router";
                 if (
                   id.includes("/react-dom/") ||

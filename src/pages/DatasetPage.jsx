@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
+import "./datasetPage.css";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
 import { DATASET_PAGES, datasetPageFaqs, datasetPageMeta } from "../data/datasetPages";
 import { PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR } from "../components/dateUtils";
@@ -83,7 +84,7 @@ const DatasetPage = ({ family }) => {
         </table>
       </div>
       <p className="note-soft">
-        CSV-sarakkeet: <code>{p.csvColumns}</code>
+        CSV-sarakkeet: <code className="dataset-columns">{p.csvColumns}</code>
       </p>
 
       <div className="prose">

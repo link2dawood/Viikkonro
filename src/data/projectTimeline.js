@@ -5,69 +5,15 @@
 //
 // Day rule: FINLAND_PROJECT in dayRules.js, the same working days as
 // /tyopaivalaskuri; the two eves count as working days.
-import { isoWeek, isoYear } from "../components/dateUtils.js";
-import { addDays, atMidnight, dmy } from "./planningDates.js";
-import { countsAsDay, dayReason } from "./dayRules.js";
+import { dmy } from "./planningDates.js";
+import { buildProjectTimeline, MAX_PROJECT_DAYS, MILESTONES } from "../platform/planning/dates.js";
+export { MAX_PROJECT_DAYS, MILESTONES };
 import { plannerMode, plannerPath } from "../platform/planners.js";
 
 export const PROJECT_PATH = plannerPath("project");
-export const PROJECT_UPDATED = "2026-10-06";
-const MODE = plannerMode("project");
-const counts = (d) => countsAsDay(MODE, d);
-export const MAX_PROJECT_DAYS = 520;
-export const MILESTONES = [25, 50, 75, 100];
+export const PROJECT_UPDATED = "2026-10-10";
 
-// First working day on or after `date`.
-function firstWorkingDay(date) {
-  let d = atMidnight(date);
-  while (!counts(d)) d = addDays(d, 1);
-  return d;
-}
-
-// The project plan, or null for unusable input. Give `workingDays` (length)
-// or `end` (last day); the project starts on the first working day on or after
-// `start`.
-export function projectPlan(start, { workingDays, end } = {}) {
-  if (!start) return null;
-  const first = firstWorkingDay(start);
-  const days = [];
-  if (end) {
-    const last = atMidnight(end);
-    if (last < first) return null;
-    for (let d = first; d <= last && days.length <= MAX_PROJECT_DAYS; d = addDays(d, 1)) {
-      if (counts(d)) days.push(d);
-    }
-    if (!days.length || days.length > MAX_PROJECT_DAYS) return null;
-  } else {
-    const n = Math.trunc(Number(workingDays));
-    if (!Number.isFinite(n) || n < 1 || n > MAX_PROJECT_DAYS) return null;
-    for (let d = first; days.length < n; d = addDays(d, 1)) if (counts(d)) days.push(d);
-  }
-  const lastDay = days[days.length - 1];
-
-  // One row per ISO week the project touches.
-  const rows = [];
-  for (let d = first; d <= lastDay; d = addDays(d, 1)) {
-    const week = isoWeek(d);
-    const year = isoYear(d);
-    let row = rows[rows.length - 1];
-    if (!row || row.week !== week || row.year !== year) {
-      row = { week, year, from: d, to: d, workingDays: 0, holidays: [] };
-      rows.push(row);
-    }
-    row.to = d;
-    const reason = dayReason(MODE, d);
-    if (reason === null) row.workingDays += 1;
-    else if (d.getDay() >= 1 && d.getDay() <= 5) row.holidays.push({ date: d, name: reason });
-  }
-
-  const milestones = MILESTONES.map((percent) => {
-    const date = days[Math.ceil((days.length * percent) / 100) - 1];
-    return { percent, date, week: isoWeek(date), weekYear: isoYear(date) };
-  });
-  const calendarDays = Math.round((lastDay - first) / 86400000) + 1;
-  return { start: first, end: lastDay, workingDays: days.length, calendarDays, rows, milestones };
-}
+export const projectPlan = (start, options = {}) => buildProjectTimeline(start, { ...options, mode: plannerMode("project") });
 
 // Fixed example, computed by the planner itself.
 export function projectExample() {
@@ -78,6 +24,8 @@ export function projectFaqs() {
   const ex = projectExample();
   const half = ex.milestones.find((m) => m.percent === 50);
   return [
+    { q: "Voinko lisätä vaiheita ja omia välitavoitteita?", a: "Voit lisätä enintään 30 vaihetta ja 50 omaa välitavoitetta. Riippuvainen vaihe alkaa edellisen valmistumisen jälkeisenä työpäivänä. Vaiheiden pitää mahtua projektin alku- ja loppupäivän välille. Välitavoite voi olla tietty päivämäärä tai vaiheen valmistuminen." },
+    { q: "Voinko ladata projektisuunnitelman?", a: "Voit ladata PDF:n, Excel-tiedoston ja ICS-kalenteritiedoston maksutta ilman tiliä. Excel sisältää viikot, kuukaudet, vaiheet ja välitavoitteet. Tiedot käsitellään omassa selaimessasi eikä suunnitelmaa tallenneta palvelimelle. ICS on tuotava tiedosto, ei päivittyvä tilaus." },
     {
       q: "Miten projektin loppupäivä lasketaan työpäivinä?",
       a: `Projekti alkaa aloituspäivästä tai sitä seuraavasta työpäivästä, ja jokainen maanantain ja perjantain välinen päivä, joka ei ole arkipyhä, on yksi työpäivä. Esimerkiksi ${ex.workingDays} työpäivän projekti, joka alkaa ${dmy(ex.start)}, päättyy ${dmy(ex.end)}.`,

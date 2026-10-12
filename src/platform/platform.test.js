@@ -132,9 +132,9 @@ describe("layouts", () => {
 });
 
 describe("product catalogue and licensing", () => {
-  it("lists the platform's products with the three live free planners", () => {
-    expect(Object.keys(PRODUCTS)).toHaveLength(13);
-    expect(productsByStatus("live").map((p) => p.id).sort()).toEqual(["project-planner", "sprint-planner", "vacation-planner"]);
+  it("lists the platform's products with the free templates and four live planners", () => {
+    expect(Object.keys(PRODUCTS)).toHaveLength(15);
+    expect(productsByStatus("live").map((p) => p.id).sort()).toEqual(["construction-planner", "excel-templates", "hr-payroll-calendar", "project-planner", "sprint-planner", "team-leave-planner", "vacation-planner"]);
     for (const p of Object.values(PRODUCTS)) {
       expect(p.id).toBe(Object.keys(PRODUCTS).find((k) => PRODUCTS[k] === p));
       expect(["free", "one-time", "subscription"]).toContain(p.pricing.model);
@@ -149,6 +149,10 @@ describe("product catalogue and licensing", () => {
       expect(routeMeta[p.path]).toBeDefined();
       expect(sitemap.has(p.path)).toBe(true);
     }
+  });
+  it("registers the company calendar as a preview without claiming payment is live", () => {
+    expect(getProduct("company-calendar")).toMatchObject({ name: "Viikkonro Yrityskalenteri", status: "preview", path: "/yrityskalenteri" });
+    expect(routeMeta[getProduct("company-calendar").path]).toBeDefined();
   });
   const license = createLicense({ productId: "company-calendar", tier: "paid", issuedOn: "2026-11-01", expiresOn: "2027-12-31", licensee: " Oy Testi " });
   it("creates a licence only for a paid tier of a known product", () => {
@@ -263,12 +267,15 @@ describe("platform barrel", () => {
       "calendarToCsv",
       "calendarToXlsx",
       "calendarToIcs",
+      "renderCalendarPdf",
       "PRODUCTS",
       "createLicense",
       "PLANNERS",
       "platformEventCommands",
+      "plannerCreatedEvents",
       "DAY_RULES",
       "dayReason",
+      "summarizeDayRange",
     ]) {
       expect(platform[name], name).toBeDefined();
     }

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import DayRuleNote from "../components/DayRuleNote";
+import PlannerEditor from "../components/planning/PlannerEditor";
+import GrowthCTA from "../components/GrowthCTA";
 import usePlannerCreated from "../components/usePlannerCreated";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta } from "../data/seo";
@@ -63,7 +65,8 @@ const SprintPlanner = () => {
   const [start, setStart] = useState(() => toIsoDate(nextMonday(today)));
   const [weeks, setWeeks] = useState("2");
   const [count, setCount] = useState("12");
-  const plan = sprintPlan(parseIsoDate(start), weeks, count);
+  const [firstNumber, setFirstNumber] = useState("1");
+  const plan = sprintPlan(parseIsoDate(start), weeks, count, firstNumber);
   const current = sprintOn(plan, today);
   usePlannerCreated(
     plan
@@ -120,6 +123,10 @@ const SprintPlanner = () => {
             onChange={(e) => setCount(e.target.value)}
           />
         </div>
+        <div>
+          <label htmlFor="s-number">Ensimmäisen sprintin numero</label>
+          <input type="number" id="s-number" min="1" max="1000000" value={firstNumber} onChange={(e) => setFirstNumber(e.target.value)} />
+        </div>
         {plan ? (
           <>
             <div className="result" aria-live="polite">
@@ -140,6 +147,8 @@ const SprintPlanner = () => {
       </div>
 
       <DayRuleNote mode="FINLAND_SPRINT" />
+      <GrowthCTA inline />
+      <PlannerEditor kind="sprint" start={start} weeks={weeks} count={count} firstNumber={firstNumber} />
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {fmtFullFi(parseIsoDate(SPRINT_UPDATED))}.</p>

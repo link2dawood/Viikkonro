@@ -3,6 +3,7 @@ import { EVENT_KIND_LABELS_FI } from "../../platform/calendar/events.js";
 import { WEEKDAYS_MON_FIRST, weekList } from "../../platform/calendar/model.js";
 import { resolveTheme } from "../../platform/design/themes.js";
 import { dayStyle, legendKinds } from "../../platform/render/dayStyle.js";
+import { readableTextColor } from "../../platform/design/branding.js";
 
 const dm = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
 const NOTE_KINDS = new Set(["closure", "leave", "season", "school", "company", "payday", "flag-day"]);
@@ -23,7 +24,8 @@ function YearGlance({ model, colors }) {
     <div className="cc-year">
       {model.months.map((month) => {
         const notes = model.events.filter(
-          (e) => NOTE_KINDS.has(e.kind) && e.date.getMonth() === month.index && e.date.getFullYear() === model.year,
+          (e) => NOTE_KINDS.has(e.kind) && e.date <= new Date(model.year, month.index + 1, 0) &&
+            (e.endDate ?? e.date) >= new Date(model.year, month.index, 1),
         );
         return (
           <section className="cc-month" key={month.index}>
@@ -111,7 +113,7 @@ function MonthPage({ model, colors }) {
         <tbody>
           {month.rows.map((row) => (
             <tr key={`${row.weekYear}-${row.week}`}>
-              <th scope="row" className="cc-bigwk" style={{ background: colors.accent }}>{row.week}</th>
+              <th scope="row" className="cc-bigwk" style={{ background: colors.accent, color: readableTextColor(colors.accent) }}>{row.week}</th>
               {row.days.map((day, i) => {
                 if (!day) return <td key={i} className="cc-empty" />;
                 const style = dayStyle(day, colors);
@@ -173,7 +175,7 @@ export default function Preview({ model, locked, hasLogo, logo }) {
   const kinds = legendKinds(model);
   const name = config.branding.companyName;
   return (
-    <div className={`cc-frame${locked ? " cc-locked" : ""}`} style={{ borderTopColor: colors.accent }}>
+    <div className={`cc-frame${locked ? " cc-locked" : ""}`} data-clarity-mask="True" style={{ borderTopColor: colors.accent }}>
       <header className="cc-head">
         <div>
           <p className="cc-company" style={name ? undefined : { color: colors.inkSoft }}>{name || "Yrityksesi nimi"}</p>
@@ -199,6 +201,14 @@ export default function Preview({ model, locked, hasLogo, logo }) {
           ))}
         </ul>
       )}
+      <details className="cc-event-list">
+        <summary>Kaikki merkinnät ({model.events.filter((e) => e.kind !== "week").length})</summary>
+        <ul>
+          {model.events.filter((e) => e.kind !== "week").map((e) => (
+            <li key={e.id}>{dm(e.date)}{e.endDate ? `-${dm(e.endDate)}` : ""} {e.title}</li>
+          ))}
+        </ul>
+      </details>
       {locked && <div className="cc-watermark" aria-hidden="true" />}
     </div>
   );

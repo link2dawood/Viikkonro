@@ -1,41 +1,36 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
-import { routeMeta } from "../data/seo";
+import { canonicalFor, routeMeta } from "../data/seo";
 import { openConsentSettings } from "../consent";
+import { LegalNavigation, LegalOperator, LegalUpdated } from "../components/LegalContact.jsx";
 
 const PrivacyPolicy = () => {
   const meta = routeMeta["/tietosuoja"];
   return (
     <>
       <section className="app">
-        <SEO title={meta.title} description={meta.description} />
+        <SEO title={meta.title} description={meta.description} canonical={canonicalFor("/tietosuoja")} />
         <div className="breadcrumb">
           <Link to="/">Etusivu</Link> / Tietosuojaseloste
         </div>
         <h1>Tietosuojaseloste</h1>
-        <div className="prose">
-          <p>Päivitetty viimeksi: 7. lokakuuta 2026</p>
-        </div>
-        <h2>1. Rekisterinpitäjä ja yhteydenotto</h2>
-        <div className="prose">
-          <p>
-            Rekisterinpitäjä on Viikko Nro. Tietosuojaa koskevissa kysymyksissä
-            voit ottaa yhteyttä sivun{" "}
-            <Link to="/ota-yhteytta">yhteydenottolomakkeella</Link>.
-          </p>
-        </div>
+        <LegalUpdated />
+        <p className="lead">Tässä kerrotaan, mitä tietoja Viikkonron maksuttomat työkalut, yrityskalenterin ostaminen ja yksityiset suunnittelutilat käsittelevät. Android-sovelluksen käsittely on kuvattu erikseen.</p>
+        <h2>Rekisterinpitäjä ja yhteydenotto</h2>
+        <LegalOperator />
+        <div className="prose"><p>Viikkonron ylläpitäjä vastaa palvelun asiakas-, osto- ja yhteydenottotietojen käsittelystä. Organisaatio vastaa työntekijöidensä suunnittelutietojen käyttötarkoituksesta ja asianmukaisuudesta. Polar käsittelee maksamisen tietoja myös omien myyjän velvollisuuksiensa perusteella; sen rooli on erillinen Viikkonron roolista.</p></div>
 
-        <h2>2. Verkkosivustolla käsiteltävät tiedot</h2>
+        <h2>Verkkosivustolla käsiteltävät tiedot</h2>
         <div className="prose">
           <p>
-            <strong>Lokitiedostot:</strong> Kuten useimmat tavanomaiset
-            verkkopalvelimet, noudatamme vakiokäytäntöä lokitiedostojen
-            käytössä. Nämä tiedostot kirjaavat kävijät heidän vieraillessaan
-            verkkosivustoilla. Kerätyt tiedot sisältävät IP-osoitteet,
-            selaintyypin, internetpalveluntarjoajan (ISP), päivämäärä- ja
-            aikaleiman sekä viittaavat/poistumissivut.
+            <strong>Tekniset tiedot:</strong> Vercel ja Cloudflare käsittelevät
+            verkkopyynnön toimittamiseen ja suojaamiseen tarvittavia tietoja,
+            kuten IP-osoitetta, pyydettyä osoitetta, ajankohtaa sekä selaimen
+            ja verkkoyhteyden teknisiä tietoja. Kalenterien sisältöä ei ole
+            tarkoitettu palvelulokeihin.
           </p>
+          <p><strong>Virheenseuranta:</strong> Sentry vastaanottaa verkkosivun ohjelmavirheiden tyypin ja JavaScript-tiedoston rivitietoja vian selvittämiseksi. Raportista poistetaan lomakesisältö, alkuperäinen virheviesti, käyttäjätiedot, pyyntöjen sisältö ja osoitteiden hakuehdot. Sentry käsittelee tiedonsiirrossa myös teknisiä yhteystietoja, kuten IP-osoitetta. Yksityinen suunnittelutila ei käytä tätä verkkosivun virheenseurantaa.</p>
           <p>
             <strong>Paikallinen tallennus:</strong> Yhteydenottolomakkeen
             väärinkäytön estävä lähetysrajoitus tallentaa selaimen{" "}
@@ -43,7 +38,8 @@ const PrivacyPolicy = () => {
             käyttämiseen ei tarvita mainos- tai analytiikkaevästeitä.
             Evästevalintasi tallennetaan selaimen <code>localStorage</code>
             -muistiin avaimella <code>viikkonro-consent</code>, jotta sitä ei
-            kysytä jokaisella sivulla. Tieto ei lähde laitteeltasi.
+            kysytä jokaisella sivulla. Valinta ohjaa Claritylle lähetettäviä
+            suostumussignaaleja, jotka kuvataan jäljempänä.
           </p>
           <p>
             <strong>Käyttöanalytiikka:</strong> Microsoft Clarity voi käsitellä
@@ -59,6 +55,12 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
+        <h2>Yrityskalenterin ostaminen</h2>
+        <div className="prose">
+          <p>Yrityskalenterin luonnos ja esikatselu tallentuvat vain selaimeesi. Maksullista tiedostoa luotaessa yrityksen nimi, merkinnät ja logo lähetetään HTTPS-yhteydellä palvelimelle tiedoston tekemistä varten. Kalenterin sisältöä ei tallenneta tietokantaan eikä lähetetä maksupalvelulle tai analytiikkaan.</p>
+          <p>Polar käsittelee maksamisen ja kuitit. Maksusivulla antamasi yhteys- ja laskutustiedot käsitellään Polarissa. Viikkonro ei käsittele maksukortin tietoja. Latausoikeus tarkistetaan Polarilta ostotunnisteen, tuotteen ja kalenterivuoden perusteella.</p>
+          <p>Latausoikeutta varten selaimeen asetetaan välttämätön, suojattu ostoeväste. Voit myös tallentaa yksityisen ostotunnuksen latausoikeuden palauttamista varten. Väärinkäytön estämiseksi palvelin käyttää IP-osoitteesta päivittäin vaihtuvalla tiivisteellä muodostettua tunnistetta. Tiivisteen sisältävät rajoitusikkunat poistetaan seuraavien pyyntöjen yhteydessä, kun ne ovat yli vuorokauden vanhoja. Ostotunnuksia tai kalenteritietoja ei lähetetä analytiikkatapahtumiin.</p>
+        </div>
         <h2>Sähköpostimuistutukset</h2>
         <div className="prose">
           <p>
@@ -89,7 +91,31 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>3. Android-sovelluksessa käsiteltävät tiedot</h2>
+        <h2>Maksullisten tuotteiden ostot ja laskut</h2>
+        <div className="prose">
+          <p>Polar käsittelee maksun ja toimittaa virallisen laskun. Viikkonro ei vastaanota eikä tallenna maksukortin tietoja. Tallennamme Supabasen suojattuun asiakasrekisteriin ostajan sähköpostiosoitteen, annetun laskutusnimen ja -osoitteen, mahdollisen verotunnisteen sekä tilauksen, tuotteen, kalenterivuoden, maksun, verojen, palautusten ja laskun tiedot. Kalenterin sisältöä tai logoa ei tallenneta tähän rekisteriin.</p>
+          <p>Tietoja käytetään ostoksen toteuttamiseen, laskujen toimittamiseen, asiakaspalveluun ja maksujen selvittämiseen. Mailjet toimittaa laskuviestin ostajalle ja piilokopion Viikkonron asiakaspalvelulle. Viesti ei sisällä markkinointia, eikä sen avauksia tai linkkien napsautuksia seurata.</p>
+          <p>Ostotietoja säilytetään sopimuksen hoitamisen, maksuihin liittyvien selvitysten ja sovellettavien kirjanpitovelvoitteiden edellyttämän ajan. Rekisteri ei ole julkinen eikä organisaatioiden tai tavallisten käyttäjien luettavissa. Maksu- ja laskutuspalveluun osallistuvat Polar, Supabase, Vercel ja Mailjet.</p>
+          <p>Suunnittelutuotteiden sähköpostimarkkinointi on erikseen valittava, vapaaehtoinen suostumus. Tallennamme suostumuksen sanamuodon version ja ajankohdan. Ostaminen ei edellytä suostumusta. Voit perua suostumuksen tai pyytää tietojesi tarkistamista osoitteesta <a href="mailto:hi@viikkonro.fi">hi@viikkonro.fi</a>. Peruminen ei poista tarpeellisia laskutustietoja.</p>
+        </div>
+
+        <h2>Yksityiset tilit, tiimit ja asiakasyritykset</h2>
+        <div className="prose">
+          <p>Kirjautumisen ja salasanojen palauttamisen hoitaa Supabase Auth. Sähköpostiosoite, käyttäjätunniste ja tunnistautumiseen tarvittavat tiedot käsitellään palvelun tarjoamiseksi. Salasanaa ei lähetetä Viikkonron analytiikkaan tai sähköpostiviestiin. Kirjautumisistuntoa käsitellään selaimen muistissa; yksityisen sovelluksen nykyinen toteutus ei säilytä istuntoa pysyvästi selaimen paikallisessa tallennuksessa.</p>
+          <p>Organisaation asetukset, jäsenten nimet tai tunnisteet, osastot, roolit, poissaolojaksot, työvuorot, saatavuus ja niihin lisätyt muistiinpanot tallennetaan Supabasen yksityisiin organisaatiotietoihin. Asiakasyritysten kalenterimääritykset, käyttöoikeudet sekä ylläpitotoimien ja vientien historiat voivat sisältää käyttäjä- ja yritystunnisteita. Tietojen näkyvyys määräytyy organisaation ja asiakasyrityksen käyttöoikeuksien mukaan.</p>
+          <p>Yksityiseen suunnittelutilaan ei ladata julkisen sivuston mainoksia tai Clarity-analytiikkaa. Organisaatiotietoja ei julkaista avoimessa kalenterirajapinnassa, widgetissä, hakukoneissa tai julkisessa ICS-osoitteessa. Älä tallenna diagnooseja, sairauden syitä tai tarpeettomia arkaluonteisia tietoja poissaolomuistiinpanoihin.</p>
+          <p>Työntekijä voi pyytää organisaatiotietojensa tarkistamista tai poistamista ensin oman organisaationsa hallinnoijalta. Viikkonron asiakaspalvelu auttaa palvelun omaan käsittelyyn liittyvissä pyynnöissä. Organisaation tai tilin sulkeminen ei automaattisesti poista lakisääteisesti säilytettäviä osto- ja laskutustietoja.</p>
+        </div>
+        <h2>Peruuttamisilmoitukset ja asiakaspalvelu</h2>
+        <div className="prose"><p>Peruuttamistoiminto käsittelee ilmoittajan nimen, ostossa käytetyn sähköpostiosoitteen, Polarin tilaustunnisteen ja ilmoituksen ajankohdan. Tilaus ja sähköpostiosoite tarkistetaan Polarilta. Mailjet toimittaa vastaanottovahvistuksen ostajalle ja kopion Viikkonron asiakaspalvelulle. Ilmoituksessa ei pyydetä korttitietoja, yksityistä ostotunnusta tai kalenterin sisältöä. Tietoja ei käytetä markkinointiin. Ilmoitusta ja asiakaspalveluviestejä säilytetään asian käsittelyn ja mahdollisten oikeudellisten vaateiden selvittämisen edellyttämän ajan.</p></div>
+        <h2>Käsittelyn tarkoitukset ja perusteet</h2>
+        <div className="prose"><ul>
+          <li>Ostoksen toteuttaminen, latausoikeus, käyttäjätilin tarjoaminen ja asiakaspalvelu: sopimuksen täyttäminen tai pyynnöstäsi tehtävät sopimusta edeltävät toimet.</li>
+          <li>Tarpeelliset laskutus- ja maksuselvitystiedot: sopimus ja sovellettavat lakisääteiset velvoitteet.</li>
+          <li>Palvelun suojaaminen, väärinkäytön ehkäisy ja teknisten ongelmien selvittäminen: oikeutettu etu turvallisen palvelun ylläpitämiseen.</li>
+          <li>Valinnaiset analytiikka- ja mainosevästeet, muistutusten tilaus ja erilliset markkinointiviestit: kyseiseen tarkoitukseen annettu suostumus. Suostumukset ovat toisistaan erillisiä.</li>
+        </ul><p>Clarityn ennen evästevalintaa tapahtuva rajoitettu, evästeetön käsittely kuvataan jäljempänä. Palvelun kehittämisessä ja koottujen käyttötietojen arvioinnissa huomioidaan oikeutettu etu ja käyttäjän oikeus vastustaa käsittelyä. Pelkkä evästeiden hylkääminen ei tarkoita kaikkien teknisten verkkopyyntöjen estämistä.</p></div>
+        <h2>Android-sovelluksessa käsiteltävät tiedot</h2>
         <div className="prose">
           <p>
             <strong>Paikalliset tiedot:</strong> Viikkonro-sovellus ei vaadi
@@ -132,7 +158,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>4. Miten käytämme tietoja</h2>
+        <h2>Miten käytämme tietoja</h2>
         <div className="prose">
           <p>Käytämme keräämiämme tietoja seuraaviin tarkoituksiin:</p>
           <ul>
@@ -145,7 +171,7 @@ const PrivacyPolicy = () => {
           </ul>
         </div>
 
-        <h2>5. Google AdSense, Google Mobile Ads ja mainostunnisteet</h2>
+        <h2>Google AdSense, Google Mobile Ads ja mainostunnisteet</h2>
         <div className="prose">
           <p>
             Sivustolla voidaan näyttää Google AdSense -mainoksia. Google on
@@ -188,7 +214,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>6. Microsoft Clarity -käyttöanalytiikka</h2>
+        <h2>Microsoft Clarity -käyttöanalytiikka</h2>
         <div className="prose">
           <p>
             Käytämme Microsoft Clarity -palvelua sivuston käytettävyyden,
@@ -230,7 +256,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <h2>7. Tietojen vastaanottajat ja säilytys</h2>
+        <h2>Tietojen vastaanottajat ja säilytys</h2>
         <div className="prose">
           <p>
             Palvelun tekniseen toimittamiseen osallistuvat Vercel ja Cloudflare.
@@ -240,6 +266,15 @@ const PrivacyPolicy = () => {
             mainosteknologian tarjoajat voivat käsitellä tietoja omien
             tietosuojakäytäntöjensä mukaisesti. Emme myy henkilötietoja.
           </p>
+          <p>Supabase käsittelee kirjautumis- ja yksityisiä organisaatiotietoja, Polar ostoksia ja maksamista, Mailjet tilaus- ja tunnistautumisviestejä ja Brevo tilattuja sähköpostimuistutuksia. Ostajan laskutus- tai kalenteritietoja ei myydä markkinointikäyttöön. Laskun kopion saa Viikkonron asiakaspalvelu asiakassuhteen hoitamista varten.</p>
+          <p>Palveluntarjoajat voivat käsitellä tietoja EU:n tai ETA:n ulkopuolella. Siirron oikeusperusta ja suojatoimet määräytyvät käytettävän palvelun sopimusten ja sovellettavan tietosuojalainsäädännön mukaan, esimerkiksi riittävyyspäätöksen tai vakiosopimuslausekkeiden perusteella. Tämä seloste ei lupaa, että kaikki tietoja käsittelevät palvelut sijaitsevat Suomessa tai EU:ssa. Voit pyytää lisätietoja tietosuojayhteydestä.</p>
+          <ul>
+            <li><a href="https://supabase.com/privacy">Supabasen tietosuojakäytäntö</a></li>
+            <li><a href="https://polar.sh/legal/privacy-policy">Polarin tietosuojakäytäntö</a></li>
+            <li><a href="https://www.mailjet.com/legal/privacy-policy/">Mailjetin tietosuojakäytäntö</a></li>
+            <li><a href="https://vercel.com/legal/privacy-policy">Vercelin tietosuojakäytäntö</a></li>
+            <li><a href="https://sentry.io/privacy/">Sentryn tietosuojakäytäntö</a></li>
+          </ul>
           <p>
             Android-sovelluksen analytiikan, kaatumisraportoinnin, mainonnan ja
             suostumuksenhallinnan teknisenä palveluntarjoajana toimii Google.
@@ -261,10 +296,12 @@ const PrivacyPolicy = () => {
             istuntotallenteita säilytetään tavallisesti 30 päivää. Koottuja
             napsautus- ja lämpökarttatietoja sekä merkittyjä tai otantaan
             valittuja tallenteita voidaan säilyttää enintään yhdeksän kuukautta.
+            Säilytys perustuu Microsoftin <a href="https://learn.microsoft.com/en-us/clarity/setup-and-installation/data-retention">30.6.2026 päivitettyyn säilytysohjeeseen</a>.
           </p>
+          <p>Tilin ja organisaation tiedot säilytetään palvelun käytön ja asian hoitamisen edellyttämän ajan. Tarpeettomien tietojen poistamista voi pyytää. Ostotietojen säilytys riippuu sopimuksen hoitamisesta, mahdollisista riidoista sekä ylläpitäjään ja maksun myyjään sovellettavista kirjanpito- ja muista lakisääteisistä velvoitteista. Suostumuksen peruminen estää myöhemmän suostumukseen perustuvan markkinoinnin, mutta ei poista tarpeellisia laskutustietoja tai lähetyseston osoittavaa tietoa.</p>
         </div>
 
-        <h2>8. Oikeutesi ja suostumuksen peruuttaminen</h2>
+        <h2>Oikeutesi ja suostumuksen peruuttaminen</h2>
         <div className="prose">
           <p>
             Sinulla on soveltuvan tietosuojalainsäädännön mukaisesti oikeus
@@ -281,6 +318,8 @@ const PrivacyPolicy = () => {
             sovelluksen tietojen hallinnasta tai poistamalla sovelluksen.
           </p>
         </div>
+        <div className="prose"><p>Sinulla voi olla myös oikeus saada antamasi tiedot siirrettävässä muodossa, kun lain edellytykset täyttyvät. Voit tehdä valituksen toimivaltaiselle tietosuojaviranomaiselle, Suomessa <a href="https://tietosuoja.fi/">tietosuojavaltuutetun toimistolle</a>. Pyynnön yhteydessä voidaan tarvita riittävä henkilöllisyyden varmistus muiden henkilöiden tietojen suojaamiseksi. Älä lähetä salasanaasi tai maksukorttisi tietoja.</p></div>
+        <LegalNavigation />
       </section>
     </>
   );

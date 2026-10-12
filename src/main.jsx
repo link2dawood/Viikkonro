@@ -7,10 +7,14 @@ import App from "./App.jsx";
 import { registerWebMCPTools } from "./webmcp.js";
 import { trackPdfDownloads } from "./analytics.js";
 import { applyStoredConsent } from "./consent.js";
+import { publicErrorEvent } from "./errorReporting.js";
 
 Sentry.init({
   dsn: "https://1ae2cecc5e24d5d63d03f083901d3e07@o4510551843143680.ingest.us.sentry.io/4512197245403136",
   environment: import.meta.env.MODE,
+  sendDefaultPii:false,
+  maxBreadcrumbs:0,
+  beforeSend:publicErrorEvent,
 });
 
 // A returning visitor's analytics consent, queued before clarity.js loads

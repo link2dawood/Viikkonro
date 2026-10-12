@@ -5,6 +5,7 @@ import {
   PRERENDER_MAX_YEAR,
   PRERENDER_MIN_YEAR,
   fmtFullFi,
+  dateFromDayKey,
 } from "../components/dateUtils";
 import {
   easterHolidays,
@@ -13,6 +14,7 @@ import {
   holidayPageFor,
   holidayPageMeta,
   holidayWeekLinks,
+  vappuPlanning,
 } from "../data/holidayPages";
 import { HOLIDAY_LEGAL_BASIS } from "../data/holidays";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
@@ -36,6 +38,7 @@ const NamedHoliday = () => {
   // re-verified here, so nothing is stated for them rather than guessed.
   const legalBasis = HOLIDAY_LEGAL_BASIS[page.displayName];
   const easter = EASTER_SLUGS.includes(page.slug) ? easterHolidays(page.year) : null;
+  const vappu = vappuPlanning(page);
 
   return (
     <section className="app">
@@ -75,7 +78,7 @@ const NamedHoliday = () => {
           ]}
         />
 
-        <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
+        <p className="note-soft">Sisältö päivitetty {page.updated ? fmtFullFi(dateFromDayKey(page.updated)) : CONTENT_UPDATED_FI}.</p>
 
         <h2>Milloin {page.displayName.toLowerCase()} on vuonna {page.year}?</h2>
         <p>
@@ -132,6 +135,54 @@ const NamedHoliday = () => {
             </a>{" "}
             ({legalBasis.actName}).
           </p>
+        )}
+
+        {vappu && (
+          <>
+            <h2>Vappuaatto ja vappupäivä {page.year}</h2>
+            <p>
+              Vappuaatto on {vappu.eveWeekdayEssive} {fmtFullFi(vappu.eve)}.
+              Vappupäivä on seuraavana päivänä, {page.weekdayEssive} {fmtFullFi(page.date)}.
+              Vappuaatto ei ole sama päivä kuin virallinen pyhäpäivä 1. toukokuuta.
+            </p>
+
+            <h2>Vappu {page.year} ja työpäivät</h2>
+            <p>{vappu.workdayExplanation}</p>
+            <p>
+              Laskenta kuvaa maanantain ja perjantain välistä työviikkoa, josta
+              viralliset pyhäpäivät on poistettu. Se ei ratkaise työvuoroja tai
+              mahdollisia korvauksia. Tarkista ne työpaikan käytännöistä ja
+              sovellettavasta työehtosopimuksesta. Vertaa{" "}
+              <Link to={`/tyopaivat-toukokuu-${page.year}`}>toukokuun {page.year} työpäiviä</Link>{" "}
+              tai suunnittele oma vapaa <Link to="/lomasuunnittelija">lomasuunnittelijassa</Link>.
+            </p>
+
+            <h2>Vappu on suomalaisen työn päivä</h2>
+            <p>
+              Vappu on {vappu.flag.categoryLabel.toLowerCase()} nimellä{" "}
+              {vappu.flag.altName}. Tämä nimitys löytyy{" "}
+              <a href={vappu.flagSource} target="_blank" rel="noopener noreferrer">liputusasetuksen 2 §:stä</a>.
+              Katso päivän tiedot <Link to={`/liputuspaivat-${page.year}#vappu`}>vuoden {page.year} liputuspäivistä</Link>.
+              Liputuspäivän asema ei yksin määritä työpaikan työvuoroja.
+            </p>
+
+            <h2>Vappu lähivuosina</h2>
+            <div className="table-wrap">
+              <table className="data-table">
+                <caption>Vappupäivän päivämäärä, viikonpäivä ja ISO-viikko</caption>
+                <thead><tr><th scope="col">Vuosi</th><th scope="col">Päivämäärä</th><th scope="col">Viikonpäivä</th><th scope="col">ISO-viikko</th></tr></thead>
+                <tbody>
+                  {vappu.nearbyYears.map((item) => (
+                    <tr key={item.year}>
+                      <th scope="row">{item.year === page.year ? `Vappu ${item.year}` : <Link to={item.path}>Vappu {item.year}</Link>}</th>
+                      <td>{fmtFullFi(item.date)}</td><td>{item.weekday}</td>
+                      <td><Link to={`/viikko-${item.week}-${item.weekYear}`}>Viikko {item.week}</Link></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         <h2>Usein kysyttyä: {page.displayName.toLowerCase()}</h2>

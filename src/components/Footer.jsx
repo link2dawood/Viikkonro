@@ -5,7 +5,7 @@ import SocialLinks from "./SocialLinks";
 import { CALENDAR_META } from "../data/nameDays";
 import { openConsentSettings } from "../consent";
 
-function Footer() {
+function Footer({ reloadDocument = false, showConsentSettings = true }) {
   // Copyright follows the Helsinki calendar year, not the ISO week-year (which
   // can roll over during the last days of December).
   const { currentYear } = navigationYearTargets(useToday());
@@ -36,23 +36,25 @@ function Footer() {
           <div className="footer-links-col">
             <h3>Service</h3>
             <ul>
-              <li><Link to="/en" onClick={() => window.scrollTo(0, 0)}>English home</Link></li>
-              <li><Link to="/" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Finnish site</Link></li>
-              <li><Link to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>All weeks {currentYear} (Finnish)</Link></li>
-              <li><Link to={`/kalenteri-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Calendar {currentYear} (Finnish)</Link></li>
-              <li><Link to="/avoin-data" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Open data (Finnish)</Link></li>
-              <li><Link to="/android-sovellus" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Android app (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/en" onClick={() => window.scrollTo(0, 0)}>English home</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Finnish site</Link></li>
+              <li><Link reloadDocument={reloadDocument} to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>All weeks {currentYear} (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to={`/kalenteri-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Calendar {currentYear} (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/avoin-data" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Open data (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/android-sovellus" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Android app (Finnish)</Link></li>
             </ul>
           </div>
 
           <div className="footer-links-col">
             <h3>Information</h3>
             <ul>
-              <li><Link to="/menetelma" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Methodology (Finnish)</Link></li>
-              <li><Link to="/tietolahteet" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Data sources (Finnish)</Link></li>
-              <li><Link to="/ota-yhteytta" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Contact (Finnish)</Link></li>
-              <li><Link to="/tietosuoja" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Privacy notice (Finnish)</Link></li>
-              <li><button type="button" className="footer-linkbtn" onClick={openConsentSettings}>Cookie settings</button></li>
+              <li><Link reloadDocument={reloadDocument} to="/menetelma" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Methodology (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/tietolahteet" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Data sources (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/ota-yhteytta" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Contact (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/tietosuoja" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Privacy notice (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/kayttoehdot" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Purchase terms (Finnish)</Link></li>
+              <li><Link reloadDocument={reloadDocument} to="/palautusehdot" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Refunds and cancellation (Finnish)</Link></li>
+              {showConsentSettings && <li><button type="button" className="footer-linkbtn" onClick={openConsentSettings}>Cookie settings</button></li>}
             </ul>
           </div>
         </div>
@@ -95,12 +97,12 @@ function Footer() {
           <hr className="footer-apps-sep" />
           <ul className="footer-apps" aria-label="Sovellukset">
             <li>
-              <Link to="/android-sovellus" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/android-sovellus" onClick={() => window.scrollTo(0, 0)}>
                 Android-sovellus
               </Link>
             </li>
             <li>
-              <Link to="/chrome-extension" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/chrome-extension" onClick={() => window.scrollTo(0, 0)}>
                 Chrome-laajennus
               </Link>
             </li>
@@ -111,18 +113,19 @@ function Footer() {
         <div className="footer-links-col">
           <h3>Palvelu</h3>
           <ul>
+            <li><Link reloadDocument={reloadDocument} to="/kalenteripohjat" onClick={() => window.scrollTo(0, 0)}>Kalenteri- ja suunnittelupohjat</Link></li>
             <li>
-              <Link to="/" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/" onClick={() => window.scrollTo(0, 0)}>
                 Etusivu{" "}
               </Link>
             </li>
             <li>
-              <Link to="/kuinka-monta-viikkoa-vuodessa" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/kuinka-monta-viikkoa-vuodessa" onClick={() => window.scrollTo(0, 0)}>
                 Viikkoja vuodessa
               </Link>
             </li>
             <li>
-              <Link
+              <Link reloadDocument={reloadDocument}
                 to="/mika-on-viikkonumero"
                 onClick={() => window.scrollTo(0, 0)}
               >
@@ -130,67 +133,67 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/parillinen-pariton-viikko" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/parillinen-pariton-viikko" onClick={() => window.scrollTo(0, 0)}>
                 Parillinen vai pariton viikko?
               </Link>
             </li>
             <li>
-              <Link to="/avoin-data" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/avoin-data" onClick={() => window.scrollTo(0, 0)}>
                 Avoin data
               </Link>
             </li>
             <li>
-              <Link to="/ajanhallinta" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/ajanhallinta" onClick={() => window.scrollTo(0, 0)}>
                 Ajanhallinta
               </Link>
             </li>
             <li>
-              <Link to="/kalenteritilaus" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/kalenteritilaus" onClick={() => window.scrollTo(0, 0)}>
                 Kalenteritilaus
               </Link>
             </li>
             <li>
-              <Link to={`/palkkapaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to={`/palkkapaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
                 Palkkapäivät {currentYear}
               </Link>
             </li>
             <li>
-              <Link to={`/kelan-maksupaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to={`/kelan-maksupaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
                 Kelan maksupäivät {currentYear}
               </Link>
             </li>
             <li>
-              <Link to={`/elakkeen-maksupaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to={`/elakkeen-maksupaivat-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
                 Eläkkeen maksupäivät {currentYear}
               </Link>
             </li>
             <li>
-              <Link to={`/kesaaika-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to={`/kesaaika-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
                 Kesäaika {currentYear}
               </Link>
             </li>
             <li>
-              <Link to={`/kuun-vaiheet-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to={`/kuun-vaiheet-${currentYear}`} onClick={() => window.scrollTo(0, 0)}>
                 Kuun vaiheet {currentYear}
               </Link>
             </li>
             <li>
-              <Link to="/auringonlasku" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/auringonlasku" onClick={() => window.scrollTo(0, 0)}>
                 Auringonnousu ja -lasku
               </Link>
             </li>
             <li>
-              <Link to="/upota-viikkonumero" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/upota-viikkonumero" onClick={() => window.scrollTo(0, 0)}>
                 Viikkonumero-widget
               </Link>
             </li>
             <li>
-              <Link to="/menetelma" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/menetelma" onClick={() => window.scrollTo(0, 0)}>
                 Menetelmä
               </Link>
             </li>
             <li>
-              <Link to="/tietolahteet" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/tietolahteet" onClick={() => window.scrollTo(0, 0)}>
                 Tietolähteet
               </Link>
             </li>
@@ -202,27 +205,27 @@ function Footer() {
           <h3>Yritys</h3>
           <ul>
             <li>
-              <Link to="/en" hrefLang="en" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/en" hrefLang="en" onClick={() => window.scrollTo(0, 0)}>
                 English
               </Link>
             </li>
             <li>
-              <Link to="/tietoa-meista" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/tietoa-meista" onClick={() => window.scrollTo(0, 0)}>
                 Tietoa meistä
               </Link>
             </li>
             <li>
-              <Link to="/toimitusperiaatteet" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/toimitusperiaatteet" onClick={() => window.scrollTo(0, 0)}>
                 Toimitusperiaatteet
               </Link>
             </li>
             <li>
-              <Link to="/ota-yhteytta" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/ota-yhteytta" onClick={() => window.scrollTo(0, 0)}>
                 Yhteystiedot
               </Link>
             </li>
             <li>
-              <Link
+              <Link reloadDocument={reloadDocument}
                 to="/kayttoehdot"
                 onClick={() => window.scrollTo(0, 0)}
               >
@@ -230,15 +233,16 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/tietosuoja" onClick={() => window.scrollTo(0, 0)}>
+              <Link reloadDocument={reloadDocument} to="/tietosuoja" onClick={() => window.scrollTo(0, 0)}>
                 Tietosuojaseloste
               </Link>
             </li>
-            <li>
+            <li><Link reloadDocument={reloadDocument} to="/palautusehdot" onClick={() => window.scrollTo(0, 0)}>Palautus- ja peruutusehdot</Link></li>
+            {showConsentSettings && <li>
               <button type="button" className="footer-linkbtn" onClick={openConsentSettings}>
                 Evästeasetukset
               </button>
-            </li>
+            </li>}
           </ul>
         </div>
       </div>

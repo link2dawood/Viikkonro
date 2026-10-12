@@ -1,0 +1,43 @@
+/* Shared screen controls. Calendar tables and exported layouts retain their own styles. */
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) {
+  color: var(--ink);
+  font-family: inherit;
+}
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) fieldset,
+.team-app details {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) legend { font-weight: 700; padding-inline: .4rem; }
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro .cc-editor) :is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=file]), select, textarea) {
+  font: inherit;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: .65rem .8rem;
+  max-width: 100%;
+}
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) :is(input[type=checkbox], input[type=radio]) {
+  width: auto;
+  display: inline-block;
+  accent-color: var(--accent-deep);
+}
+.team-app button { background: var(--accent-deep); color: white; border: 0; border-radius: 11px; }
+.team-app button[aria-pressed=true] { outline: 2px solid var(--accent); outline-offset: 3px; }
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro .cc-editor) :is(button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.team-app { background: transparent; }
+.team-fields > *, .team-year > * { min-width: 0; }
+.team-auth { margin-inline: auto; padding: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
+.construction-actions select { display: block; width: 100%; min-height: 44px; }
+.construction-downloads { margin-top: 16px; }
+.hr-page .btn, .construction-page .btn, .planning-editor .btn { min-height: 44px; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+@media print {
+  .team-app, .team-app details, .planning-editor fieldset { background: white; color: black; }
+}

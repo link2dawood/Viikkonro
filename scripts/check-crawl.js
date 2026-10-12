@@ -46,7 +46,7 @@ const { render } = await import(
 // Asset hints (<link rel="preload" href="...svg">, favicons, etc.) also use
 // href= but aren't page links — exclude by extension so they don't pollute
 // the crawl or the redirect-only heuristic below.
-const ASSET_EXT = /\.(svg|png|jpg|jpeg|ico|xml|txt|css|js|pdf|json|csv)$/i;
+const ASSET_EXT = /\.(svg|png|jpg|jpeg|ico|xml|txt|css|js|pdf|json|csv|xlsx)$/i;
 
 function extractLinks(html) {
   const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
@@ -95,14 +95,15 @@ while (queue.length) {
   const [url, depth] = queue.shift();
 
   let html;
+  const privateEntry = url === "/tiimin-lomat/suunnittelu";
   try {
-    html = render(url);
+    html = privateEntry ? fs.readFileSync(path.join(root, "dist/tiimin-lomat/suunnittelu.html"), "utf8") : render(url);
   } catch (e) {
     errors.push({ url, error: e.message });
     continue;
   }
 
-  if (url !== "/" && looksLikeRedirectOnly(html)) redirects.push(url);
+  if (url !== "/" && !privateEntry && looksLikeRedirectOnly(html)) redirects.push(url);
   if (html.includes("Sivua ei löytynyt")) notFounds.push(url);
   for (const pdfHref of extractPdfAnchors(html)) discoveredPdfAnchors.add(pdfHref);
 

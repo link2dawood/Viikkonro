@@ -51,12 +51,14 @@ body {
    extra space, pushing <footer> down — normal document flow on tall pages,
    pinned-to-bottom on short ones. Not position:fixed/sticky, which would
    overlay content instead of making room for it. */
-#root {
+#root,
+#team-root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
-#root > main {
+#root > main,
+#team-root > main {
   flex: 1 0 auto;
 }
 a {
@@ -599,7 +601,8 @@ input[type="date"]:focus-visible {
   text-align: right;
 }
 
-.btn {
+.btn,
+.team-app button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -614,7 +617,8 @@ input[type="date"]:focus-visible {
   cursor: pointer;
   font-family: inherit;
 }
-.btn:hover {
+.btn:hover,
+.team-app button:hover:not(:disabled) {
   background: #11432f;
 }
 
@@ -1723,10 +1727,6 @@ footer {
 .cal-print .cal-seealso {
   display: none;
 }
-body:has(.cal-print) header,
-body:has(.cal-print) footer {
-  display: none;
-}
 .cal-print h1 {
   font-size: 20px;
   white-space: nowrap;
@@ -1759,6 +1759,18 @@ body:has(.cal-print) footer {
   background: #fff;
   color: #000;
   border: 1px solid #000;
+}
+
+/* Keep the six-column print layout, but make the on-screen preview readable. */
+@media screen and (max-width: 900px) {
+  .cal-print h1 { white-space: normal; }
+  .cal-print .cal-grid, .cal-print .cal-grid-half { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media screen and (max-width: 650px) {
+  .cal-print .cal-grid, .cal-print .cal-grid-half { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media screen and (max-width: 430px) {
+  .cal-print .cal-grid, .cal-print .cal-grid-half { grid-template-columns: minmax(0, 1fr); }
 }
 
 .print-actions {
@@ -1972,6 +1984,10 @@ body:has(.cal-print) footer {
   gap: 14px;
   margin: 22px 0;
 }
+.tool-directory-nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-block: 20px; }
+.tool-directory section { scroll-margin-top: 24px; }
+.tool-directory .tool-grid { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
+.related-tools ul { display: flex; flex-wrap: wrap; gap: 10px 24px; padding-left: 20px; }
 .tool-card {
   display: flex;
   flex-direction: column;

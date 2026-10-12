@@ -1,8 +1,7 @@
 // Periods: a company closure, a leave block or a season (such as a holiday
 // season) with a start, an end and a label. They become calendar events and
 // can be counted under any day rule, which is what a leave planner needs.
-import { addDays } from "../../data/planningDates.js";
-import { countsAsDay } from "../../data/dayRules.js";
+import { summarizeDayRange } from "../../data/dayRules.js";
 import { createEvent, dayKey, toDate } from "./events.js";
 
 export const PERIOD_KINDS = Object.freeze(["closure", "leave", "season"]);
@@ -50,9 +49,7 @@ export function periodToEvent(period) {
 
 /** Days of the period that count under a day-rule mode (e.g. leave days used). */
 export function countPeriodDays(period, mode) {
-  let n = 0;
-  for (let d = period.start; d <= period.end; d = addDays(d, 1)) if (countsAsDay(mode, d)) n += 1;
-  return n;
+  return summarizeDayRange(mode, period.start, period.end).counted;
 }
 
 /** Pairs of periods that share at least one day. */

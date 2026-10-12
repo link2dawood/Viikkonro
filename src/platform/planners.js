@@ -15,6 +15,9 @@ import { DAY_RULES } from "../data/dayRules.js";
 
 /** @type {Record<string, PlannerDefinition>} */
 export const PLANNERS = Object.freeze({
+  team: { id: "team", path: "/tiimin-lomat", mode: "FINLAND_PROJECT", analyticsType: "tiiminlomat" },
+  hr: { id: "hr", path: "/hr-kalenteri", mode: "FINLAND_PROJECT", analyticsType: "hrkalenteri" },
+  construction: { id: "construction", path: "/rakennuskalenteri", mode: "FINLAND_PROJECT", analyticsType: "rakennuskalenteri" },
   vacation: { id: "vacation", path: "/lomasuunnittelija", mode: "FINLAND_PLANNER", analyticsType: "lomasuunnittelija" },
   project: { id: "project", path: "/projektiaikataulu", mode: "FINLAND_PROJECT", analyticsType: "projektiaikataulu" },
   sprint: { id: "sprint", path: "/sprinttisuunnittelija", mode: "FINLAND_SPRINT", analyticsType: "sprinttisuunnittelija" },

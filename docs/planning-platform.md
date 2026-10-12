@@ -9,6 +9,17 @@ serverless function unchanged.
 
 Status: foundation only. No new product, page, route or URL is part of it.
 
+Company calendar Phase 1 is documented separately in
+[`company-calendar.md`](company-calendar.md). Its existing route consumes the
+foundation; the catalogue marks it `preview` while production payment remains
+unavailable. Future planned products still have no routes.
+
+The repository already includes `/yrityskalenteri`, its editor and preview,
+browser PDF rendering, and a development-only export unlock. These predate
+this foundation maintenance. Production payment remains unavailable. Future
+products should reuse these modules without adding checkout, accounts or a
+database as part of a foundation change.
+
 ## Layers
 
 ```
@@ -47,6 +58,14 @@ its mode, and the page shows the rule (`DayRuleNote`).
 `src/platform/planners.js` is the registry that ties a planner to its URL and
 mode. The data modules read both from it. A new planner is one registry entry.
 
+`summarizeDayRange(mode, from, to)` in `dayRules.js` counts an inclusive
+range and returns `{ counted, days, weekdayExclusions }`. Vacation planning,
+sprint capacity and calendar leave periods consume it. It advances calendar
+dates rather than elapsed milliseconds, so DST does not alter the number of
+days. Callers validate dates; reversed ranges are empty. It does not add
+company closures to a Finnish day rule: closures are events, and future
+capacity products must explicitly decide how those affect scheduling.
+
 ## Modules
 
 | Module | What it owns |
@@ -64,20 +83,25 @@ mode. The data modules read both from it. A new planner is one registry entry.
 | `export/xlsx.js` | Dependency-free `.xlsx` writer (several sheets, bold frozen header, widths, dates) |
 | `export/download.js` | Browser file download for any export |
 | `export/calendar.js` | A calendar model out as CSV, XLSX or ICS |
+| `render/pdf.js` | Existing model-based PDF renderer with an injected PDFDocument constructor; exported by the platform barrel |
+| `render/browserPdf.js` | Browser adapter that loads standalone PDFKit on demand and prepares logos |
 | `business/products.js` | The catalogue of 13 platform products with hypothesised, unvalidated prices |
 | `business/licensing.js` | Licence shape and "is it active / does it unlock this feature" |
-| `analytics.js` | Platform event builders with a fixed, privacy-safe tag list |
+| `business/payment.js` | Existing unavailable production provider and development-only testing provider |
+| `analytics.js` | Platform and existing planner event builders; browser delivery stays in `src/analytics.js` |
 
 Import everything from `src/platform/index.js`, or from the specific module.
 
 ## Dependency rules
 
 - `platform/**` may import from `src/data/` and `src/components/dateUtils.js`.
-- `src/data/` may import only the leaf modules `platform/export/*`,
-  `platform/planners.js` and `platform/analytics.js`. Those import nothing that
-  imports back, so there are no cycles.
-- Nothing in `platform/` imports React or touches the DOM except
-  `export/download.js` (browser only, by design).
+- Keep imports narrow. Existing data adapters also use
+  `calendar/sources.js` (company calendar) and `calendar/model.js` (print
+  calendar). Check the dependency direction before adding an import; never
+  import the platform barrel from a module on which the platform depends.
+- Nothing in `platform/` imports React. `export/download.js` and SVG
+  rasterisation in `render/logo.js` use browser APIs; the PDF browser adapter
+  loads PDFKit dynamically. Pure model and serialization code needs no DOM.
 - Every date rule lives in `src/data/` or `dayRules.js`. The platform wraps it.
 
 ## Saved configuration without a database
@@ -101,9 +125,9 @@ shareable link or a downloaded file until accounts exist.
 
 ## Deliberately not built
 
-Accounts, organisations, a database, payment, server-side licence verification
+Accounts, organisations, a database, production payment, server-side licence verification
 (a licence object is client data and can be forged, so licensing may only
-decide what to *show*), a PDF renderer for company calendars, and any AI. Each
+decide what to *show*), and any AI. Each
 needs a decision that the first product should force.
 
 ## Verification of the extraction
@@ -121,19 +145,78 @@ and PDF text were compared file by file between builds.
    `design/layouts.js` are pinned to those numbers by tests; the generators
    should move onto the platform once a company-calendar PDF needs them, with a
    text-comparison check.
-2. **`CalendarYear.jsx` builds its own month grid** (`buildMonth`) instead of
-   using `monthRows()`.
-3. **Two sources for holidays and flag days.** The Excel CSV and several pages
-   use `juhlapaivat.js` (`getJuhlapaivat`, `getLiputuspaivat`); the platform and
-   the ICS feeds use `holidays.js` and `flagDayPages.js`. They agree today but
-   are not one source.
+2. **`CalendarYear.jsx` has its own calendar presentation** (`buildMonth`),
+   while model-based exports use `monthRows()`. The existing UI is a day list,
+   so replacing it with a week grid would require a deliberate UI decision.
+3. **Two holiday representations.** The Excel CSV and several pages use
+   `juhlapaivat.js`; the platform and ICS use `holidays.js`, with independent
+   Easter arithmetic and different labels. Flag-day metadata is already an
+   adapter: `flagDayPages.js` reads `getLiputuspaivat()` from `juhlapaivat.js`.
 4. **`prerender.js` is over 6,000 lines.** The dataset XML writer and
    `xmlEscape` duplicate what `export/xlsx.js` does, and `weekWorkingDaysCount`
    re-implements the working-day rule (also noted in its own comment).
-5. **`plannerCreatedEvents` in `src/analytics.js`** follows the same pattern as
-   `platformEventCommands`. It is left alone because its output is read by
-   dashboards and tests.
+5. **Analytics tags rely on caller discipline.** Fixed tag keys exclude
+   arbitrary properties, but allowed values are not fully validated.
+   `plannerCreatedEvents` now lives in `platform/analytics.js` and is
+   re-exported from `src/analytics.js`, preserving its dashboard contract.
 6. **Planner pages hard-code their `planner_type` strings** instead of reading
    `analyticsType` from the registry.
-7. **Pre-existing, not from this work:** Clarity logged 6 sessions with React
-   hydration error #418 in the last 30 days.
+7. **Configuration immutability is shallow.** Frozen objects contain mutable
+   Dates and Maps. Treat models as read-only; persisted/untrusted input also
+   needs more defensive shape validation before public API consumption.
+
+## Maintenance verification
+
+`src/data/dayRules.test.js` covers all six modes over leap-year and year
+boundaries, eves, Saturdays, Easter, reversed ranges and DST weekends. Existing
+planner tests preserve page examples and calculations. Platform analytics
+tests pin exact legacy commands and compatibility imports. Existing export
+fingerprints and PDF structure tests remain the export regression checks.
+An additional comparison against Git HEAD matched 80 vacation plans and 576
+sprint plans over 2020-2035. The range tests also passed with
+`TZ=Europe/Helsinki` to exercise both DST transitions.
+
+The static/free calendar pipeline remains independent: `AppRoutes.jsx`,
+`seo.js`, `prerender.js`, static data feeds and `vercel.json` API redirects
+retain their existing ownership. The newsletter function is existing
+infrastructure and is unrelated to the planning engine.
+
+Recommended next step: strengthen the versioned configuration's input shape
+validation and decide closure/capacity semantics before a future product or
+Business Calendar API accepts external configurations. Add the first new
+product as a consumer of config, sources, model and exports after those
+product requirements are agreed.
+
+## Phase 2 consumer: planning templates
+
+`platform/templates/` owns the static catalogue, planning workbook composition,
+print tables, download provider interface and structured data. It consumes the
+existing config/model/day rules, XLSX/CSV writers and calendar PDF renderer.
+Six templates provide 54 downloadable assets for 2026-2028, with seven static
+Finnish pages. See [templates.md](templates.md) for ownership, verification,
+entitlement boundaries, usage terms and limitations. Existing planner products
+continue to own their routes.
+
+## Later consumers
+
+The [growth and SEO audit](growth-seo-audit.md) documents contextual public CTAs,
+privacy-safe funnel events and verification, with private analytics and real
+purchase tracking deliberately excluded until their prerequisites exist.
+
+The [commercial billing foundation](commercial-billing.md) uses the existing
+product IDs with versioned plans, server-verified entitlements and provider
+adapters. Products are not automatically launched and existing free access stays
+unchanged.
+
+- [Company ICS](company-ics.md) documents the private calendar export and subscription boundary.
+- [Vacation Planner Pro](vacation-pro.md) documents annual planning, explicit rule selection and local personal data.
+- [Project Planning Suite](project-planning-suite.md) documents the shared project/sprint engine, dependencies and exports on the existing free routes.
+- [Construction Weekly Planner](construction-planner.md) documents the construction editor, shutdown overlays, print layouts and private exports at `/rakennuskalenteri`.
+
+HR calendar consumer: [docs/hr-calendar.md](hr-calendar.md).
+
+Authenticated team consumer: [docs/team-leave-planner.md](team-leave-planner.md).
+Private shift workspace: [docs/shift-planner.md](shift-planner.md), sharing the same organization boundaries and export writers.
+Multi-company workspace: [docs/multi-company-platform.md](multi-company-platform.md), with separate client roles, scoped templates, audit logs and export history.
+The private app uses a separate entry and Supabase organization boundaries;
+public calendars and free planners keep their existing static architecture.

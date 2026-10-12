@@ -11,6 +11,9 @@ import {
 } from "./nameDayPages.js";
 
 describe("name-day SEO pages", () => {
+  it("distinguishes names with the same Finnish genitive", () => {
+    expect(nameDayNameMeta("elmer").description).not.toBe(nameDayNameMeta("elmeri").description);
+  });
   it("resolves every seeded name and date landing page", () => {
     for (const item of nameDayNames()) {
       expect(nameDayNamePage(item.slug)).not.toBeNull();

@@ -145,7 +145,32 @@ ICS/CSV/XLSX exports, the product catalogue and the planner registry. It sits on
 planner, an export or a paid product. It adds no URLs; any new page still
 follows the SEO constitution.
 
+The authenticated Team Leave Planner is a separate Vite entry at
+`tiimin-lomat/suunnittelu.html`, served as `/tiimin-lomat/suunnittelu`. It has
+no public-site analytics, ads or WebMCP registration and is excluded from the
+sitemap. Its public product guide `/tiimin-lomat` uses normal prerendering.
+Supabase Auth/PostgreSQL provide private storage; no service-role key belongs
+in the browser. Read [`docs/team-leave-planner.md`](docs/team-leave-planner.md)
+before changing organization permissions, the private app or its migration.
+Run `npm run test:team:database` with local PostgreSQL binaries to test real
+RLS/RPC authorization in an isolated temporary cluster. CI runs this alongside
+the standard release gate. No existing database is reset by the test.
+The versioned Business Calendar API is a server-only Vercel function at
+`api/v1/[resource].js`, reusing the shared engine. Read
+[`docs/business-calendar-api.md`](docs/business-calendar-api.md) before changing
+API authentication, usage limits or the third Supabase migration. No server
+secret may enter a client bundle. Database tests include atomic API metering.
+The private app also contains Phase 9 shift planning. Read
+[`docs/shift-planner.md`](docs/shift-planner.md) before changing shift instants,
+availability, exports or the additive second migration. Database tests apply
+both migrations and verify shift permissions alongside leave isolation.
+
 ### Client bundles
+
+`scripts/build-business-widget.mjs` emits a standalone iframe at
+`/widget/calendar/v1` and its script after the main Vite build. No React,
+Supabase, analytics, private feed URLs or API keys belong in that bundle.
+See [`docs/business-calendar-widget.md`](docs/business-calendar-widget.md).
 
 `vite.config.js` separates React, React Router, and other vendor modules into
 stable client chunks. The SSR build uses its own server bundle. Do not assume a
@@ -177,6 +202,17 @@ stage explicit intended paths, and never use `git add -A` in a noisy workspace.
 Do not discard unrelated working-tree changes.
 
 ## Deployment
+
+Commercial billing is a server-only foundation with disabled launches and no
+configured payment provider. Read [docs/commercial-billing.md](docs/commercial-billing.md)
+before modifying plans, entitlements, provider events or usage limits. Migration
+005 does not activate prices or checkout. Keep card data outside the application.
+
+The private multi-company workspace extends existing Supabase organizations.
+Read [docs/multi-company-platform.md](docs/multi-company-platform.md) before
+changing firm/client permissions, templates or export history. Migration 004
+requires administrative deployment and staging authorization verification;
+browser publishable credentials cannot migrate the database.
 
 Vercel's GitHub integration builds and deploys each accepted push to `main`
 using the command and output directory in `vercel.json`. Vite embeds `VITE_*`

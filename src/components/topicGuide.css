@@ -1,0 +1,7 @@
+.topic-guide { margin-top: 2rem; }
+.topic-guide > p { max-width: 75ch; }
+.topic-guide ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1rem; padding: 0; list-style: none; }
+.topic-guide li { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; min-width: 0; overflow-wrap: anywhere; }
+.topic-guide li a { display: inline-block; font-weight: 700; margin-bottom: .35rem; }
+.topic-guide li span { display: block; }
+.topic-guide-sources { font-size: .875rem; overflow-wrap: anywhere; }

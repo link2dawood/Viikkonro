@@ -35,7 +35,7 @@ describe("keyword-targeted metadata", () => {
     expect(meta.description).toContain("pitkäperjantai 26.3., pääsiäispäivä 28.3. ja toinen pääsiäispäivä 29.3.2027");
     const faq = holidayFaqs(holidayPageFor(2027, "paasiaispaiva"));
     expect(faq.at(-1).q).toBe("Milloin pääsiäinen 2027 on?");
-    expect(holidayFaqs(holidayPageFor(2027, "vappu"))).toHaveLength(5);
+    expect(holidayFaqs(holidayPageFor(2027, "vappu"))).toHaveLength(7);
   });
 
   it("keeps new copy free of en dashes", () => {

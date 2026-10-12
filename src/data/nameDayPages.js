@@ -92,7 +92,7 @@ export function nameDayNameMeta(slug) {
   const qualifier = page.name === "Aapeli" ? "" : ` (${page.name})`;
   return {
     title: `${page.genitive} nimipäivä${qualifier} – ${fmtShortFi(first)} | Viikko Nro`,
-    description: `Katso, milloin ${page.genitive} nimipäivä on. Nimipäivää vietetään ${fmtFullFi(first)}. Tarkista päivämäärä, viikonpäivä ja kalenteriviikko. Saman päivän nimet.`,
+    description: `Katso, milloin ${page.name} viettää nimipäivää. Nimipäivä on ${fmtFullFi(first)}. Tarkista päivämäärä, viikonpäivä ja kalenteriviikko sekä saman päivän muut nimet.`,
   };
 }
 

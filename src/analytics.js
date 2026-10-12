@@ -11,7 +11,9 @@
 // Break any step down by the tags page_type, entry_page_type, pdf_type,
 // pdf_file.
 
-import { platformEventCommands } from "./platform/analytics.js";
+import { platformEventCommands, plannerCreatedEvents } from "./platform/analytics.js";
+import { createGrowthTracker } from "./platform/growth.js";
+export { plannerCreatedEvents } from "./platform/analytics.js";
 
 function clarity(...args) {
   if (typeof window !== "undefined" && typeof window.clarity === "function") {
@@ -43,10 +45,14 @@ const PAGE_TYPES = [
   [/^\/ikalaskuri$/, "laskuri-ika"],
   [/^\/tuntilaskuri$/, "laskuri-tunnit"],
   [/^\/vuosilomalaskuri$/, "laskuri-vuosiloma"],
+  [/^\/kalenteripohjat(?:\/[a-z0-9-]+)?$/, "kalenteripohjat"],
+  [/^\/yrityskalenteri\/ics$/, "yrityskalenteri-ics"],
   [/^\/yrityskalenteri$/, "yrityskalenteri"],
   [/^\/lomasuunnittelija$/, "laskuri-lomasuunnittelija"],
   [/^\/projektiaikataulu$/, "laskuri-projektiaikataulu"],
   [/^\/sprinttisuunnittelija$/, "laskuri-sprintit"],
+  [/^\/rakennuskalenteri$/, "rakennuskalenteri"],
+  [/^\/hr-kalenteri$/, "hrkalenteri"],
   [/^\/raskauslaskuri$/, "laskuri-raskaus"],
   [/^\/kuukautislaskuri$/, "laskuri-kuukautiset"],
   [/^\/kuun-vaiheet-\d+$/, "kuun-vaiheet"],
@@ -105,17 +111,6 @@ export function trackPdfDownloads() {
 // result. Only coarse, non-personal values are sent: the tool, a year or a
 // month (YYYY-MM, never a full date) and a size. The page_type tag is already
 // set per page. The planners have no export, so there is no export_type.
-const PLANNER_KEYS = ["planner_type", "year", "start_month", "end_month", "size"];
-
-export function plannerCreatedEvents(props) {
-  const tags = PLANNER_KEYS.filter((k) => props?.[k] !== undefined && props[k] !== null).map((k) => [
-    "set",
-    k === "planner_type" ? k : `planner_${k}`,
-    String(props[k]),
-  ]);
-  return [...tags, ["event", "planner_created"], ["event", `planner_created_${props.planner_type}`]];
-}
-
 export function trackPlannerCreated(props) {
   if (!props?.planner_type) return;
   for (const args of plannerCreatedEvents(props)) clarity(...args);
@@ -125,7 +120,11 @@ export function trackPlannerCreated(props) {
 // checkout_start, purchase): see src/platform/analytics.js for the allowed tags.
 export function trackPlatformEvent(name, props) {
   for (const args of platformEventCommands(name, props)) clarity(...args);
+  if (typeof window !== "undefined") growth.event(name, props, window.location.pathname);
 }
+
+const growth = createGrowthTracker(clarity);
+export function trackGrowthCTA(intent) { growth.cta(intent); }
 
 // Page families that exist to offer a PDF (funnel step 2). Pages that merely
 // link one — like the homepage's season block — don't count as a step, or
@@ -139,6 +138,7 @@ let landed = false;
 // Client-side navigations stay in the same Clarity session, so the funnel
 // works even while analytics cookies are denied.
 export function trackPageView(pathname) {
+  growth.page(pathname);
   const type = pageTypeOf(pathname);
   clarity("set", "page_type", type);
   if (!landed) {

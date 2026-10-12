@@ -6,7 +6,7 @@
 // The renderer does not import pdfkit: the caller passes the PDFDocument
 // constructor. Node (the tests, a future serverless function) passes
 // `import PDFDocument from "pdfkit"`; the browser loads the standalone build on
-// demand (see loadBrowserPdfKit in src/data/companyCalendar.js), so the 2 MB
+// demand (see render/browserPdf.js), so the 2 MB
 // library is never part of a page load.
 //
 // Text uses the PDF standard font Helvetica, which draws all Finnish letters.
@@ -38,7 +38,7 @@ const fiLong = (d) => `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
  * @param {boolean} [options.compress]
  * @returns {Promise<{bytes: Uint8Array, pages: number, warnings: string[]}>}
  */
-export async function renderCalendarPdf(model, { PDFDocument, logo = null, generatedOn = new Date(), compress = true }) {
+export async function renderCalendarPdf(model, { PDFDocument, logo = null, generatedOn = new Date(), compress = true, appendPages = null }) {
   if (!PDFDocument) throw new Error("renderCalendarPdf needs a PDFDocument constructor.");
   const { config } = model;
   const layout = resolveLayout(config.layout);
@@ -75,6 +75,7 @@ export async function renderCalendarPdf(model, { PDFDocument, logo = null, gener
   });
 
   let pageNo = 0;
+  let needsEventList = false;
   const { content, page } = layout;
   const right = content.x + content.width;
 
@@ -178,10 +179,13 @@ export async function renderCalendarPdf(model, { PDFDocument, logo = null, gener
     });
     legend(content.x, top + 4 * (cell.height + layout.gap.row) + 2, content.width);
 
-    // List of every date that is not a plain weekday, in as many pages as it needs.
-    const rows = model.events.filter((e) => e.kind !== "week");
+    drawEventList(model.events.filter((e) => e.kind !== "week"));
+  }
+
+  // Full titles and inclusive ranges remain available when a compact layout
+  // cannot show every event. This also serves the year-at-a-glance appendix.
+  function drawEventList(rows) {
     if (!rows.length) return;
-    const rowH = 12;
     let index = 0;
     while (index < rows.length) {
       addPage(`Päivät ja tapahtumat ${model.year}`);
@@ -192,12 +196,16 @@ export async function renderCalendarPdf(model, { PDFDocument, logo = null, gener
       doc.text("Laji", right - 110, y, { lineBreak: false });
       y += 12;
       doc.moveTo(content.x, y - 2).lineTo(right, y - 2).lineWidth(0.5).stroke(c.line);
-      while (index < rows.length && y + rowH < page.height - 44) {
+      while (index < rows.length) {
         const e = rows[index];
         const when = e.endDate ? `${fiLong(e.date)} - ${fiLong(e.endDate)}` : fiLong(e.date);
-        doc.font(REGULAR).fontSize(7.5).fillColor(c.ink).text(when, content.x, y, { width: 108, lineBreak: false });
-        const t = fitText(doc, safe(e.title), right - 110 - (content.x + 110) - 8, { size: 7.5, minSize: 6 });
-        doc.font(REGULAR).fontSize(t.size).fillColor(c.ink).text(t.text, content.x + 110, y, { lineBreak: false });
+        const titleWidth = right - 110 - (content.x + 110) - 8;
+        const titleLines = wrapText(doc, safe(e.title), titleWidth, 20, { size: 7.5 });
+        const dateLines = wrapText(doc, when, 102, 3, { size: 7.5 });
+        const rowH = Math.max(12, Math.max(titleLines.length, dateLines.length) * 9 + 4);
+        if (y + rowH >= page.height - 44) break;
+        dateLines.forEach((line, n) => doc.font(REGULAR).fontSize(7.5).fillColor(c.ink).text(line, content.x, y + n * 9, { width: 108, lineBreak: false }));
+        titleLines.forEach((line, n) => doc.font(REGULAR).fontSize(7.5).fillColor(c.ink).text(line, content.x + 110, y + n * 9, { width: titleWidth, lineBreak: false }));
         doc.font(REGULAR).fontSize(7.5).fillColor(c.inkSoft).text(EVENT_KIND_LABELS_FI[e.kind], right - 110, y, { width: 110, lineBreak: false });
         y += rowH;
         index += 1;
@@ -236,10 +244,12 @@ export async function renderCalendarPdf(model, { PDFDocument, logo = null, gener
           const items = [...day.events]
             .filter((e) => e.kind !== "week")
             .sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind));
+          if (items.length > lines) needsEventList = true;
           items.slice(0, Math.max(0, lines)).forEach((e, n) => {
             const last = n === lines - 1 && items.length > lines;
             const text = last ? `+${items.length - lines + 1} muuta` : safe(e.title);
             const wrapped = wrapText(doc, text, colW - 8, 1, { size: 6.5 });
+            if (wrapped[0] !== text) needsEventList = true;
             doc.font(e.kind === "holiday" ? BOLD : REGULAR).fontSize(6.5).fillColor(c.ink).text(wrapped[0], x + 4, y + 18 + n * 8.5, { width: colW - 8, lineBreak: false });
           });
         });
@@ -273,6 +283,7 @@ export async function renderCalendarPdf(model, { PDFDocument, logo = null, gener
         doc.text(String(w.workingDays), cols.wd, y, { width: 48, lineBreak: false });
         const summary = w.events.map((e) => safe(e.text)).join("; ");
         const f = fitText(doc, summary, right - cols.notes, { size: 7.5, minSize: 5.5 });
+        if (f.text !== summary) needsEventList = true;
         doc.font(REGULAR).fontSize(f.size).fillColor(c.ink).text(f.text, cols.notes, y + 0.5, { width: right - cols.notes, lineBreak: false });
         y += rowH;
         index += 1;
@@ -283,7 +294,13 @@ export async function renderCalendarPdf(model, { PDFDocument, logo = null, gener
   if (layout.id === "month-page") drawMonthPages();
   else if (layout.id === "week-list") drawWeekList();
   else drawYearGlance();
+  if (needsEventList) {
+    drawEventList(model.events.filter((e) => e.kind !== "week"));
+    warnings.push("Osa merkinnöistä näkyy lyhennettynä. Täydelliset merkinnät ovat PDF:n lopussa olevassa luettelossa.");
+  }
 
+  // Product reports can append pages to the same document without copying the calendar.
+  if (appendPages) pageNo += appendPages(doc, pageNo);
   doc.end();
   await finished;
   const size = chunks.reduce((n, ch) => n + ch.length, 0);

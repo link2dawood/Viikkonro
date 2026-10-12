@@ -596,6 +596,8 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
 
         <h3>Laskurit</h3>
         <ul className="links">
+          <li><Link to="/projektiaikataulu">Projektiaikataulu ISO-viikoittain</Link></li>
+          <li><Link to="/sprinttisuunnittelija">Sprinttisuunnittelija</Link></li>
           <li>
             <Link to="/paivamaara-viikoksi" onClick={() => window.scrollTo(0, 0)}>
               Muunna päivämäärä viikkonumeroksi

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createForm, formToConfigInput, limitedPreviewInput, parseDraft, serializeDraft, DRAFT_MAX_CHARS } from "./formModel.js";
+import { createForm, formToConfigInput, limitedPreviewInput, parseDraft, serializeDraft, DRAFT_MAX_CHARS, persistDraft, DRAFT_KEY } from "./formModel.js";
 import { validateCalendarConfig } from "../../platform/calendar/config.js";
 import { buildCalendarModel } from "../../platform/calendar/model.js";
 import { defaultCompanyCalendarInput } from "../../data/companyCalendar.js";
@@ -8,6 +8,18 @@ const years = [2026, 2027, 2028];
 let rowN = 0;
 const row = (patch) => ({ id: `t${(rowN += 1)}`, ...patch });
 const config = (form) => validateCalendarConfig(formToConfigInput(form).input);
+
+describe("optional draft persistence",() => {
+  it("saves a restorable draft without making storage a checkout prerequisite",() => {
+    const values=new Map(), form={...createForm(2028),companyName:"Ääkkönen Oy"};
+    expect(persistDraft({setItem:(key,value)=>values.set(key,value)},form)).toBe(true);
+    expect(parseDraft(values.get(DRAFT_KEY),{years,fallbackYear:2027})).toMatchObject({year:2028,companyName:"Ääkkönen Oy"});
+  });
+  it("reports blocked, full and missing storage without throwing",() => {
+    expect(persistDraft(undefined,createForm(2027))).toBe(false);
+    expect(persistDraft({setItem:()=>{throw new Error("QuotaExceededError");}},createForm(2027))).toBe(false);
+  });
+});
 
 describe("company calendar form to configuration", () => {
   it("is valid with no input at all, using sensible defaults", () => {
@@ -83,7 +95,8 @@ describe("company calendar form to configuration", () => {
     expect(config(f).config.include.paydays).toBeNull();
     f.paydayRule = "day";
     f.paydayDay = "99";
-    expect(config(f).config.include.paydays).toEqual({ day: 31 }); // clamped, never invalid
+    expect(config(f).config.include.paydays).toBeNull();
+    expect(formToConfigInput(f).issues.join()).toContain("1-31");
     f.schoolCity = "";
     expect(config(f).config.include.schoolHolidays).toBeNull();
   });
@@ -172,7 +185,7 @@ describe("draft saved in the browser", () => {
     const f = parseDraft(evil, opts);
     expect(f.year).toBe(2027);
     expect(f.companyName).toHaveLength(80);
-    expect(f).toMatchObject({ color: "#1f7a5c", layout: "year-glance", paper: "A4", paydayRule: "none", paydayDay: 15, closures: [] });
+    expect(f).toMatchObject({ color: "#1f7a5c", layout: "year-glance", paper: "A4", paydayRule: "none", paydayDay: "abc", closures: [] });
     expect(f.events).toEqual([expect.objectContaining({ date: "", title: "" })]);
     expect(f.logo).toBeNull(); // not a base64 PNG or SVG data URI
   });
@@ -194,7 +207,7 @@ describe("messages for the visitor", () => {
     expect(issueToFinnish('School holiday data for "Atlantis" is not available for 2029.')).toBe("Koululomatietoja ei ole kaupungille Atlantis vuodelle 2029.");
     expect(issueToFinnish("Company name is longer than 80 characters.")).toMatch(/80 merkkiä/);
     expect(issueToFinnish("At most 500 company events are allowed.")).toMatch(/liikaa/);
-    expect(issueToFinnish("something unexpected")).toBe("Kalenterin asetuksissa on virhe: something unexpected");
+    expect(issueToFinnish("something unexpected")).toBe("Kalenterin asetuksissa on virhe. Tarkista merkintöjen päivät ja nimet.");
   });
   it("never shows an English message for any issue the form can produce", async () => {
     const { issueToFinnish } = await import("./formModel.js");
@@ -205,5 +218,33 @@ describe("messages for the visitor", () => {
     const issues = validateCalendarConfig(formToConfigInput(f).input).issues;
     expect(issues.length).toBeGreaterThan(0);
     for (const issue of issues) expect(issueToFinnish(issue)).not.toMatch(/must|is not|longer|available/);
+  });
+});
+
+describe("export readiness", () => {
+  it("keeps unfinished rows out of a live preview but reports them before export", () => {
+    const f = createForm(2027);
+    f.events = [row({ date: "2027-02-28", title: "" })];
+    expect(formToConfigInput(f)).toMatchObject({ skipped: 1, input: { events: [] }, issues: [expect.stringContaining("ennen lataamista")] });
+    f.events[0].title = "Kehityspäivä";
+    expect(formToConfigInput(f).issues).toEqual([]);
+  });
+  it.each(["", "0", "32", "15.5", "abc"])("never silently replaces the payday %s", (paydayDay) => {
+    const f = { ...createForm(2027), paydayRule: "day", paydayDay };
+    expect(formToConfigInput(f).issues).toContain("Anna toistuvaksi palkkapäiväksi kokonaisluku 1-31.");
+    expect(formToConfigInput(f).input.include.paydays).toBeNull();
+  });
+  it("requires dates for an enabled leave season and a city for school holidays", () => {
+    const f = { ...createForm(2027), seasonOn: true, schoolOn: true };
+    expect(formToConfigInput(f).skipped).toBe(1);
+    expect(formToConfigInput(f).issues).toHaveLength(2);
+  });
+  it("revalidates restored logos before they can be rendered", () => {
+    const malicious = btoa('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+    const external = btoa('<svg xmlns="http://www.w3.org/2000/svg"><image href="https://example.com/private"/></svg>');
+    for (const data of [malicious, external, "A"]) {
+      const f = parseDraft(serializeDraft({ ...createForm(2027), logo: { dataUri: `data:image/svg+xml;base64,${data}` } }), { years, fallbackYear: 2027 });
+      expect(f.logo).toBeNull();
+    }
   });
 });

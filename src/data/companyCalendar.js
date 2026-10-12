@@ -6,7 +6,7 @@ import { schoolHolidayCities } from "../platform/calendar/sources.js";
 
 export const COMPANY_CALENDAR_PATH = "/yrityskalenteri";
 export const COMPANY_CALENDAR_PRODUCT = "company-calendar";
-export const COMPANY_CALENDAR_UPDATED = "2026-10-07";
+export const COMPANY_CALENDAR_UPDATED = "2026-10-10";
 export const DEFAULT_BRAND_COLOR = "#1f7a5c";
 
 /**
@@ -74,15 +74,15 @@ export function companyCalendarFaqs() {
     },
     {
       q: "Missä muodoissa saan valmiin kalenterin?",
-      a: "Kalenterista tulee tulostusvalmis PDF sekä Excel-, CSV- ja ICS-tiedosto. PDF-kalenterin voi valita kolmessa asettelussa: koko vuosi yhdellä sivulla, yksi kuukausi sivulla tai viikkonumeroluettelo. ICS-tiedoston voi tuoda Google-kalenteriin, Outlookiin tai iPhonen kalenteriin.",
+      a: "Kalenterista tulee tulostusvalmis PDF sekä Excel-, CSV- ja ICS-tiedosto. PDF-kalenterin voi valita kolmessa asettelussa: koko vuosi yhdellä sivulla, yksi kuukausi sivulla tai viikkonumeroluettelo. Pitkät merkinnät ja päivät, jotka eivät mahdu näkymään kokonaan, löytyvät PDF:n erillisestä luettelosta. ICS-tiedoston voi tuoda Google-kalenteriin, Outlookiin tai iPhonen kalenteriin.",
     },
     {
       q: "Onko kalenterin tekeminen ilmaista?",
-      a: "Muokkaus ja esikatselu ovat ilmaisia. Esikatselussa on vesileima, eikä siinä näy logo. Valmiiden tiedostojen lataus on tulossa maksulliseksi, eikä maksaminen ole vielä käytössä. Kiinnostuneet voivat ottaa yhteyttä sivuston yhteydenottolomakkeella.",
+      a: "Muokkaus ja esikatselu ovat ilmaisia. Esikatselussa on vesileima, eikä siinä näy logo. Maksullinen kertamaksu avaa valitun kalenterivuoden PDF-, Excel-, CSV- ja ICS-lataukset vuoden loppuun. Hinta ja maksupalvelun saatavuus näkyvät editorissa ennen ostoa. Ostosta ei synny tilausta.",
     },
     {
       q: "Lähtevätkö logoni ja yrityksen tiedot palvelimelle?",
-      a: "Eivät. Kalenteri rakennetaan selaimessasi, eikä logoa tai yrityksen nimeä lähetetä palvelimelle tai analytiikkaan. Keskeneräinen luonnos tallentuu vain tämän selaimen muistiin, ja voit tyhjentää sen painikkeella.",
+      a: "Esikatselu ja luonnos ovat vain selaimessasi. Maksullista tiedostoa luotaessa kalenterin tiedot ja logo lähetetään suojatulle palvelimelle tiedoston tekemistä varten. Niitä ei tallenneta kalenteritietokantaan eikä lähetetä Polarille tai analytiikkaan. Polar käsittelee maksun ja kuitin. Luonnoksen voi tyhjentää editorin painikkeella.",
     },
     {
       q: "Miten viikkonumerot näkyvät kalenterissa?",
@@ -90,7 +90,7 @@ export function companyCalendarFaqs() {
     },
     {
       q: "Miten palkkapäivät määritetään?",
-      a: "Voit valita kuukauden päivän tai kuukauden viimeisen pankkipäivän. Jos sovittu päivä ei ole pankkipäivä, palkkapäivä siirtyy edelliseen pankkipäivään, kuten palkkapäivät-sivullakin. Lisäksi voit lisätä yksittäisiä palkkapäiviä käsin.",
+      a: "Voit lisätä yksittäiset palkkapäivät käsin. Ne merkitään täsmälleen antamillesi päiville. Toistuvaksi palkkapäiväksi voit valita kuukauden päivän tai kuukauden viimeisen pankkipäivän. Jos toistuvan säännön sovittu päivä ei ole pankkipäivä, se siirtyy edelliseen pankkipäivään, kuten palkkapäivät-sivullakin.",
     },
     {
       q: "Mistä koululomat tulevat?",

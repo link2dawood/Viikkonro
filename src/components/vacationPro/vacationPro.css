@@ -1,0 +1,12 @@
+.vp-pro { margin: 36px 0; border-top: 1px solid var(--line); padding-top: 24px; }
+.vp-pro .cc-layout { align-items: start; }
+.vp-pro fieldset { min-width: 0; }
+.vp-pro .btn { min-height: 44px; }
+.vp-pro textarea { width: 100%; min-height: 70px; box-sizing: border-box; }
+.vp-person, .vp-period { margin: 12px 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+.vp-summary { font-size: 13px; }
+.vp-summary th { overflow-wrap: anywhere; }
+@media print {
+  .vp-pro .cc-side { width: 100%; }
+  .vp-pro .vp-summary { break-inside: avoid; }
+}

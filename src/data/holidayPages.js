@@ -11,6 +11,10 @@ import {
   WD_ESSIVE,
 } from "../components/dateUtils.js";
 import { holidaysInYear } from "./holidays.js";
+import { flagDaysInYear } from "./flagDayPages.js";
+import { countsAsDay } from "./dayRules.js";
+
+export const VAPPU_UPDATED = "2026-10-12";
 
 // One editorial record per holiday. Dates and official status always come
 // from holidays.js; this registry only supplies stable URLs and explanatory
@@ -63,6 +67,7 @@ export const HOLIDAY_DEFINITIONS = [
     seoName: "Vappu",
     rule: "Vappua vietetään aina 1. toukokuuta.",
     kind: "kiinteä pyhäpäivä",
+    updated: VAPPU_UPDATED,
   },
   {
     slug: "helatorstai",
@@ -213,6 +218,30 @@ export function holidayWeekLinks(page) {
   };
 }
 
+// Year-specific planning facts use the existing holiday, flag and workday
+// engines. This describes the site's five-day calendar, not payroll rights.
+// Flag-day designation verified 2026-10-12 against Finlex 383/1978, section 2.
+export function vappuPlanning(page) {
+  if (!page || page.slug !== "vappu") return null;
+  const eve = new Date(page.date);
+  eve.setDate(eve.getDate() - 1);
+  const weekend = page.date.getDay() === 0 || page.date.getDay() === 6;
+  const weekdayExcluded = !weekend && !countsAsDay("FINLAND_WORKDAY", page.date);
+  return {
+    eve,
+    eveWeekdayEssive: WD_ESSIVE[eve.getDay()],
+    weekdayExcluded,
+    workdayExplanation: weekdayExcluded
+      ? `Vappu ${page.year} osuu maanantain ja perjantain välille. Se vähentää tämän kalenterin viisipäiväisen työviikon työpäiviä yhdellä.`
+      : `Vappu ${page.year} osuu viikonlopulle. Se ei vähennä tämän kalenterin maanantain ja perjantain välisiä työpäiviä.`,
+    flag: flagDaysInYear(page.year).find((day) => day.slug === page.slug),
+    flagSource: "https://finlex.fi/fi/lainsaadanto/1978/383",
+    nearbyYears: [page.year - 1, page.year, page.year + 1]
+      .filter((year) => year >= PRERENDER_MIN_YEAR && year <= PRERENDER_MAX_YEAR)
+      .map((year) => holidayPageFor(year, page.slug)),
+  };
+}
+
 // The three official Easter holidays (pitkäperjantai, pääsiäispäivä, toinen
 // pääsiäispäivä) as resolved pages, in date order. "Pääsiäinen <year>" is
 // searched as the whole long weekend, not only its Sunday, so the Easter
@@ -242,6 +271,12 @@ function easterWeeksText(easter) {
 export function holidayPageMeta(year, slug) {
   const page = holidayPageFor(year, slug);
   if (!page) return null;
+  if (slug === "vappu") {
+    return {
+      title: `Vappu ${page.year}: ${fmtShortFi(page.date)}, viikko ${page.week} | Viikko Nro`,
+      description: `Vappu ${page.year} on ${page.weekdayEssive} ${fmtFullFi(page.date)}, viikolla ${page.week}. Katso vappuaatto, ma-pe-työpäivät, suomalaisen työn päivän liputus ja vertaa lähivuosia.`,
+    };
+  }
   const easter = slug === "paasiaispaiva" ? easterHolidays(page.year) : null;
   if (easter) {
     const [friday, , monday] = easter;
@@ -291,6 +326,22 @@ export function holidayFaqs(page) {
       a: page.rule,
     },
     ...easterFaq(page),
+    ...vappuFaq(page),
+  ];
+}
+
+function vappuFaq(page) {
+  const planning = vappuPlanning(page);
+  if (!planning) return [];
+  return [
+    {
+      q: `Vähentääkö vappu ${page.year} työpäivien määrää?`,
+      a: `${planning.workdayExplanation} Työvuorot ja mahdolliset korvaukset määräytyvät erikseen työpaikan ja sovellettavan työehtosopimuksen mukaan.`,
+    },
+    {
+      q: "Onko vappu liputuspäivä?",
+      a: `Vappu on ${planning.flag.categoryLabel.toLowerCase()}, jota vietetään nimellä ${planning.flag.altName}. Liputuspäivä ja työpaikan vapaapäivä ovat eri asioita.`,
+    },
   ];
 }
 
