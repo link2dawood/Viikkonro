@@ -64,3 +64,7 @@ JavaScript errors; the existing UI regression matrix passed at 320, 390, 768
 and 1280px, and six Vappu/internal-link regressions passed. A read-only real
 hosted checkout check confirmed the Company Calendar, EUR 10 display and no
 test-mode banner. A completed buyer payment/settlement remains untested.
+
+The checkout browser harness uses Playwright's installed browser by default.
+Local environments may set `PLAYWRIGHT_MODULE` and `CHROMIUM_PATH` explicitly;
+CI installs Playwright/Chromium and sets only `PLAYWRIGHT_MODULE`.

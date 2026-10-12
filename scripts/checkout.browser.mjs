@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-const {chromium}=await import(process.env.PLAYWRIGHT_MODULE || "/tmp/viikkonro-browser-check/node_modules/playwright/index.mjs");
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 const origin=new URL(process.env.CHECKOUT_TEST_URL || "http://127.0.0.1:4175").origin;
-const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH || "/home/link2dawood/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome"});
+const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH ? {executablePath:process.env.CHROMIUM_PATH} : {})});
 const errors=[],results=[];
 try {
   for(const path of ["/yrityskalenteri","/yrityskalenteri/ics"]) {
