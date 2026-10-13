@@ -1692,7 +1692,7 @@ footer,
   height: 60px;
 }
 
-/* ─── Secondary button ─────────────────────────────────────────────────── */
+/* ─── Secondary buttons ────────────────────────────────────────────────── */
 .btn-ghost {
   background: transparent;
   color: var(--accent-deep);
@@ -1700,6 +1700,43 @@ footer,
 }
 .btn-ghost:hover {
   background: var(--accent-soft);
+}
+.btn-row:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* Compact secondary action for a dense row of fields, where a full size .btn
+   would dominate the row. Shared so the row actions in one planner do not
+   look like a different kind of button from those in another. */
+.btn-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  cursor: pointer;
+}
+.btn-row:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+/* Inline text button: reads as a link inside a sentence, but keeps a hit area
+   tall enough to tap. */
+.btn-link {
+  font: inherit;
+  padding: 4px 2px;
+  margin-inline: -2px;
+  color: var(--accent-deep);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* ─── Countdown pages (/kuinka-monta-paivaa-*) ─────────────────────────── */

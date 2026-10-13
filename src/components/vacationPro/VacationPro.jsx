@@ -4,6 +4,7 @@ import { trackPlatformEvent } from "../../analytics";
 import Button from "../Button";
 import Preview from "../companyCalendar/Preview";
 import Exports from "../companyCalendar/Exports";
+import "../planning/plannerControls.css";
 import calendarCss from "../companyCalendar/companyCalendar.css?raw";
 import proCss from "./vacationPro.css?raw";
 import { newCalendarIdentity } from "../../platform/export/companyIcs";

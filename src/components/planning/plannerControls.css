@@ -203,43 +203,9 @@
 :is(.team-app, .planning-editor, .hr-page, .construction-page, .vp-pro, .cc-page) .btn {
   min-height: 44px;
 }
-.btn:disabled,
-.btn-row:disabled {
+.btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-}
-/* Compact secondary action for a dense row of fields, where a full size .btn
-   would dominate the row. Shared so the row actions in one planner do not
-   look like a different kind of button from those in another. */
-.btn-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 38px;
-  padding: 8px 14px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent-deep);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  cursor: pointer;
-}
-.btn-row:hover:not(:disabled) {
-  background: var(--accent-soft);
-}
-/* Inline text button: reads as a link inside a sentence, but keeps a hit area
-   tall enough to tap. */
-.btn-link {
-  font: inherit;
-  padding: 4px 2px;
-  margin-inline: -2px;
-  color: var(--accent-deep);
-  background: none;
-  border: 0;
-  text-decoration: underline;
-  cursor: pointer;
 }
 .team-app button[aria-pressed="true"] {
   outline: 2px solid var(--accent);
