@@ -1,3 +1,4 @@
+import pageCss from "./paymentPage.css?raw";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -52,6 +53,7 @@ const Paydays = ({ year }) => {
 
   return (
     <section className="app">
+      <style dangerouslySetInnerHTML={{ __html: pageCss }} />
       <SEO {...paydayMeta(y)} canonical={canonicalFor(`/palkkapaivat-${y}`)} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> /{" "}

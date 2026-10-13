@@ -1,3 +1,4 @@
+import pageCss from "./daylightSavingPage.css?raw";
 import { Link } from "react-router-dom";
 import {
   fmtFullFi,
@@ -33,6 +34,7 @@ const DaylightSaving = ({ year }) => {
 
   return (
     <section className="app">
+      <style dangerouslySetInnerHTML={{ __html: pageCss }} />
       <SEO {...dstMeta(y)} canonical={canonicalFor(`/kesaaika-${y}`)} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> /{" "}

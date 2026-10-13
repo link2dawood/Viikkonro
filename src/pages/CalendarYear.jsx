@@ -1,3 +1,4 @@
+import pageCss from "./calendarPage.css?raw";
 import CompanyCalendarLink from "../components/CompanyCalendarLink";
 import { Link } from "react-router-dom";
 import { useTodayKey } from "../components/useToday";
@@ -159,6 +160,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
 
   return (
     <section className={`app cal-page${print ? " cal-print" : ""}`}>
+      <style dangerouslySetInnerHTML={{ __html: pageCss }} />
       <SEO {...calendarMeta(y, half, print)} canonical={canonicalFor(canonicalPath)} />
 
       <div className="breadcrumb">

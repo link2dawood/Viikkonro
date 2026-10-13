@@ -11,7 +11,7 @@
   padding:36px;
   background:var(--accent-soft,#edf4f7);
   border:1px solid var(--line,#dce6ed);
-  border-radius:18px;
+  border-radius:var(--radius);
   margin-bottom:28px}
 .tpl-hero h1 {
   font-size:clamp(1.9rem,4vw,2.7rem);
@@ -32,14 +32,19 @@
 .tpl-page label {
   display:grid;
   gap:6px;
-  font-weight:600}
+  font-family:var(--planner-mono);
+  font-size:12.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-soft)}
 .tpl-page select {
-  padding:10px 14px;
-  font:inherit;
-  color:inherit;
-  background:var(--card,#fff);
-  border:1px solid var(--line,#acbac3);
-  border-radius:8px;
+  padding:var(--planner-field-pad);
+  font-family:var(--planner-mono);
+  font-size:17px;
+  color:var(--ink);
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--planner-field-radius);
   min-width:180px}
 .tpl-grid {
   display:grid;
@@ -48,7 +53,7 @@
 .tpl-card {
   padding:24px;
   border:1px solid var(--line,#dce6ed);
-  border-radius:14px;
+  border-radius:var(--radius);
   background:var(--card,#fff)}
 .tpl-card h2 {
   font-size:1.35rem;
@@ -61,19 +66,20 @@
   color:var(--ink-soft,#516777)}
 .tpl-button {
   display:inline-block;
-  padding:10px 18px;
+  padding:12px 20px;
+  font-size:15px;
+  font-weight:600;
   color:#fff!important;
-  background:var(--accent,#1f7a5c);
-  border-radius:8px;
-  text-decoration:none!important;
-  font-weight:600}
+  background:var(--accent-deep);
+  border-radius:11px;
+  text-decoration:none!important}
 .tpl-button:hover {
-  background:var(--accent-deep,#16573f)}
+  background:#11432f}
 .tpl-button[aria-disabled=true] {
   opacity:.65}
 .tpl-page a:focus-visible,.tpl-page button:focus-visible,.tpl-page select:focus-visible,.tpl-table:focus-visible {
-  outline:3px solid #f3ad28;
-  outline-offset:3px}
+  outline:var(--focus-ring);
+  outline-offset:2px}
 .tpl-detail-grid {
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
@@ -88,18 +94,21 @@
 .tpl-help li {
   margin:10px 0}
 .tpl-secondary {
-  padding:8px 16px;
+  padding:12px 20px;
   font:inherit;
-  border:1px solid #0b6574;
-  color:inherit;
+  font-weight:600;
+  border:1px solid var(--accent);
+  color:var(--accent-deep);
   background:transparent;
-  border-radius:8px;
+  border-radius:11px;
   cursor:pointer}
+.tpl-secondary:hover {
+  background:var(--accent-soft)}
 .tpl-table {
   overflow:auto;
   max-width:100%;
-  border:1px solid var(--line,#dce6ed);
-  border-radius:10px}
+  border:1px solid var(--line);
+  border-radius:var(--radius)}
 .tpl-table table {
   border-collapse:collapse;
   table-layout:auto;

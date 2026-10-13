@@ -1,3 +1,4 @@
+import adCss from "./adSlot.css?raw";
 const layoutPreviewEnabled =
   import.meta.env.VITE_AD_LAYOUT_PREVIEW === "true";
 
@@ -9,6 +10,8 @@ const AdSlot = ({ placement, format = "banner" }) => {
   if (!layoutPreviewEnabled) return null;
 
   return (
+    <>
+    <style dangerouslySetInnerHTML={{ __html: adCss }} />
     <aside
       className={`ad-slot ad-slot--${format} noprint`}
       aria-label="Suunniteltu mainospaikka"
@@ -18,6 +21,7 @@ const AdSlot = ({ placement, format = "banner" }) => {
       <span className="ad-slot__name">{placement}</span>
       <div className="ad-slot__mount" aria-hidden="true" />
     </aside>
+    </>
   );
 };
 

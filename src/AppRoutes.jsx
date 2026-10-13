@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { Routes, Route, useParams, Navigate, useLocation } from "react-router-dom";
+import { routePage } from "virtual:route-page";
+import { Suspense, useEffect } from "react";
+import { Routes, Route, useParams, Navigate, useLocation, createRoutesFromElements, matchRoutes } from "react-router-dom";
 import { M_SLUG, validateYear } from "./components/dateUtils";
 import { trackPageView } from "./analytics";
 import GrowthCTA from "./components/GrowthCTA";
@@ -7,85 +8,86 @@ import RelatedTools from "./components/RelatedTools";
 import TopicGuide from "./components/TopicGuide";
 import ConsentBanner from "./components/ConsentBanner";
 import NewsletterSignup from "./components/NewsletterSignup";
-import Home from "./pages/Home";
-import YearCalendar from "./pages/YearCalendar";
+const Home = routePage("Home");
+const YearCalendar = routePage("YearCalendar");
 import Navbar from "./components/Navbar";
-import FAQPage from "./pages/FAQPage";
-import OpenData from "./pages/OpenData";
-import ApiPlayground from "./pages/ApiPlayground";
-import ChromeExtension from "./pages/ChromeExtension";
-import AndroidApp from "./pages/AndroidApp";
-import DatasetPage from "./pages/DatasetPage";
-import TimeManagement from "./pages/TimeManagement";
-import DataSources from "./pages/DataSources";
-import Methodology from "./pages/Methodology";
-import EditorialPolicy from "./pages/EditorialPolicy";
-import WeekDays from "./pages/WeekDays";
-import WeeksInEachMonth from "./pages/WeeksInEachMonth";
-import QuarterPage from "./pages/QuarterPage";
-import WhatWeek from "./pages/WhatWeek";
-import WeekParityPage from "./pages/WeekParityPage";
-import WeekStartsMonday from "./pages/WeekStartsMonday";
-import PrintCalendar from "./pages/PrintCalendar";
-import PublicHolidays from "./pages/PublicHolidays";
-import FlagDays from "./pages/FlagDays";
-import WorkingDays from "./pages/WorkingDays";
-import MonthlyWorkingDays from "./pages/MonthlyWorkingDays";
-import CalendarYear from "./pages/CalendarYear";
-import Calculators from "./pages/Calculators";
-import DateToWeek from "./pages/DateToWeek";
-import WeekToDate from "./pages/WeekToDate";
-import WorkingDaysBetween from "./pages/WorkingDaysBetween";
-import DaysBetween from "./pages/DaysBetween";
-import WeeksInYear from "./pages/WeeksInYear";
-import FinlandVsUsa from "./pages/FinlandVsUsa";
-import AboutUs from "./pages/AboutUs";
-import ContactUs from "./pages/ContactUs";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsAndConditions from "./pages/TermsAndConditions";
-import RefundPolicy from "./pages/RefundPolicy";
-import NotFound from "./pages/NotFound";
+const FAQPage = routePage("FAQPage");
+const OpenData = routePage("OpenData");
+const ApiPlayground = routePage("ApiPlayground");
+const ChromeExtension = routePage("ChromeExtension");
+const AndroidApp = routePage("AndroidApp");
+const DatasetPage = routePage("DatasetPage");
+const TimeManagement = routePage("TimeManagement");
+const DataSources = routePage("DataSources");
+const Methodology = routePage("Methodology");
+const EditorialPolicy = routePage("EditorialPolicy");
+const WeekDays = routePage("WeekDays");
+const WeeksInEachMonth = routePage("WeeksInEachMonth");
+const QuarterPage = routePage("QuarterPage");
+const WhatWeek = routePage("WhatWeek");
+const WeekParityPage = routePage("WeekParityPage");
+const WeekStartsMonday = routePage("WeekStartsMonday");
+const PrintCalendar = routePage("PrintCalendar");
+const PublicHolidays = routePage("PublicHolidays");
+const FlagDays = routePage("FlagDays");
+const WorkingDays = routePage("WorkingDays");
+const MonthlyWorkingDays = routePage("MonthlyWorkingDays");
+const CalendarYear = routePage("CalendarYear");
+const Calculators = routePage("Calculators");
+const DateToWeek = routePage("DateToWeek");
+const WeekToDate = routePage("WeekToDate");
+const WorkingDaysBetween = routePage("WorkingDaysBetween");
+const DaysBetween = routePage("DaysBetween");
+const WeeksInYear = routePage("WeeksInYear");
+const FinlandVsUsa = routePage("FinlandVsUsa");
+const AboutUs = routePage("AboutUs");
+const ContactUs = routePage("ContactUs");
+const PrivacyPolicy = routePage("PrivacyPolicy");
+const TermsAndConditions = routePage("TermsAndConditions");
+const RefundPolicy = routePage("RefundPolicy");
+const NotFound = routePage("NotFound");
 import Footer from "./components/Footer";
-import NamedHoliday from "./pages/NamedHoliday";
-import NameDayName from "./pages/NameDayName";
-import NameDaysDate from "./pages/NameDaysDate";
-import NameDaysToday from "./pages/NameDaysToday";
-import SchoolHolidays from "./pages/SchoolHolidays";
-import CurrentMonth from "./pages/CurrentMonth";
-import CurrentYear from "./pages/CurrentYear";
-import WeekdayCalculator from "./pages/WeekdayCalculator";
-import EnglishHome from "./pages/EnglishHome";
-import Paydays from "./pages/Paydays";
-import KelaPayments from "./pages/KelaPayments";
-import PensionPayments from "./pages/PensionPayments";
-import ObservanceDay from "./pages/ObservanceDay";
-import DateCalculator from "./pages/DateCalculator";
-import DateOffset from "./pages/DateOffset";
-import AgeCalculator from "./pages/AgeCalculator";
-import MoonPhases from "./pages/MoonPhases";
-import SunCity from "./pages/SunCity";
-import SunHub from "./pages/SunHub";
-import HoursCalculator from "./pages/HoursCalculator";
-import AnnualLeave from "./pages/AnnualLeave";
-import VacationPlanner from "./pages/VacationPlanner";
-import ProjectTimeline from "./pages/ProjectTimeline";
-import SprintPlanner from "./pages/SprintPlanner";
-import ConstructionCalendar from "./pages/ConstructionCalendar";
-import HrCalendar from "./pages/HrCalendar";
-import TeamLeaveLanding from "./pages/TeamLeaveLanding";
-import CompanyCalendar from "./pages/CompanyCalendar";
+const NamedHoliday = routePage("NamedHoliday");
+const NameDayName = routePage("NameDayName");
+const NameDaysDate = routePage("NameDaysDate");
+const NameDaysToday = routePage("NameDaysToday");
+const SchoolHolidays = routePage("SchoolHolidays");
+const CurrentMonth = routePage("CurrentMonth");
+const CurrentYear = routePage("CurrentYear");
+const WeekdayCalculator = routePage("WeekdayCalculator");
+const EnglishHome = routePage("EnglishHome");
+const Paydays = routePage("Paydays");
+const KelaPayments = routePage("KelaPayments");
+const PensionPayments = routePage("PensionPayments");
+const ObservanceDay = routePage("ObservanceDay");
+const DateCalculator = routePage("DateCalculator");
+const DateOffset = routePage("DateOffset");
+const AgeCalculator = routePage("AgeCalculator");
+const MoonPhases = routePage("MoonPhases");
+const SunCity = routePage("SunCity");
+const SunHub = routePage("SunHub");
+const HoursCalculator = routePage("HoursCalculator");
+const AnnualLeave = routePage("AnnualLeave");
+const VacationPlanner = routePage("VacationPlanner");
+const ProjectTimeline = routePage("ProjectTimeline");
+const SprintPlanner = routePage("SprintPlanner");
+const ConstructionCalendar = routePage("ConstructionCalendar");
+const HrCalendar = routePage("HrCalendar");
+const TeamLeaveLanding = routePage("TeamLeaveLanding");
+const CompanyCalendar = routePage("CompanyCalendar");
 import { COMPANY_ICS_PATH } from "./data/companyIcs";
-import { TemplateCatalog, TemplateLanding } from "./pages/Templates";
+const TemplateCatalog = routePage("Templates", "TemplateCatalog");
+const TemplateLanding = routePage("Templates", "TemplateLanding");
 import { COMPANY_CALENDAR_PATH } from "./data/companyCalendar";
-import PregnancyCalculator from "./pages/PregnancyCalculator";
-import PeriodCalculator from "./pages/PeriodCalculator";
+const PregnancyCalculator = routePage("PregnancyCalculator");
+const PeriodCalculator = routePage("PeriodCalculator");
 import { SUN_CITIES, SUN_HUB_PATH, sunCityPath } from "./data/sunCities";
 import { CALCULATOR_PATH, OFFSETS, offsetPath } from "./data/dateCalculator";
 import { OBSERVANCE_SLUG_RE } from "./data/observanceDays";
-import DaylightSaving from "./pages/DaylightSaving";
-import Countdown from "./pages/Countdown";
-import CalendarSubscription from "./pages/CalendarSubscription";
-import WidgetEmbed from "./pages/WidgetEmbed";
+const DaylightSaving = routePage("DaylightSaving");
+const Countdown = routePage("Countdown");
+const CalendarSubscription = routePage("CalendarSubscription");
+const WidgetEmbed = routePage("WidgetEmbed");
 import { COUNTDOWNS } from "./data/countdownPages";
 
 // Finnish dynamic pages use keyword-rich single-segment slugs
@@ -94,8 +96,7 @@ import { COUNTDOWNS } from "./data/countdownPages";
 // dispatches by pattern. Static routes (/ukk, /tietoa-meista, …) outrank /:slug, so
 // only unmatched single segments ever reach this — the same reachability the
 // old explicit routes had. Deterministic, so SSR and client hydration agree.
-const DynamicSlug = () => {
-  const { slug } = useParams();
+const dynamicElement = (slug) => {
   let m;
   if ((m = slug.match(/^viikko-(\d+)-(\d+)$/)))
     return <WeekDays week={+m[1]} year={+m[2]} />;
@@ -141,6 +142,8 @@ const DynamicSlug = () => {
   return <NotFound />;
 };
 
+const DynamicSlug = () => dynamicElement(useParams().slug);
+
 // Router-agnostic app shell. Wrapped in <BrowserRouter> on the client (App.jsx)
 // and in <StaticRouter> at build time for prerendering (entry-server.jsx).
 // Clarity page-view tags/events after each route renders (see analytics.js).
@@ -153,15 +156,7 @@ const RouteAnalytics = () => {
   return null;
 };
 
-const AppRoutes = () => {
-  return (
-    <>
-      <RouteAnalytics />
-      <Navbar />
-      {/* Single <main> landmark wraps the routed page content (a11y: screen
-          readers use it to jump to the primary content). */}
-      <main id="main" tabIndex={-1}>
-        <Routes>
+const routeElements = <>
         <Route path="/" element={<Home />} />
         <Route path="/en" element={<EnglishHome />} />
         <Route path="/mika-on-viikkonumero" element={<WhatWeek />} />
@@ -244,7 +239,35 @@ const AppRoutes = () => {
         />
         <Route path="/:slug" element={<DynamicSlug />} />
         <Route path="*" element={<NotFound />} />
-        </Routes>
+
+</>;
+const routeDefinitions = createRoutesFromElements(routeElements);
+
+export function matchedPage(pathname) {
+  const match = matchRoutes(routeDefinitions, pathname)?.at(-1);
+  const element = match?.route.element;
+  return element?.type === DynamicSlug ? dynamicElement(match.params.slug).type : element?.type;
+}
+
+export function preloadRoute(pathname) {
+  return matchedPage(pathname)?.preload?.() ?? Promise.resolve();
+}
+
+export function pageModuleForRoute(pathname) {
+  return matchedPage(pathname)?.routeModule;
+}
+
+const AppRoutes = () => {
+  return (
+    <>
+      <RouteAnalytics />
+      <Navbar />
+      {/* Single <main> landmark wraps the routed page content (a11y: screen
+          readers use it to jump to the primary content). */}
+      <main id="main" tabIndex={-1}>
+        <Suspense fallback={<p className="app" role="status">Ladataan sivua...</p>}>
+          <Routes>{routeElements}</Routes>
+        </Suspense>
         <TopicGuide />
         <RelatedTools />
         <GrowthCTA />

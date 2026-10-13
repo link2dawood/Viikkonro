@@ -53,12 +53,28 @@ describe("Clarity consent signals", () => {
 });
 
 describe("ConsentBanner", () => {
-  it("renders nothing in prerendered HTML (shown only after mount)", () => {
+  // The banner ships with the page so its paragraph paints in the first frame
+  // instead of deciding LCP after hydration. It starts closed, which is also
+  // the first client render, so hydration matches; CSS reveals it from
+  // [data-consent=ask] on <html> or [data-open=true] here.
+  it("is in the prerendered HTML but starts closed", () => {
     const html = renderToStaticMarkup(
       <MemoryRouter>
         <ConsentBanner />
       </MemoryRouter>,
     );
-    expect(html).toBe("");
+    expect(html).toContain('class="consent noprint"');
+    expect(html).toContain('data-open="false"');
+    expect(html).toContain("Evästeet ja analytiikka.");
+  });
+
+  it("uses the English copy on /en", () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter initialEntries={["/en"]}>
+        <ConsentBanner />
+      </MemoryRouter>,
+    );
+    expect(html).toContain("Cookies and analytics.");
+    expect(html).toContain('lang="en"');
   });
 });

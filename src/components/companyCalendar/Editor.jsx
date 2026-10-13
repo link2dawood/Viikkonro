@@ -58,7 +58,7 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
             {form.logo && (
               <p className="cc-logo-row">
                 <img src={form.logo.dataUri} alt="Valittu logo" />
-                <button type="button" className="btn-ghost" onClick={() => { set({ logo: null }); setLogoError(null); }}>Poista logo</button>
+                <button type="button" className="btn-row" onClick={() => { set({ logo: null }); setLogoError(null); }}>Poista logo</button>
               </p>
             )}
           </div>
@@ -96,22 +96,22 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
             <input aria-label="Sulkupäivän nimi" placeholder="Nimi, esim. Kesäsulku" maxLength={120} value={r.label} onChange={(e) => setRow("closures", r.id, { label: e.target.value })} />
             <input type="date" aria-label="Alkaa" value={r.start} onChange={(e) => setRow("closures", r.id, { start: e.target.value })} />
             <input type="date" aria-label="Päättyy" value={r.end} min={r.start || undefined} onChange={(e) => setRow("closures", r.id, { end: e.target.value })} />
-            <button type="button" className="btn-ghost" onClick={() => removeRow("closures", r.id)} aria-label="Poista sulkupäivä">Poista</button>
+            <button type="button" className="btn-row" onClick={() => removeRow("closures", r.id)} aria-label="Poista sulkupäivä">Poista</button>
           </div>
         ))}
         {form.closures.length < MAX_CLOSURES && (
-          <button type="button" className="btn-ghost" onClick={() => addRow("closures", { label: "", start: "", end: "" })}>+ Lisää sulkupäivä</button>
+          <button type="button" className="btn-row" onClick={() => addRow("closures", { label: "", start: "", end: "" })}>+ Lisää sulkupäivä</button>
         )}
         <h3>Yrityksen tapahtumat</h3>
         {form.events.map((r) => (
           <div className="cc-row" key={r.id}>
             <input type="date" aria-label="Päivä" value={r.date} onChange={(e) => setRow("events", r.id, { date: e.target.value })} />
             <input aria-label="Tapahtuman nimi" placeholder="Nimi, esim. Yhtiökokous" maxLength={120} value={r.title} onChange={(e) => setRow("events", r.id, { title: e.target.value })} />
-            <button type="button" className="btn-ghost" onClick={() => removeRow("events", r.id)} aria-label="Poista tapahtuma">Poista</button>
+            <button type="button" className="btn-row" onClick={() => removeRow("events", r.id)} aria-label="Poista tapahtuma">Poista</button>
           </div>
         ))}
         {form.events.length < MAX_COMPANY_EVENTS && (
-          <button type="button" className="btn-ghost" onClick={() => addRow("events", { date: "", title: "" })}>+ Lisää tapahtuma</button>
+          <button type="button" className="btn-row" onClick={() => addRow("events", { date: "", title: "" })}>+ Lisää tapahtuma</button>
         )}
         <h3>Lomakausi</h3>
         <label className="cc-check">
@@ -149,11 +149,11 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
         {form.paydayDates.map((r) => (
           <div className="cc-row" key={r.id}>
             <input type="date" aria-label="Palkkapäivä" value={r.date} onChange={(e) => setRow("paydayDates", r.id, { date: e.target.value })} />
-            <button type="button" className="btn-ghost" onClick={() => removeRow("paydayDates", r.id)} aria-label="Poista palkkapäivä">Poista</button>
+            <button type="button" className="btn-row" onClick={() => removeRow("paydayDates", r.id)} aria-label="Poista palkkapäivä">Poista</button>
           </div>
         ))}
         {form.paydayDates.length < MAX_PAYDAY_DATES && (
-          <button type="button" className="btn-ghost" onClick={() => addRow("paydayDates", { date: "" })}>+ Lisää palkkapäivä</button>
+          <button type="button" className="btn-row" onClick={() => addRow("paydayDates", { date: "" })}>+ Lisää palkkapäivä</button>
         )}
       </Section>
 
@@ -202,7 +202,7 @@ export default function Editor({ form, setForm, years, logoError, setLogoError, 
         Luonnos tallentuu tämän selaimen muistiin, kun tallennustila on käytettävissä. Tiedoston voi myös tallentaa omalle laitteelle.{" "}
         <button type="button" className="btn-link" onClick={onClearDraft}>Tyhjennä luonnos</button>
       </p>
-      <div className="cc-buttons">
+      <div className="cc-buttons cc-draft-actions">
         <button type="button" className="btn btn-ghost" onClick={onSaveDraft}>Tallenna luonnos JSON-tiedostona</button>
         <label>Avaa tallennettu luonnos<input type="file" accept="application/json,.json" onChange={event => { const file=event.target.files?.[0]; if (file) onRestoreDraft(file); event.target.value=""; }} /></label>
       </div>

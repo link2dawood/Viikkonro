@@ -1,3 +1,4 @@
+import pageCss from "./countdownPage.css?raw";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fmtFullFi, fmtShortFi, WD_ESSIVE } from "../components/dateUtils";
@@ -50,6 +51,7 @@ const Countdown = ({ path }) => {
 
   return (
     <section className="app">
+      <style dangerouslySetInnerHTML={{ __html: pageCss }} />
       <SEO {...routeMeta[path]} canonical={canonicalFor(path)} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> / <Link to="/laskurit">Laskurit</Link> /{" "}

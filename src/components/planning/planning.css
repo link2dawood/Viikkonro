@@ -1,7 +1,10 @@
-.planning-editor { margin-block: 2rem; padding: 1.2rem; border: 1px solid var(--border, #bbc8d0); border-radius: 8px; }
-.planning-editor fieldset { margin-block: 1rem; padding: 1rem; min-width: 0; }
-.planning-editor label { display: block; margin-block: .6rem; }
-.planning-editor input, .planning-editor select, .planning-editor textarea { display: block; width: 100%; max-width: 36rem; box-sizing: border-box; }
-.planning-editor textarea { min-height: 5rem; }
-.planning-buttons { display: flex; flex-wrap: wrap; gap: .8rem; }
-@media print { .planning-editor input, .planning-editor select, .planning-editor textarea, .planning-editor button { display: none; } }
+/* Project and sprint planner editor. Cards, labels, fields and the action row
+   come from plannerControls.css; only the print view is specific here. */
+@media print {
+  .planning-editor input,
+  .planning-editor select,
+  .planning-editor textarea,
+  .planning-editor button {
+    display: none;
+  }
+}

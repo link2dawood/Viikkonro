@@ -1,0 +1,46 @@
+
+.ad-slot {
+  width: 100%;
+  min-height: 120px;
+  margin: 28px 0;
+  border: 1px dashed rgba(31, 122, 92, 0.48);
+  border-radius: 12px;
+  background: rgba(245, 248, 247, 0.72);
+  color: var(--ink-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+}
+.ad-slot--rectangle {
+  width: min(100%, 360px);
+  min-height: 280px;
+  margin-inline: auto;
+}
+.ad-slot__label,
+.ad-slot__name {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 12px;
+}
+.ad-slot__label {
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+.ad-slot__name {
+  opacity: 0.76;
+}
+.ad-slot__mount {
+  width: 1px;
+  height: 1px;
+}
+
+@media (max-width: 600px) {
+  .ad-slot,
+.ad-slot--rectangle {
+    width: min(100%, 336px);
+    min-height: 280px;
+    margin: 24px auto;
+  }
+}

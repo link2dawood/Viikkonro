@@ -1,43 +1,291 @@
-/* Shared screen controls. Calendar tables and exported layouts retain their own styles. */
-:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) {
+/* ─── Shared planning tool chrome ─────────────────────────────────────────
+   One place for the screen styles every planner shares: tool cards, grouped
+   fieldsets, field labels, controls, action rows, notices and status lines.
+   Calendar tables, previews and the exported PDF, Excel and ICS layouts keep
+   their own styles.
+
+   The values come from the public calculators so a planner reads as part of
+   the same site: a card is var(--card) on var(--line) with var(--radius)
+   corners, a field label is the small monospace uppercase label used by
+   .lookup, and a control is a white box with 12px corners. A
+   multi line note keeps the body font because it holds prose, not a value.
+
+   When adding a planner, add its root to the scope lists below instead of
+   restyling cards, labels or controls in the tool's own file. */
+
+:root {
+  --planner-card-pad: clamp(20px, 3.4vw, 30px);
+  --planner-group-pad: clamp(14px, 2.4vw, 20px);
+  --planner-group-radius: 12px;
+  --planner-field-radius: 12px;
+  --planner-field-pad: 13px 15px;
+  /* A text field stops at a comfortable reading measure instead of running
+     the full width of a tool card. */
+  --planner-field-maxw: 36rem;
+  --planner-row-gap: 10px;
+  --planner-mono: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  /* Advisory notice: the --amber hue at card surface strength. */
+  --planner-notice-bg: rgba(224, 162, 59, 0.14);
+  --planner-notice-line: rgba(224, 162, 59, 0.5);
+  --planner-notice-ink: #6b4a05;
+}
+
+/* ---- Tool cards ---- */
+.planner-card,
+.planning-editor,
+.hr-editor,
+.hr-preview,
+.construction-editor,
+.construction-actions,
+.construction-preview,
+.team-auth {
+  margin-block: 24px;
+  padding: var(--planner-card-pad);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.team-auth {
+  max-width: 550px;
+  margin-inline: auto;
+}
+
+/* Base type for the whole tool, so a planner never introduces a third font. */
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro, .cc-editor, .withdrawal-form) {
   color: var(--ink);
   font-family: inherit;
 }
-:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) fieldset,
-.team-app details {
+
+/* ---- Grouped fields ----
+   A nested group sits on the page surface inside a tool card, which gives it
+   a step of hierarchy without a second card. .lookup, .cc-section and
+   .cc-radios are already styled by the site stylesheet. */
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro, .cc-editor, .cc-purchase)
+  :is(fieldset, details):not(.lookup, .cc-radios, .cc-section) {
   min-width: 0;
+  margin-block: 16px;
+  padding: var(--planner-group-pad);
+  background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--card);
+  border-radius: var(--planner-group-radius);
 }
-:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) legend { font-weight: 700; padding-inline: .4rem; }
-:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro .cc-editor) :is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=file]), select, textarea) {
-  font: inherit;
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro, .cc-editor, .cc-purchase)
+  :is(fieldset, details):not(.lookup, .cc-radios, .cc-section) > legend {
+  font-family: var(--planner-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding-inline: 0.4rem;
+}
+/* Field rows. One grid for every planner, so a column never has to be
+   re-declared per tool or unwound in a media query: the track floor keeps a
+   wide card at two or three fields per row and drops to one on a phone. */
+.planner-fields,
+.hr-fields,
+.construction-fields,
+.team-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 16px;
+}
+.planner-fields > *,
+.hr-fields > *,
+.construction-fields > *,
+.team-fields > *,
+.team-year > * {
+  min-width: 0;
+}
+/* The grid gap already separates the rows, so a label that is a grid cell
+   drops the margin it carries when it follows another field in a column. */
+.planner-fields > label,
+.hr-fields > label,
+.construction-fields > label,
+.team-fields > label {
+  margin-top: 0;
+}
+
+/* ---- Field labels ---- */
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro, .cc-editor, .withdrawal-form, .cc-purchase) label {
+  display: block;
+  margin-block: 0.75rem 0;
+  font-family: var(--planner-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+/* A tick box label is a sentence, not a field name. */
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro, .cc-editor, .withdrawal-form, .cc-purchase)
+  label:has(> :is(input[type="checkbox"], input[type="radio"])) {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink);
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  padding: .65rem .8rem;
-  max-width: 100%;
 }
-:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro .cc-editor) :is(input[type=checkbox], input[type=radio]) {
-  width: auto;
+
+/* ---- Controls ---- */
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro, .cc-editor, .withdrawal-form, .cc-purchase)
+  :is(
+    input:not(
+        [type="checkbox"],
+        [type="radio"],
+        [type="color"],
+        [type="file"],
+        [type="hidden"],
+        [type="range"],
+        [type="submit"],
+        [type="reset"],
+        [type="button"],
+        [type="image"]
+      ),
+    select,
+    textarea
+  ) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--planner-field-maxw);
+  margin-top: 6px;
+  font-family: var(--planner-mono);
+  font-size: 17px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--planner-field-radius);
+  padding: var(--planner-field-pad);
+}
+/* A date or a count is a short value: keep it at the width of the site's own
+   date fields instead of letting it stretch across its column. */
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro, .cc-editor, .withdrawal-form)
+  input:is([type="date"], [type="datetime-local"], [type="number"], [type="time"], [type="month"], [type="week"]) {
+  max-width: 280px;
+}
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro, .cc-editor, .withdrawal-form, .cc-purchase) textarea {
+  font-family: inherit;
+  font-size: 16px;
+  min-height: 6rem;
+  resize: vertical;
+}
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro, .cc-editor) :is(input[type="checkbox"], input[type="radio"]) {
   display: inline-block;
+  width: auto;
+  min-width: 0;
+  margin: 0;
   accent-color: var(--accent-deep);
 }
-.team-app button { background: var(--accent-deep); color: white; border: 0; border-radius: 11px; }
-.team-app button[aria-pressed=true] { outline: 2px solid var(--accent); outline-offset: 3px; }
-:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro .cc-editor) :is(button, input, select, textarea, summary):focus-visible {
-  outline: 3px solid var(--accent);
+:is(.team-app, .planning-editor, .hr-editor, .construction-editor, .construction-actions, .vp-pro, .cc-editor, .withdrawal-form, .cc-purchase)
+  :is(button, input, select, textarea, summary):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- Action rows ---- */
+.planner-actions,
+.planning-buttons,
+.hr-add,
+.hr-actions,
+.construction-add,
+.construction-downloads,
+.team-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--planner-row-gap);
+  margin-block: 16px;
+}
+:is(.team-app, .planning-editor, .hr-page, .construction-page, .vp-pro, .cc-page) .btn {
+  min-height: 44px;
+}
+.btn:disabled,
+.btn-row:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* Compact secondary action for a dense row of fields, where a full size .btn
+   would dominate the row. Shared so the row actions in one planner do not
+   look like a different kind of button from those in another. */
+.btn-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  cursor: pointer;
+}
+.btn-row:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+/* Inline text button: reads as a link inside a sentence, but keeps a hit area
+   tall enough to tap. */
+.btn-link {
+  font: inherit;
+  padding: 4px 2px;
+  margin-inline: -2px;
+  color: var(--accent-deep);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.team-app button[aria-pressed="true"] {
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
-.team-app { background: transparent; }
-.team-fields > *, .team-year > * { min-width: 0; }
-.team-auth { margin-inline: auto; padding: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
-.construction-actions select { display: block; width: 100%; min-height: 44px; }
-.construction-downloads { margin-top: 16px; }
-.hr-page .btn, .construction-page .btn, .planning-editor .btn { min-height: 44px; }
-.btn:disabled { opacity: .55; cursor: not-allowed; }
+.team-app {
+  background: transparent;
+}
+
+/* ---- Advisory notices and status lines ---- */
+.hr-warning,
+.cc-banner,
+.construction-conflicts,
+.team-app [role="status"]:not(:empty) {
+  margin-block: 16px;
+  padding: 12px 16px;
+  background: var(--planner-notice-bg);
+  border: 1px solid var(--planner-notice-line);
+  border-left-width: 4px;
+  border-radius: var(--planner-group-radius);
+  color: var(--planner-notice-ink);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.hr-warning > :first-child {
+  margin-top: 0;
+}
+.hr-warning > :last-child {
+  margin-bottom: 0;
+}
+:is(.hr-page, .construction-page, .planning-editor, .vp-pro) p[role="status"],
+.cc-status {
+  min-height: 1.4em;
+  margin-block: 10px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
 @media print {
-  .team-app, .team-app details, .planning-editor fieldset { background: white; color: black; }
+  .planner-card,
+  .team-app,
+  .planning-editor,
+  .hr-preview,
+  .construction-preview,
+  :is(.team-app, .planning-editor, .hr-editor, .construction-editor, .vp-pro, .cc-editor) :is(fieldset, details) {
+    background: white;
+    color: black;
+  }
 }

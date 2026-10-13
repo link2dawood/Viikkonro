@@ -2,6 +2,7 @@ import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta } from "../data/seo";
+import androidCss from "./androidAppPage.css?raw";
 import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
@@ -35,6 +36,7 @@ const AndroidApp = () => {
   return (
     <section className="app android-page">
       <SEO {...meta} canonical={canonicalFor(ANDROID_APP_PATH)} />
+      <style dangerouslySetInnerHTML={{ __html: androidCss }} />
 
       <nav className="breadcrumb" aria-label="Murupolku">
         <ol>

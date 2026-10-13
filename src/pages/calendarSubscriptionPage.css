@@ -1,0 +1,33 @@
+/* Calendar subscription page (/kalenteritilaus). Page scoped, so these
+   rules are not inlined into every other prerendered page. */
+/* ─── Calendar subscription (/kalenteritilaus) ─────────────────────────── */
+.ics-feeds {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0 8px;
+}
+.ics-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.ics-card h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+.ics-card p {
+  color: var(--ink-soft);
+  margin: 0 0 10px;
+}
+.ics-url {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.ics-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

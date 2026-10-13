@@ -173,7 +173,14 @@ Supabase, analytics, private feed URLs or API keys belong in that bundle.
 See [`docs/business-calendar-widget.md`](docs/business-calendar-widget.md).
 
 `vite.config.js` separates React, React Router, and other vendor modules into
-stable client chunks. The SSR build uses its own server bundle. Do not assume a
+stable client chunks. Public pages are dynamically imported through
+`src/routing/clientPage.jsx`; `preloadRoute()` uses the same route matcher before
+hydration. The build/test alias selects `serverPage.js`, which imports pages
+eagerly so `renderToString` always produces full content. The client manifest
+supplies per-route CSS and module preloads in `prerender.js`. Keep the base
+stylesheet imported from the client entry, and verify both direct visits and
+client navigation when changing this system.
+The SSR build uses its own server bundle. Do not assume a
 client-only build proves that prerendering, schema, sitemap, PDFs, or generated
 AI files still work.
 

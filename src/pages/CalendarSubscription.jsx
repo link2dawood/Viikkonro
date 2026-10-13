@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, SITE_URL } from "../data/seo";
+import subscriptionCss from "./calendarSubscriptionPage.css?raw";
 import {
   CALENDAR_SUBSCRIPTION_PATH,
   CALENDAR_SUBSCRIPTION_STEPS,
@@ -39,6 +40,7 @@ const CalendarSubscription = () => {
   return (
     <section className="app">
       <SEO {...calendarSubscriptionMeta} canonical={canonicalFor(CALENDAR_SUBSCRIPTION_PATH)} />
+      <style dangerouslySetInnerHTML={{ __html: subscriptionCss }} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> / Kalenteritilaus
       </div>

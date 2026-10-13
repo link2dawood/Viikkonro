@@ -17,3 +17,5 @@ export function render(url) {
     </HelmetProvider>,
   );
 }
+
+export { pageModuleForRoute } from "./AppRoutes.jsx";

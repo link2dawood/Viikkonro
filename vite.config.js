@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -10,6 +11,11 @@ export default defineConfig(({ mode, isSsrBuild }) => {
 
   return {
     plugins: [react()],
+    resolve: {
+      alias: { "virtual:route-page": fileURLToPath(new URL(
+        isSsrBuild || mode === "test" ? "./src/routing/serverPage.js" : "./src/routing/clientPage.jsx", import.meta.url,
+      )) },
+    },
     // Exposes process.env.SITE_ORIGIN to client/SSR bundle code
     // (src/data/seo.js) as a build-time literal, since browsers have no real
     // process.env.
@@ -22,6 +28,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       // Modern browsers only -> less transpilation, smaller output.
       // Minification is on by default (oxc) in Vite 8 / rolldown.
       target: "es2020",
+      manifest: !isSsrBuild,
       reportCompressedSize: false,
       chunkSizeWarningLimit: 900,
       // Split framework code into stable, long-cacheable vendor chunks.

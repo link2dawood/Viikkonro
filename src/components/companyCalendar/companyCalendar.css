@@ -80,6 +80,9 @@
   margin-bottom: 8px;
   align-items: center;
 }
+.cc-editor .cc-row :is(input, select, textarea) {
+  margin-top: 0;
+}
 .cc-row input:not([type]) {
   flex: 1 1 160px;
   min-width: 0;
@@ -163,29 +166,6 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 4px;
-}
-.cc-page .btn-ghost,
-.cc-page .btn-link {
-  font: inherit;
-  cursor: pointer;
-}
-.cc-page .btn-ghost {
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 14px;
-}
-.cc-page .btn-ghost:hover {
-  background: var(--accent-soft);
-}
-.cc-page .btn-link {
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--accent-deep);
-  text-decoration: underline;
 }
 .cc-side h2 {
   margin-top: 0;
@@ -334,7 +314,7 @@
   font-size: 15px;
   padding: 8px 10px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 11px;
 }
 .cc-monthpage h3 {
   margin: 4px 0 8px;
@@ -427,8 +407,42 @@
 }
 .cc-buttons {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
   gap: 10px;
+}
+.cc-buttons > * {
+  min-width: 0;
+}
+/* The draft row sits in the narrow editor column, where two tracks leave the
+   native file control too little room to show its own button and filename. */
+.cc-draft-actions {
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+}
+/* The draft upload: a native file control has a wide intrinsic size, so both
+   the label and the input have to be allowed to shrink inside their column.
+   The label itself uses the shared planner field label. */
+.cc-buttons > label {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  font-family: var(--planner-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.cc-buttons > label input[type="file"] {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
 }
 .cc-buttons .btn {
   flex-direction: column;
@@ -451,6 +465,13 @@
   min-height: 1.4em;
   font-size: 14px;
   margin: 10px 0 0;
+}
+/* The restore code is an opaque token, so it stays monospace. */
+.cc-restore textarea {
+  font-family: var(--planner-mono);
+  font-size: 13px;
+  min-height: 5rem;
+  overflow-wrap: anywhere;
 }
 .cc-unlock {
   background: var(--card);
@@ -479,4 +500,3 @@
     -webkit-print-color-adjust: exact;
   }
 }
-.cc-page #cc-purchase, .cc-page #cc-editor { scroll-margin-top: 90px; }

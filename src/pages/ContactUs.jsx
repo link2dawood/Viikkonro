@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import SocialLinks from "../components/SocialLinks";
 import { routeMeta } from "../data/seo";
+import contactCss from "./contactPage.css?raw";
 
 // ── Web3Forms setup ─────────────────────────────────────────────────────────
 // 1. Go to https://web3forms.com and enter your email: dawood.dixeam@gmail.com
@@ -193,6 +194,7 @@ function ContactUs() {
   return (
     <section className="app">
       <SEO title={meta.title} description={meta.description} />
+      <style dangerouslySetInnerHTML={{ __html: contactCss }} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> / Ota yhteyttä
       </div>

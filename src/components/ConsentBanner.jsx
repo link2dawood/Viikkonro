@@ -6,7 +6,7 @@ const TEXT = {
   fi: {
     label: "Evästeasetukset",
     title: "Evästeet ja analytiikka.",
-    body: "Käytämme Microsoft Clarity -analytiikkaa sivuston parantamiseen. Suostumuksellasi Clarity voi käyttää analytiikkaevästeitä, joiden avulla näemme esimerkiksi palaavat kävijät. Ilman suostumusta analytiikka toimii ilman evästeitä, eikä valinta vaikuta sivuston toimintaan.",
+    body: "Käytämme Microsoft Claritya sivuston parantamiseen. Valitse, saako analytiikka käyttää evästeitä. Ilman suostumusta analytiikka toimii ilman evästeitä ja kaikki työkalut ovat käytettävissä.",
     more: "Lue lisää",
     deny: "Vain välttämättömät",
     allow: "Salli analytiikkaevästeet",
@@ -14,18 +14,21 @@ const TEXT = {
   en: {
     label: "Cookie settings",
     title: "Cookies and analytics.",
-    body: "We use Microsoft Clarity analytics to improve the site. With your consent, Clarity may use analytics cookies, for example to recognise returning visitors. Without consent, analytics runs without cookies and the site works the same.",
+    body: "We use Microsoft Clarity to improve the site. Choose whether analytics may use cookies. Without consent, analytics runs without cookies and all tools remain available.",
     more: "Privacy notice (Finnish)",
     deny: "Necessary only",
     allow: "Allow analytics cookies",
   },
 };
 
-// Analytics cookie banner. Hidden in the prerendered HTML and on the first
-// client render (so hydration always matches); shown after mount only when
-// the visitor hasn't chosen yet, or when re-opened from the footer's cookie
-// settings link. Both choices are equally prominent buttons, and declining
-// keeps every feature of the site working.
+// Analytics cookie banner. The markup is in the prerendered HTML and in the
+// first client render (so hydration always matches), but CSS keeps it hidden
+// until either the inline script in index.html marks the document
+// [data-consent=ask] — no stored choice, before the first paint — or the
+// footer's cookie settings link re-opens it. Shipping it with the page keeps
+// its paragraph out of the post-hydration paint that used to decide LCP.
+// Both choices are equally prominent buttons, and declining keeps every
+// feature of the site working.
 const ConsentBanner = () => {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -38,8 +41,6 @@ const ConsentBanner = () => {
     return () => window.removeEventListener(CONSENT_OPEN_EVENT, reopen);
   }, []);
 
-  if (!open) return null;
-
   const choose = (analytics) => {
     chooseConsent(analytics);
     setOpen(false);
@@ -48,6 +49,8 @@ const ConsentBanner = () => {
   return (
     <section
       className="consent noprint"
+      data-open={open ? "true" : "false"}
+      data-nosnippet=""
       role="region"
       aria-label={t.label}
       lang={pathname === "/en" ? "en" : undefined}
