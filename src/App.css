@@ -180,7 +180,7 @@ main [id] {
 .nav .badge {
   font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: #fff;
   background: var(--accent-deep);
   padding: 5px 10px;
@@ -351,10 +351,7 @@ section {
 .code-block,
 .stat-box,
 .tool-card,
-.cal-month,
-.apps-card,
-.dst-card,
-.countdown-panel {
+.apps-card {
   background: var(--card);
   border: 1px solid var(--line);
 }
@@ -1214,42 +1211,6 @@ footer {
    VITE_AD_LAYOUT_PREVIEW flag is true. Their fixed minimum dimensions model
    the space that a consent-gated responsive ad will reserve after approval,
    preventing the surrounding content from shifting when creative loads. */
-.ad-slot {
-  width: 100%;
-  min-height: 120px;
-  margin: 28px 0;
-  border: 1px dashed rgba(31, 122, 92, 0.48);
-  border-radius: 12px;
-  background: rgba(245, 248, 247, 0.72);
-  color: var(--ink-soft);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  text-align: center;
-}
-.ad-slot--rectangle {
-  width: min(100%, 360px);
-  min-height: 280px;
-  margin-inline: auto;
-}
-.ad-slot__label,
-.ad-slot__name {
-  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
-  font-size: 12px;
-}
-.ad-slot__label {
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-}
-.ad-slot__name {
-  opacity: 0.76;
-}
-.ad-slot__mount {
-  width: 1px;
-  height: 1px;
-}
 
 /* Mobile responsive breakpoints strategy */
 @media (max-width: 768px) {
@@ -1264,7 +1225,7 @@ footer {
   /* In a column flex layout the 340px/160px basis would become a vertical
      height and stretch the columns — reset it so they size to their content. */
   .footer-brand-col,
-  .footer-links-col {
+.footer-links-col {
     flex: initial;
   }
   .footer-links-col h3 {
@@ -1310,18 +1271,12 @@ footer {
   }
   /* Keep the printable table readable and inside the viewport. */
   .ptable th,
-  .ptable td {
+.ptable td {
     padding: 8px 8px;
     font-size: 12.5px;
   }
   .lead {
     font-size: 16px;
-  }
-  .ad-slot,
-  .ad-slot--rectangle {
-    width: min(100%, 336px);
-    min-height: 280px;
-    margin: 24px auto;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1331,20 +1286,17 @@ footer {
 }
 @media print {
   .nav,
-  footer,
-  .breadcrumb,
-  .noprint,
-  .print-support,
-  .cal-page .pills,
-  .cal-page .cal-nimi,
-  .cal-page .cal-seealso {
+footer,
+.breadcrumb,
+.noprint,
+.print-support {
     display: none !important;
   }
   body {
     background: #fff;
   }
   .ptable th,
-  .ptable td {
+.ptable td {
     border-color: #bbb;
   }
   a {
@@ -1352,40 +1304,6 @@ footer {
     text-decoration: none;
   }
   /* Full-year calendar: fit all 12 months on one A4 landscape page. */
-  .cal-page h1 {
-    font-size: 16px;
-    white-space: nowrap;
-  }
-  .cal-page .cal-grid,
-  .cal-page .cal-grid-half {
-    grid-template-columns: repeat(6, 1fr) !important;
-    gap: 4px;
-  }
-  .cal-page .cal-month {
-    background: #fff;
-    border-color: #999;
-    break-inside: avoid;
-    padding: 5px;
-  }
-  .cal-page .cal-day {
-    background: none !important;
-    font-size: 9px;
-  }
-  .cal-page .cal-day.sun,
-  .cal-page .cal-day.hol {
-    border-top: 1px solid #000;
-    border-bottom: 1px solid #000;
-  }
-  .cal-page .cal-day.today {
-    background: none !important;
-    text-decoration: underline;
-    font-weight: 700;
-  }
-  .cal-page .cal-wk {
-    background: #fff !important;
-    color: #000 !important;
-    border: 1px solid #000;
-  }
 }
 /* A4 landscape only when a calendar page is what's being printed. @page can't
    be scoped by selector, so this is opt-in per calendar page via the body:has
@@ -1397,60 +1315,10 @@ footer {
 }
 
 /* /tulostettava-kalenteri: print-optimized look ON SCREEN by default (this CSS
-   lives here, not in a component <style>, to avoid a React 19 <style>-hoisting
+   lives here, not in a component \3c style>, to avoid a React 19 \3c style>-hoisting
    crash during client-side navigation). */
-.cal-print .breadcrumb,
-.cal-print .pills,
-.cal-print .cal-nimi,
-.cal-print .noprint,
-.cal-print .cal-seealso {
-  display: none;
-}
-.cal-print h1 {
-  font-size: 20px;
-  white-space: nowrap;
-  margin: 4px 0 8px;
-}
-.cal-print .cal-grid,
-.cal-print .cal-grid-half {
-  grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-}
-.cal-print .cal-month {
-  background: #fff;
-  border-color: #999;
-  padding: 6px;
-}
-.cal-print .cal-day {
-  background: none;
-}
-.cal-print .cal-day.sun,
-.cal-print .cal-day.hol {
-  border-top: 1px solid #000;
-  border-bottom: 1px solid #000;
-}
-.cal-print .cal-day.today {
-  background: none;
-  text-decoration: underline;
-  font-weight: 700;
-}
-.cal-print .cal-wk {
-  background: #fff;
-  color: #000;
-  border: 1px solid #000;
-}
 
 /* Keep the six-column print layout, but make the on-screen preview readable. */
-@media screen and (max-width: 900px) {
-  .cal-print h1 { white-space: normal; }
-  .cal-print .cal-grid, .cal-print .cal-grid-half { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-@media screen and (max-width: 650px) {
-  .cal-print .cal-grid, .cal-print .cal-grid-half { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media screen and (max-width: 430px) {
-  .cal-print .cal-grid, .cal-print .cal-grid-half { grid-template-columns: minmax(0, 1fr); }
-}
 
 .print-actions {
   display: flex;
@@ -1682,121 +1550,6 @@ footer {
 }
 
 /* ─── Full-year calendar view (/kalenteri-*) ──────────────────────────── */
-.cal-page { max-width: min(1500px, 96vw); }
-.cal-halves { margin-top: 8px; margin-bottom: 18px; }
-
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin: 18px 0;
-}
-@media (max-width: 900px) {
-  .cal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-@media (max-width: 650px) {
-  .cal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 430px) {
-  .cal-grid { grid-template-columns: 1fr; gap: 8px; }
-}
-
-.cal-month {
-  border-radius: 12px;
-  padding: 12px;
-  min-width: 0;
-}
-.cal-month-h {
-  display: block;
-  font-family: "Bricolage Grotesque", "Bricolage Grotesque Fallback", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--ink);
-  text-decoration: none;
-  margin-bottom: 6px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--line);
-}
-.cal-month-h:hover { color: var(--accent-deep); }
-.cal-days { display: flex; flex-direction: column; }
-
-.cal-day {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 1px 4px;
-  border-radius: 4px;
-  min-height: 20px;
-  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, monospace;
-  font-size: 12px;
-  line-height: 1.5;
-}
-.cal-wi { width: 1.1em; text-align: center; color: var(--ink); opacity: 0.4; flex: none; }
-.cal-dn { min-width: 2ch; text-align: right; font-weight: 700; color: var(--ink); flex: none; }
-.cal-wk {
-  background: var(--accent);
-  color: #fff;
-  font: 500 11px "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace,
-    monospace;
-  padding: 2px 6px;
-  border-radius: 6px;
-  text-decoration: none;
-  flex: none;
-}
-.cal-wk:hover { background: var(--accent-deep); }
-.cal-hol {
-  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
-  color: var(--accent-deep);
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 1.3;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.cal-flag { font-size: 11px; flex: none; line-height: 1; }
-
-.cal-day.sun { background: rgba(224, 162, 59, 0.08); }
-.cal-day.sat { background: rgba(21, 33, 31, 0.03); }
-.cal-day.hol { background: rgba(224, 162, 59, 0.08); }
-.cal-day.hol .cal-dn { font-weight: 700; }
-.cal-day.today {
-  background: rgba(224, 162, 59, 0.3);
-  background: color-mix(in srgb, var(--amber) 30%, transparent);
-  font-weight: 700;
-}
-.cal-day.current-week {
-  background: var(--accent-soft);
-  border-left: 2px solid var(--accent);
-  border-right: 2px solid var(--accent);
-  border-radius: 0;
-  padding-left: 2px;
-  padding-right: 2px;
-}
-.cal-day.current-week-start {
-  border-top: 2px solid var(--accent);
-  border-radius: 6px 6px 0 0;
-  padding-top: 0;
-}
-.cal-day.current-week-end {
-  border-bottom: 2px solid var(--accent);
-  border-radius: 0 0 6px 6px;
-  padding-bottom: 0;
-}
-.cal-day.current-week-start.current-week-end {
-  border-radius: 6px;
-}
-.cal-day.current-week.today {
-  background: color-mix(in srgb, var(--accent) 16%, var(--amber) 30%);
-}
-.cal-current-label {
-  color: var(--accent-deep);
-  font: 700 9px "Inter", "Inter Fallback", system-ui, sans-serif;
-  letter-spacing: 0.08em;
-  margin-left: auto;
-  text-transform: uppercase;
-}
-.cal-nimi { margin: 16px 0; font-size: 15px; }
-.cal-seealso { margin-top: 26px; }
 
 /* "Katso myös" related block on week pages — reuses .pills/.pill for the
    month-sibling week chips; this styles the container + the year-hub list. */
@@ -1950,101 +1703,9 @@ footer {
 }
 
 /* ─── Countdown pages (/kuinka-monta-paivaa-*) ─────────────────────────── */
-.countdown-panel {
-  text-align: center;
-  border-radius: 16px;
-  padding: 26px 16px 22px;
-  margin: 18px 0;
-}
-.countdown-days {
-  font-family: "Bricolage Grotesque", "Bricolage Grotesque Fallback", sans-serif;
-  font-size: clamp(64px, 16vw, 112px);
-  font-weight: 800;
-  line-height: 1;
-  color: var(--accent-deep);
-}
-.countdown-unit {
-  font-size: 18px;
-  font-weight: 600;
-  margin-top: 6px;
-}
-.countdown-clock {
-  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
-  font-size: 14px;
-  color: var(--ink-soft);
-  margin-top: 10px;
-}
 
 /* ─── Daylight saving (/kesaaika-*) ────────────────────────────────────── */
-.dst-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
-  margin: 18px 0;
-}
-.dst-card {
-  border-radius: 12px;
-  padding: 18px 20px;
-}
-.dst-date {
-  font-weight: 700;
-  font-size: 18px;
-  margin-top: 4px;
-}
-.dst-time {
-  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--accent-deep);
-  margin: 6px 0;
-}
-.dst-card p {
-  color: var(--ink-soft);
-  margin: 0 0 8px;
-}
 
 /* ─── Paydays (/palkkapaivat-*) ────────────────────────────────────────── */
-.payday-picker {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-  margin: 16px 0 10px;
-}
-.payday-picker label {
-  font-weight: 600;
-}
-.payday-picker select {
-  font: inherit;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-}
-.payday-moved {
-  color: var(--ink-soft);
-  font-size: 13px;
-}
 
 /* ─── Kela and pension payment days (/kelan-maksupaivat-*, /elakkeen-maksupaivat-*) */
-.payment-table th .payment-rule {
-  display: block;
-  font-weight: 400;
-  font-size: 12px;
-  color: var(--ink-soft);
-  margin-top: 2px;
-}
-.payment-table tbody th {
-  text-align: left;
-  font-weight: 600;
-}
-.payment-table td {
-  white-space: nowrap;
-}
-.payment-caption {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}

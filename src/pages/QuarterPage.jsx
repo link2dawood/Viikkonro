@@ -1,3 +1,4 @@
+import pageCss from "./calendarPage.css?raw";
 import { Link, useParams } from "react-router-dom";
 import {
   M_FULL,
@@ -67,6 +68,7 @@ const QuarterPage = ({ quarter: pQuarter, year: pYear } = {}) => {
 
   return (
     <section className="app">
+      <style dangerouslySetInnerHTML={{ __html: pageCss }} />
       <SEO
         {...quarterMeta(q, y)}
         canonical={canonicalFor(`/q${quarter}-${year}`)}

@@ -2,7 +2,8 @@ import { startTransition } from "react";
 import * as Sentry from "@sentry/react";
 import { hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
-import "./index.css";
+import "./App.css";
+import { preloadRoute } from "./AppRoutes.jsx";
 import App from "./App.jsx";
 import { registerWebMCPTools } from "./webmcp.js";
 import { trackPdfDownloads } from "./analytics.js";
@@ -30,7 +31,9 @@ trackPdfDownloads();
 // browser every few milliseconds instead of hydrating the whole page (e.g. a
 // 12-month calendar grid) in one long task, so a tap during load is handled
 // promptly (INP). The page is already painted, so nothing visible waits.
-startTransition(() => {
+// Preload only the matched route before hydration so the first client render
+// uses its real component, matching the complete eagerly rendered SSR HTML.
+preloadRoute(window.location.pathname).then(() => startTransition(() => {
   hydrateRoot(
     document.getElementById("root"),
     <HelmetProvider>
@@ -42,7 +45,7 @@ startTransition(() => {
       onRecoverableError: Sentry.reactErrorHandler(),
     },
   );
-});
+})).catch(error => Sentry.captureException(error));
 
 // Expose the calculators as WebMCP tools for in-browser AI agents (experimental;
 // feature-detected no-op in browsers without navigator.modelContext).

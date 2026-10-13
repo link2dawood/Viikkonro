@@ -6,7 +6,7 @@ const TEXT = {
   fi: {
     label: "Evästeasetukset",
     title: "Evästeet ja analytiikka.",
-    body: "Käytämme Microsoft Clarity -analytiikkaa sivuston parantamiseen. Suostumuksellasi Clarity voi käyttää analytiikkaevästeitä, joiden avulla näemme esimerkiksi palaavat kävijät. Ilman suostumusta analytiikka toimii ilman evästeitä, eikä valinta vaikuta sivuston toimintaan.",
+    body: "Käytämme Microsoft Claritya sivuston parantamiseen. Valitse, saako analytiikka käyttää evästeitä. Ilman suostumusta analytiikka toimii ilman evästeitä ja kaikki työkalut ovat käytettävissä.",
     more: "Lue lisää",
     deny: "Vain välttämättömät",
     allow: "Salli analytiikkaevästeet",
@@ -14,7 +14,7 @@ const TEXT = {
   en: {
     label: "Cookie settings",
     title: "Cookies and analytics.",
-    body: "We use Microsoft Clarity analytics to improve the site. With your consent, Clarity may use analytics cookies, for example to recognise returning visitors. Without consent, analytics runs without cookies and the site works the same.",
+    body: "We use Microsoft Clarity to improve the site. Choose whether analytics may use cookies. Without consent, analytics runs without cookies and all tools remain available.",
     more: "Privacy notice (Finnish)",
     deny: "Necessary only",
     allow: "Allow analytics cookies",
@@ -50,6 +50,7 @@ const ConsentBanner = () => {
     <section
       className="consent noprint"
       data-open={open ? "true" : "false"}
+      data-nosnippet=""
       role="region"
       aria-label={t.label}
       lang={pathname === "/en" ? "en" : undefined}

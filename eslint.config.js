@@ -27,9 +27,9 @@ export default defineConfig([
     },
   },
   {
-    // SocialLinks intentionally colocates its reusable static link catalogue
-    // with the component; exporting that data does not affect refresh state.
-    files: ['src/components/SocialLinks.jsx'],
+    // SocialLinks exports its link catalogue. AppRoutes exports the same route
+    // matcher for initial hydration and build-time asset selection.
+    files: ['src/components/SocialLinks.jsx', 'src/AppRoutes.jsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },

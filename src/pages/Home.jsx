@@ -1,5 +1,4 @@
 import { useToday } from "../components/useToday";
-import "../App.css";
 import SEO from "../components/SEO";
 import { canonicalFor, homeMeta } from "../data/seo";
 import Weekcounter from "../components/Weekcounter";

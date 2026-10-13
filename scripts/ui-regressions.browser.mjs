@@ -16,6 +16,23 @@ try {
     }
     return route.continue();
   });
+  // A direct visit must hydrate its eagerly rendered content while loading only
+  // that page's module; route CSS must survive the first client navigation too.
+  for (const path of ["/hr-kalenteri", "/rakennuskalenteri", "/projektiaikataulu", "/kalenteri-2027", "/kesaaika-2027", "/palkkapaivat-2027", "/kalenteripohjat"]) {
+    await page.goto(base + path);
+    assert.equal(await page.locator("main h1").count(), 1);
+    assert.equal(await page.getByText("Ladataan sivua...", { exact: true }).count(), 0);
+    if (path === "/hr-kalenteri") {
+      await page.locator('.hr-editor[data-ready="true"]').waitFor();
+      assert.equal(await page.locator("#hr-year").evaluate(el => getComputedStyle(el).borderRadius), "12px");
+    }
+    await page.locator('header.nav a[href="/laskurit"]').click();
+    await page.waitForURL(base + "/laskurit");
+    await page.locator('.tool-directory a[href="/hr-kalenteri"]').click();
+    await page.waitForURL(base + "/hr-kalenteri");
+    await page.locator('.hr-editor[data-ready="true"]').waitFor();
+    assert.equal(await page.locator("#hr-year").evaluate(el => getComputedStyle(el).borderRadius), "12px");
+  }
   for (const width of [320, 390, 768, 1280]) {
     await page.setViewportSize({ width, height: 900 });
     for (const family of ["week", "month", "year", "holiday", "working-days"]) {

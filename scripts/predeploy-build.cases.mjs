@@ -16,6 +16,33 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const siteOrigin = "https://viikkonro.fi";
 
+test("split routes retain full HTML, route preloads and first-paint CSS", () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(dist, ".vite/manifest.json"), "utf8"));
+  const samples = [
+    ["index.html", "Home"], ["hr-kalenteri.html", "HrCalendar"],
+    ["projektiaikataulu.html", "ProjectTimeline"], ["kalenteri-2027.html", "CalendarYear"],
+    ["kesaaika-2027.html", "DaylightSaving"], ["palkkapaivat-2027.html", "Paydays"],
+    ["kalenteripohjat.html", "Templates"], ["404.html", "NotFound"],
+  ];
+  for (const [file, page] of samples) {
+    const html = fs.readFileSync(path.join(dist, file), "utf8");
+    assert.match(html, /<h1/);
+    assert.doesNotMatch(html, /Ladataan sivua|data-msg="[^"]*switched to client/);
+    const chunk = manifest[`src/pages/${page}.jsx`];
+    assert.ok(chunk?.isDynamicEntry, `${page} should be a split route`);
+    assert.ok(html.includes(`href="/${chunk.file}"`), `${page} should preload before hydration`);
+    assert.ok(fs.existsSync(path.join(dist, chunk.file)));
+    assert.match(html, /class="consent noprint"[^>]*data-nosnippet=""/);
+  }
+  const home = fs.readFileSync(path.join(dist, "index.html"), "utf8");
+  assert.doesNotMatch(home, /\.cal-day\{|\.dst-cards\{|\.countdown-days\{|\.payment-caption\{/);
+  const hr = fs.readFileSync(path.join(dist, "hr-kalenteri.html"), "utf8");
+  assert.match(hr, /<style data-route-css=/);
+  assert.match(hr, /\.hr-fields/);
+  const fonts = fs.readFileSync(path.join(root, "src/fonts.css"), "utf8");
+  assert.doesNotMatch(fonts, /ibm-plex-mono-600-latin/);
+});
+
 test("dataset MIME rules distinguish documentation HTML from downloadable data", () => {
   const config = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
   const rules = config.headers.filter(rule => rule.source.startsWith("/data/"));

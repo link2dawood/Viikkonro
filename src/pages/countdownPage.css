@@ -1,0 +1,29 @@
+
+.countdown-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.countdown-panel {
+  text-align: center;
+  border-radius: 16px;
+  padding: 26px 16px 22px;
+  margin: 18px 0;
+}
+.countdown-days {
+  font-family: "Bricolage Grotesque", "Bricolage Grotesque Fallback", sans-serif;
+  font-size: clamp(64px, 16vw, 112px);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-deep);
+}
+.countdown-unit {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.countdown-clock {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-top: 10px;
+}

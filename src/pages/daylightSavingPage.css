@@ -1,0 +1,31 @@
+
+.dst-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.dst-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.dst-card {
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.dst-date {
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: 4px;
+}
+.dst-time {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--accent-deep);
+  margin: 6px 0;
+}
+.dst-card p {
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+}

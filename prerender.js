@@ -280,6 +280,7 @@ let template = fs.readFileSync(path.join(distDir, "index.html"), "utf-8");
 // page is opened days later — the client then switches to the live day.
 const RENDER_DAY = helsinkiDayKey();
 globalThis.__VIIKKONRO_RENDER_DAY__ = RENDER_DAY;
+const entryStylesheets = new Set();
 template = template.replace(
   "</head>",
   `<meta name="viikkonro-render-day" content="${RENDER_DAY}" /></head>`,
@@ -299,11 +300,12 @@ template = template.replace(globalJsonLdMatch[0], "");
 
 // Inline the render-blocking stylesheet into <head> so the first paint doesn't
 // wait on a separate CSS request — every prerendered page ships its styles
-// inline. The client SPA doesn't re-fetch CSS on route changes, so the tradeoff
-// (styles not shared-cached across pages) only costs the first page load.
+// inline. Route-specific CSS is added below from the client manifest and Vite
+// loads the next route's CSS alongside its dynamic import during navigation.
 template = template.replace(
   /<link\b[^>]*\bhref="(\/assets\/[^"]+\.css)"[^>]*>/g,
   (_m, href) => {
+    entryStylesheets.add(href.slice(1));
     const css = fs.readFileSync(path.join(distDir, href.slice(1)), "utf-8");
     return `<style>${css}</style>`;
   },
@@ -311,9 +313,32 @@ template = template.replace(
 
 // pathToFileURL is required on Windows: a bare "C:\..." path passed to
 // import() is misparsed as a URL with scheme "c", not a filesystem path.
-const { render } = await import(
+const { render, pageModuleForRoute } = await import(
   pathToFileURL(path.join(serverDir, "entry-server.js")).href
 );
+
+// Eager SSR still renders every route completely. The client manifest supplies
+// just that route's CSS and module preloads so its first paint stays styled and
+// hydration does not wait for a serial main -> page -> dependency waterfall.
+const clientManifest = JSON.parse(fs.readFileSync(path.join(distDir, ".vite/manifest.json"), "utf8"));
+function templateForRoute(url) {
+  const module = pageModuleForRoute(url);
+  if (!module || !clientManifest[module]) throw new Error(`Missing client route asset: ${url}`);
+  const visited = new Set(), css = new Set(), js = new Set();
+  function visit(key) {
+    if (visited.has(key)) return;
+    visited.add(key);
+    const chunk = clientManifest[key];
+    if (!chunk) throw new Error(`Missing client manifest entry: ${key}`);
+    for (const dependency of chunk.imports ?? []) visit(dependency);
+    for (const file of chunk.css ?? []) if (!entryStylesheets.has(file)) css.add(file);
+    if (chunk.file.endsWith(".js") && !template.includes(`href="/${chunk.file}"`)) js.add(chunk.file);
+  }
+  visit(module);
+  const styles = [...css].map(file => `<style data-route-css="/${file}">${fs.readFileSync(path.join(distDir, file), "utf8")}</style>`);
+  const preloads = [...js].map(file => `<link rel="modulepreload" crossorigin href="/${file}">`);
+  return template.replace("</head>", `${styles.join("")}${preloads.join("")}</head>`);
+}
 
 const escapeAttr = (s) =>
   s
@@ -3237,7 +3262,7 @@ for (const url of routes) {
       );
     }
 
-    let html = applyMeta(template, {
+    let html = applyMeta(templateForRoute(url), {
       title: meta.title,
       description,
       url: canonical,
@@ -3513,7 +3538,7 @@ for (const url of routes) {
 // noindex since the same page answers many unmatched URLs.
 try {
   const nf = stripInlineMeta(render("/404"));
-  let html404 = applyMeta(template, {
+  let html404 = applyMeta(templateForRoute("/404"), {
     title: "Sivua ei löytynyt (404) | Viikko Nro",
     description:
       "Etsimääsi sivua ei löytynyt. Palaa etusivulle ja jatka viikkonumeroiden selaamista.",

@@ -1,3 +1,4 @@
+import pageCss from "./paymentPage.css?raw";
 import { Link } from "react-router-dom";
 import {
   PRERENDER_MIN_YEAR as YEAR_MIN,
@@ -33,6 +34,7 @@ const KelaPayments = ({ year }) => {
 
   return (
     <section className="app">
+      <style dangerouslySetInnerHTML={{ __html: pageCss }} />
       <SEO {...kelaPaymentMeta(y)} canonical={canonicalFor(kelaPath(y))} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> /{" "}
