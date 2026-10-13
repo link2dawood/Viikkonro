@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
 import { LEGAL_OPERATOR, LEGAL_UPDATED, REFUND_PATH } from "../data/legalPolicies.js";
+// A route only receives the stylesheets its own module graph imports, so the
+// component that renders .legal-navigation imports the sheet that styles it
+// rather than relying on WithdrawalForm, which only one legal page shows.
+import "./legal.css";
 
 export function LegalOperator() {
   return <div className="prose">

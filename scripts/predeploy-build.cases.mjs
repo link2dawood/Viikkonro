@@ -86,6 +86,43 @@ test("business widget v1 is small, isolated, embeddable and absent from sitemap"
   for (const file of ["ai.txt","llms.txt","llms-full.txt","llms-api.txt","llms-data.txt","llms-glossary.txt","ai-manifest.txt","data/knowledge-graph.json"]) assert.match(read(`dist/${file}`), /\/widget\/calendar\/v1/);
 });
 
+test("every generated page carries the stylesheets for the classes it renders", () => {
+  // Routes are code split, so a page receives only the CSS reachable from its
+  // own page module. A component that renders classes from a stylesheet it
+  // never imports therefore ships unstyled, which is how the company calendar
+  // editors lost the shared planner fields and the legal pages lost their
+  // navigation. Comparing rendered classes against the page's own inlined CSS
+  // catches that before it reaches production.
+  const owners = new Map();
+  for (const sheet of walkFiles(path.join(root, "src"), (name) => name.endsWith(".css"))) {
+    const selectors = fs.readFileSync(sheet, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").match(/[^{}]+(?=\{)/g) || [];
+    for (const chunk of selectors) {
+      for (const match of chunk.matchAll(/\.(-?[A-Za-z_][A-Za-z0-9_-]*)/g)) {
+        if (!owners.has(match[1])) owners.set(match[1], new Set());
+        owners.get(match[1]).add(path.relative(root, sheet));
+      }
+    }
+  }
+
+  const gaps = [];
+  for (const page of walkFiles(dist, (name) => name.endsWith(".html"))) {
+    if (page.includes(`${path.sep}widget${path.sep}`) || page.endsWith("404.html")) continue;
+    const html = fs.readFileSync(page, "utf8");
+    if (/http-equiv=["']refresh/i.test(html)) continue;
+    const styles = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((block) => block[1]).join("\n");
+    const rendered = new Set();
+    for (const attribute of html.matchAll(/\sclass="([^"]*)"/g)) {
+      for (const name of attribute[1].split(/\s+/)) if (name) rendered.add(name);
+    }
+    for (const name of rendered) {
+      if (!owners.has(name)) continue;
+      if (new RegExp(`\\.${name.replace(/-/g, "\\-")}(?![A-Za-z0-9_-])`).test(styles)) continue;
+      gaps.push(`${path.relative(dist, page)} renders .${name} but does not carry ${[...owners.get(name)].join(", ")}`);
+    }
+  }
+  assert.deepEqual(gaps.slice(0, 10), [], `${gaps.length} page/class pairs are missing their stylesheet`);
+});
+
 test("the inline head script matches its Content-Security-Policy hash", () => {
   // index.html's inline script sets Clarity's consent defaults and decides,
   // before the first paint, whether the prerendered cookie banner is shown.
@@ -99,6 +136,14 @@ test("the inline head script matches its Content-Security-Policy hash", () => {
     .find((header) => header.key.startsWith("Content-Security-Policy")).value;
   assert.ok(policy.includes(digest), `vercel.json script-src is missing ${digest}`);
 });
+
+function walkFiles(directory, matches) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) return walkFiles(entryPath, matches);
+    return matches(entry.name) ? [entryPath] : [];
+  });
+}
 
 function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), "utf8");
