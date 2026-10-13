@@ -1,3 +1,148 @@
-.team-app{max-width:1200px;margin:0 auto;padding:24px;font-family:inherit;color:var(--ink);background:transparent}.team-app h1{font-size:2rem}.team-app label{display:block;margin:.8rem 0}.team-app input:not([type=checkbox]),.team-app select{display:block;box-sizing:border-box;width:100%;padding:.65rem;border:1px solid var(--line);border-radius:11px}.team-app button{padding:.6rem .9rem;margin:.3rem;border:0;border-radius:11px;background:var(--accent-deep);color:#fff;cursor:pointer}.team-app button:disabled{opacity:.55;cursor:default}.team-app fieldset{border:1px solid var(--line);padding:1rem;margin:1rem 0}.team-app form{border-bottom:1px solid #d2dcdf;padding:1rem 0}.team-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}.team-app details{margin:1.2rem 0;padding:.6rem;border:1px solid var(--line)}.team-app summary{cursor:pointer}.team-app [role=status]{padding:1rem;background:#fff4d6;color:#483300}.team-actions{display:flex;flex-wrap:wrap;gap:.4rem}.team-scroll{overflow-x:auto}.team-app table{width:100%;border-collapse:collapse}.team-app td,.team-app th{text-align:left;vertical-align:top;border:1px solid #c4cfd4;padding:.45rem;overflow-wrap:anywhere}.team-month table{table-layout:fixed;min-width:600px}.team-month table th:first-child{width:65px}.team-month td{height:85px}.team-month small{display:block;margin-top:.35rem}.team-low{background:#ffe6dc}.team-closed{background:#ded9ed}.team-off{background:#f1f2f4}.team-year{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.team-year table{min-width:0;font-size:11px}.team-year table th:first-child{width:45px}.team-year td{height:45px}.team-app p,.team-app td{overflow-wrap:anywhere}.team-auth{max-width:550px}.team-app footer{margin-top:3rem;border-top:1px solid #d2dcdf}@media(max-width:700px){.team-fields,.team-year{grid-template-columns:1fr}.team-app{padding:16px}.team-year table{font-size:10px}}@media print{@page{size:A4 landscape;margin:12mm}.team-app header,.team-controls,.team-org,.team-leave-editor,.team-app>details,.team-app footer,.team-app [role=status]{display:none}.team-app{padding:0}.team-month{break-inside:avoid}.team-months{grid-template-columns:repeat(2,minmax(0,1fr))}.team-app button{display:none}}
+/* Private team leave and shift planner. Cards, labels, fields, action rows,
+   notices and focus come from plannerControls.css; the wide page container,
+   the month and year grids and the day state colours are specific here. */
+.team-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.team-app h1 {
+  font-size: 2rem;
+}
+.team-app form {
+  border-bottom: 1px solid var(--line);
+  padding: 1rem 0;
+}
+.team-app button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.team-actions button[aria-pressed="true"] {
+  background: #153f39;
+  color: #fff;
+}
+.team-year {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
 
-.team-app textarea{display:block;box-sizing:border-box;width:100%;min-height:80px;padding:.65rem;border:1px solid var(--line);border-radius:11px}.shift-warning{display:block;color:#8a290d;background:#fff1e9;padding:.4rem;margin:.3rem 0}.team-actions button[aria-pressed=true]{background:#153f39;color:#fff}@media print{.team-app nav,.team-app form,.team-app details{display:none}.team-scroll{overflow:visible}.team-app table{font-size:9px}.team-app tr{break-inside:avoid}}
+/* ---- Calendar grids ---- */
+.team-scroll {
+  overflow-x: auto;
+}
+.team-app table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.team-app td,
+.team-app th {
+  text-align: left;
+  vertical-align: top;
+  border: 1px solid var(--line);
+  padding: 0.45rem;
+  overflow-wrap: anywhere;
+}
+.team-app p,
+.team-app td {
+  overflow-wrap: anywhere;
+}
+.team-month table {
+  table-layout: fixed;
+  min-width: 600px;
+}
+.team-month table th:first-child {
+  width: 65px;
+}
+.team-month td {
+  height: 85px;
+}
+.team-month small {
+  display: block;
+  margin-top: 0.35rem;
+}
+.team-year table {
+  min-width: 0;
+  font-size: 11px;
+}
+.team-year table th:first-child {
+  width: 45px;
+}
+.team-year td {
+  height: 45px;
+}
+.team-low {
+  background: #ffe6dc;
+}
+.team-closed {
+  background: #ded9ed;
+}
+.team-off {
+  background: #f1f2f4;
+}
+/* A shift conflict sits inside a dense table cell, so it stays compact
+   instead of using the full-width .planner-notice block. */
+.shift-warning {
+  display: block;
+  margin: 0.3rem 0;
+  padding: 0.4rem 0.5rem;
+  background: #fff1e9;
+  border-left: 3px solid #8a290d;
+  border-radius: 6px;
+  color: #8a290d;
+}
+.team-app footer {
+  margin-top: 3rem;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 700px) {
+  .team-year {
+    grid-template-columns: 1fr;
+  }
+  .team-app {
+    padding: 16px;
+  }
+  .team-year table {
+    font-size: 10px;
+  }
+}
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+  .team-app header,
+  .team-controls,
+  .team-org,
+  .team-leave-editor,
+  .team-app > details,
+  .team-app footer,
+  .team-app [role="status"],
+  .team-app nav,
+  .team-app form,
+  .team-app details {
+    display: none;
+  }
+  .team-app {
+    padding: 0;
+  }
+  .team-app button {
+    display: none;
+  }
+  .team-month {
+    break-inside: avoid;
+  }
+  .team-months {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .team-scroll {
+    overflow: visible;
+  }
+  .team-app table {
+    font-size: 9px;
+  }
+  .team-app tr {
+    break-inside: avoid;
+  }
+}

@@ -1,12 +1,36 @@
-.vp-pro { margin: 36px 0; border-top: 1px solid var(--line); padding-top: 24px; }
-.vp-pro .cc-layout { align-items: start; }
-.vp-pro fieldset { min-width: 0; }
-.vp-pro .btn { min-height: 44px; }
-.vp-pro textarea { width: 100%; min-height: 70px; box-sizing: border-box; }
-.vp-person, .vp-period { margin: 12px 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
-.vp-summary { font-size: 13px; }
-.vp-summary th { overflow-wrap: anywhere; }
+/* Lomasuunnittelija Pro, mounted under the free planner on the same page.
+   Cards, labels, fields and action rows come from plannerControls.css; the
+   rule separating it from the free planner and the shared summary table are
+   specific here. */
+.vp-pro {
+  margin: 36px 0;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.vp-pro .cc-layout {
+  align-items: start;
+}
+/* A person or a period is a group of fields inside its section card, so it
+   matches the grouped fieldsets in the other planners. */
+.vp-person {
+  min-width: 0;
+  margin-block: 16px;
+  padding: var(--planner-group-pad);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--planner-group-radius);
+}
+.vp-summary {
+  font-size: 13px;
+}
+.vp-summary th {
+  overflow-wrap: anywhere;
+}
 @media print {
-  .vp-pro .cc-side { width: 100%; }
-  .vp-pro .vp-summary { break-inside: avoid; }
+  .vp-pro .cc-side {
+    width: 100%;
+  }
+  .vp-pro .vp-summary {
+    break-inside: avoid;
+  }
 }

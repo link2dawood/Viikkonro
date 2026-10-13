@@ -1,12 +1,9 @@
+/* Withdrawal form on /palautusehdot. It carries .planning-editor, so the card,
+   labels, fields and the action row all come from plannerControls.css. */
 .withdrawal-form {
-  padding: clamp(1rem, 3vw, 2rem);
-  margin-block: 2rem;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
   overflow-wrap: anywhere;
 }
-.withdrawal-form label { display: block; margin-block: 1rem; font-weight: 600; }
-.withdrawal-form input { display: block; width: 100%; box-sizing: border-box; margin-top: .4rem; }
-.withdrawal-form .planner-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-.legal-navigation { margin-block: 1.5rem; line-height: 2; }
+.legal-navigation {
+  margin-block: 1.5rem;
+  line-height: 2;
+}

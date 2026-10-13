@@ -25,7 +25,7 @@ export default function Purchase({ year,status,onStatus,onCheckout,busy }) {
     } catch (e) { setMessage(e.message); }
   }
   const price = catalog?.enabled ? new Intl.NumberFormat("fi-FI",{ style:"currency",currency:catalog.currency }).format(catalog.amountCents/100) : null;
-  return <section id="cc-purchase" aria-label="Yrityskalenterin osto" data-clarity-mask="True">
+  return <section id="cc-purchase" className="cc-purchase" aria-label="Yrityskalenterin osto" data-clarity-mask="True">
     <PurchaseSteps year={year} />
     <p className="note-soft">Tutustu ennen ostamista <a href="/kayttoehdot">käyttö- ja ostoehtoihin</a> sekä <a href="/palautusehdot">palautus- ja peruutusehtoihin</a>. <a href="/palautusehdot#peruuttaminen">Ilmoita ostoksen peruuttamisesta</a>.</p>
     {status?.paid ? <>
@@ -44,9 +44,10 @@ export default function Purchase({ year,status,onStatus,onCheckout,busy }) {
         <button type="button" className="btn" disabled={Boolean(busy)} onClick={() => onCheckout({ marketingConsent })}>Osta kalenterin {year} lataukset</button>
       </>}
       <button type="button" className="btn-link" onClick={() => refresh()}>Tarkista maksu</button>
-      <details><summary>Palauta aiempi osto</summary>
-        <label>Ostotunnus <textarea autoComplete="off" spellCheck="false" maxLength={2048} value={code} onChange={e => setCode(e.target.value)} /></label>
-        <button type="button" className="btn" disabled={!code} onClick={() => refresh(true)}>Palauta latausoikeus vuodelle {year}</button>
+      <details className="cc-restore"><summary>Palauta aiempi osto</summary>
+        <label htmlFor="cc-restore-code">Ostotunnus</label>
+        <textarea id="cc-restore-code" autoComplete="off" spellCheck="false" maxLength={2048} value={code} onChange={e => setCode(e.target.value)} />
+        <div className="planner-actions"><button type="button" className="btn" disabled={!code} onClick={() => refresh(true)}>Palauta latausoikeus vuodelle {year}</button></div>
       </details>
     </>}
     <p aria-live="polite">{message}</p>

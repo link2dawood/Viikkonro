@@ -85,7 +85,7 @@ function MonthPage({ model, colors }) {
   return (
     <div className="cc-monthpage">
       <div className="cc-monthnav">
-        <button type="button" className="btn-ghost" onClick={() => setIndex((index + 11) % 12)} aria-label="Edellinen kuukausi">
+        <button type="button" className="btn-row" onClick={() => setIndex((index + 11) % 12)} aria-label="Edellinen kuukausi">
           ‹
         </button>
         <label>
@@ -96,7 +96,7 @@ function MonthPage({ model, colors }) {
             ))}
           </select>
         </label>
-        <button type="button" className="btn-ghost" onClick={() => setIndex((index + 1) % 12)} aria-label="Seuraava kuukausi">
+        <button type="button" className="btn-row" onClick={() => setIndex((index + 1) % 12)} aria-label="Seuraava kuukausi">
           ›
         </button>
       </div>

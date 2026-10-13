@@ -2,6 +2,7 @@ import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta } from "../data/seo";
+import extensionCss from "./chromeExtensionPage.css?raw";
 import {
   CHROME_EXTENSION_PATH,
   EXTENSION_FACTS,
@@ -53,6 +54,7 @@ const ChromeExtension = () => {
   return (
     <section className="app ext-page">
       <SEO {...meta} canonical={canonicalFor(CHROME_EXTENSION_PATH)} />
+      <style dangerouslySetInnerHTML={{ __html: extensionCss }} />
 
       <nav className="breadcrumb" aria-label="Murupolku">
         <ol>

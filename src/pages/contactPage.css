@@ -1,0 +1,141 @@
+/* Contact form (/ota-yhteytta).
+
+   Page scoped rather than in App.css: prerender.js inlines the whole site
+   stylesheet into every one of the ~1900 generated pages, so a rule that only
+   one page can match is dead weight in all the others. */
+/* Matches your standard layout container spacing */
+.contact-container {
+  max-width: 800px;
+  margin: 15px auto;
+  padding: 0 20px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+/* Reuses the exact layout parameters of your app's ".panel" block */
+.contact-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+/* Form Headings match your app's typography scale */
+.contact-card h1 {
+  color: var(--accent-deep);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+/* Matches your ".lead" class text parameters */
+.contact-subtitle {
+  color: var(--ink-soft);
+  font-size: 16px;
+  margin: 0 0 28px 0;
+  line-height: 1.5;
+}
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+/* Form group label style matching your ".fld" token */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+/* Input Fields styled identically to your custom date fields */
+.form-group input,
+.form-group textarea {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 15px;
+  color: var(--ink);
+  background-color: #ffffff;
+  transition: all 0.15s ease-in-out;
+  outline: none;
+}
+/* Focus state matches your design system's highlighted active outline color */
+.form-group input:focus,
+.form-group textarea:focus {
+  background-color: #ffffff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.form-group textarea {
+  resize: vertical;
+}
+/* Standardizes your app's action button block (the clickable solid style) */
+.submit-btn {
+  background-color: var(
+    --accent
+  ); /* Sophisticated deep charcoal/navy dominant accent */
+  color: #ffffff;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start; /* Keeps button beautifully aligned without expanding fully */
+  transition: all 0.15s ease;
+}
+/* Hover matches your active element transitions */
+.submit-btn:hover {
+  background-color: var(--accent-deep);
+  transform: translateY(-1px);
+}
+.submit-btn:active {
+  background-color: #0f2a21;
+  transform: translateY(0);
+}
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+/* Native Success Alerts modeled directly off your active selection theme */
+.status-banner {
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-size: 15px;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+.status-banner.success {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.status-banner.error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+.contact-social {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.contact-social p {
+  margin: 0 0 8px;
+}
+
+
+@media (max-width: 600px) {
+  .contact-card {
+    padding: 22px 18px;
+  }
+}

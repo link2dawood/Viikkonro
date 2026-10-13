@@ -10,9 +10,14 @@
 // Advertising storage always stays denied here: ads need a Google-certified
 // CMP (see AdSlot.jsx), which this banner is not.
 export const CONSENT_KEY = "viikkonro-consent";
-// Bump when the banner's purposes change, so everyone is asked again.
+// Bump when the banner's purposes change, so everyone is asked again. The
+// inline script in index.html checks the same key and version before the
+// first paint, so bump it there too.
 export const CONSENT_VERSION = 1;
 export const CONSENT_OPEN_EVENT = "viikkonro:consent-open";
+// Set on <html> by that inline script while a choice is still needed. It is
+// what reveals the prerendered banner, so recording a choice clears it.
+export const CONSENT_ASK_ATTRIBUTE = "consent";
 
 function storage() {
   try {
@@ -68,6 +73,11 @@ export function chooseConsent(analytics) {
   const previous = readConsent();
   saveConsent(analytics);
   applyConsent(analytics, { revoked: previous?.analytics === true && !analytics });
+  try {
+    delete document.documentElement.dataset[CONSENT_ASK_ATTRIBUTE];
+  } catch {
+    // No document (tests): the React state still hides the banner.
+  }
 }
 
 // Re-open the banner (footer link, privacy page button).

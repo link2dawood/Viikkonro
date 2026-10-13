@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { canonicalFor, SITE_URL } from "../data/seo";
+import widgetCss from "./widgetEmbedPage.css?raw";
 import {
   WEEK_WIDGET_PATH,
   WIDGET_EMBED_PAGE_PATH,
@@ -36,6 +37,7 @@ const WidgetEmbed = () => {
   return (
     <section className="app">
       <SEO {...widgetEmbedMeta} canonical={canonicalFor(WIDGET_EMBED_PAGE_PATH)} />
+      <style dangerouslySetInnerHTML={{ __html: widgetCss }} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> / Viikkonumero-widget
       </div>

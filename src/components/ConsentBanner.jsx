@@ -21,11 +21,14 @@ const TEXT = {
   },
 };
 
-// Analytics cookie banner. Hidden in the prerendered HTML and on the first
-// client render (so hydration always matches); shown after mount only when
-// the visitor hasn't chosen yet, or when re-opened from the footer's cookie
-// settings link. Both choices are equally prominent buttons, and declining
-// keeps every feature of the site working.
+// Analytics cookie banner. The markup is in the prerendered HTML and in the
+// first client render (so hydration always matches), but CSS keeps it hidden
+// until either the inline script in index.html marks the document
+// [data-consent=ask] — no stored choice, before the first paint — or the
+// footer's cookie settings link re-opens it. Shipping it with the page keeps
+// its paragraph out of the post-hydration paint that used to decide LCP.
+// Both choices are equally prominent buttons, and declining keeps every
+// feature of the site working.
 const ConsentBanner = () => {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -38,8 +41,6 @@ const ConsentBanner = () => {
     return () => window.removeEventListener(CONSENT_OPEN_EVENT, reopen);
   }, []);
 
-  if (!open) return null;
-
   const choose = (analytics) => {
     chooseConsent(analytics);
     setOpen(false);
@@ -48,6 +49,7 @@ const ConsentBanner = () => {
   return (
     <section
       className="consent noprint"
+      data-open={open ? "true" : "false"}
       role="region"
       aria-label={t.label}
       lang={pathname === "/en" ? "en" : undefined}

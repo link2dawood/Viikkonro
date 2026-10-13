@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -56,6 +57,20 @@ test("business widget v1 is small, isolated, embeddable and absent from sitemap"
   const headers = JSON.parse(read("vercel.json")).headers.find((rule) => rule.source === "/widget/calendar/(.*)").headers;
   assert.ok(headers.some((header) => header.key === "Content-Security-Policy" && header.value.includes("connect-src 'none'") && header.value.includes("frame-ancestors *")));
   for (const file of ["ai.txt","llms.txt","llms-full.txt","llms-api.txt","llms-data.txt","llms-glossary.txt","ai-manifest.txt","data/knowledge-graph.json"]) assert.match(read(`dist/${file}`), /\/widget\/calendar\/v1/);
+});
+
+test("the inline head script matches its Content-Security-Policy hash", () => {
+  // index.html's inline script sets Clarity's consent defaults and decides,
+  // before the first paint, whether the prerendered cookie banner is shown.
+  // Its sha256 is allow-listed in vercel.json's script-src, so editing the
+  // script without refreshing the hash would silently break the policy.
+  const scripts = [...read("dist/index.html").matchAll(/<script>([\s\S]*?)<\/script>/g)];
+  assert.equal(scripts.length, 1, "expected exactly one inline script in the generated page");
+  const digest = `sha256-${createHash("sha256").update(scripts[0][1], "utf8").digest("base64")}`;
+  const policy = JSON.parse(read("vercel.json")).headers
+    .find((rule) => rule.source === "/(.*)").headers
+    .find((header) => header.key.startsWith("Content-Security-Policy")).value;
+  assert.ok(policy.includes(digest), `vercel.json script-src is missing ${digest}`);
 });
 
 function read(relativePath) {
