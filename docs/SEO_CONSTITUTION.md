@@ -131,8 +131,10 @@ user-approved 2026-10-06 canonical consolidation.
 **Lives in**: `sitemapEntries()` in `src/data/seo.js` (the page list) and
 the `urlset` template assembly plus the `<image:image>` block in
 `prerender.js`'s sitemap
-section. Indexability is governed by `isIndexable()` against the
-`currentYear-2`..`currentYear+4` window — pages outside it are correctly
+section. Indexability is governed by `isIndexable()`: week pages and their PDFs use
+`currentYear`..`currentYear+1`; other dated pages keep
+`currentYear-2`..`currentYear+4`, with named-holiday pages retaining their
+full-horizon exception. For HTML, pages outside their applicable window are correctly
 *excluded* from the sitemap (this is intentional, not a bug — don't "fix"
 it by including them).
 

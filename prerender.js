@@ -253,15 +253,19 @@ if (forbiddenGeneratedRoutes.length) {
 }
 const routes = routeCandidates;
 
-// Indexable window: keep the high-intent recent + near-future years in Google's
-// index and noindex the long tail, so ~1,100 near-identical template pages
-// across 16 years don't become the site's dominant "content at scale" signal
-// (which caps a thin calculator site's ranking). Rolling currentYear-2 ..
-// currentYear+4 = 2024..2030 today. Out-of-window pages are still prerendered
-// (so they stay navigable) but carry noindex and are dropped from the sitemap.
+// Week pages use currentYear..currentYear+1 so generic week searches favor
+// the current calendar. Other dated pages retain currentYear-2..currentYear+4.
+// Out-of-window pages remain prerendered with noindex and leave the sitemap.
 const INDEX_MIN_YEAR = currentYear - 2;
 const INDEX_MAX_YEAR = currentYear + 4;
+const WEEK_INDEX_MIN_YEAR = currentYear;
+const WEEK_INDEX_MAX_YEAR = currentYear + 1;
 const isIndexable = (p) => {
+  const week = p.match(/^\/viikko-\d+-(\d{4})$/) ?? p.match(/^\/pdf\/viikko-\d+-(\d{4})\.pdf$/);
+  if (week) {
+    const year = Number(week[1]);
+    return year >= WEEK_INDEX_MIN_YEAR && year <= WEEK_INDEX_MAX_YEAR;
+  }
   // Named-holiday pages are the deliberately expanded content cluster: all
   // 15 holidays across the complete 2020..current+9 publishing horizon are
   // indexable and included in the sitemap.
@@ -4734,7 +4738,7 @@ const llmsFull =
     "",
     "- Purpose: instant ISO 8601 week-number lookup (\"what week is it today / on this date\") plus a full Finnish calendar reference: public holidays, flag days, name days, school holidays, quarters, months, printable calendars and PDF/CSV downloads.",
     "- No login, no paywall, no backend at request time — a prerendered React single-page app. Every meaningful URL is rendered to static HTML at build time (not just the homepage), so crawlers and AI agents see full content without executing JavaScript.",
-    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} (current year plus the next 9). Pages outside the ${currentYear - 2}-${currentYear + 4} window stay online and prerendered but are marked noindex and excluded from the sitemap, to avoid a long tail of near-duplicate future-year pages diluting search ranking. All years remain reachable by direct URL regardless of index status.`,
+    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} (current year plus the next 9). Week pages and their PDFs use the narrower ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window (current year and next year); other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs remain downloadable, canonicalize to their HTML pages and are excluded from the sitemap in every year. All years remain reachable by direct URL regardless of index status.`,
     "- The contact form is the only feature that talks to a third party (Web3Forms, client-side only); everything else — week/date math, holiday and flag-day dates, name-day lookups — is computed locally from deterministic rules, not fetched from an external API.",
     "- For ISO 8601 rules, Finnish holiday/flag-day definitions and how entities relate to each other, see llms-glossary.txt rather than this file.",
     "",
