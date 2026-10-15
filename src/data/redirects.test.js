@@ -15,6 +15,7 @@ const requiredRedirects = [
   ["/year/:year", "/vuosi-:year"],
   ["/print/:year", "/tulosta-:year"],
   ["/pdfs/:file", "/pdf/:file"],
+  ["/cdn-cgi/l/email-protection", "/"],
   ["/kalenteri-:y(\\d+)-1", "/kalenteri-:y-alkuvuosi"],
   ["/kalenteri-:y(\\d+)-2", "/kalenteri-:y-loppuvuosi"],
 ];

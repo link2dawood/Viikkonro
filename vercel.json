@@ -81,6 +81,11 @@
       "statusCode": 301
     },
     {
+      "source": "/cdn-cgi/l/email-protection",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
       "source": "/faq",
       "destination": "/ukk",
       "statusCode": 301
