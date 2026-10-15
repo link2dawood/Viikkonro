@@ -44,11 +44,19 @@ export function dstChanges(year) {
   };
 }
 
-export function dstMeta(year) {
+export function dstMeta(year, now = new Date()) {
   const { start, end } = dstChanges(year);
+  const buildDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const autumnFirst = year === now.getFullYear() && buildDate > start.date && buildDate <= end.date;
+  if (autumnFirst) {
+    return {
+      title: `Kellojen siirto ${fmtShortFi(end.date)}: talviaika alkaa | Viikko Nro`,
+      description: `Kellojen siirto ${fmtShortFi(end.date)} klo 4.00: kellot siirtyvät tunti taaksepäin klo 3.00:een ja talviaika alkaa. Vuoden kesäaika alkoi ${fmtShortFi(start.date)} klo 3.00.`,
+    };
+  }
   return {
-    title: `Kesäaika ${year} – kellojen siirto | Viikko Nro`,
-    description: `Kesäaika ${year} alkaa sunnuntaina ${fmtShortFi(start.date)} klo 3.00, kun kelloja siirretään tunti eteenpäin. Talviaika alkaa sunnuntaina ${fmtShortFi(end.date)} klo 4.00.`,
+    title: `Kellojen siirto ${year}: kesäaika alkaa | Viikko Nro`,
+    description: `Kellojen siirto ${year}: kesäaika alkaa ${fmtShortFi(start.date)} klo 3.00, tunti eteenpäin klo 4.00:ään. Talviaika alkaa ${fmtShortFi(end.date)} klo 4.00, tunti taaksepäin klo 3.00:een.`,
   };
 }
 

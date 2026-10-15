@@ -336,7 +336,13 @@ test("PD-01 generates every critical SEO landing page with indexable self-canoni
 
 test("PD-02 keeps the sitemap HTML-only, unique, and complete for new routes", () => {
   const locations = sitemapLocations();
-  assert.ok(locations.length >= 1000, `expected at least 1000 sitemap URLs, got ${locations.length}`);
+  const buildYear = Number(read("dist/index.html").match(/name="viikkonro-render-day" content="(\d{4})-/)?.[1]);
+  assert.ok(Number.isInteger(buildYear) && buildYear > 2000);
+  // Keep the existing completeness floor, less the five week years now noindexed.
+  const removedWeekCount = [buildYear - 2, buildYear - 1, buildYear + 2, buildYear + 3, buildYear + 4]
+    .reduce((count, year) => count + weeksInIsoYear(year), 0);
+  const minimumUrls = 1000 - removedWeekCount;
+  assert.ok(locations.length >= minimumUrls, `expected at least ${minimumUrls} sitemap URLs, got ${locations.length}`);
   assert.equal(new Set(locations).size, locations.length, "sitemap URLs must be unique");
   assert.ok(locations.every((url) => url.startsWith(`${siteOrigin}/`)), "all sitemap URLs use production origin");
   assert.ok(locations.every((url) => !url.toLowerCase().endsWith(".pdf")), "PDFs stay out of sitemap");

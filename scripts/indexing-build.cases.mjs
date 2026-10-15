@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import { DATA_FEED_FAMILIES } from "../src/data/openDataContent.js";
+import { weeksInIsoYear } from "../src/components/dateUtils.js";
 import { holidayFaqs, holidayPageFor, VAPPU_UPDATED } from "../src/data/holidayPages.js";
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -69,4 +70,36 @@ test("Vappu 2026-2028 remains canonical, indexable and useful before JavaScript"
       assert.ok(read(`dist/${incoming}.html`).includes(`href="${path}"`), incoming);
     }
   }
+});
+
+test("week pages only index the current and next year while preserving the wider non-week window", () => {
+  const sitemap = read("dist/sitemap.xml");
+  const robotsFor = (html) => html.match(/<meta\s+name="robots"\s+content="([^"]+)"/)?.[1];
+  // The build renders the homepage with Finland's current calendar year.
+  const year = Number(read("dist/index.html").match(/name="viikkonro-render-day" content="(\d{4})-/)?.[1]);
+  assert.ok(Number.isInteger(year) && year > 2000, "build year comes from the rendered day");
+  const weekPaths = [...sitemap.matchAll(/<loc>https:\/\/viikkonro\.fi(\/viikko-\d+-(\d{4}))<\/loc>/g)];
+  assert.equal(weekPaths.length, weeksInIsoYear(year) + weeksInIsoYear(year + 1));
+  for (const [, pathname, pageYear] of weekPaths) {
+    assert.ok(Number(pageYear) >= year && Number(pageYear) <= year + 1, pathname);
+  }
+  for (const pageYear of [year - 2, year - 1, year, year + 1, year + 2, year + 4]) {
+    const pathname = `/viikko-42-${pageYear}`;
+    const html = read(`dist${pathname}.html`);
+    const indexable = pageYear === year || pageYear === year + 1;
+    assert.match(robotsFor(html), new RegExp(`^${indexable ? "index" : "noindex"}, follow`), pathname);
+    assert.equal(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), indexable, pathname);
+    assert.ok(fs.existsSync(new URL(`../dist/pdf/viikko-42-${pageYear}.pdf`, import.meta.url)), "PDF still downloadable");
+    const month = `/kuukausi-10-${pageYear}`;
+    assert.match(robotsFor(read(`dist${month}.html`)), /^index, follow/);
+    assert.ok(sitemap.includes(`https://viikkonro.fi${month}</loc>`), "non-week window is unchanged");
+  }
+  for (const pageYear of [year - 3, year + 5]) {
+    assert.match(robotsFor(read(`dist/kuukausi-10-${pageYear}.html`)), /^noindex, follow/);
+    assert.ok(!sitemap.includes(`https://viikkonro.fi/kuukausi-10-${pageYear}</loc>`));
+  }
+  assert.ok(!/<loc>[^<]*\/pdf\//.test(sitemap), "all PDFs remain outside the sitemap");
+  const reference = read("dist/llms-full.txt");
+  assert.ok(reference.includes(`${year}-${year + 1} indexing window`));
+  assert.ok(reference.includes(`${year - 2}-${year + 4} window`));
 });
