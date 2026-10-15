@@ -135,6 +135,19 @@ remain visibly linked from its HTML page, represented in schema, exposed by a
 `Link` response header. The three canonical header mappings live in
 `vercel.json`.
 
+### Advertising
+
+The Google AdSense loader and the `google-adsense-account` meta tag live once,
+in `index.html`, and `prerender.js` copies that head into every public page.
+Do not add ad code to `tiimin-lomat/suunnittelu.html`, the generated widget, or
+any component. Ad units are account settings, not source. `prerender.js` strips
+the loader from `404.html` and the `/liputuspaivat` redirect document through
+`withoutAdsenseLoader()`, because AdSense allows ads only on pages with real
+publisher content. `public/ads.txt` declares the single Google seller line and
+must stay byte identical to what the live site serves. Read
+[`docs/adsense-placement-plan.md`](docs/adsense-placement-plan.md) before
+changing any of this, the slot placements, or the consent model.
+
 ### Planning platform
 
 `src/platform/` is the shared foundation for the calendar and planning tools:

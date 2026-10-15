@@ -2,10 +2,11 @@ import adCss from "./adSlot.css?raw";
 const layoutPreviewEnabled =
   import.meta.env.VITE_AD_LAYOUT_PREVIEW === "true";
 
-// Layout-only AdSense reservation. Nothing is rendered in production unless
-// the explicit preview flag is enabled, so pre-approval pages never contain
-// empty ad boxes. The real post-approval component will replace the mount
-// element only after the certified CMP has granted the required consent.
+// Layout-only AdSense reservation. The loader script ships from index.html,
+// but no ad unit exists in source: units and Auto ads are AdSense account
+// settings. Nothing is rendered in production unless the explicit preview flag
+// is enabled, so pages never contain an empty ad box. See
+// docs/adsense-placement-plan.md before filling the mount element.
 const AdSlot = ({ placement, format = "banner" }) => {
   if (!layoutPreviewEnabled) return null;
 

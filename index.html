@@ -34,6 +34,10 @@
       name="robots"
       content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
     />
+    <!-- AdSense site ownership. Google accepts this meta tag as proof even
+         when the loader script is blocked by a content blocker, so keep it
+         in step with the loader below and with /ads.txt. -->
+    <meta name="google-adsense-account" content="ca-pub-5553975522423673" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://viikkonro.fi/og.png" />
     <meta
@@ -152,6 +156,28 @@
         l.readyState==="complete"?idle():c.addEventListener("load",idle,{once:true});
       })(window,document,"clarity","script","y5lf3vwo97");
     </script>
+
+    <!-- Google AdSense loader (publisher ca-pub-5553975522423673). This is
+         the only ad code in the repository: ad units are served from the
+         AdSense account, so enabling or pausing them needs no deployment.
+         prerender.js copies this head into every public page, which is what
+         the AdSense site review and the contextual crawlers look for.
+
+         It is unconditional on purpose. The certified CMP for this site is
+         Google's own Privacy and messaging GDPR message, and that message is
+         delivered by this same script. Gating the script behind the
+         first-party banner (src/consent.js, analytics only) would stop the
+         consent prompt from appearing at all and would leave the review with
+         no detectable ad code.
+
+         Never add this to tiimin-lomat/suunnittelu.html (the private app) or
+         to the embeddable widget. When the origins change, update the
+         script-src and frame-src lists in vercel.json. -->
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5553975522423673"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <div id="root"></div>

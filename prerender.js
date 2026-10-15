@@ -344,6 +344,18 @@ function templateForRoute(url) {
   return template.replace("</head>", `${styles.join("")}${preloads.join("")}</head>`);
 }
 
+// AdSense allows ads only on pages that carry real publisher content, so the
+// error page and the meta-refresh redirect document below are generated without
+// the loader that index.html gives every other page. Removing it here keeps one
+// copy of the tag in source control, and the throw makes a renamed or dropped
+// loader a build failure instead of a silent policy problem.
+const ADSENSE_LOADER =
+  /<script\b[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com[^"]*"[^>]*><\/script>/;
+if (!ADSENSE_LOADER.test(template)) {
+  throw new Error("AdSense loader missing from index.html");
+}
+const withoutAdsenseLoader = (html) => html.replace(ADSENSE_LOADER, "");
+
 const escapeAttr = (s) =>
   s
     .replace(/&/g, "&amp;")
@@ -3542,7 +3554,7 @@ for (const url of routes) {
 // noindex since the same page answers many unmatched URLs.
 try {
   const nf = stripInlineMeta(render("/404"));
-  let html404 = applyMeta(templateForRoute("/404"), {
+  let html404 = applyMeta(withoutAdsenseLoader(templateForRoute("/404")), {
     title: "Sivua ei löytynyt (404) | Viikko Nro",
     description:
       "Etsimääsi sivua ei löytynyt. Palaa etusivulle ja jatka viikkonumeroiden selaamista.",
@@ -3579,7 +3591,7 @@ try {
 try {
   const flagDaysTargetPath = `/liputuspaivat-${currentYear}`;
   const flagDaysTargetUrl = canonicalFor(flagDaysTargetPath);
-  let htmlFlagDaysRedirect = applyMeta(template, {
+  let htmlFlagDaysRedirect = applyMeta(withoutAdsenseLoader(template), {
     title: `Suomen liputuspäivät ${currentYear} | Viikko Nro`,
     description: `Siirry Suomen liputuspäivät ${currentYear} -sivulle: päivämäärät, viikkonumerot ja tyyppi.`,
     url: flagDaysTargetUrl,
