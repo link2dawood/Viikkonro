@@ -144,7 +144,6 @@ import {
   weekdayFaqs,
   weekdayMeta,
 } from "./src/data/currentDateContent.js";
-import { englishFaqs } from "./src/data/englishContent.js";
 import { paydayFaqs, paydaysInYear, DEFAULT_PAYDAY } from "./src/data/paydayPages.js";
 import {
   KELA_BENEFITS,
@@ -1455,8 +1454,8 @@ function editorialPolicyFaqNodes() {
 // /api-playground: WebAPI (schema.org's actual type for describing an API,
 // unused elsewhere on the site) — one node per real endpoint from
 // docs/api.md — plus the page's own TechArticle node with mainEntity
-// pointing at all four, and a small FAQ. English (inLanguage "en"), same
-// deliberate exception as englishPageNodes() below.
+// pointing at all four, and a small FAQ. Finnish (inLanguage "fi") like
+// every other page; the English exception was removed 2026-10-15.
 function apiPlaygroundNodes() {
   const path = "/api-playground";
   const url = canonicalFor(path);
@@ -1472,33 +1471,33 @@ function apiPlaygroundNodes() {
   const apis = [
     apiNode(
       "week",
-      "Viikko Nro Week API",
-      "Free ISO 8601 week-number data for any week/year, 2020-2035. No auth, no rate limit.",
+      "Viikko Nro -viikkorajapinta",
+      "Ilmainen ISO 8601 -viikkonumerodata mille tahansa viikolle/vuodelle, 2020–2035. Ei kirjautumista, ei käyttörajoja.",
       `${SITE_URL}/api/week/{week}/{year}.json`,
     ),
     apiNode(
       "month",
-      "Viikko Nro Month API",
-      "Free calendar-month data (ISO weeks, working days) for any month/year, 2020-2035. No auth, no rate limit.",
+      "Viikko Nro -kuukausirajapinta",
+      "Ilmainen kalenterikuukausidata (ISO-viikot, työpäivät) mille tahansa kuukaudelle/vuodelle, 2020–2035. Ei kirjautumista, ei käyttörajoja.",
       `${SITE_URL}/api/month/{month}/{year}.json`,
     ),
     apiNode(
       "year",
-      "Viikko Nro Year API",
-      "Free full-year data (week count, holidays, flag days) for any year, 2020-2035. No auth, no rate limit.",
+      "Viikko Nro -vuosirajapinta",
+      "Ilmainen koko vuoden data (viikkojen määrä, pyhäpäivät, liputuspäivät) mille tahansa vuodelle, 2020–2035. Ei kirjautumista, ei käyttörajoja.",
       `${SITE_URL}/api/year/{year}.json`,
     ),
     apiNode(
       "holiday",
-      "Viikko Nro Holiday API",
-      "Free per-holiday data (date, weekday, legal basis where confirmed) for any of Finland's 15 named holidays, 2020-2035. No auth, no rate limit.",
+      "Viikko Nro -pyhäpäivärajapinta",
+      "Ilmainen pyhäpäiväkohtainen data (päivämäärä, viikonpäivä, tarvittaessa oikeusperusta) mille tahansa Suomen 15 nimetystä pyhäpäivästä, 2020–2035. Ei kirjautumista, ei käyttörajoja.",
       `${SITE_URL}/api/holiday/{slug}/{year}.json`,
     ),
   ];
   return [
     pageNode(path, "TechArticle", {
       description: metaFor(path).description,
-      inLanguage: "en",
+      inLanguage: "fi",
       dateModified: FEED_BUILD_DATE,
       mainEntity: apis.map((a) => ({ "@id": a["@id"] })),
     }),
@@ -1506,18 +1505,18 @@ function apiPlaygroundNodes() {
     {
       "@type": "FAQPage",
       "@id": `${url}#faq`,
-      inLanguage: "en",
+      inLanguage: "fi",
       dateModified: FEED_BUILD_DATE,
       mainEntity: [
         {
           "@type": "Question",
-          name: "Is there a rate limit?",
-          acceptedAnswer: { "@type": "Answer", text: "No — these are static files served from a CDN, not a rate-limited API." },
+          name: "Onko käytössä nopeusrajoitus?",
+          acceptedAnswer: { "@type": "Answer", text: "Ei — nämä ovat CDN:stä tarjoiltavia staattisia tiedostoja, ei nopeusrajoitettua rajapintaa." },
         },
         {
           "@type": "Question",
-          name: "Do I need an API key?",
-          acceptedAnswer: { "@type": "Answer", text: "No authentication is required for any endpoint." },
+          name: "Tarvitsenko API-avaimen?",
+          acceptedAnswer: { "@type": "Answer", text: "Mikään päätepiste ei vaadi tunnistautumista." },
         },
       ],
     },
@@ -1726,42 +1725,6 @@ function homepageFaqNodes() {
       acceptedAnswer: { "@type": "Answer", text: item.a },
     })),
   }];
-}
-
-function englishPageNodes() {
-  const url = canonicalFor("/en");
-  const meta = metaFor("/en");
-  return [
-      pageNode("/en", "WebPage", {
-        name: "What is the current week number?",
-        description: meta.description,
-        inLanguage: "en",
-        datePublished: "2026-08-04",
-        dateModified: CONTENT_UPDATED,
-      }),
-      {
-        "@type": "FAQPage",
-        "@id": url + "#faq",
-        inLanguage: "en",
-        dateModified: CONTENT_UPDATED,
-        mainEntity: englishFaqs.map((item) => ({
-          "@type": "Question",
-          name: item.q,
-          acceptedAnswer: { "@type": "Answer", text: item.a },
-        })),
-      },
-    ];
-}
-
-function languageAlternateLinks(url) {
-  if (["/", "/en"].includes(url)) {
-    return (
-      '<link rel="alternate" hreflang="fi" href="' + canonicalFor("/") + '" />' +
-      '<link rel="alternate" hreflang="en" href="' + canonicalFor("/en") + '" />' +
-      '<link rel="alternate" hreflang="x-default" href="' + canonicalFor("/") + '" />'
-    );
-  }
-  return "";
 }
 
 // Declares each week/year/holidays page's JSON twin the same way an RSS feed
@@ -3268,10 +3231,6 @@ for (const url of routes) {
       url: canonical,
     });
 
-    const languageLinks = languageAlternateLinks(url);
-    if (languageLinks) {
-      html = html.replace("</head>", languageLinks + "</head>");
-    }
     const feedLink = jsonFeedAlternateLink(url);
     if (feedLink) {
       html = html.replace("</head>", feedLink + "</head>");
@@ -3280,24 +3239,6 @@ for (const url of routes) {
     if (pdfLink) {
       html = html.replace("</head>", pdfLink + "</head>");
     }
-    if (url === "/en" || url === "/api-playground") {
-      // The base template (index.html) is Finnish-first: <html lang> and
-      // og:locale are baked in as Finnish defaults with no per-page override
-      // mechanism elsewhere, so any deliberately-English page ships them
-      // unpatched otherwise — a real bug, not a styling nit: og:locale: fi_FI
-      // on an English page actively misdescribes it to anything reading Open
-      // Graph tags. The
-      // <SEO lang="en"> prop these pages set doesn't reach this prerendered
-      // HTML at all (react-helmet-async's output is stripped and replaced
-      // by this file — see stripInlineMeta), so the fix has to live here,
-      // not just in the component (the exact gap found and fixed for /en
-      // earlier — api-playground is the same deliberate-English exception,
-      // so it needs the same patch, not a second one).
-      html = html
-        .replace('<html lang="fi">', '<html lang="en">')
-        .replace('<meta property="og:locale" content="fi_FI" />', '<meta property="og:locale" content="en_US" />');
-    }
-
     // Prune the index to the high-intent window: out-of-window year pages stay
     // prerendered (navigable) but are noindexed (flip the template's default
     // index,follow) and dropped from the sitemap below.
@@ -3360,7 +3301,6 @@ for (const url of routes) {
       if (url === ANDROID_APP_PATH) nodes.push(...androidAppNodes());
       const datasetPageMatch = url.match(/^\/data\/(week|month|year|holiday|working-days)$/);
       if (datasetPageMatch) nodes.push(...datasetPageNodes(datasetPageMatch[1]));
-      if (url === "/en") nodes.push(...englishPageNodes());
 
       if (["/mika-kuukausi-nyt", "/mika-vuosi-nyt", "/viikonpaiva"].includes(url)) {
         nodes.push(...currentDateIntentNodes(url));
