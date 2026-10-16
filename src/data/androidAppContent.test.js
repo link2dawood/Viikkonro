@@ -3,7 +3,6 @@ import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
   ANDROID_APP_PATH,
-  ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
   androidAppFaqs,
 } from "./androidAppContent.js";
@@ -41,6 +40,5 @@ describe("Android app landing content", () => {
       { path: ANDROID_APP_PATH, changefreq: "monthly", priority: "0.8" },
     ]);
     expect(ANDROID_APP_FEATURES.length).toBeGreaterThanOrEqual(6);
-    expect(ANDROID_INSTALL_STEPS).toHaveLength(4);
   });
 });

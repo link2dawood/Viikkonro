@@ -7,27 +7,9 @@ import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
   ANDROID_APP_PATH,
-  ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
   androidAppFaqs,
 } from "../data/androidAppContent";
-
-const PlayStoreButton = () => (
-  <a
-    className="android-store-link"
-    href={ANDROID_APP_FACTS.storeUrl}
-    target="_blank"
-    rel="noopener noreferrer external"
-    aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
-  >
-    <img
-      src="/mobile/android/google-play-logo.webp"
-      alt="Google Play"
-      width="388"
-      height="432"
-    />
-  </a>
-);
 
 const AndroidApp = () => {
   const meta = routeMeta[ANDROID_APP_PATH];
@@ -69,9 +51,11 @@ const AndroidApp = () => {
             avaamatta sovellusta.
           </p>
           <div className="ext-cta">
-            <PlayStoreButton />
             <a className="ext-link" href="#widgetit">Katso widgetit →</a>
           </div>
+          <p className="note-soft">
+            Sovellus ei ole tällä hetkellä ladattavissa Google Playsta.
+          </p>
           <p className="note-soft">
             Maksuton · ei rekisteröitymistä · {ANDROID_APP_FACTS.minimumAndroid}
           </p>
@@ -192,15 +176,12 @@ const AndroidApp = () => {
       </div>
 
       <div className="prose">
-        <h2 id="asennus">Näin asennat Viikkonro-sovelluksen</h2>
-        <ol className="ext-steps">
-          {ANDROID_INSTALL_STEPS.map((step) => (
-            <li key={step.name}>
-              <strong>{step.name}.</strong> {step.text}
-            </li>
-          ))}
-        </ol>
-        <p><PlayStoreButton /></p>
+        <h2 id="saatavuus">Sovelluksen saatavuus</h2>
+        <p>
+          Viikkonro-sovellus ei ole tällä hetkellä ladattavissa Google
+          Playsta. Tämä sivu kertoo sovelluksen ominaisuuksista, widgeteistä
+          ja yksityisyydestä.
+        </p>
 
         <h2>Yksityisyys Android-sovelluksessa</h2>
         <p>
@@ -240,10 +221,10 @@ const AndroidApp = () => {
         <div className="android-final-cta">
           <img src="/mobile/android/app-icon.webp" alt="" width="72" height="72" aria-hidden="true" />
           <div>
-            <h2>Lataa Viikkonro Androidille</h2>
+            <h2>Viikkonro Androidille</h2>
             <p>Viikkonumerot, kalenteri, laskurit ja widgetit yhdessä sovelluksessa.</p>
+            <p className="note-soft">Sovellus ei ole tällä hetkellä ladattavissa Google Playsta.</p>
           </div>
-          <PlayStoreButton />
         </div>
       </div>
 
