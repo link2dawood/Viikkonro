@@ -55,7 +55,6 @@ const SchoolHolidays = routePage("SchoolHolidays");
 const CurrentMonth = routePage("CurrentMonth");
 const CurrentYear = routePage("CurrentYear");
 const WeekdayCalculator = routePage("WeekdayCalculator");
-const EnglishHome = routePage("EnglishHome");
 const Paydays = routePage("Paydays");
 const KelaPayments = routePage("KelaPayments");
 const PensionPayments = routePage("PensionPayments");
@@ -158,7 +157,6 @@ const RouteAnalytics = () => {
 
 const routeElements = <>
         <Route path="/" element={<Home />} />
-        <Route path="/en" element={<EnglishHome />} />
         <Route path="/mika-on-viikkonumero" element={<WhatWeek />} />
         <Route path="/parillinen-pariton-viikko" element={<WeekParityPage />} />
         <Route path="/viikko-alkaa-maanantaista" element={<WeekStartsMonday />} />

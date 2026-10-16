@@ -25,8 +25,10 @@
 //     vk/vko abbreviation coverage in visible body copy
 //   - week, month, and year meta descriptions do not advertise incomplete
 //     name-day coverage
-//   - /en keeps English document/head signals, reciprocal hreflang, English
-//     shared chrome, and an indexable sitemap entry
+//   - English is fully removed: no /en page generated, no /en in the
+//     sitemap, no hreflang anywhere, nothing linking to /en
+//     (vercel.json 301s /en -> / for external backlinks; check-crawl renders
+//     pages without an HTTP layer, so it asserts the prerender footprint is gone)
 //   - zero PDFs in the sitemap; every generated PDF remains directly linked
 //     from rendered HTML as a user download
 
@@ -45,8 +47,10 @@ const { render } = await import(
 
 // Asset hints (<link rel="preload" href="...svg">, favicons, etc.) also use
 // href= but aren't page links — exclude by extension so they don't pollute
-// the crawl or the redirect-only heuristic below.
-const ASSET_EXT = /\.(svg|png|jpg|jpeg|ico|xml|txt|css|js|pdf|json|csv|xlsx)$/i;
+// the crawl or the redirect-only heuristic below. Every image format the site
+// actually ships belongs here: a format missing from this list is crawled as a
+// page and reported as an internal link to the 404 page.
+const ASSET_EXT = /\.(svg|png|webp|avif|jpg|jpeg|ico|xml|txt|css|js|pdf|json|csv|xlsx)$/i;
 
 function extractLinks(html) {
   const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
@@ -180,22 +184,18 @@ const unsupportedNameDayDescriptionFiles = generatedHtmlFiles
     )?.[1] ?? "";
     return !description || /nimipäiv/i.test(description);
   });
-const englishGeneratedHtml = fs.readFileSync(path.join(root, "dist/en.html"), "utf-8");
-const invalidEnglishSurfaceSignals = [
-  ['<html lang="en">', englishGeneratedHtml.includes('<html lang="en">')],
-  ['og:locale en_US', englishGeneratedHtml.includes('<meta property="og:locale" content="en_US" />')],
-  ['self canonical', englishGeneratedHtml.includes('<link rel="canonical" href="https://viikkonro.fi/en" />')],
-  ['hreflang fi', englishGeneratedHtml.includes('<link rel="alternate" hreflang="fi" href="https://viikkonro.fi/" />')],
-  ['hreflang en', englishGeneratedHtml.includes('<link rel="alternate" hreflang="en" href="https://viikkonro.fi/en" />')],
-  ['hreflang x-default', englishGeneratedHtml.includes('<link rel="alternate" hreflang="x-default" href="https://viikkonro.fi/" />')],
-  ['English navigation', englishGeneratedHtml.includes("Open navigation menu")],
-  ['English footer', englishGeneratedHtml.includes("All rights reserved.")],
-  ['Finnish destinations labeled', englishGeneratedHtml.includes("(Finnish)")],
-  ['no Finnish navigation label', !englishGeneratedHtml.includes("Avaa navigointivalikko")],
-  ['no Finnish footer heading', !englishGeneratedHtml.includes(">Palvelu<")],
-  ['indexable robots', !englishGeneratedHtml.includes('content="noindex, follow"')],
-  ['sitemap entry', allSitemapPaths.includes("/en")],
-].filter(([, valid]) => !valid).map(([signal]) => signal);
+// English removal (2026-10-15): /en must leave no prerender footprint.
+// The vercel.json 301 (/en -> /) handles real HTTP traffic; this script only
+// renders, so it asserts nothing generates, links, or submits /en anymore.
+const englishRemovalViolations = [
+  ["dist/en.html still generated", fs.existsSync(path.join(root, "dist/en.html"))],
+  ["/en in sitemap", allSitemapPaths.includes("/en")],
+  ["/en reachable from crawl", visited.has("/en")],
+  ["hreflang emitted in generated HTML", generatedHtmlFiles
+    .map((entry) => path.join(entry.parentPath, entry.name))
+    .some((file) => /hreflang=/.test(fs.readFileSync(file, "utf-8")))],
+  ["homepage links to /en", /href="\/en"/.test(navigationHtml)],
+].filter(([, violated]) => violated).map(([signal]) => signal);
 const generatedPdfPaths = fs
   .readdirSync(path.join(root, "dist/pdf"), { recursive: true, withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith(".pdf"))
@@ -221,7 +221,7 @@ console.log(`Legacy/numbered URLs in sitemap: ${forbiddenSitemapUrls.length}`);
 console.log(`Legacy/numbered generated pages: ${forbiddenGeneratedFiles.length}`);
 console.log(`Week pages with invalid title/body abbreviation coverage: ${invalidWeekMetadataFiles.length}`);
 console.log(`Week/month/year pages with unsupported name-day descriptions: ${unsupportedNameDayDescriptionFiles.length}`);
-console.log(`Invalid English-surface signals: ${invalidEnglishSurfaceSignals.length}`);
+console.log(`English-removal violations: ${englishRemovalViolations.length}`);
 console.log(`Generated/submitted/directly linked PDFs: ${generatedPdfPaths.length}/${sitemapPdfUrls.length}/${discoveredPdfAnchors.size}`);
 console.log(`Unexpected PDF sitemap entries: ${sitemapPdfUrls.length}`);
 console.log(`Missing submitted PDF files: ${missingSitemapPdfFiles.length}`);
@@ -246,8 +246,8 @@ for (const file of invalidWeekMetadataFiles) {
 for (const file of unsupportedNameDayDescriptionFiles) {
   console.log(`  UNSUPPORTED NAME-DAY DESCRIPTION: ${path.relative(root, file)}`);
 }
-for (const signal of invalidEnglishSurfaceSignals) {
-  console.log(`  INVALID ENGLISH SURFACE: ${signal}`);
+for (const signal of englishRemovalViolations) {
+  console.log(`  ENGLISH REMOVAL: ${signal}`);
 }
 for (const pathname of missingSitemapPdfFiles) {
   console.log(`  MISSING SUBMITTED PDF: ${pathname}`);
@@ -274,7 +274,7 @@ const failed =
   forbiddenGeneratedFiles.length > 0 ||
   invalidWeekMetadataFiles.length > 0 ||
   unsupportedNameDayDescriptionFiles.length > 0 ||
-  invalidEnglishSurfaceSignals.length > 0 ||
+  englishRemovalViolations.length > 0 ||
   sitemapPdfUrls.length > 0 ||
   missingSitemapPdfFiles.length > 0 ||
   unlinkedSitemapPdfs.length > 0 ||

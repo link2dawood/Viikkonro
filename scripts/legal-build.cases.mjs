@@ -35,9 +35,7 @@ test("refund FAQ schema matches visible content and cancellation remains public 
   assert.ok(!html.includes('name="robots" content="noindex'));
   assert.ok(readFileSync("dist/yrityskalenteri.html","utf8").includes('href="/palautusehdot#peruuttaminen"'));
 });
-test("footer links stay Finnish on English route and generated AI index includes refund instructions",()=>{
-  const html=readFileSync("dist/en.html","utf8");
-  assert.match(html,/<a[^>]*hrefLang="fi"[^>]*href="\/palautusehdot"[^>]*>Refunds and cancellation \(Finnish\)<\/a>/i);
+test("generated AI index includes refund instructions (English route removed 2026-10-15)",()=>{
   for(const file of ["dist/llms.txt","dist/ai.txt","dist/llms-full.txt"])assert.ok(readFileSync(file,"utf8").includes("/palautusehdot"),file);
 });
 test("cancellation mail credentials and server implementation never enter the browser bundle",()=>{

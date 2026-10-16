@@ -45,9 +45,7 @@ export function pageTopic(pathname, today) {
   const weekGuide = link("/mika-on-viikkonumero","Miten viikkonumero määräytyy?","Viikkovuosi, merkintätapa ja vuoden ensimmäinen viikko.");
   const workGuide = link("/tyopaivalaskuri","Työpäivälaskuri","Laske työpäivät valitulla aikavälillä.");
   let match;
-  if (pathname === "/en") {
-    return { id:"weeks",topic:PAGE_TOPICS.weeks,heading:"Explore the Finnish calendar tools",text:"Use the Finnish guides to check week dates, public holidays and calculation methods. Pages linked below are in Finnish.",detail:"",lang:"en",day:helsinkiDayKey(today),sources:[{ ...isoSource,name:"ISO: date and time formats" }],links:[link("/mika-on-viikkonumero","ISO week-number guide (Finnish)","Understand the week-year and week numbering."),link(`/kalenteri-${year}`,`${year} calendar (Finnish)`,"See dates and week numbers together."),link("/tietolahteet","Calendar data sources (Finnish)","Check the sources behind the calendar.")] };
-  }
+
   if ((match = pathname.match(/^\/viikko-(\d+)-(\d+)$/))) {
     id="weeks";
     const start=mondayOf(Number(match[1]),year),end=new Date(start.getFullYear(),start.getMonth(),start.getDate()+6);

@@ -84,7 +84,6 @@ async function inspect() {
         `/kalenteri-${year}`,
         `/vuosi-${year}`,
         "/mika-on-viikkonumero",
-        "/en",
       ];
   const client = await getClient();
 

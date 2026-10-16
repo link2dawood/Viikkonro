@@ -50,7 +50,6 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Viikkonumero-widget](https://viikkonro.fi/upota-viikkonumero): ilmainen upotettava widget, joka näyttää kuluvan viikon omalla sivulla
 - [Tietoa meistä](https://viikkonro.fi/tietoa-meista): palvelun esittely
 - [Ota yhteyttä](https://viikkonro.fi/ota-yhteytta): yhteydenottolomake
-- [Week number today – English](https://viikkonro.fi/en): current ISO week number and dates, computed live
 
 ## Koneluettava data (JSON)
 

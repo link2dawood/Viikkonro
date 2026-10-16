@@ -25,7 +25,7 @@ export const CALENDAR_CONTENT_UPDATED = "2026-10-05";
 // https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap
 function previousContentLastmod(path, buildDay) {
   if (
-    path === "/" || path === "/en" || path === "/nimipaivat/tanaan" ||
+    path === "/" || path === "/nimipaivat/tanaan" ||
     path === "/parillinen-pariton-viikko" ||
     /^\/auringonlasku(?:-[a-z-]+)?$/.test(path) ||
     /^\/kuinka-monta-paivaa-[a-z-]+$/.test(path) ||

@@ -4,7 +4,7 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || "/tmp/viikkon
 const base=process.env.SEMANTIC_TEST_URL || "http://127.0.0.1:4173";
 const origin=new URL(base).origin;
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH || "/home/link2dawood/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome"});
-const paths=["/","/en","/mika-on-viikkonumero","/viikko-53-2026","/kuukausi-2-2028","/vuosi-2027","/pyhat-2027/joulupaiva","/liputuspaivat-2027","/koululomat-2027","/tyopaivat-2027","/lomasuunnittelija","/palkkapaivat-2027","/projektiaikataulu","/rakennuskalenteri","/hr-kalenteri","/tiimin-lomat","/kalenteripohjat","/data/week","/yrityskalenteri","/yrityskalenteri/ics","/auringonlasku-helsinki","/nimipaiva/elmer","/raskauslaskuri","/tietolahteet"];
+const paths=["/","/mika-on-viikkonumero","/viikko-53-2026","/kuukausi-2-2028","/vuosi-2027","/pyhat-2027/joulupaiva","/liputuspaivat-2027","/koululomat-2027","/tyopaivat-2027","/lomasuunnittelija","/palkkapaivat-2027","/projektiaikataulu","/rakennuskalenteri","/hr-kalenteri","/tiimin-lomat","/kalenteripohjat","/data/week","/yrityskalenteri","/yrityskalenteri/ics","/auringonlasku-helsinki","/nimipaiva/elmer","/raskauslaskuri","/tietolahteet"];
 const results=[];
 const output="/tmp/viikkonro-semantic-browser";mkdirSync(output,{recursive:true});
 try {
@@ -22,7 +22,6 @@ try {
       assert.ok(layout.left>=-1 && layout.right<=layout.width+1 && !layout.overflow,`${path} ${width}: guide overflow`);
       const links=guide.locator("li a");assert.ok(await links.count()>0,path);
       await links.first().focus();assert.ok(await links.first().evaluate(a=>a===document.activeElement),path);
-      if(path==="/en")assert.equal(await guide.locator('li a[hreflang="fi"]').count(),await links.count());
       await page.emulateMedia({media:"print"});assert.equal(await guide.isVisible(),false,path);await page.emulateMedia({media:"screen"});
       results.push({path,width,topic:await guide.getAttribute("data-topic-id"),passed:true});
     }

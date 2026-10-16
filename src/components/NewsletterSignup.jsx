@@ -15,16 +15,6 @@ const TEXT = {
     success: "Tarkista sähköpostisi ja vahvista tilaus viestin linkistä.",
     error: "Tilauspyyntö ei onnistunut. Yritä uudelleen hetken kuluttua.",
   },
-  en: {
-    title: "Get the week number by email",
-    body: "A weekly email in Finnish with the week number and upcoming Finnish holidays.",
-    open: "Get reminders", close: "Close email signup", email: "Email address",
-    consent: "I want Viikkonro’s weekly email reminders in Finnish. I can unsubscribe using the link in every email.",
-    submit: "Subscribe for free", sending: "Sending…", privacy: "Privacy notice (Finnish)",
-    note: "Confirm your subscription using the link sent to your inbox.",
-    success: "Check your inbox and confirm your subscription using the email link.",
-    error: "We could not submit your request. Please try again shortly.",
-  },
 };
 
 function storage() {
@@ -43,7 +33,7 @@ export default function NewsletterSignup() {
   const busy = useRef(false);
   const card = useRef(null);
   const emailInput = useRef(null);
-  const t = pathname === "/en" ? TEXT.en : TEXT.fi;
+  const t = TEXT.fi;
   const excluded = ["/tietosuoja", "/kayttoehdot", "/ota-yhteytta"].includes(pathname);
 
   useEffect(() => {
@@ -111,7 +101,7 @@ export default function NewsletterSignup() {
   if (!endpoint || !import.meta.env.VITE_TURNSTILE_SITE_KEY || excluded || !ready || dismissed) return null;
 
   return (
-    <aside ref={card} className="newsletter noprint" aria-labelledby="newsletter-title" lang={pathname === "/en" ? "en" : "fi"}
+    <aside ref={card} className="newsletter noprint" aria-labelledby="newsletter-title" lang="fi"
       onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); dismiss(); } }}>
       <button className="newsletter-close" type="button" aria-label={t.close} onClick={dismiss}>×</button>
       <h2 id="newsletter-title">{t.title}</h2>
@@ -123,7 +113,7 @@ export default function NewsletterSignup() {
             <input ref={emailInput} id="newsletter-email" name="email" type="email" autoComplete="email" maxLength={254} required disabled={status === "sending"} />
             <div className="newsletter-trap" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
             <label className="newsletter-consent"><input type="checkbox" name="consent" value="yes" required disabled={status === "sending"} /><span>{t.consent}</span></label>
-            <NewsletterChallenge onToken={setToken} attempt={attempt} english={pathname === "/en"} />
+            <NewsletterChallenge onToken={setToken} attempt={attempt} />
             <button className="btn newsletter-primary" type="submit" disabled={status === "sending" || !token}>{status === "sending" ? t.sending : t.submit}</button>
             <p className="newsletter-note">{t.note}</p>
           </>}
@@ -131,7 +121,7 @@ export default function NewsletterSignup() {
           {status === "error" && <p role="alert">{t.error}</p>}
         </form>
       )}
-      <Link className="newsletter-privacy" to="/tietosuoja" hrefLang={pathname === "/en" ? "fi" : undefined}>{t.privacy}</Link>
+      <Link className="newsletter-privacy" to="/tietosuoja">{t.privacy}</Link>
     </aside>
   );
 }

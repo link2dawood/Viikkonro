@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { CONSENT_OPEN_EVENT, chooseConsent, readConsent } from "../consent";
 
 const TEXT = {
@@ -10,14 +10,6 @@ const TEXT = {
     more: "Lue lisää",
     deny: "Vain välttämättömät",
     allow: "Salli analytiikkaevästeet",
-  },
-  en: {
-    label: "Cookie settings",
-    title: "Cookies and analytics.",
-    body: "We use Microsoft Clarity to improve the site. Choose whether analytics may use cookies. Without consent, analytics runs without cookies and all tools remain available.",
-    more: "Privacy notice (Finnish)",
-    deny: "Necessary only",
-    allow: "Allow analytics cookies",
   },
 };
 
@@ -31,8 +23,7 @@ const TEXT = {
 // feature of the site working.
 const ConsentBanner = () => {
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
-  const t = pathname === "/en" ? TEXT.en : TEXT.fi;
+  const t = TEXT.fi;
 
   useEffect(() => {
     if (!readConsent()) setOpen(true);
@@ -53,11 +44,10 @@ const ConsentBanner = () => {
       data-nosnippet=""
       role="region"
       aria-label={t.label}
-      lang={pathname === "/en" ? "en" : undefined}
     >
       <p>
         <strong>{t.title}</strong> {t.body}{" "}
-        <Link to="/tietosuoja" hrefLang={pathname === "/en" ? "fi" : undefined}>
+        <Link to="/tietosuoja">
           {t.more}
         </Link>
       </p>
