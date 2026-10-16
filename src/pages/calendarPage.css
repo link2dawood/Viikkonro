@@ -48,7 +48,9 @@
 .cal-print .pills,
 .cal-print .cal-nimi,
 .cal-print .noprint,
-.cal-print .cal-seealso {
+.cal-print .cal-seealso,
+.cal-print ins.adsbygoogle,
+.cal-print .google-auto-placed {
   display: none;
 }
 .cal-print h1 {

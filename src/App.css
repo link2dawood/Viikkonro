@@ -1289,7 +1289,10 @@ footer {
 footer,
 .breadcrumb,
 .noprint,
-.print-support {
+.print-support,
+ins.adsbygoogle,
+.google-auto-placed,
+.adsbygoogle-noablate {
     display: none !important;
   }
   body {

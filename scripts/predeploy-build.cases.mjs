@@ -537,3 +537,54 @@ test("PD-11 keeps the FAQ landing page focused on viikkonumero with matching sch
   assert.equal(faqNode.mainEntity[0].name, "Mikä on viikkonumero?");
   assert.ok(html.indexOf("Mikä on viikkonumero?") < html.indexOf("Mikä viikko nyt on?"));
 });
+
+test("PD-19 ships the AdSense loader on content pages only, with ads.txt and policy headers", () => {
+  const publisher = "ca-pub-5553975522423673";
+  const loader = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisher}`;
+  const pages = fs.readdirSync(dist, { recursive: true }).filter((file) =>
+    file.endsWith(".html") && !file.startsWith("widget/") && file !== "tiimin-lomat/suunnittelu.html");
+  assert.ok(pages.length > 1000, "check the full generated site, not only sample routes");
+
+  // Ads belong on content pages. The error page and the meta-refresh redirect
+  // document are not content, so they must stay loader-free; the ownership
+  // meta is not ad code and stays everywhere.
+  const wrong = [];
+  for (const file of pages) {
+    const html = read(path.join("dist", file));
+    const adFree = file === "404.html" || html.includes('http-equiv="refresh"');
+    const hasLoader = html.includes(loader);
+    if (hasLoader !== !adFree) wrong.push(`${file}: loader ${hasLoader ? "present" : "missing"}`);
+    if (!html.includes(`<meta name="google-adsense-account" content="${publisher}"`)) wrong.push(`${file}: ownership meta`);
+    assert.ok(!/<ins[^>]*adsbygoogle/.test(html), `${file}: ad units are served from the AdSense account, not prerendered`);
+  }
+  assert.deepEqual(wrong.slice(0, 10), [], `${wrong.length} pages carry the wrong ad wiring`);
+
+  // Private app and embeddable widget stay free of ad code entirely.
+  for (const file of ["tiimin-lomat/suunnittelu.html", "widget/calendar/v1.html", "widget/calendar/v1.js"]) {
+    assert.ok(!/googlesyndication|adsbygoogle/i.test(read(path.join("dist", file))), file);
+  }
+
+  // ads.txt reaches the build output and names exactly this publisher.
+  const adsTxt = read("dist/ads.txt");
+  assert.equal(adsTxt, read("public/ads.txt"), "dist/ads.txt must match public/ads.txt");
+  assert.ok(
+    adsTxt.split(/\r?\n/).some((line) =>
+      line.trim() === `google.com, ${publisher.replace("ca-", "")}, DIRECT, f08c47fec0942fa0`),
+    "ads.txt needs the Google DIRECT seller line for this publisher",
+  );
+
+  // The reported policy allows the ad origins, and printed output excludes ads.
+  const policy = JSON.parse(read("vercel.json")).headers
+    .find((rule) => rule.source === "/(.*)").headers
+    .find((header) => header.key.startsWith("Content-Security-Policy")).value;
+  for (const directive of ["script-src", "connect-src", "frame-src"]) {
+    const value = policy.split(";").find((part) => part.trim().startsWith(directive));
+    assert.ok(value.includes("https://*.googlesyndication.com"), `${directive} must allow AdSense`);
+  }
+  const css = fs.readdirSync(path.join(dist, "assets"))
+    .filter((file) => file.endsWith(".css"))
+    .map((file) => read(path.join("dist/assets", file))).join("\n");
+  assert.ok(css.includes("ins.adsbygoogle"), "the shipped CSS must hide ad containers");
+  assert.match(read("src/App.css"), /@media print \{[\s\S]*?ins\.adsbygoogle[\s\S]*?display: none/,
+    "the rule belongs in the print block");
+});

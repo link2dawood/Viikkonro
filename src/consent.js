@@ -7,8 +7,10 @@
 // (it's deferred until the page is idle), so returning visitors who agreed
 // are recognised from the first page on.
 //
-// Advertising storage always stays denied here: ads need a Google-certified
-// CMP (see AdSlot.jsx), which this banner is not.
+// Advertising storage always stays denied here: this banner is not a
+// Google-certified CMP. Advertising consent is handled by Google's own Privacy
+// and messaging message, delivered by the AdSense loader in index.html. See
+// docs/adsense-placement-plan.md.
 export const CONSENT_KEY = "viikkonro-consent";
 // Bump when the banner's purposes change, so everyone is asked again. The
 // inline script in index.html checks the same key and version before the
