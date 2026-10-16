@@ -17,25 +17,7 @@ function renderChrome(pathname) {
 
 afterEach(() => vi.useRealTimers());
 
-describe("English page chrome", () => {
-  it("renders English navigation and footer on /en", () => {
-    const html = renderChrome("/en");
-
-    expect(html).toContain("Open navigation menu");
-    expect(html).toContain("English home");
-    expect(html).toContain("All weeks 2026 (Finnish)");
-    expect(html).toContain("Calendar 2026 (Finnish)");
-    expect(html).toContain("Follow us");
-    expect(html).toContain("All rights reserved.");
-    expect(html).toContain("Based on the international ISO 8601 standard");
-    expect(html).toContain('hrefLang="fi"');
-
-    expect(html).not.toContain("Avaa navigointivalikko");
-    expect(html).not.toContain(">Palvelu<");
-    expect(html).not.toContain(">Yritys<");
-    expect(html).not.toContain("Kaikki oikeudet pidätetään");
-  });
-
+describe("Finnish page chrome", () => {
   it("preserves Finnish chrome outside /en", () => {
     const html = renderChrome("/");
 
@@ -46,14 +28,13 @@ describe("English page chrome", () => {
     expect(html).not.toContain("All rights reserved.");
   });
 
-  it("puts the app links under the social links and exposes the indexed English page", () => {
+  it("puts the app links under the social links (English removed 2026-10-15)", () => {
     const html = renderChrome("/");
     const brand = html.slice(html.indexOf("footer-brand-col"), html.indexOf(">Palvelu<"));
 
     expect(brand).toContain("footer-apps-sep");
     expect(brand).toContain('href="/android-sovellus"');
     expect(brand).toContain('href="/chrome-extension"');
-    expect(html).toContain('href="/en"');
-    expect(html).toContain('hrefLang="en"');
+    expect(html).not.toContain('href="/en"');
   });
 });

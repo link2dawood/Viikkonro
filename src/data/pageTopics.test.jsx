@@ -59,10 +59,10 @@ describe("visible semantic topics use existing tools and calendar rules", () => 
     expect(topicSchema(updated,pageTopic("/android-sovellus",today))).toEqual(updated);
   });
   it("dates the new visible guidance while preserving later revisions and historical renders", () => {
-    const node={url:canonicalFor("/en"),dateModified:"2026-10-05"};
-    expect(topicSchema(node,pageTopic("/en",today)).dateModified).toBe(TOPIC_CONTENT_UPDATED);
-    expect(topicSchema({...node,dateModified:"2026-10-20"},pageTopic("/en",today)).dateModified).toBe("2026-10-20");
-    expect(topicSchema(node,pageTopic("/en",new Date("2026-10-06T12:00:00Z"))).dateModified).toBe("2026-10-05");
+    const node={url:canonicalFor("/"),dateModified:"2026-10-05"};
+    expect(topicSchema(node,pageTopic("/",today)).dateModified).toBe(TOPIC_CONTENT_UPDATED);
+    expect(topicSchema({...node,dateModified:"2026-10-20"},pageTopic("/",today)).dateModified).toBe("2026-10-20");
+    expect(topicSchema(node,pageTopic("/",new Date("2026-10-06T12:00:00Z"))).dateModified).toBe("2026-10-05");
   });
   it("records the actual editorial change once without advancing unchanged dates", () => {
     expect(sitemapLastmod("/kalenteri-2027","2026-10-12")).toBe(TOPIC_CONTENT_UPDATED);
@@ -71,11 +71,10 @@ describe("visible semantic topics use existing tools and calendar rules", () => 
     expect(sitemapLastmod("/kalenteri-2027","2026-10-06")).toBe("2026-10-05");
     expect(sitemapLastmod("/pdf/kalenteri-2027.pdf","2026-11-12")).toBeNull();
   });
-  it("renders crawlable guidance and clearly labels Finnish links on the English page", () => {
+  it("renders crawlable Finnish guidance (English page removed 2026-10-15)", () => {
     const fi=renderToStaticMarkup(<MemoryRouter initialEntries={["/hr-kalenteri"]}><TopicGuide /></MemoryRouter>);
     expect(fi).toContain('data-topic-id="hr"');expect(fi).toContain('href="/vuosilomalaskuri"');expect(fi).toContain("noprint");
-    const en=renderToStaticMarkup(<MemoryRouter initialEntries={["/en"]}><TopicGuide /></MemoryRouter>);
-    expect(en).toContain("Explore the Finnish calendar tools");expect(en).toContain('hrefLang="fi"');expect(en).toContain("(Finnish)");
+    expect(fi).toContain("Kalenterin käyttö ja aiheeseen liittyvät oppaat");
     expect(renderToStaticMarkup(<MemoryRouter initialEntries={["/tiimin-lomat/suunnittelu"]}><TopicGuide /></MemoryRouter>)).toBe("");
   });
 });

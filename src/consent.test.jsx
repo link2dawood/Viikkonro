@@ -68,13 +68,13 @@ describe("ConsentBanner", () => {
     expect(html).toContain("Evästeet ja analytiikka.");
   });
 
-  it("uses the English copy on /en", () => {
+  it("renders Finnish copy on every path (English removed 2026-10-15)", () => {
     const html = renderToStaticMarkup(
-      <MemoryRouter initialEntries={["/en"]}>
+      <MemoryRouter initialEntries={["/kalenteri-2026"]}>
         <ConsentBanner />
       </MemoryRouter>,
     );
-    expect(html).toContain("Cookies and analytics.");
-    expect(html).toContain('lang="en"');
+    expect(html).toContain("Evästeet ja analytiikka.");
+    expect(html).not.toContain("Cookies and analytics.");
   });
 });
