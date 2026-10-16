@@ -39,7 +39,7 @@ const Navbar = ({ reloadDocument = false }) => {
         >
           {/* <span className="dot"></span>Week Now */}
           <img
-            src="/logo-horizontal-viikkonro-20260916.svg"
+            src="/logo-horizontal-viikkonro-20260916.webp"
             alt=""
             width="592"
             height="122"
