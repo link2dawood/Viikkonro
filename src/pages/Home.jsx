@@ -25,11 +25,6 @@ const Home = () => {
         description={meta.description}
         canonical={canonicalFor("/")}
         lang="fi"
-        alternates={[
-          { lang: "fi", href: canonicalFor("/") },
-          { lang: "en", href: canonicalFor("/en") },
-          { lang: "x-default", href: canonicalFor("/") },
-        ]}
       />
       <div className="app">
         <Weekcounter lead={meta.lead} />
