@@ -1571,7 +1571,7 @@ function chromeExtensionNodes() {
       sameAs: f.storeUrl,
       installUrl: f.storeUrl,
       downloadUrl: f.storeUrl,
-      image: `${SITE_URL}/favicon-viikkonro-20260915.svg`,
+      image: `${SITE_URL}/favicon-viikkonro-20260915.webp`,
       applicationCategory: "BrowserApplication",
       applicationSubCategory: f.category,
       operatingSystem: "Windows, macOS, Linux, ChromeOS",

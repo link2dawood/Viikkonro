@@ -35,7 +35,7 @@ const AppsPromo = () => (
       <article className="apps-card">
         <div className="apps-card-head">
           <img
-            src="/mobile/android/app-icon.png"
+            src="/mobile/android/app-icon.webp"
             width="48"
             height="48"
             alt=""
@@ -61,7 +61,7 @@ const AppsPromo = () => (
             aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
           >
             <img
-              src="/mobile/android/google-play-logo.png"
+              src="/mobile/android/google-play-logo.webp"
               alt="Google Play"
               width="388"
               height="432"
