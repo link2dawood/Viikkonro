@@ -94,25 +94,6 @@ export const ANDROID_WIDGETS = [
   },
 ];
 
-export const ANDROID_INSTALL_STEPS = [
-  {
-    name: "Avaa Google Play",
-    text: "Avaa Viikkonro-sovelluksen sivu Google Playssa Android-puhelimella tai tabletilla.",
-  },
-  {
-    name: "Asenna sovellus",
-    text: "Valitse Asenna. Sovellus toimii Android 7.0:ssa ja sitä uudemmissa Android-versioissa.",
-  },
-  {
-    name: "Avaa Viikkonro",
-    text: "Avaa sovellus ja valitse kieli, teema sekä kalenterissa käytettävät asetukset.",
-  },
-  {
-    name: "Lisää haluamasi widgetit",
-    text: "Paina aloitusnäyttöä pitkään, avaa Widgetit ja valitse jokin seitsemästä Viikkonro-widgetistä.",
-  },
-];
-
 export const androidAppFaqs = [
   {
     q: "Mikä Viikkonro-sovellus on?",
@@ -120,7 +101,7 @@ export const androidAppFaqs = [
   },
   {
     q: "Onko Viikkonro-sovellus ilmainen?",
-    a: "Kyllä. Sovelluksen voi ladata maksutta Google Playsta. Android-versiossa voidaan näyttää yksi suostumuksenhallinnalla ohjattu mainospaikka etusivulla.",
+    a: "Kyllä, sovellus on maksuton. Se ei ole tällä hetkellä ladattavissa Google Playsta. Android-versiossa voidaan näyttää yksi suostumuksenhallinnalla ohjattu mainospaikka etusivulla.",
   },
   {
     q: "Toimiiko sovellus ilman verkkoyhteyttä?",

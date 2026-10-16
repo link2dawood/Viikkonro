@@ -61,7 +61,6 @@ import {
   ANDROID_APP_FACTS,
   ANDROID_APP_FEATURES,
   ANDROID_APP_PATH,
-  ANDROID_INSTALL_STEPS,
   ANDROID_WIDGETS,
   androidAppFaqs,
 } from "./src/data/androidAppContent.js";
@@ -364,7 +363,14 @@ const escapeAttr = (s) =>
 
 // Give a page its own title, description, canonical and Open Graph/Twitter tags.
 // Whitespace-tolerant so it works whether Vite keeps the tags multi-line or not.
-function applyMeta(html, { title, description, url }) {
+// Article-like content pages get og:type=article for richer social previews;
+// tool/homepage/data pages keep the template default (website).
+const ARTICLE_URL_RE = /^\/(viikko-\d+-\d+|kuukausi-\d+-\d+|vuosi-\d+|q[1-4]-\d+|pyhat-\d+|pyhapaivat-\d+|koululomat-\d+|nimipaiva|mika-kuukausi-nyt|mika-vuosi-nyt|viikonpaiva|mika-on-viikkonumero|parillinen-pariton-viikko|viikko-alkaa-maanantaista|kuinka-monta-viikkoa-vuodessa|suomi-vs-usa-viikkonumerot|menetelma|ukk)(\/|$)/;
+function ogTypeFor(url) {
+  return ARTICLE_URL_RE.test(url) ? "article" : "website";
+}
+
+function applyMeta(html, { title, description, url, ogType = "website" }) {
   const t = escapeAttr(title);
   const d = escapeAttr(description);
   const u = escapeAttr(url);
@@ -389,6 +395,10 @@ function applyMeta(html, { title, description, url }) {
     .replace(
       /<meta\s+property="og:url"[^>]*>/,
       `<meta property="og:url" content="${u}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:type"[^>]*>/,
+      `<meta property="og:type" content="${ogType}" />`,
     )
     .replace(
       /<meta\s+name="twitter:title"[^>]*>/,
@@ -1443,6 +1453,7 @@ function methodologyFaqNodes() {
       "@type": "HowTo",
       "@id": `${SITE_URL}/menetelma#howto`,
       name: "Näin viikkonumero lasketaan",
+      inLanguage: "fi-FI",
       step: [
         { "@type": "HowToStep", text: "Aloita viikko aina maanantaista." },
         { "@type": "HowToStep", text: "Etsi vuoden ensimmäinen torstai — se kertoo, mikä viikko on viikko 1." },
@@ -1645,9 +1656,6 @@ function androidAppNodes() {
       description:
         "Android-sovellus ISO 8601 -viikkonumeroihin, suomalaiseen kalenteriin, päivämäärälaskureihin ja seitsemään aloitusnäytön widgetiin.",
       url,
-      sameAs: f.storeUrl,
-      installUrl: f.storeUrl,
-      downloadUrl: f.storeUrl,
       image: `${SITE_URL}/mobile/android/app-icon.webp`,
       screenshot: [
         `${SITE_URL}/mobile/android/app-weeks.webp`,
@@ -1665,7 +1673,6 @@ function androidAppNodes() {
         "@type": "Offer",
         price: "0",
         priceCurrency: "EUR",
-        url: f.storeUrl,
       },
       featureList: [
         ...ANDROID_APP_FEATURES.map((x) => `${x.name}: ${x.desc}`),
@@ -1676,21 +1683,6 @@ function androidAppNodes() {
       author: { "@id": `${SITE_URL}/#organization` },
       publisher: { "@id": `${SITE_URL}/#organization` },
       mainEntityOfPage: { "@id": `${url}#webpage` },
-    },
-    {
-      "@type": "HowTo",
-      "@id": `${url}#howto`,
-      name: "Näin asennat Viikkonro-sovelluksen Androidille",
-      inLanguage: "fi-FI",
-      totalTime: "PT2M",
-      tool: { "@type": "HowToTool", name: "Android-puhelin tai tabletti" },
-      step: ANDROID_INSTALL_STEPS.map((step, i) => ({
-        "@type": "HowToStep",
-        position: i + 1,
-        name: step.name,
-        text: step.text,
-        url: `${url}#asennus`,
-      })),
     },
     {
       "@type": "FAQPage",
@@ -3153,7 +3145,9 @@ function calculatorNodes(url) {
   return [
       {
         "@type": "HowTo",
+        "@id": `${canonicalFor(url)}#howto`,
         name: entry.howToName,
+        inLanguage: "fi-FI",
         dateModified: entry.dateModified || CONTENT_UPDATED,
         step: entry.steps.map((s, i) => ({
           "@type": "HowToStep",
@@ -3245,6 +3239,7 @@ for (const url of routes) {
       title: meta.title,
       description,
       url: canonical,
+      ogType: ogTypeFor(url),
     });
 
     const feedLink = jsonFeedAlternateLink(url);
