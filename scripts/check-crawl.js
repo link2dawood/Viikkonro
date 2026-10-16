@@ -47,8 +47,10 @@ const { render } = await import(
 
 // Asset hints (<link rel="preload" href="...svg">, favicons, etc.) also use
 // href= but aren't page links — exclude by extension so they don't pollute
-// the crawl or the redirect-only heuristic below.
-const ASSET_EXT = /\.(svg|png|jpg|jpeg|ico|xml|txt|css|js|pdf|json|csv|xlsx)$/i;
+// the crawl or the redirect-only heuristic below. Every image format the site
+// actually ships belongs here: a format missing from this list is crawled as a
+// page and reported as an internal link to the 404 page.
+const ASSET_EXT = /\.(svg|png|webp|avif|jpg|jpeg|ico|xml|txt|css|js|pdf|json|csv|xlsx)$/i;
 
 function extractLinks(html) {
   const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);

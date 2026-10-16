@@ -31,8 +31,9 @@ specific tradeoff and obtain an explicit user decision before implementing it.
   internal links.
 - Do not add unsupported freshness claims. A build date is not an editorial
   review date.
-- `/en` is the only English route. Other user-facing pages are Finnish. Do not
-  add English deep-page alternates without a real equivalent page and an
+- Every user-facing page is Finnish. The former `/en` page was removed and
+  `/en` now redirects permanently to `/`, so the site publishes no hreflang
+  alternates. Do not add an English page or English page copy without an
   explicit product decision.
 
 ## What this repository is
