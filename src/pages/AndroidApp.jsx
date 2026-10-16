@@ -21,7 +21,7 @@ const PlayStoreButton = () => (
     aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
   >
     <img
-      src="/mobile/android/google-play-logo.png"
+      src="/mobile/android/google-play-logo.webp"
       alt="Google Play"
       width="388"
       height="432"
@@ -49,7 +49,7 @@ const AndroidApp = () => {
         <div className="android-hero-copy">
           <div className="android-app-heading">
             <img
-              src="/mobile/android/app-icon.png"
+              src="/mobile/android/app-icon.webp"
               width="88"
               height="88"
               alt=""
@@ -80,7 +80,7 @@ const AndroidApp = () => {
         <figure className="android-phone-feature">
           <div className="android-phone-frame">
             <img
-              src="/mobile/android/app-weeks.png"
+              src="/mobile/android/app-weeks.webp"
               alt="Viikkonro-sovelluksen Viikot-näkymä, jossa viikko 38 on korostettu"
               width="1080"
               height="1920"
@@ -126,7 +126,7 @@ const AndroidApp = () => {
         <figure>
           <div className="android-phone-frame">
             <img
-              src="/mobile/android/app-weeks.png"
+              src="/mobile/android/app-weeks.webp"
               alt="Vuoden viikot Viikkonro-sovelluksessa"
               width="1080"
               height="1920"
@@ -138,7 +138,7 @@ const AndroidApp = () => {
         <figure>
           <div className="android-phone-frame">
             <img
-              src="/mobile/android/app-calendar.png"
+              src="/mobile/android/app-calendar.webp"
               alt="Syyskuun 2026 kalenteri viikkonumeroineen"
               width="1080"
               height="1920"
@@ -150,7 +150,7 @@ const AndroidApp = () => {
         <figure>
           <div className="android-phone-frame">
             <img
-              src="/mobile/android/app-tools.png"
+              src="/mobile/android/app-tools.webp"
               alt="Päivien erotus -laskuri Viikkonro-sovelluksessa"
               width="1080"
               height="1920"
@@ -238,7 +238,7 @@ const AndroidApp = () => {
         </div>
 
         <div className="android-final-cta">
-          <img src="/mobile/android/app-icon.png" alt="" width="72" height="72" aria-hidden="true" />
+          <img src="/mobile/android/app-icon.webp" alt="" width="72" height="72" aria-hidden="true" />
           <div>
             <h2>Lataa Viikkonro Androidille</h2>
             <p>Viikkonumerot, kalenteri, laskurit ja widgetit yhdessä sovelluksessa.</p>
