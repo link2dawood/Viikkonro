@@ -1,15 +1,25 @@
 name: Dependency audit
 
 # Read-only visibility into known-vulnerable dependencies. Deliberately
-# decoupled from vercel-rebuild.yml / week-check.yml — it never gates or
+# decoupled from vercel-rebuild.yml / week-check.yml, it never gates or
 # triggers a deploy, so a red run here costs nothing except the default
 # GitHub failed-scheduled-run email (same alerting model week-check.yml
 # already relies on), not a blocked release.
+#
+# It also runs on pull requests, where it is most useful on Dependabot's
+# bumps: it reports whether the proposed dependency set carries a high or
+# critical advisory. It is deliberately NOT a required status check, since a
+# new advisory published against an unchanged dependency would otherwise
+# block every open PR overnight. ci.yml is the required gate; this is advice.
 
 on:
   schedule:
     - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+  pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   audit:
