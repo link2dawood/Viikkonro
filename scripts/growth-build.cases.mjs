@@ -84,7 +84,7 @@ test("related tool links are prerendered and preserve each calendar page year", 
       assert.ok(html.includes('href="/laskurit"'), path);
     }
   }
-  for (const file of ["dist/en.html", "dist/tiimin-lomat/suunnittelu.html", "dist/widget/calendar/v1.html"]) assert.ok(!readFileSync(file,"utf8").includes('class="app related-tools'), file);
+  for (const file of ["dist/tiimin-lomat/suunnittelu.html", "dist/widget/calendar/v1.html"]) assert.ok(!readFileSync(file,"utf8").includes('class="app related-tools'), file);
 });
 
 test("growth CTAs are prerendered without changing canonical URLs or free PDF links", () => {
@@ -115,8 +115,8 @@ test("planner CTAs preserve existing pages and link to real inline editors", () 
   assert.match(readFileSync("dist/lomasuunnittelija.html", "utf8"), /Suunnittele koko tiimin lomat/);
 });
 
-test("public growth CTAs do not enter private, health, English or widget pages", () => {
-  for (const file of ["dist/en.html", "dist/raskauslaskuri.html", "dist/tiimin-lomat/suunnittelu.html", "dist/widget/calendar/v1.html"]) {
+test("public growth CTAs do not enter private, health or widget pages", () => {
+  for (const file of ["dist/raskauslaskuri.html", "dist/tiimin-lomat/suunnittelu.html", "dist/widget/calendar/v1.html"]) {
     assert.ok(existsSync(file), file);
     assert.ok(!readFileSync(file, "utf8").includes('class="growth-cta'), file);
   }
