@@ -6,6 +6,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/en",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
       "source": "/week/:week/:year",
       "destination": "/viikko-:week-:year",
       "statusCode": 301

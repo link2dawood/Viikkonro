@@ -284,34 +284,31 @@ crawler/AI system the page's `mainEntity` is itself a structured list.
 **Never**: downgrade one of these to plain `WebPage` for simplicity, or
 add a new "hub" page type as `WebPage` instead of `CollectionPage`.
 
-### 12. Preserve hreflang strategy
+### 12. English removed — no hreflang (2026-10-15)
 
-**Rule** (documenting exactly what exists — do not silently expand or
-shrink this): `hreflang` alternates are declared **only** between `/` and
-`/en`, via `languageAlternateLinks(url)` in `prerender.js`:
-`hreflang="fi"` → `/`, `hreflang="en"` → `/en`, `hreflang="x-default"` →
-`/`. No other page on the site declares `hreflang` — every
-`/viikko-*`/`/kuukausi-*`/etc. page is implicitly Finnish-only
-(`inLanguage: "fi-FI"` in its schema) with no English counterpart, which
-is accurate: they don't have one.
+**Rule**: English was removed from the site entirely on 2026-10-15. The
+`/en` route, `EnglishHome.jsx`, `englishContent.js`, the `/api-playground`
+English exception, and all English nav/footer/consent/newsletter variants
+were deleted. Consequences, all deliberate:
 
-**English-route constraint**: `/en` is the only English page and route. Do
-not add `/en/*` subpages, English equivalents of Finnish page families, or
-any additional English URLs to `AppRoutes.jsx`, `sitemapEntries()`, the
-prerender route list, hreflang output, or internal navigation. Improvements
-to `/en` must remain edits to that single existing page. The shared navbar
-and footer must render their English variants on `/en`; links that lead into
-the Finnish-only site must be visibly labeled as Finnish and use
-`hrefLang="fi"`. The Finnish chrome must remain unchanged on every other
-route.
+- **No `hreflang` anywhere.** `languageAlternateLinks()` was deleted from
+  `prerender.js`; no page declares `hreflang` alternates. The site is
+  Finnish-only (`inLanguage: "fi-FI"` in schema, `<html lang="fi">`,
+  `og:locale fi_FI`).
+- **`/en` 301-redirects to `/`** via `vercel.json` (link equity preserved;
+  no 404, so no Google indexing conflict). `/en` is not prerendered, not in
+  `sitemapEntries()`, and nothing links to it.
+- **Do not re-add English** (no `/en`, no `/en/*`, no English page variants)
+  without an explicit product decision — the removal was a deliberate
+  product call, and re-adding a second language reintroduces the entire
+  hreflang/duplicate-content surface.
 
 **Never**: add `hreflang` tags to a page that has no real translated
 counterpart (this is how hreflang errors happen — a tag pointing at a
-URL that doesn't serve equivalent content in that language). Do not add a
-new translated page or expand `languageAlternateLinks()` beyond `/` and
-`/en`. Do not revive the retired `/sv/*` pattern — its routes were removed
-by design; `vercel.json` still 301s them for link equity, which is sufficient
-on its own and must stay in place.
+URL that doesn't serve equivalent content in that language). Do not revive
+the retired `/sv/*` pattern either — its routes were removed by design;
+`vercel.json` still 301s them for link equity, which is sufficient on its
+own and must stay in place.
 
 ### 13. Preserve AI optimization files
 

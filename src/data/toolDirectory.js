@@ -149,7 +149,7 @@ export function toolGroups(today) {
 }
 
 export function relatedTools(pathname, today) {
-  if (["/", "/en", "/laskurit"].includes(pathname)) return [];
+  if (["/", "/laskurit"].includes(pathname)) return [];
   const pageYear = pathname.match(/-(\d{4})(?:$|-(?:alkuvuosi|loppuvuosi)$)/)?.[1];
   const contextDate = pageYear ? new Date(Date.UTC(Number(pageYear), 0, 1, 12)) : today;
   const year = navigationYearTargets(contextDate).currentYear;

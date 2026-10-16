@@ -95,10 +95,10 @@ nav, footer, and structured data.
   `/kuukausi-`, etc.) directly; neither reads or transforms any of the
   23 legacy source patterns. Zero overlap by construction, not by
   filtering.
-- **hreflang**: exactly one function emits `hreflang`,
-  `languageAlternateLinks()` (`prerender.js:1117-1120`) — hardcodes only
-  `hreflang="fi"` → `/`, `hreflang="en"` → `/en`. No `/sv/*` or any other
-  redirect source ever appears in an hreflang tag.
+- **hreflang**: none — English was removed 2026-10-15, so
+  `languageAlternateLinks()` was deleted from `prerender.js` and no page
+  emits `hreflang` tags. No `/sv/*`, `/en`, or any other redirect source
+  ever appears in an hreflang tag.
 - **canonical**: every page's canonical is `canonicalFor(url)` for its
   *own current* `url` (see the indexing audit, finding #3, same
   mechanism) — there is no code path that could produce a canonical
@@ -174,7 +174,7 @@ catch-all at row 23) is what prevents it from mattering.
 
 ## Summary
 
-- 23 real HTTP 301s, all verified.
+- 24 real HTTP 301s, all verified (23 original + `/en` → `/`, added 2026-10-15 when English was removed).
 - 1 additional soft-redirect (`/liputuspaivat`) that's intentionally not
   a 301 — a documented, reasoned exception, flagged rather than silently
   included or excluded.

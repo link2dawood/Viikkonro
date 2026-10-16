@@ -65,7 +65,6 @@ import {
   currentYearMeta,
   weekdayMeta,
 } from "./currentDateContent.js";
-import { englishMeta } from "./englishContent.js";
 import { DATASET_PAGES, datasetPageMeta } from "./datasetPages.js";
 import { paydayMeta } from "./paydayPages.js";
 import { kelaPaymentMeta, pensionPaymentMeta } from "./benefitPaymentPages.js";
@@ -745,10 +744,6 @@ export const routeMeta = {
     description:
       "Katso viikkonumero heti ja selvitä mikä viikko nyt on. Viikkolaskuri näyttää kuluvan viikon sekä minkä tahansa päivämäärän viikon numeron ISO 8601:n mukaan.",
   },
-  "/en": {
-    ...englishMeta(),
-    breadcrumb: "English",
-  },
   "/mika-on-viikkonumero": {
     title: "Viikkonumero: määritelmä ja laskenta | Viikko Nro",
     description:
@@ -815,10 +810,10 @@ export const routeMeta = {
     breadcrumb: "Ota yhteyttä",
   },
   "/api-playground": {
-    title: "API Playground — Free ISO Week Number API | Viikko Nro",
+    title: "API-kokeilu — ilmainen ISO-viikkorajapinta | Viikko Nro",
     description:
-      "Test Viikko Nro's free ISO 8601 API in your browser. No auth or rate limit. Includes cURL, JavaScript, PHP and Python examples.",
-    breadcrumb: "API Playground",
+      "Kokeile Viikko Nron ilmaista ISO 8601 -rajapintaa suoraan selaimessa. Ei kirjautumista eikä käyttörajoja. Sisältää cURL-, JavaScript-, PHP- ja Python-esimerkit.",
+    breadcrumb: "API-kokeilu",
   },
   "/chrome-extension": {
     title: "Chrome-laajennus: viikkonumero selaimeen | Viikko Nro",
@@ -1042,7 +1037,6 @@ export function canonicalFor(path) {
 export function sitemapEntries(year) {
   const entries = [
     { path: "/", changefreq: "daily", priority: "1.0" },
-    { path: "/en", changefreq: "daily", priority: "0.4" },
     { path: "/mika-on-viikkonumero", changefreq: "monthly", priority: "0.8" },
     { path: PARITY_PATH, changefreq: "weekly", priority: "0.8" },
     { path: "/viikko-alkaa-maanantaista", changefreq: "monthly", priority: "0.7" },
@@ -1258,7 +1252,6 @@ export function sitemapEntries(year) {
 export function metaFor(url) {
   if (url === "/") return { ...routeMeta["/"], ...homeMeta(new Date()) };
   if (url === PARITY_PATH) return { ...routeMeta[url], ...parityMeta(new Date()) };
-  if (url === "/en") return { ...routeMeta[url], ...englishMeta() };
   if (url === "/mika-kuukausi-nyt") return { ...routeMeta[url], ...currentMonthMeta() };
   if (url === "/mika-vuosi-nyt") return { ...routeMeta[url], ...currentYearMeta() };
   if (routeMeta[url]) return routeMeta[url];

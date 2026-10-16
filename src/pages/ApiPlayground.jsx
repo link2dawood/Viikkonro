@@ -14,22 +14,22 @@ const SITE = "https://viikkonro.fi";
 // page can't silently drift from what the API actually does.
 const ENDPOINTS = {
   week: {
-    label: "Week",
+    label: "Viikko",
     apiPath: (p) => `/api/week/${p.week}/${p.year}.json`,
     dataPath: (p) => `/data/week/${p.year}/${p.week}.json`,
   },
   month: {
-    label: "Month",
+    label: "Kuukausi",
     apiPath: (p) => `/api/month/${p.month}/${p.year}.json`,
     dataPath: (p) => `/data/month/${p.year}/${p.month}.json`,
   },
   year: {
-    label: "Year",
+    label: "Vuosi",
     apiPath: (p) => `/api/year/${p.year}.json`,
     dataPath: (p) => `/data/year/${p.year}.json`,
   },
   holiday: {
-    label: "Holiday",
+    label: "Pyhäpäivä",
     apiPath: (p) => `/api/holiday/${p.slug}/${p.year}.json`,
     dataPath: (p) => `/data/holiday/${p.year}/${p.slug}.json`,
   },
@@ -96,21 +96,21 @@ const ApiPlayground = () => {
 
   return (
     <section className="app">
-      <SEO {...meta} canonical={canonicalFor(PATH)} lang="en" />
+      <SEO {...meta} canonical={canonicalFor(PATH)} lang="fi" />
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> / API Playground
+        <Link to="/">Etusivu</Link> / API-kokeilu
       </div>
-      <h1>API Playground</h1>
+      <h1>API-kokeilu</h1>
       <p className="lead">
         <span className="answer-sentence">
-          Test Viikko Nro&apos;s free ISO 8601 week-number API live in your
-          browser — no auth, no rate limit.
+          Kokeile Viikko Nron ilmaista ISO 8601 -viikkonumerorajapintaa
+          suoraan selaimessa — ei kirjautumista, ei käyttörajoja.
         </span>{" "}
-        cURL, JavaScript, PHP and Python examples below update as you
-        change the parameters.
+        cURL-, JavaScript-, PHP- ja Python-esimerkit alla päivittyvät, kun
+        muutat parametreja.
       </p>
 
-      <div className="pills" role="tablist" aria-label="Endpoint">
+      <div className="pills" role="tablist" aria-label="Päätepiste">
         {Object.entries(ENDPOINTS).map(([key, e]) => (
           <button
             key={key}
@@ -129,7 +129,7 @@ const ApiPlayground = () => {
       <div className="lookup">
         {endpoint === "week" && (
           <>
-            <label htmlFor="pg-week">Week</label>
+            <label htmlFor="pg-week">Viikko</label>
             <input
               id="pg-week"
               type="number"
@@ -142,7 +142,7 @@ const ApiPlayground = () => {
         )}
         {endpoint === "month" && (
           <>
-            <label htmlFor="pg-month">Month</label>
+            <label htmlFor="pg-month">Kuukausi</label>
             <input
               id="pg-month"
               type="number"
@@ -155,7 +155,7 @@ const ApiPlayground = () => {
         )}
         {endpoint === "holiday" && (
           <>
-            <label htmlFor="pg-slug">Holiday</label>
+            <label htmlFor="pg-slug">Pyhäpäivä</label>
             <select
               id="pg-slug"
               value={params.slug}
@@ -169,7 +169,7 @@ const ApiPlayground = () => {
             </select>
           </>
         )}
-        <label htmlFor="pg-year">Year</label>
+        <label htmlFor="pg-year">Vuosi</label>
         <input
           id="pg-year"
           type="number"
@@ -179,25 +179,25 @@ const ApiPlayground = () => {
           onChange={(e) => setParams({ ...params, year: e.target.value })}
         />
         <button type="button" className="btn" onClick={tryIt}>
-          Try it
+          Kokeile
         </button>
       </div>
 
       <p className="note-soft">
-        Request URL: <code>{apiUrl}</code> (redirects to{" "}
+        Pyynnön URL: <code>{apiUrl}</code> (ohjaa osoitteeseen{" "}
         <code>{dataUrl}</code>)
       </p>
 
       {result && (
         <div className="result">
-          {result.loading && <div className="main-text">Loading…</div>}
+          {result.loading && <div className="main-text">Ladataan…</div>}
           {result.error && (
-            <div className="main-text">Request failed: {result.error}</div>
+            <div className="main-text">Pyyntö epäonnistui: {result.error}</div>
           )}
           {!result.loading && !result.error && (
             <>
               <div className="sub">
-                Status: {result.status} · Content-Type: {result.contentType} ·
+                Tila: {result.status} · Content-Type: {result.contentType} ·
                 Cache-Control: {result.cacheControl}
               </div>
               <pre className="code-block">{result.body}</pre>
@@ -206,7 +206,7 @@ const ApiPlayground = () => {
         </div>
       )}
 
-      <div className="pills" role="tablist" aria-label="Code example language">
+      <div className="pills" role="tablist" aria-label="Koodiesimerkin kieli">
         {["curl", "js", "php", "python"].map((l) => (
           <button
             key={l}
@@ -221,36 +221,38 @@ const ApiPlayground = () => {
       <pre className="code-block">{codeFor(lang, apiUrl)}</pre>
 
       <div className="prose">
-        <h2>What happens with an invalid request?</h2>
+        <h2>Mitä tapahtuu virheellisellä pyynnöllä?</h2>
         <p>
-          There&apos;s no JSON error envelope — an out-of-range week, month
-          or year still redirects, then 404s with the site&apos;s generic
-          HTML error page, not a JSON error body. Validate parameters
-          against the documented ranges before calling, rather than
-          parsing the response to detect an invalid request. Full detail:{" "}
+          JSON-virhevastausta ei ole — alueen ulkopuolella oleva viikko,
+          kuukausi tai vuosi ohjataan edelleen, mutta se palauttaa sitten
+          404:n sivuston yleisellä HTML-virhesivulla, ei JSON-virhesisältöä.
+          Tarkista parametrit dokumentoiduilta alueilta ennen kutsua sen
+          sijaan, että päättelisit virheellisen pyynnön vastauksesta.
+          Tarkemmat tiedot:{" "}
           <Link to="/avoin-data">Avoin data</Link>.
         </p>
 
         <h2>Usein kysyttyä</h2>
         <div className="faq-list">
           <details open>
-            <summary>Is there a rate limit?</summary>
-            <p>No — these are static files served from a CDN, not a rate-limited API.</p>
+            <summary>Onko käytössä nopeusrajoitus?</summary>
+            <p>Ei — nämä ovat CDN:stä tarjoiltavia staattisia tiedostoja, ei nopeusrajoitettua rajapintaa.</p>
           </details>
           <details>
-            <summary>Do I need an API key?</summary>
-            <p>No authentication is required for any endpoint.</p>
+            <summary>Tarvitsenko API-avaimen?</summary>
+            <p>Mikään päätepiste ei vaadi tunnistautumista.</p>
           </details>
           <details>
-            <summary>Why does this demo fetch /data/ instead of /api/?</summary>
+            <summary>Miksi tämä demo hakee osoitteesta /data/ eikä /api/?</summary>
             <p>
-              The /api/ redirect hop itself carries no CORS header (only
-              the final /data/ response does), so a browser fetch to
-              /api/ can fail cross-origin from a page hosted elsewhere.
-              Server-side code (curl, PHP, Python, Node) isn&apos;t
-              subject to CORS at all, so either URL works there — see the
-              code examples above, which use /api/, the documented
-              developer-friendly path.
+              /api/-ohjaus ei itsessään sisällä CORS-otsaketta (vain
+              lopullinen /data/-vastaus sisältää), joten selaimesta tehty
+              haku osoitteeseen /api/ voi epäonnistua cross-origin-pyynnössä
+              muualta isännöidyltä sivulta. Palvelinpuolen koodi (curl, PHP,
+              Python, Node) ei ole CORS:in alainen lainkaan, joten siellä
+              toimii kumpi URL tahansa — katso yllä olevat koodiesimerkit,
+              jotka käyttävät /api/:a, dokumentoitua kehittäjäystävällistä
+              polkua.
             </p>
           </details>
         </div>
@@ -259,11 +261,11 @@ const ApiPlayground = () => {
         <div className="quicklinks">
           <Link className="ql" to="/avoin-data">
             <b>Avoin data</b>
-            <span>Full field-by-field schema documentation</span>
+            <span>Kenttäkohtainen skeemadokumentaatio</span>
           </Link>
           <Link className="ql" to="/tietolahteet">
             <b>Tietolähteet</b>
-            <span>Where the underlying data comes from</span>
+            <span>Mistä taustalla oleva data on peräisin</span>
           </Link>
         </div>
       </div>

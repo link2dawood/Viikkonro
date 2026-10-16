@@ -316,7 +316,6 @@ test("PD-01 generates every critical SEO landing page with indexable self-canoni
     ["/tyopaivalaskuri", /^Työpäivälaskuri/],
     ["/tyopaivat-2026", /^Työpäivät 2026:/],
     ["/viikko-42-2026", /^Viikko 42 vuonna 2026/],
-    ["/en", /^Week Number Today:/],
   ];
 
   for (const [route, titlePattern] of cases) {
@@ -351,7 +350,6 @@ test("PD-02 keeps the sitemap HTML-only, unique, and complete for new routes", (
     "/koululomat-2028",
     "/mika-on-viikkonumero",
     "/tyopaivalaskuri",
-    "/en",
   ]) {
     assert.ok(locations.includes(`${siteOrigin}${route}`), `${route} must be in sitemap`);
   }
@@ -424,14 +422,16 @@ test("PD-06 keeps every generated PDF downloadable while canonicalizing its fami
   ]);
 });
 
-test("PD-07 preserves English language, reciprocal hreflang, and Finnish inbound discovery", () => {
-  const english = pageHtml("/en");
+test("PD-07 asserts English surface is fully removed (2026-10-15)", () => {
   const home = pageHtml("/");
-  assert.ok(english.includes('<html lang="en">'));
-  assert.ok(english.includes('<link rel="alternate" hreflang="fi" href="https://viikkonro.fi/" />'));
-  assert.ok(english.includes('<link rel="alternate" hreflang="en" href="https://viikkonro.fi/en" />'));
-  assert.ok(english.includes('<link rel="alternate" hreflang="x-default" href="https://viikkonro.fi/" />'));
-  assert.ok(home.includes('href="/en"'));
+  // No hreflang anywhere: the site is Finnish-only now.
+  assert.doesNotMatch(home, /hreflang=/, "homepage must not emit hreflang");
+  // Nothing may link to the removed /en page.
+  assert.ok(!home.includes('href="/en"'), "homepage must not link to /en");
+  // The /en sitemap entry is gone (covered by PD-02's required list too).
+  assert.ok(!sitemapLocations().includes(`${siteOrigin}/en`), "/en must not be in sitemap");
+  // /en is not prerendered anymore.
+  assert.throws(() => pageHtml("/en"), "/en must not have generated HTML");
 });
 
 test("PD-08 rejects unresolved merge markers in deployable text artifacts", () => {

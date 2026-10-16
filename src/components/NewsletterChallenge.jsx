@@ -26,7 +26,7 @@ function loadTurnstile() {
   return loading;
 }
 
-export default function NewsletterChallenge({ onToken, attempt, english }) {
+export default function NewsletterChallenge({ onToken, attempt }) {
   const container = useRef(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -39,7 +39,7 @@ export default function NewsletterChallenge({ onToken, attempt, english }) {
       if (cancelled) return;
       widget = api.render(container.current, {
         sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
-        action: "newsletter", size: "flexible", language: english ? "en" : "fi",
+        action: "newsletter", size: "flexible", language: "fi",
         callback: (token) => { if (!cancelled) { setFailed(false); onToken(token); } },
         "expired-callback": () => { if (!cancelled) onToken(""); },
         "error-callback": () => { if (!cancelled) { onToken(""); setFailed(true); } },
@@ -49,12 +49,12 @@ export default function NewsletterChallenge({ onToken, attempt, english }) {
       cancelled = true;
       if (widget !== undefined) window.turnstile?.remove(widget);
     };
-  }, [onToken, attempt, english, retry]);
+  }, [onToken, attempt, retry]);
   return <div>
     <div ref={container} />
     {failed && <p role="alert">
-      {english ? "Verification could not load. " : "Varmennusta ei voitu ladata. "}
-      <button type="button" className="btn" onClick={() => setRetry((n) => n + 1)}>{english ? "Retry" : "Yritä uudelleen"}</button>
+      {"Varmennusta ei voitu ladata. "}
+      <button type="button" className="btn" onClick={() => setRetry((n) => n + 1)}>{"Yritä uudelleen"}</button>
     </p>}
   </div>;
 }

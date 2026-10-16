@@ -1,6 +1,6 @@
 import { useToday } from "./useToday";
 import { navigationYearTargets } from "./dateUtils";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
 import { CALENDAR_META } from "../data/nameDays";
 import { openConsentSettings } from "../consent";
@@ -9,70 +9,6 @@ function Footer({ reloadDocument = false, showConsentSettings = true }) {
   // Copyright follows the Helsinki calendar year, not the ISO week-year (which
   // can roll over during the last days of December).
   const { currentYear } = navigationYearTargets(useToday());
-  const { pathname } = useLocation();
-  const isEnglishPage = pathname === "/en";
-
-  if (isEnglishPage) {
-    return (
-      <footer className="site-footer" lang="en">
-        <div className="footer-container">
-          <div className="footer-brand-col">
-            <div className="brand-dark">
-              <img
-                src="/logo-horizontal-dark-viikkonro-20260916.webp"
-                alt="Viikkonro"
-                width="592"
-                height="122"
-                translate="no"
-              />
-            </div>
-            <p className="footer-desc">
-              A clear ISO 8601 week-number reference for visitors. The complete
-              calendar service is available in Finnish.
-            </p>
-            <SocialLinks className="footer-social" label="Follow us" />
-          </div>
-
-          <div className="footer-links-col">
-            <h3>Service</h3>
-            <ul>
-              <li><Link reloadDocument={reloadDocument} to="/en" onClick={() => window.scrollTo(0, 0)}>English home</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Finnish site</Link></li>
-              <li><Link reloadDocument={reloadDocument} to={`/vuosi-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>All weeks {currentYear} (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to={`/kalenteri-${currentYear}`} hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Calendar {currentYear} (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/avoin-data" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Open data (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/android-sovellus" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Android app (Finnish)</Link></li>
-            </ul>
-          </div>
-
-          <div className="footer-links-col">
-            <h3>Information</h3>
-            <ul>
-              <li><Link reloadDocument={reloadDocument} to="/menetelma" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Methodology (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/tietolahteet" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Data sources (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/ota-yhteytta" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Contact (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/tietosuoja" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Privacy notice (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/kayttoehdot" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Purchase terms (Finnish)</Link></li>
-              <li><Link reloadDocument={reloadDocument} to="/palautusehdot" hrefLang="fi" onClick={() => window.scrollTo(0, 0)}>Refunds and cancellation (Finnish)</Link></li>
-              {showConsentSettings && <li><button type="button" className="footer-linkbtn" onClick={openConsentSettings}>Cookie settings</button></li>}
-            </ul>
-          </div>
-        </div>
-
-        <hr className="footer-divider" />
-        <div className="footer-baseline">
-          <p>&copy; {currentYear} Viikko Nro. All rights reserved.</p>
-          <p className="footer-tz">Based on the international ISO 8601 standard</p>
-        </div>
-        {CALENDAR_META.attributionRequired && (
-          <p className="footer-data-attribution">
-            {CALENDAR_META.attribution}{" "}
-            <a href={CALENDAR_META.sourceUrl} rel="license external">Data source</a>
-          </p>
-        )}
-      </footer>
-    );
-  }
 
   return (
     <footer className="site-footer">
@@ -204,11 +140,6 @@ function Footer({ reloadDocument = false, showConsentSettings = true }) {
         <div className="footer-links-col">
           <h3>Yritys</h3>
           <ul>
-            <li>
-              <Link reloadDocument={reloadDocument} to="/en" hrefLang="en" onClick={() => window.scrollTo(0, 0)}>
-                English
-              </Link>
-            </li>
             <li>
               <Link reloadDocument={reloadDocument} to="/tietoa-meista" onClick={() => window.scrollTo(0, 0)}>
                 Tietoa meistä
