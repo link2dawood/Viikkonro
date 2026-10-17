@@ -25,10 +25,10 @@ describe("calendar and print breadcrumbs", () => {
 
   it("gives the two print artifacts distinct leaf labels", () => {
     expect(breadcrumbTrail("/tulosta-2027").at(-1).name).toBe(
-      "Tulostettava viikkolista 2027",
+      "Tulostettava viikkokalenteri 2027",
     );
     expect(breadcrumbTrail("/tulostettava-kalenteri-2027").at(-1).name).toBe(
-      "Tulostettava A4-kuukausikalenteri 2027",
+      "Tulostettava kalenteri 2027",
     );
   });
 });

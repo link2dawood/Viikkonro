@@ -27,11 +27,14 @@ describe("print and PDF calendar content", () => {
     const calendar = calendarMeta(2026, null, true);
     const browsable = calendarMeta(2026, null, false);
     expect(list.title).not.toBe(calendar.title);
-    expect(list.title).toContain("viikkolista");
-    expect(list.title).toContain("ISO-viikkoa");
-    expect(calendar.title).toContain("A4-kuukausikalenteri");
-    expect(browsable.title).toMatch(/^Viikkokalenteri 2026: /);
-    expect(browsable.description).toContain("12 kuukautta");
+    // The weekly print leads with "Tulostettava viikkokalenteri", the yearly
+    // print with "Tulostettava kalenteri" and its free-PDF hook. Both stay
+    // distinct from the browsable year page, which never mentions PDF.
+    expect(list.title).toContain("Tulostettava viikkokalenteri");
+    expect(calendar.title).toContain("Tulostettava kalenteri");
+    expect(calendar.title).toContain("ilmainen PDF");
+    expect(browsable.title).toMatch(/^Kalenteri 2026: /);
+    expect(browsable.description).toMatch(/\d+ työpäivää/);
     expect(browsable.title).not.toContain("PDF");
     for (const meta of [list, calendar, browsable]) {
       expect(meta.title.length).toBeLessThanOrEqual(60);

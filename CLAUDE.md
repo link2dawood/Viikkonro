@@ -118,6 +118,14 @@ more specific page node. New page families must be added to the relevant
 route, metadata, schema, sitemap, internal-link, and AI-file generators listed
 in the SEO constitution.
 
+The planned 2027 keyword work lives in
+[`docs/seo-2027-growth-plan.md`](docs/seo-2027-growth-plan.md): sixteen keyword
+clusters, one target URL each, in three waves timed to the search peaks. It is
+proposed, not implemented, and records which of its claims were verified
+against the code. Read it before changing a 2027 page, `/koululomat-*`, or the
+school-holiday confidence tiers, and resolve its open questions before using
+its figures as a baseline.
+
 ### Generated output
 
 The full build creates:

@@ -12,8 +12,18 @@ describe("keyword-targeted metadata", () => {
   });
 
   it("leads year and calendar titles with the literal queries", () => {
-    expect(yearMeta(2026).title).toMatch(/^Viikot 2026: viikkonumerot/);
-    expect(calendarMeta(2027).title).toMatch(/^Viikkokalenteri 2027: /);
+    // One token, one page: /vuosi- owns "viikkokalenteri <year>" and
+    // /kalenteri- owns "kalenteri <year>". Before the 2027 growth plan both
+    // led with "Viikkokalenteri", so the two pages competed for one query.
+    expect(yearMeta(2026).title).toMatch(/^Viikkokalenteri 2026: /);
+    expect(calendarMeta(2027).title).toMatch(/^Kalenteri 2027: /);
+  });
+
+  it("never lets the year and calendar pages lead with the same token", () => {
+    for (let year = 2020; year <= 2035; year += 1) {
+      const lead = (title) => title.split(":")[0];
+      expect(lead(yearMeta(year).title)).not.toBe(lead(calendarMeta(year).title));
+    }
   });
 
   it("states real syysloma weeks and dates on the school-holiday page", () => {
