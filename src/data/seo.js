@@ -399,11 +399,20 @@ export function quarterFaqs(quarter, year) {
 
 export function yearMeta(y) {
   const total = weeksInIsoYear(y);
-  // Leads with "Viikot <year>" (the literal query form, e.g. "viikot 2026")
-  // and keeps "viikkonumerot" right after it for the longer variant.
+  // Cluster 3 of the 2027 growth plan: this page owns "viikkokalenteri
+  // <year>", so the title leads with it. calendarMeta() gives the token up at
+  // the same time (it now leads with "Kalenteri <year>"), which is why the two
+  // changes have to ship together. "viikot" and "viikkonumerot" stay in the
+  // title for the shorter query forms. See docs/seo-2027-growth-plan.md.
+  //
+  // The brief also wanted "hiihtolomaviikot" here, but school-holiday data
+  // only covers 2026 to 2028, and metaPromises.test.js exists precisely to
+  // stop a year description promising content that year does not render. The
+  // ski weeks stay on the page body, not in metadata. What the brief really
+  // adds is the concrete week 1 start date, which every year does have.
   return {
-    title: `Viikot ${y}: viikkonumerot ja kaikki ${total} viikkoa | Viikko Nro`,
-    description: `Viikot ${y} ja viikkonumerot: kaikki ${total} viikkoa päivämäärineen. Selaa työpäiviä ja arkipyhiä tai lataa tulostettava viikkokalenteri PDF-muodossa.`,
+    title: `Viikkokalenteri ${y}: viikkonumerot ja viikot | Viikko Nro`,
+    description: `Viikkokalenteri ${y}: kaikki ${total} viikkoa päivämäärineen. Viikko 1 alkaa ${fmtShortFi(mondayOf(1, y))}. Selaa työpäiviä ja arkipyhiä tai lataa viikkokalenteri PDF-muodossa.`,
   };
 }
 
@@ -484,7 +493,7 @@ export function yearStats(year) {
 export function printMeta(y) {
   const total = weeksInIsoYear(y);
   return {
-    title: `Tulostettava viikkolista ${y} – ${total} ISO-viikkoa | Viikko Nro`,
+    title: `Tulostettava viikkokalenteri ${y}: ${total} viikkoa | Viikko Nro`,
     description: `Tulosta vuoden ${y} kaikki ${total} ISO-viikkoa riveittäin alkamis- ja päättymispäivineen. Tallenna viikkolista PDF-muodossa tai lataa Excel-yhteensopiva CSV.`,
   };
 }
@@ -506,7 +515,18 @@ export function workingDaysMeta(y) {
 // Pulled out as its own function (not just inlined in workingDaysFaqs) since
 // it's the one part of this file that walks all ~365 days of a year; keeping
 // it separate makes that cost visible and reusable rather than duplicated.
+// Memoized per year: calendarMeta() now reads the working-day count too, and
+// metadata for a year gets built many times over a prerender pass, so the
+// ~365-day walk below would otherwise repeat for every one of those calls.
+const workingDaySplitCache = new Map();
 function workingDaySplit(y) {
+  const cached = workingDaySplitCache.get(y);
+  if (cached) return cached;
+  const split = computeWorkingDaySplit(y);
+  workingDaySplitCache.set(y, split);
+  return split;
+}
+function computeWorkingDaySplit(y) {
   const officialSet = new Set(
     holidaysInYear(y)
       .filter((h) => h.official)
@@ -649,10 +669,12 @@ export function monthPdfPath(month, year) {
 // Full-year calendar pages. `half` = null | 1 | 2; `print` = print-optimized.
 export function calendarMeta(y, half, print) {
   if (print) {
-    const total = weeksInIsoYear(y);
+    // Cluster 2: the query is "kalenteri <year> tulostettava", and this page
+    // already converts at 17.8% CTR on it, so the title leads with the words
+    // people type and names the free PDF rather than the paper size.
     return {
-      title: `Tulostettava A4-kuukausikalenteri ${y} | Viikko Nro`,
-      description: `Tulostettava A4-kuukausikalenteri ${y}: 12 kuukautta, ${total} ISO-viikkoa sekä Suomen juhla- ja liputuspäivät. Lataa valmis PDF tai Excel-yhteensopiva CSV.`,
+      title: `Tulostettava kalenteri ${y}: ilmainen PDF | Viikko Nro`,
+      description: `Lataa ilmainen tulostettava kalenteri ${y} PDF:nä. Viikkonumerot, arkipyhät ja liputuspäivät valmiina. Vuosi yhdellä sivulla tai kuukausi per sivu.`,
       robots: "index, follow",
     };
   }
@@ -668,10 +690,16 @@ export function calendarMeta(y, half, print) {
       description: `Vuoden ${y} syyspuolen kalenteri: heinäkuu–joulukuu. Viikkonumerot, juhlapäivät ja tulostettava PDF.`,
     };
   }
+  // Cluster 1: this page is the yearly overview and owns "kalenteri <year>".
+  // It deliberately gives up "viikkokalenteri <year>" to yearMeta() so the two
+  // pages stop competing for one token. The working-day count comes from
+  // workingDaySplit(), the same source as workingDaysFaqs(), so /kalenteri-
+  // and /tyopaivat- can never state different numbers for the same year.
   const total = weeksInIsoYear(y);
+  const { working } = workingDaySplit(y);
   return {
-    title: `Viikkokalenteri ${y}: 12 kuukautta, ${total} viikkoa | Viikko Nro`,
-    description: `Avaa viikkokalenteri ${y}: kaikki 12 kuukautta, ${total} ISO-viikkoa ja Suomen juhlapäivät. Selaa kuukausia ja avaa jokaisen viikon tarkat päivämäärät.`,
+    title: `Kalenteri ${y}: viikkonumerot ja pyhäpäivät | Viikko Nro`,
+    description: `Kalenteri ${y} viikkonumeroilla, arkipyhillä ja liputuspäivillä. Vuodessa ${y} on ${total} viikkoa ja ${working} työpäivää. Selaa kuukausittain tai tulosta PDF.`,
   };
 }
 
@@ -1351,7 +1379,7 @@ export function breadcrumbTrail(url) {
     return [
       home,
       { name: `Kalenteri ${m[1]}`, path: `/kalenteri-${m[1]}` },
-      { name: `Tulostettava viikkolista ${m[1]}`, path: url },
+      { name: `Tulostettava viikkokalenteri ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/pyhapaivat-(\d+)$/))) {
@@ -1455,7 +1483,7 @@ export function breadcrumbTrail(url) {
     return [
       home,
       { name: `Kalenteri ${m[1]}`, path: `/kalenteri-${m[1]}` },
-      { name: `Tulostettava A4-kuukausikalenteri ${m[1]}`, path: url },
+      { name: `Tulostettava kalenteri ${m[1]}`, path: url },
     ];
   }
   return null;
