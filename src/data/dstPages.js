@@ -50,8 +50,8 @@ export function dstMeta(year, now = new Date()) {
   const autumnFirst = year === now.getFullYear() && buildDate > start.date && buildDate <= end.date;
   if (autumnFirst) {
     return {
-      title: `Kellojen siirto ${fmtShortFi(end.date)}: talviaika alkaa | Viikko Nro`,
-      description: `Kellojen siirto ${fmtShortFi(end.date)} klo 4.00: kellot siirtyvät tunti taaksepäin klo 3.00:een ja talviaika alkaa. Vuoden kesäaika alkoi ${fmtShortFi(start.date)} klo 3.00.`,
+      title: `Kelloja siirretään ${fmtShortFi(end.date)}: talviaika alkaa | Viikko Nro`,
+      description: `Milloin kelloja siirretään? Talviaika alkaa ${WD_ESSIVE[end.date.getDay()]} ${fmtShortFi(end.date)} klo 4.00, kellot siirtyvät tunti taaksepäin klo 3.00:een. Vuoden kesäaika alkoi ${fmtShortFi(start.date)}.`,
     };
   }
   return {
