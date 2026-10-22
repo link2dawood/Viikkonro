@@ -130,7 +130,12 @@ test("the inline head script matches its Content-Security-Policy hash", () => {
   // script without refreshing the hash would silently break the policy.
   const scripts = [...read("dist/index.html").matchAll(/<script>([\s\S]*?)<\/script>/g)];
   assert.equal(scripts.length, 1, "expected exactly one inline script in the generated page");
-  const digest = `sha256-${createHash("sha256").update(scripts[0][1], "utf8").digest("base64")}`;
+  // Hash the LF form, which is what the browser receives: git stores this file
+  // with LF and Vercel builds on Linux. A Windows checkout materializes CRLF,
+  // and hashing that raw gives a digest that is correct nowhere -- it passes
+  // locally and fails CI, which has already cost one bad vercel.json edit.
+  const inlineScript = scripts[0][1].replace(/\r\n/g, "\n");
+  const digest = `sha256-${createHash("sha256").update(inlineScript, "utf8").digest("base64")}`;
   const policy = JSON.parse(read("vercel.json")).headers
     .find((rule) => rule.source === "/(.*)").headers
     .find((header) => header.key.startsWith("Content-Security-Policy")).value;
