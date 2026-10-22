@@ -399,7 +399,7 @@ test("PD-05 preserves sourced 2028 school-holiday limits in generated HTML", () 
   assert.doesNotMatch(html, /Tiedot perustuvat aiempien vuosien käytäntöihin/);
 });
 
-test("PD-06 keeps every generated PDF downloadable while canonicalizing its family", () => {
+test("PD-06 keeps every generated PDF downloadable as a noindex asset", () => {
   const pdfDirectory = path.join(dist, "pdf");
   const pdfs = fs.readdirSync(pdfDirectory).filter((name) => name.endsWith(".pdf"));
   assert.ok(pdfs.length >= 1000, `expected at least 1000 generated PDFs, got ${pdfs.length}`);
@@ -411,15 +411,24 @@ test("PD-06 keeps every generated PDF downloadable while canonicalizing its fami
     assert.ok(pdfs.includes(representative), `missing ${representative}`);
   }
 
+  // PDFs are generated across the full 2020..currentYear+9 horizon while
+  // isIndexable() keeps week pages to currentYear..currentYear+1 and other
+  // dated pages to currentYear-2..currentYear+4, so a per-family canonical
+  // pointed at a noindex page for most generated files. A bare noindex states
+  // the same intent for every PDF with no rolling-year logic to drift.
+  // See the 2026-10-22 amendment in docs/SEO_CONSTITUTION.md.
   const config = JSON.parse(read("vercel.json"));
   const canonicalRules = config.headers
-    .filter((rule) => rule.source.startsWith("/pdf/") && rule.headers.some((header) => header.key === "Link"))
-    .map((rule) => [rule.source, rule.headers.find((header) => header.key === "Link").value]);
-  assert.deepEqual(canonicalRules, [
-    ["/pdf/kalenteri-:year(\\d{4}).pdf", '<https://viikkonro.fi/kalenteri-:year>; rel="canonical"'],
-    ["/pdf/viikko-:week(\\d{1,2})-:year(\\d{4}).pdf", '<https://viikkonro.fi/viikko-:week-:year>; rel="canonical"'],
-    ["/pdf/kuukausi-:month(\\d{1,2})-:year(\\d{4}).pdf", '<https://viikkonro.fi/kuukausi-:month-:year>; rel="canonical"'],
-  ]);
+    .filter((rule) => rule.source.startsWith("/pdf/"))
+    .filter((rule) => rule.headers.some((header) => header.key === "Link" && header.value.includes('rel="canonical"')));
+  assert.deepEqual(canonicalRules, [], "no PDF family may canonicalize to an HTML page");
+
+  const pdfRule = config.headers.find((rule) => rule.source === "/pdf/(.*)");
+  assert.deepEqual(
+    pdfRule.headers.find((header) => header.key === "X-Robots-Tag"),
+    { key: "X-Robots-Tag", value: "noindex" },
+    "every PDF response is a bare-noindex download",
+  );
 });
 
 test("PD-07 asserts English surface is fully removed (2026-10-15)", () => {

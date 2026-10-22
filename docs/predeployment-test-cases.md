@@ -17,7 +17,7 @@ bundle removed by prerendering, and completes the internal crawl check.
 | PD-03 | Parse generated JSON-LD | Parity, school-holiday, and workday pages contain their required WebPage, Article, FAQPage, and breadcrumb types. |
 | PD-04 | Inspect cross-year week links | A normal week has seven valid alternatives; week 53 never links to a year without ISO week 53. |
 | PD-05 | Inspect the 2028 school-holiday page | All five official city sources, the unknown-coverage notice, and the review date remain visible. |
-| PD-06 | Inspect PDF output and Vercel headers | At least 1,000 PDFs remain generated and each PDF family maps to its matching HTML canonical. |
+| PD-06 | Inspect PDF output and Vercel headers | At least 1,000 PDFs remain generated, `/pdf/(.*)` serves a bare `X-Robots-Tag: noindex`, and no PDF family declares a `rel="canonical"` Link header. |
 | PD-07 | Inspect the English surface | `/en` retains English document signals and reciprocal hreflang, and the Finnish site links to it. |
 | PD-08 | Scan deployable text artifacts | No unresolved merge marker reaches generated HTML, XML, text, or JSON. |
 | PD-09 | Inspect `/yrityskalenteri` | One H1, a self-canonical, indexable, WebPage, FAQPage, HowTo and breadcrumb schema, the watermarked free preview, a sitemap entry, links from the calendar and print pages, and its own styles (no other page carries them). |

@@ -129,6 +129,51 @@
       "source": "/sv/:path*",
       "destination": "/",
       "statusCode": 301
+    },
+    {
+      "source": "/kaupunki",
+      "destination": "/auringonlasku",
+      "statusCode": 301
+    },
+    {
+      "source": "/kaupunki/:slug",
+      "destination": "/auringonlasku-:slug",
+      "statusCode": 301
+    },
+    {
+      "source": "/pyhat-:year(1\\d{3}|20[01]\\d)/:slug",
+      "destination": "/pyhat-2020/:slug",
+      "statusCode": 301
+    },
+    {
+      "source": "/viikko-:week(\\d{1,2})-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/viikko-:week-2020",
+      "statusCode": 301
+    },
+    {
+      "source": "/kuukausi-:month(\\d{1,2})-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/kuukausi-:month-2020",
+      "statusCode": 301
+    },
+    {
+      "source": "/q:quarter([1-4])-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/q:quarter-2020",
+      "statusCode": 301
+    },
+    {
+      "source": "/kalenteri-:year(1\\d{3}|20[01]\\d)-alkuvuosi",
+      "destination": "/kalenteri-2020-alkuvuosi",
+      "statusCode": 301
+    },
+    {
+      "source": "/kalenteri-:year(1\\d{3}|20[01]\\d)-loppuvuosi",
+      "destination": "/kalenteri-2020-loppuvuosi",
+      "statusCode": 301
+    },
+    {
+      "source": "/:family(tulostettava-kalenteri|elakkeen-maksupaivat|kelan-maksupaivat|tyopaivat-maaliskuu|tyopaivat-marraskuu|tyopaivat-helmikuu|tyopaivat-tammikuu|tyopaivat-huhtikuu|tyopaivat-heinakuu|tyopaivat-joulukuu|tyopaivat-toukokuu|tyopaivat-lokakuu|tyopaivat-syyskuu|tyopaivat-kesakuu|tyopaivat-elokuu|palkkapaivat|liputuspaivat|kuun-vaiheet|ystavanpaiva|pyhapaivat|aitienpaiva|laskiainen|isanpaiva|tyopaivat|kalenteri|kesaaika|adventti|tulosta|vuosi)-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/:family-2020",
+      "statusCode": 301
     }
   ],
   "headers": [
@@ -169,7 +214,7 @@
         },
         {
           "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self' 'sha256-ikazaQ2jbqlTos4KFcbhA5awOVSg592PPX8K1Biu9Lk=' https://www.clarity.ms https://*.clarity.ms https://c.bing.com https://challenges.cloudflare.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googletagservices.com https://*.gstatic.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com https://challenges.cloudflare.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googletagservices.com https://*.gstatic.com https://*.adtrafficquality.google; frame-src 'self' https://challenges.cloudflare.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googletagservices.com https://*.gstatic.com https://*.adtrafficquality.google; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://api.web3forms.com; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self' 'sha256-16xOB69q4Of4Coft2LmKc8OTdvZtRdahMFn0ninAJZ0=' https://www.clarity.ms https://*.clarity.ms https://c.bing.com https://challenges.cloudflare.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googletagservices.com https://*.gstatic.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com https://challenges.cloudflare.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googletagservices.com https://*.gstatic.com https://*.adtrafficquality.google; frame-src 'self' https://challenges.cloudflare.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googletagservices.com https://*.gstatic.com https://*.adtrafficquality.google; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://api.web3forms.com; object-src 'none'"
         },
         {
           "key": "CDN-Cache-Control",
@@ -199,33 +244,6 @@
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"
-        }
-      ]
-    },
-    {
-      "source": "/pdf/kalenteri-:year(\\d{4}).pdf",
-      "headers": [
-        {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/kalenteri-:year>; rel=\"canonical\""
-        }
-      ]
-    },
-    {
-      "source": "/pdf/viikko-:week(\\d{1,2})-:year(\\d{4}).pdf",
-      "headers": [
-        {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/viikko-:week-:year>; rel=\"canonical\""
-        }
-      ]
-    },
-    {
-      "source": "/pdf/kuukausi-:month(\\d{1,2})-:year(\\d{4}).pdf",
-      "headers": [
-        {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/kuukausi-:month-:year>; rel=\"canonical\""
         }
       ]
     },
@@ -422,6 +440,10 @@
         {
           "key": "Content-Type",
           "value": "application/pdf"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
         },
         {
           "key": "Cache-Control",

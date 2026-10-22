@@ -78,6 +78,27 @@ single source of truth for which slug shapes are valid) and
 - Retire an old URL without a 301 in `vercel.json`'s `redirects` array
   (see the `/week/:week/:year` → `/viikko-:week-:year` and retired `/sv/*`
   examples already there).
+- Add a redirect whose `source` can match a prerendered path. Vercel
+  evaluates `redirects` **before** the filesystem, so such a rule silently
+  shadows a real page. `src/data/redirects.test.js` compiles every `source`
+  and asserts it matches no route in `sitemapEntries()`.
+- Add a redirect for a year inside the rolling prerender horizon. Years
+  above `PRERENDER_MAX_YEAR` (`currentYear + 9`) become real pages when the
+  horizon advances, so a rule for them is a scheduled outage: a 404 for
+  `/viikko-25-2036` today becomes a live page on 2027-01-01 by itself. Only
+  the floor is permanent, which is why the out-of-range redirects below
+  cover `<= 2019` and nothing above the horizon.
+- Add a redirect whose destination is not a published page. A redirect into
+  a 404 is worse than the original 404; the same test asserts every
+  destination exists. `/koululomat-` is deliberately excluded from the
+  out-of-range rules for this reason: it publishes only CONFIRMED-tier
+  years, so every candidate destination would eventually drift off.
+
+Out-of-range dated URLs (year `<= 2019`) 301 to the same family's
+`PRERENDER_MIN_YEAR` page, so `/viikko-10-2019` → `/viikko-10-2020` and
+`/pyhat-2019/joulupaiva` → `/pyhat-2020/joulupaiva`. `/kaupunki/:slug`
+301s to `/auringonlasku-:slug`: that path was never a route, but 835 week
+pages linked it as the sunrise location credit until commit 320fffa.
 
 ### 2. Preserve schema coverage
 
@@ -126,15 +147,18 @@ never an inline stub object, and (b) updating the `relationshipMap`/
 **Rule**: `sitemap.xml` must keep listing every indexable HTML page, plus
 one `<image:image>` entry per page that has an OG or Discover image. Calendar,
 week, and month PDFs are deliberately excluded from the sitemap as of the
-user-approved 2026-10-06 canonical consolidation.
+user-approved 2026-10-06 consolidation, and are served `noindex` as of the
+2026-10-22 amendment.
 
 **Lives in**: `sitemapEntries()` in `src/data/seo.js` (the page list) and
 the `urlset` template assembly plus the `<image:image>` block in
 `prerender.js`'s sitemap
-section. Indexability is governed by `isIndexable()`: week pages and their PDFs use
-`currentYear`..`currentYear+1`; other dated pages keep
-`currentYear-2`..`currentYear+4`, with named-holiday pages retaining their
-full-horizon exception. For HTML, pages outside their applicable window are correctly
+section. Indexability is governed by `isIndexable()`, which applies to HTML
+routes only: week pages use `currentYear`..`currentYear+1`; other dated pages
+keep `currentYear-2`..`currentYear+4`, with named-holiday pages retaining
+their full-horizon exception. PDFs never reach `isIndexable()` — they are
+uniformly `noindex` by response header (see rule 5). Pages outside their
+applicable window are correctly
 *excluded* from the sitemap (this is intentional, not a bug — don't "fix"
 it by including them).
 
@@ -154,15 +178,32 @@ rules above remain unchanged.
 **Rule**: every calendar/week/month PDF must remain linked from (a) its
 HTML page as a visible download link, (b) an `associatedMedia`/
 `MediaObject` + `potentialAction`/`DownloadAction` schema pair, and (c) a
-`<link rel="alternate">` pointer. Each PDF response must also carry an HTTP
-`Link` header whose `rel="canonical"` target is its matching HTML page.
+`<link rel="alternate">` pointer. Each PDF response must also carry a bare
+`X-Robots-Tag: noindex` and must **not** carry a `rel="canonical"` Link
+header. PDFs are downloadable assets, never indexable pages, in every year
+of the horizon; the HTML page is always the citable source.
+
+The `noindex` must stay bare. Adding `nofollow`, `noarchive`, or a redirect
+or 404 for a PDF path breaks the discoverability contract in (a)-(c): the
+file must remain crawlable and directly downloadable.
 
 **Lives in**: `calendarPdfPath()`/`weekPdfPath()`/`monthPdfPath()` in
 `seo.js` (the single-source-of-truth path builders — every consumer reads
 these, never reconstructs the path by hand), `weekPdfExtra()`/
 `monthPdfExtra()`/the inline calendar `associatedMedia` block in
-`prerender.js`, `pdfAlternateLink(url)`, and the three PDF-specific Link
-header rules in `vercel.json`.
+`prerender.js`, `pdfAlternateLink(url)`, and the single `/pdf/(.*)` header
+rule in `vercel.json`. Asserted by `src/data/pdfCanonical.test.js`.
+
+**Never**: canonicalize a PDF to its HTML page. PDFs are generated across
+the full `PRERENDER_MIN_YEAR`..`PRERENDER_MAX_YEAR` horizon while
+`isIndexable()` narrows week pages to `currentYear`..`currentYear+1` and
+other dated pages to `currentYear-2`..`currentYear+4`, so such a canonical
+points at a `noindex` page for most of the horizon. See the 2026-10-22
+amendment.
+
+The template downloads under `/pohjat/` are a separate family. Their
+canonical target (`/kalenteripohjat/:slug`) is a static, always-indexable
+page, so that mapping never had this conflict and keeps its `Link` header.
 
 **Never**: add a new PDF-generating page type using a hand-built path
 string instead of a new `*PdfPath()` function in `seo.js` — this is the
@@ -450,6 +491,20 @@ Before considering an SEO/routing/schema-touching task done:
   the sitemap and canonicalizing each PDF response to its HTML counterpart.
   Visible downloads, alternate links, associated-media schema, generation,
   crawlability, and direct access remain required.
+- 2026-10-22: the user explicitly approved replacing that PDF canonical
+  header with a bare `X-Robots-Tag: noindex` on `/pdf/(.*)`. The 2026-10-06
+  consolidation predated the narrowed indexing window, and the two
+  interacted badly: PDFs are generated for 2020..currentYear+9 while
+  `isIndexable()` covers only `currentYear`..`currentYear+1` for weeks and
+  `currentYear-2`..`currentYear+4` for other dated pages, so 847 of 1,043
+  generated PDFs advertised a canonical pointing at a `noindex` page.
+  Search Console reported the whole set as "Alternate page with proper
+  canonical tag" and its revalidation could never pass. `noindex` states the
+  same intent (the HTML page ranks, never the PDF) for every PDF with one
+  static rule and no rolling-year logic to drift. Generation across the full
+  horizon, visible downloads, alternate links, associated-media schema,
+  crawlability, and direct access are all unchanged. Accepted tradeoff: the
+  PDF files themselves can no longer appear in search results.
 
 This document describes the system as it actually exists, verified
 against the code at time of writing — it is not aspirational. When the
