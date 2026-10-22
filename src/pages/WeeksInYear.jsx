@@ -1,6 +1,7 @@
 import { useToday } from "../components/useToday";
 import { Link } from "react-router-dom";
 import {
+  fmtFullFi,
   isoYear,
   PRERENDER_MIN_YEAR as YEAR_MIN,
   PRERENDER_MAX_YEAR as YEAR_MAX,
@@ -13,6 +14,7 @@ import {
   routeMeta,
 } from "../data/seo";
 import {
+  currentYearWeekSummary,
   weeksInYearFaqs,
   yearWeekRows,
 } from "../data/weeksInYearContent";
@@ -26,6 +28,12 @@ const WeeksInYear = () => {
   const rows = yearWeekRows(YEAR_MIN, YEAR_MAX);
   const longYears = rows.filter((row) => row.weeks === 53);
   const faqs = weeksInYearFaqs(currentYear);
+  // The current year's answer is computed, not written: this page's headline
+  // query ("kuinka monta viikkoa on vuodessa") needs a live answer, and 2026
+  // has 53 weeks while 2027 has 52.
+  const summary = currentYearWeekSummary(currentYear);
+  const nextLongYear = longYears.find((row) => row.year > currentYear)?.year;
+  const exampleLongYears = longYears.slice(0, 3).map((row) => row.year);
 
   return (
     <section className="app">
@@ -81,17 +89,25 @@ const WeeksInYear = () => {
         </ol>
         <p>
           Näissä tapauksissa vuoden loppuun mahtuu vielä kokonainen viikko 53.
-          Esimerkiksi <strong>2020, 2026 ja 2032</strong> ovat 53 viikon vuosia.
-          Vuoden {currentYear} kaikki päivämäärät näkyvät sivulla{" "}
+          Esimerkiksi <strong>{exampleLongYears.join(", ")}</strong> ovat 53
+          viikon vuosia. Vuoden {currentYear} kaikki päivämäärät näkyvät
+          sivulla{" "}
           <Link to={`/vuosi-${currentYear}`}>viikkonumerot {currentYear}</Link>.
         </p>
 
-        <h2>Kuinka monta viikkoa vuonna 2026 on?</h2>
+        <h2>Kuinka monta viikkoa vuonna {currentYear} on?</h2>
         <p>
-          <strong>Vuonna 2026 on 53 viikkoa</strong>, koska 1. tammikuuta 2026
-          on torstai. Vuoden viimeinen ISO-viikko on{" "}
-          <Link to="/viikko-53-2026">viikko 53</Link>, joka alkaa maanantaina
-          28. joulukuuta 2026 ja päättyy sunnuntaina 3. tammikuuta 2027.
+          <strong>
+            Vuonna {currentYear} on {currentWeeks} viikkoa.
+          </strong>{" "}
+          {summary.cause} Vuoden viimeinen ISO-viikko on{" "}
+          <Link to={`/viikko-${currentWeeks}-${currentYear}`}>
+            viikko {currentWeeks}
+          </Link>, joka alkaa maanantaina {fmtFullFi(summary.lastWeekMonday)} ja
+          päättyy sunnuntaina {fmtFullFi(summary.lastWeekSunday)}.
+          {currentWeeks !== 53 && nextLongYear
+            ? ` Seuraava 53 viikon vuosi on ${nextLongYear}.`
+            : ""}
         </p>
 
         <h2>Miksi ISO-viikkovuosi voi ylittää vuodenvaihteen?</h2>

@@ -85,6 +85,7 @@ import { CONSTRUCTION_PATH, constructionMeta } from "./constructionCalendar.js";
 import { HR_PATH, hrMeta } from "./hrCalendar.js";
 import { TEAM_PATH, teamMeta } from "./teamLeave.js";
 import { PARITY_PATH, parityMeta } from "./weekParity.js";
+import { weeksInYearMeta } from "./weeksInYearContent.js";
 
 // Fixed date the FAQ/explainer/calculator page COPY (not just computed data)
 // was last substantively edited. Bump both by hand when that prose actually
@@ -789,9 +790,7 @@ export const routeMeta = {
     breadcrumb: "Viikko alkaa maanantaista",
   },
   "/kuinka-monta-viikkoa-vuodessa": {
-    title: "Kuinka monta viikkoa vuodessa on? 52 vai 53 | Viikko Nro",
-    description:
-      "Katso, montako viikkoa vuodessa on: tavallisesti 52, joskus 53. Vuonna 2026 on 53 viikkoa. Lue ISO 8601 -sääntö ja tarkista 53 viikon vuodet.",
+    ...weeksInYearMeta(new Date()),
     breadcrumb: "Viikkoja vuodessa",
   },
   "/suomi-vs-usa-viikkonumerot": {
@@ -1280,6 +1279,8 @@ export function sitemapEntries(year) {
 export function metaFor(url) {
   if (url === "/") return { ...routeMeta["/"], ...homeMeta(new Date()) };
   if (url === PARITY_PATH) return { ...routeMeta[url], ...parityMeta(new Date()) };
+  if (url === "/kuinka-monta-viikkoa-vuodessa")
+    return { ...routeMeta[url], ...weeksInYearMeta(new Date()) };
   if (url === "/mika-kuukausi-nyt") return { ...routeMeta[url], ...currentMonthMeta() };
   if (url === "/mika-vuosi-nyt") return { ...routeMeta[url], ...currentYearMeta() };
   if (routeMeta[url]) return routeMeta[url];
