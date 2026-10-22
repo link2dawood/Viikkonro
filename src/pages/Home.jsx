@@ -12,6 +12,7 @@ import AppsPromo from "../components/AppsPromo";
 import SeasonYear from "../components/SeasonYear";
 import WeekParity from "../components/WeekParity";
 import ToolDirectory from "../components/ToolDirectory";
+import AdSlot from "../components/AdSlot";
 
 const Home = () => {
   // Computed directly in the render body (not an effect) so it's correct
@@ -31,6 +32,7 @@ const Home = () => {
         <SeasonYear />
         <WeekParity />
         <WeeklySearch />
+        <AdSlot placement="home-after-search" />
         <WeeksOfMonth />
         <YearsWeek />
         <Information />
