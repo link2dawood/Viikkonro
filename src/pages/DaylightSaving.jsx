@@ -41,12 +41,13 @@ const DaylightSaving = ({ year }) => {
         <Link to={`/vuosi-${y}`}>Viikot {y}</Link> / Kesäaika {y}
       </div>
 
-      <h1>Kesäaika {y} – milloin kellot siirretään?</h1>
+      <h1>Milloin kelloja siirretään vuonna {y}?</h1>
 
       <p className="lead">
         <span className="answer-sentence">
-          Kesäaika {y} alkaa {WD_ESSIVE[start.date.getDay()]}{" "}
-          <strong>{fmtFullFi(start.date)}</strong> ja päättyy{" "}
+          Vuonna {y} kelloja siirretään kaksi kertaa: kesäaika alkaa{" "}
+          {WD_ESSIVE[start.date.getDay()]}{" "}
+          <strong>{fmtFullFi(start.date)}</strong> ja talviaika alkaa{" "}
           {WD_ESSIVE[end.date.getDay()]} <strong>{fmtFullFi(end.date)}</strong>.
         </span>{" "}
         Keväällä kelloja siirretään tunti eteenpäin ja syksyllä tunti taaksepäin.

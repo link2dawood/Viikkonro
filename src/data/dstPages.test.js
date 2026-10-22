@@ -5,9 +5,12 @@ describe("clock-change metadata", () => {
   it("leads with the autumn change for the current year once summer time is in effect", () => {
     const meta = dstMeta(2026, new Date(2026, 9, 15));
 
-    expect(meta.title).toBe("Kellojen siirto 25.10.2026: talviaika alkaa | Viikko Nro");
+    expect(meta.title).toBe("Kelloja siirretään 25.10.2026: talviaika alkaa | Viikko Nro");
     expect(meta.title.length).toBeLessThan(60);
-    expect(meta.description).toMatch(/^Kellojen siirto/);
+    // Leads with the dominant Search Console phrasing ("milloin kelloja
+    // siirretään") rather than the noun "kellojen siirto" the page used before.
+    expect(meta.description).toMatch(/^Milloin kelloja siirretään\?/);
+    expect(meta.description).toContain("sunnuntaina");
     expect(meta.description).toContain("4.00");
     expect(meta.description).toContain("3.00");
     expect(meta.description).toContain("tunti taaksepäin");
