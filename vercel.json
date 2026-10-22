@@ -277,6 +277,10 @@
       "source": "/ics/(.*)",
       "headers": [
         {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        },
+        {
           "key": "Content-Type",
           "value": "text/calendar; charset=utf-8"
         },
@@ -352,6 +356,15 @@
     },
     {
       "source": "/data/(.*)/index.json",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
+    },
+    {
+      "source": "/data/index.json",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -490,11 +503,11 @@
       ]
     },
     {
-      "source": "/pohjat/:slug/:year.pdf",
+      "source": "/pohjat/(.*)",
       "headers": [
         {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/kalenteripohjat/:slug>; rel=\"canonical\""
+          "key": "X-Robots-Tag",
+          "value": "noindex"
         }
       ]
     },

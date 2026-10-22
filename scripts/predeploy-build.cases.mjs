@@ -304,7 +304,16 @@ test("PD-12 publishes substantive template pages and all 54 downloadable artifac
   }
   assert.equal(assets, 54); assert.equal(titles.size, 6); assert.equal(descriptions.size, 6);
   const headers = JSON.parse(read("vercel.json")).headers;
-  assert.ok(headers.some((rule) => rule.source === "/pohjat/:slug/:year.pdf" && rule.headers.some((header) => header.key === "Link" && header.value === '<https://viikkonro.fi/kalenteripohjat/:slug>; rel="canonical"')));
+  // Template exports are downloadable assets, so they follow the same policy
+  // as /pdf/ and /ics/: one bare noindex, no canonical. The landing page
+  // /kalenteripohjat/:slug remains the indexable, citable surface.
+  const templateRule = headers.find((rule) => rule.source === "/pohjat/(.*)");
+  assert.ok(templateRule, "/pohjat/(.*) header rule is missing");
+  assert.deepEqual(templateRule.headers, [{ key: "X-Robots-Tag", value: "noindex" }]);
+  assert.ok(
+    !headers.some((rule) => rule.source.startsWith("/pohjat/") && JSON.stringify(rule.headers).includes("canonical")),
+    "no /pohjat/ rule may declare a canonical alongside noindex",
+  );
   for (const file of ["llms.txt", "ai.txt", "llms-full.txt", "llms-api.txt", "llms-glossary.txt", "ai-manifest.txt"]) assert.ok(read(`dist/${file}`).includes(TEMPLATE_PATH), file);
   const graph = JSON.parse(read("dist/data/knowledge-graph.json"));
   assert.ok(graph.entityMap.some((entity) => entity.entity === "Planning template"));

@@ -173,7 +173,7 @@ PDF dates. Never infer a content modification date from a URL's calendar year
 or refresh unchanged content dates on every build. URL and image inclusion
 rules above remain unchanged.
 
-### 5. Preserve PDF discoverability
+### 5. Preserve downloadable-asset discoverability
 
 **Rule**: every calendar/week/month PDF must remain linked from (a) its
 HTML page as a visible download link, (b) an `associatedMedia`/
@@ -201,9 +201,26 @@ other dated pages to `currentYear-2`..`currentYear+4`, so such a canonical
 points at a `noindex` page for most of the horizon. See the 2026-10-22
 amendment.
 
-The template downloads under `/pohjat/` are a separate family. Their
-canonical target (`/kalenteripohjat/:slug`) is a static, always-indexable
-page, so that mapping never had this conflict and keeps its `Link` header.
+**Downloadable assets are never indexable pages.** One policy covers every
+asset family: crawlable, bare `X-Robots-Tag: noindex`, no canonical, out of
+the sitemap. Three `vercel.json` rules implement it, one per family:
+
+| Family | Rule | Citable surface |
+| --- | --- | --- |
+| Week/month/calendar PDFs | `/pdf/(.*)` | the matching HTML page |
+| Calendar subscriptions | `/ics/(.*)` | `/kalenteritilaus` |
+| Template exports (pdf/csv/xlsx) | `/pohjat/(.*)` | `/kalenteripohjat/:slug` |
+
+`/pohjat/` previously carried a `rel="canonical"` to `/kalenteripohjat/:slug`.
+That target is always indexable, so it was never the out-of-window conflict
+above, but `noindex` and `canonical` on one response conflict regardless, so
+the canonical was removed with the 2026-10-22 asset sweep.
+
+The machine-readable `/data/` directory listings are `noindex, follow` via
+two rules: `/data/(.*)/index.json` does **not** match the top-level
+`/data/index.json`, which needs its own. The data feeds themselves
+(`.json`, `.csv`, `.xml`) stay indexable on purpose — they are the open-data
+product that `/avoin-data` documents. Do not blanket-`noindex` `/data/`.
 
 **Never**: add a new PDF-generating page type using a hand-built path
 string instead of a new `*PdfPath()` function in `seo.js` — this is the
@@ -505,6 +522,15 @@ Before considering an SEO/routing/schema-touching task done:
   horizon, visible downloads, alternate links, associated-media schema,
   crawlability, and direct access are all unchanged. Accepted tradeoff: the
   PDF files themselves can no longer appear in search results.
+- 2026-10-22: the same policy was extended to the remaining downloadable
+  asset families after Search Console reported them under "Crawled -
+  currently not indexed": `/ics/(.*)` and `/pohjat/(.*)` now serve a bare
+  `X-Robots-Tag: noindex`, and `/pohjat/`'s `rel="canonical"` was removed
+  because `noindex` plus `canonical` on one response conflict. A missing
+  `/data/index.json` rule was added, since `/data/(.*)/index.json` does not
+  match the top-level listing. The `/data/` feeds and the AI-facing text
+  files were deliberately left indexable: both are products in their own
+  right, not duplicates of an HTML page.
 
 This document describes the system as it actually exists, verified
 against the code at time of writing — it is not aspirational. When the

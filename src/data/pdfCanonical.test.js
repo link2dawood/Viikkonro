@@ -38,14 +38,43 @@ describe("PDF indexing response headers", () => {
     expect(config.redirects.some((redirect) => redirect.source.startsWith("/pdf/"))).toBe(false);
   });
 
-  // The template downloads are a separate family under /pohjat/ whose canonical
-  // target (/kalenteripohjat/:slug) is a static, always-indexable page, so it
-  // never had the out-of-window conflict and keeps its canonical header.
-  it("leaves the template PDF canonical mapping intact", () => {
-    const templateRule = config.headers.find((rule) => rule.source === "/pohjat/:slug/:year.pdf");
-    expect(templateRule.headers).toContainEqual({
-      key: "Link",
-      value: '<https://viikkonro.fi/kalenteripohjat/:slug>; rel="canonical"',
-    });
+  // Every downloadable asset family follows the same policy: crawlable, bare
+  // noindex, no canonical. Search Console was reporting the ICS feeds and the
+  // /pohjat/ template exports under "Crawled - currently not indexed" because
+  // they were indexable assets competing for index slots they can never win.
+  // /pohjat/ replaced a per-PDF canonical to /kalenteripohjat/:slug; that
+  // target is always indexable so it was never the out-of-window conflict, but
+  // noindex plus canonical on one response is a conflict of its own.
+  it.each(["/pdf/(.*)", "/ics/(.*)", "/pohjat/(.*)"])(
+    "serves %s as a crawlable noindex download",
+    (source) => {
+      const rule = config.headers.find((candidate) => candidate.source === source);
+      expect(rule, `${source} header rule is missing`).toBeTruthy();
+      expect(rule.headers).toContainEqual({ key: "X-Robots-Tag", value: "noindex" });
+      expect(JSON.stringify(rule.headers)).not.toContain("canonical");
+      expect(JSON.stringify(rule.headers)).not.toContain("nofollow");
+    },
+  );
+
+  it("declares no canonical for any asset family", () => {
+    const assetCanonicals = config.headers
+      .filter((rule) => /^\/(pdf|ics|pohjat)\//.test(rule.source))
+      .filter((rule) =>
+        rule.headers.some((header) => header.key === "Link" && header.value.includes('rel="canonical"')),
+      )
+      .map((rule) => rule.source);
+    expect(assetCanonicals).toEqual([]);
+  });
+
+  // The machine-readable directory listings are noindex, but the data feeds
+  // themselves stay indexable on purpose: they are the open-data product and
+  // /avoin-data documents them. "/data/(.*)/index.json" does not match the
+  // top-level listing, which is why it needs its own rule.
+  it("noindexes every data directory listing including the top level", () => {
+    for (const source of ["/data/(.*)/index.json", "/data/index.json"]) {
+      const rule = config.headers.find((candidate) => candidate.source === source);
+      expect(rule, `${source} header rule is missing`).toBeTruthy();
+      expect(rule.headers).toContainEqual({ key: "X-Robots-Tag", value: "noindex, follow" });
+    }
   });
 });
