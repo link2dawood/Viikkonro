@@ -254,12 +254,17 @@ const routes = routeCandidates;
 // Week pages use currentYear..currentYear+1 so generic week searches favor
 // the current calendar. Other dated pages retain currentYear-2..currentYear+4.
 // Out-of-window pages remain prerendered with noindex and leave the sitemap.
+// This governs HTML routes only. PDFs are never sitemap entries and no longer
+// carry a per-family canonical header: vercel.json serves every /pdf/ response
+// with a bare X-Robots-Tag: noindex, so a PDF path never reaches this function.
+// A PDF window here would have been meaningless anyway, since the canonical it
+// used to advertise pointed at a noindex page for most of the horizon.
 const INDEX_MIN_YEAR = currentYear - 2;
 const INDEX_MAX_YEAR = currentYear + 4;
 const WEEK_INDEX_MIN_YEAR = currentYear;
 const WEEK_INDEX_MAX_YEAR = currentYear + 1;
 const isIndexable = (p) => {
-  const week = p.match(/^\/viikko-\d+-(\d{4})$/) ?? p.match(/^\/pdf\/viikko-\d+-(\d{4})\.pdf$/);
+  const week = p.match(/^\/viikko-\d+-(\d{4})$/);
   if (week) {
     const year = Number(week[1]);
     return year >= WEEK_INDEX_MIN_YEAR && year <= WEEK_INDEX_MAX_YEAR;
@@ -4606,7 +4611,7 @@ const urlset = indexableEntries
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urlset}\n</urlset>\n`;
 fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemap);
 console.log(
-  `generated sitemap.xml (${indexableEntries.length} indexable HTML urls, PDFs excluded for canonical consolidation, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today})`,
+  `generated sitemap.xml (${indexableEntries.length} indexable HTML urls, PDFs excluded as noindex downloads, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today})`,
 );
 
 // Generate llms-full.txt: a comprehensive English-language reference for AI
@@ -4685,7 +4690,7 @@ const llmsFull =
     "",
     "- Purpose: instant ISO 8601 week-number lookup (\"what week is it today / on this date\") plus a full Finnish calendar reference: public holidays, flag days, name days, school holidays, quarters, months, printable calendars and PDF/CSV downloads.",
     "- No login, no paywall, no backend at request time — a prerendered React single-page app. Every meaningful URL is rendered to static HTML at build time (not just the homepage), so crawlers and AI agents see full content without executing JavaScript.",
-    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} (current year plus the next 9). Week pages and their PDFs use the narrower ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window (current year and next year); other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs remain downloadable, canonicalize to their HTML pages and are excluded from the sitemap in every year. All years remain reachable by direct URL regardless of index status.`,
+    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} (current year plus the next 9). Week pages use the narrower ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window (current year and next year); other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs are downloadable assets rather than pages in every year: they remain crawlable and linked from their HTML page, but are served noindex and excluded from the sitemap, so the HTML page is always the citable source. All years remain reachable by direct URL regardless of index status.`,
     "- The contact form is the only feature that talks to a third party (Web3Forms, client-side only); everything else — week/date math, holiday and flag-day dates, name-day lookups — is computed locally from deterministic rules, not fetched from an external API.",
     "- For ISO 8601 rules, Finnish holiday/flag-day definitions and how entities relate to each other, see llms-glossary.txt rather than this file.",
     "",
@@ -4877,7 +4882,7 @@ const llmsApi =
     `  /pdf/kalenteri-{year}.pdf         — full-year printable calendar, e.g. ${SITE_URL}${calendarPdfPath(llY)}`,
     `  /pdf/viikko-{week}-{year}.pdf     — single-week fact sheet, e.g. ${SITE_URL}${weekPdfPath(llWeek, llY)}`,
     `  /pdf/kuukausi-{month}-{year}.pdf  — single-month calendar + fact sheet, e.g. ${SITE_URL}${monthPdfPath(llMonth, llY)}`,
-    "  Generated with pdfkit (no headless browser), one file per year/week/month across the full data horizon, linked from the corresponding HTML page and from the sitemap.",
+    "  Generated with pdfkit (no headless browser), one file per year/week/month across the full data horizon, linked as a visible download from the corresponding HTML page. Downloadable assets, not indexable pages: they stay out of the sitemap and are served noindex, so cite the HTML page as the source.",
     "",
     "## Calendar feeds (iCalendar)",
     "",
@@ -5142,7 +5147,7 @@ const aiManifest =
     `   ${SITE_URL}${calendarPdfPath(amCalYear)}  — full-year calendar (pattern: /pdf/kalenteri-{year}.pdf)`,
     `   ${SITE_URL}${weekPdfPath(amWeek, amWeekYear)}  — current week (pattern: /pdf/viikko-{week}-{year}.pdf)`,
     `   ${SITE_URL}${monthPdfPath(amMonth, amCalYear)}  — current month (pattern: /pdf/kuukausi-{month}-{year}.pdf)`,
-    `   One PDF per year/week/month, ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}.`,
+    `   One PDF per year/week/month, ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Crawlable noindex downloads; cite the matching HTML page.`,
     "",
     "## Weekly pages",
     "",

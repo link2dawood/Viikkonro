@@ -129,6 +129,51 @@
       "source": "/sv/:path*",
       "destination": "/",
       "statusCode": 301
+    },
+    {
+      "source": "/kaupunki",
+      "destination": "/auringonlasku",
+      "statusCode": 301
+    },
+    {
+      "source": "/kaupunki/:slug",
+      "destination": "/auringonlasku-:slug",
+      "statusCode": 301
+    },
+    {
+      "source": "/pyhat-:year(1\\d{3}|20[01]\\d)/:slug",
+      "destination": "/pyhat-2020/:slug",
+      "statusCode": 301
+    },
+    {
+      "source": "/viikko-:week(\\d{1,2})-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/viikko-:week-2020",
+      "statusCode": 301
+    },
+    {
+      "source": "/kuukausi-:month(\\d{1,2})-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/kuukausi-:month-2020",
+      "statusCode": 301
+    },
+    {
+      "source": "/q:quarter([1-4])-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/q:quarter-2020",
+      "statusCode": 301
+    },
+    {
+      "source": "/kalenteri-:year(1\\d{3}|20[01]\\d)-alkuvuosi",
+      "destination": "/kalenteri-2020-alkuvuosi",
+      "statusCode": 301
+    },
+    {
+      "source": "/kalenteri-:year(1\\d{3}|20[01]\\d)-loppuvuosi",
+      "destination": "/kalenteri-2020-loppuvuosi",
+      "statusCode": 301
+    },
+    {
+      "source": "/:family(tulostettava-kalenteri|elakkeen-maksupaivat|kelan-maksupaivat|tyopaivat-maaliskuu|tyopaivat-marraskuu|tyopaivat-helmikuu|tyopaivat-tammikuu|tyopaivat-huhtikuu|tyopaivat-heinakuu|tyopaivat-joulukuu|tyopaivat-toukokuu|tyopaivat-lokakuu|tyopaivat-syyskuu|tyopaivat-kesakuu|tyopaivat-elokuu|palkkapaivat|liputuspaivat|kuun-vaiheet|ystavanpaiva|pyhapaivat|aitienpaiva|laskiainen|isanpaiva|tyopaivat|kalenteri|kesaaika|adventti|tulosta|vuosi)-:year(1\\d{3}|20[01]\\d)",
+      "destination": "/:family-2020",
+      "statusCode": 301
     }
   ],
   "headers": [
@@ -203,33 +248,6 @@
       ]
     },
     {
-      "source": "/pdf/kalenteri-:year(\\d{4}).pdf",
-      "headers": [
-        {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/kalenteri-:year>; rel=\"canonical\""
-        }
-      ]
-    },
-    {
-      "source": "/pdf/viikko-:week(\\d{1,2})-:year(\\d{4}).pdf",
-      "headers": [
-        {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/viikko-:week-:year>; rel=\"canonical\""
-        }
-      ]
-    },
-    {
-      "source": "/pdf/kuukausi-:month(\\d{1,2})-:year(\\d{4}).pdf",
-      "headers": [
-        {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/kuukausi-:month-:year>; rel=\"canonical\""
-        }
-      ]
-    },
-    {
       "source": "/((?!widget/).*)",
       "headers": [
         {
@@ -258,6 +276,10 @@
     {
       "source": "/ics/(.*)",
       "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        },
         {
           "key": "Content-Type",
           "value": "text/calendar; charset=utf-8"
@@ -334,6 +356,15 @@
     },
     {
       "source": "/data/(.*)/index.json",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
+    },
+    {
+      "source": "/data/index.json",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -424,6 +455,10 @@
           "value": "application/pdf"
         },
         {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        },
+        {
           "key": "Cache-Control",
           "value": "public, max-age=3600"
         },
@@ -468,11 +503,11 @@
       ]
     },
     {
-      "source": "/pohjat/:slug/:year.pdf",
+      "source": "/pohjat/(.*)",
       "headers": [
         {
-          "key": "Link",
-          "value": "<https://viikkonro.fi/kalenteripohjat/:slug>; rel=\"canonical\""
+          "key": "X-Robots-Tag",
+          "value": "noindex"
         }
       ]
     },

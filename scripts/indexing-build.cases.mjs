@@ -89,7 +89,14 @@ test("week pages only index the current and next year while preserving the wider
     const indexable = pageYear === year || pageYear === year + 1;
     assert.match(robotsFor(html), new RegExp(`^${indexable ? "index" : "noindex"}, follow`), pathname);
     assert.equal(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), indexable, pathname);
+    // PDFs are generated for the whole horizon regardless of the HTML page's
+    // index status. They are noindex downloads (constitution rule 5), so an
+    // out-of-window year keeps its file instead of losing the download button.
     assert.ok(fs.existsSync(new URL(`../dist/pdf/viikko-42-${pageYear}.pdf`, import.meta.url)), "PDF still downloadable");
+    assert.ok(
+      read(`dist${pathname}.html`).includes(`href="/pdf/viikko-42-${pageYear}.pdf"`),
+      `${pathname} keeps its visible PDF download link`,
+    );
     const month = `/kuukausi-10-${pageYear}`;
     assert.match(robotsFor(read(`dist${month}.html`)), /^index, follow/);
     assert.ok(sitemap.includes(`https://viikkonro.fi${month}</loc>`), "non-week window is unchanged");

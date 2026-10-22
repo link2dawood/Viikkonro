@@ -130,7 +130,12 @@ test("the inline head script matches its Content-Security-Policy hash", () => {
   // script without refreshing the hash would silently break the policy.
   const scripts = [...read("dist/index.html").matchAll(/<script>([\s\S]*?)<\/script>/g)];
   assert.equal(scripts.length, 1, "expected exactly one inline script in the generated page");
-  const digest = `sha256-${createHash("sha256").update(scripts[0][1], "utf8").digest("base64")}`;
+  // Hash the LF form, which is what the browser receives: git stores this file
+  // with LF and Vercel builds on Linux. A Windows checkout materializes CRLF,
+  // and hashing that raw gives a digest that is correct nowhere -- it passes
+  // locally and fails CI, which has already cost one bad vercel.json edit.
+  const inlineScript = scripts[0][1].replace(/\r\n/g, "\n");
+  const digest = `sha256-${createHash("sha256").update(inlineScript, "utf8").digest("base64")}`;
   const policy = JSON.parse(read("vercel.json")).headers
     .find((rule) => rule.source === "/(.*)").headers
     .find((header) => header.key.startsWith("Content-Security-Policy")).value;
@@ -299,7 +304,16 @@ test("PD-12 publishes substantive template pages and all 54 downloadable artifac
   }
   assert.equal(assets, 54); assert.equal(titles.size, 6); assert.equal(descriptions.size, 6);
   const headers = JSON.parse(read("vercel.json")).headers;
-  assert.ok(headers.some((rule) => rule.source === "/pohjat/:slug/:year.pdf" && rule.headers.some((header) => header.key === "Link" && header.value === '<https://viikkonro.fi/kalenteripohjat/:slug>; rel="canonical"')));
+  // Template exports are downloadable assets, so they follow the same policy
+  // as /pdf/ and /ics/: one bare noindex, no canonical. The landing page
+  // /kalenteripohjat/:slug remains the indexable, citable surface.
+  const templateRule = headers.find((rule) => rule.source === "/pohjat/(.*)");
+  assert.ok(templateRule, "/pohjat/(.*) header rule is missing");
+  assert.deepEqual(templateRule.headers, [{ key: "X-Robots-Tag", value: "noindex" }]);
+  assert.ok(
+    !headers.some((rule) => rule.source.startsWith("/pohjat/") && JSON.stringify(rule.headers).includes("canonical")),
+    "no /pohjat/ rule may declare a canonical alongside noindex",
+  );
   for (const file of ["llms.txt", "ai.txt", "llms-full.txt", "llms-api.txt", "llms-glossary.txt", "ai-manifest.txt"]) assert.ok(read(`dist/${file}`).includes(TEMPLATE_PATH), file);
   const graph = JSON.parse(read("dist/data/knowledge-graph.json"));
   assert.ok(graph.entityMap.some((entity) => entity.entity === "Planning template"));
@@ -399,7 +413,7 @@ test("PD-05 preserves sourced 2028 school-holiday limits in generated HTML", () 
   assert.doesNotMatch(html, /Tiedot perustuvat aiempien vuosien käytäntöihin/);
 });
 
-test("PD-06 keeps every generated PDF downloadable while canonicalizing its family", () => {
+test("PD-06 keeps every generated PDF downloadable as a noindex asset", () => {
   const pdfDirectory = path.join(dist, "pdf");
   const pdfs = fs.readdirSync(pdfDirectory).filter((name) => name.endsWith(".pdf"));
   assert.ok(pdfs.length >= 1000, `expected at least 1000 generated PDFs, got ${pdfs.length}`);
@@ -411,15 +425,24 @@ test("PD-06 keeps every generated PDF downloadable while canonicalizing its fami
     assert.ok(pdfs.includes(representative), `missing ${representative}`);
   }
 
+  // PDFs are generated across the full 2020..currentYear+9 horizon while
+  // isIndexable() keeps week pages to currentYear..currentYear+1 and other
+  // dated pages to currentYear-2..currentYear+4, so a per-family canonical
+  // pointed at a noindex page for most generated files. A bare noindex states
+  // the same intent for every PDF with no rolling-year logic to drift.
+  // See the 2026-10-22 amendment in docs/SEO_CONSTITUTION.md.
   const config = JSON.parse(read("vercel.json"));
   const canonicalRules = config.headers
-    .filter((rule) => rule.source.startsWith("/pdf/") && rule.headers.some((header) => header.key === "Link"))
-    .map((rule) => [rule.source, rule.headers.find((header) => header.key === "Link").value]);
-  assert.deepEqual(canonicalRules, [
-    ["/pdf/kalenteri-:year(\\d{4}).pdf", '<https://viikkonro.fi/kalenteri-:year>; rel="canonical"'],
-    ["/pdf/viikko-:week(\\d{1,2})-:year(\\d{4}).pdf", '<https://viikkonro.fi/viikko-:week-:year>; rel="canonical"'],
-    ["/pdf/kuukausi-:month(\\d{1,2})-:year(\\d{4}).pdf", '<https://viikkonro.fi/kuukausi-:month-:year>; rel="canonical"'],
-  ]);
+    .filter((rule) => rule.source.startsWith("/pdf/"))
+    .filter((rule) => rule.headers.some((header) => header.key === "Link" && header.value.includes('rel="canonical"')));
+  assert.deepEqual(canonicalRules, [], "no PDF family may canonicalize to an HTML page");
+
+  const pdfRule = config.headers.find((rule) => rule.source === "/pdf/(.*)");
+  assert.deepEqual(
+    pdfRule.headers.find((header) => header.key === "X-Robots-Tag"),
+    { key: "X-Robots-Tag", value: "noindex" },
+    "every PDF response is a bare-noindex download",
+  );
 });
 
 test("PD-07 asserts English surface is fully removed (2026-10-15)", () => {
