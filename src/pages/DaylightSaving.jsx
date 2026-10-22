@@ -7,6 +7,7 @@ import {
   PRERENDER_MAX_YEAR as YEAR_MAX,
 } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import AdSlot from "../components/AdSlot";
 import QuickFacts from "../components/QuickFacts";
 import { canonicalFor } from "../data/seo";
 import { dstChanges, dstFaqs, dstMeta } from "../data/dstPages";
@@ -81,6 +82,8 @@ const DaylightSaving = ({ year }) => {
         (2000/84/EY). Jos kellojen siirrosta luovutaan, tulevien vuosien
         päivämäärät muuttuvat.
       </p>
+
+      <AdSlot placement="dst-after-facts" />
 
       <section className="prose">
         <h2>Usein kysytyt kysymykset</h2>

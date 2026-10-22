@@ -8,6 +8,7 @@ import {
   weeksInIsoYear,
 } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import AdSlot from "../components/AdSlot";
 import {
   canonicalFor,
   CONTENT_UPDATED_FI,
@@ -109,6 +110,8 @@ const WeeksInYear = () => {
             ? ` Seuraava 53 viikon vuosi on ${nextLongYear}.`
             : ""}
         </p>
+
+        <AdSlot placement="weeks-in-year-after-answer" />
 
         <h2>Miksi ISO-viikkovuosi voi ylittää vuodenvaihteen?</h2>
         <p>

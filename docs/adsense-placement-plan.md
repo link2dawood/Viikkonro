@@ -2,7 +2,8 @@
 
 Publisher: `ca-pub-5553975522423673`.
 
-Status: the account wiring ships, ad units do not. What is in the repository:
+Status: the account wiring ships, and one manual desktop unit is live as of
+2026-10-23. What is in the repository:
 
 | Piece | Location | Note |
 | --- | --- | --- |
@@ -11,13 +12,30 @@ Status: the account wiring ships, ad units do not. What is in the repository:
 | Seller declaration | `public/ads.txt` | One Google DIRECT line. `scripts/check-ad-crawlers.js` then requires the live file to match it byte for byte. |
 | Crawler access | `public/robots.txt` | `Mediapartners-Google`, `Google-Display-Ads-Bot` and `AdsBot-Google` allowed explicitly. |
 | Origin allowances | `vercel.json` | AdSense origins in `script-src`, `connect-src` and `frame-src` of the reported policy. |
-| Disclosure | `src/pages/PrivacyPolicy.jsx` | Third-party advertising, ad cookies and opt-out links. |
+| Disclosure | `src/pages/PrivacyPolicy.jsx` | Third-party advertising, ad cookies, Google CMP and opt-out links. Reviewed 2026-10-18. |
+| Publisher terms | `src/pages/TermsAndConditions.jsx` | Section 7: ads are third-party content, ad blocking allowed, invalid-traffic prohibition. |
 | Release gate | PD-19 in `scripts/predeploy-build.cases.mjs` | Loader on content pages only, ads.txt, headers, print exclusion. |
+| Ad unit mount | `src/components/AdSlot.jsx` | Client-only `<ins>`, desktop-only, collapses when unfilled. |
 
-No `<ins class="adsbygoogle">` element exists anywhere, so nothing is requested
-until ad serving is switched on inside the AdSense account. That is deliberate:
-units and Auto ads are account settings, so turning ads on or off needs no
-deployment.
+No `<ins class="adsbygoogle">` element reaches prerendered HTML. PD-19 asserts
+that for every generated page, and it still holds: `AdSlot` mounts the unit
+after the first client render, so the static files stay ad-free and the request
+is only made once a real viewport has been measured.
+
+One manual unit is live as of 2026-10-23, following step 4 below:
+
+| Unit | Slot | Format | Where it runs |
+| --- | --- | --- | --- |
+| Leaderboard | `8867840228` | Fixed 728x90 display | Viewports >= 768px only |
+
+The unit is fixed, not responsive, so it is not rendered below 768px rather
+than rendered and hidden: AdSense counts an impression for a hidden unit. That
+means phones currently see no ad. Adding a responsive unit for mobile is the
+single biggest remaining revenue item, since this audience is mostly mobile.
+
+The reserved height matches the 90px creative exactly, so the only layout
+movement is the insertion itself. This replaces the 120px desktop reservation
+below for this unit, which existed for responsive banners of unknown height.
 
 Three places stay ad free by construction, and PD-19 fails if that changes:
 the private app (`tiimin-lomat/suunnittelu.html`), the embeddable widget
@@ -69,8 +87,25 @@ never be used as the ad-serving switch.
 | --- | --- | --- | --- | --- |
 | `year-summary-after-facts` | `/vuosi-{year}` | After the complete year summary, before navigation and week cards | Responsive banner | Keeps the direct answer and facts uninterrupted. |
 | `working-days-after-result` | `/tyopaivat-{year}` | After calculated totals, before the monthly breakdown | In-content rectangle | Never separates inputs from results and remains outside the table. |
+<!-- The `format` prop on AdSlot now only changes the layout-preview box.
+     Every placement shares the one fixed 728x90 unit, so this slot renders a
+     leaderboard, not a rectangle, until a second unit exists in the account. -->
 | `print-list-before-preview` | `/tulosta-{year}` | After print/download controls, before the printable week table | Responsive banner | Leaves the explanation and actions together and never enters printed output. |
 | `calendar-before-preview` | `/kalenteri-{year}[-alkuvuosi|-loppuvuosi]` | After view controls, before the calendar grid | Responsive banner | Places monetization outside the calendar itself and excludes the print-only route. |
+
+## High-traffic placements, added 2026-10-23
+
+The four slots above sit on `/vuosi-`, `/tyopaivat-`, `/tulosta-` and
+`/kalenteri-`. Search Console shows the demand is elsewhere, so a unit in those
+four alone would earn almost no impressions. These placements follow the
+traffic, and obey the same guardrails.
+
+| Placement ID | Route family | Position | Rationale |
+| --- | --- | --- | --- |
+| `week-after-facts` | `/viikko-{week}-{year}` | After the QuickFacts table, before the holiday note and the day table | The largest page family on the site. Keeps the lead answer and the facts table uninterrupted, and stays out of the day table. |
+| `home-after-search` | `/` | After the week search tool, before the month and year browse blocks | Below both the live answer and the primary tool, so it never sits between an input and its result. |
+| `weeks-in-year-after-answer` | `/kuinka-monta-viikkoa-vuodessa` | After the computed current-year answer, before the ISO explanation | Highest-impression single page. The answer is served first. |
+| `dst-after-facts` | `/kesaaika-{year}` | After the change cards, QuickFacts and the EU directive note, before the FAQ | Strongly seasonal; the directive caveat stays attached to the facts. |
 
 ## Guardrails for post-approval integration
 
