@@ -98,6 +98,13 @@ never be used as the ad-serving switch.
 | `print-list-before-preview` | `/tulosta-{year}` | After print/download controls, before the printable week table | Responsive banner | Leaves the explanation and actions together and never enters printed output. |
 | `calendar-before-preview` | `/kalenteri-{year}[-alkuvuosi|-loppuvuosi]` | After view controls, before the calendar grid | Responsive banner | Places monetization outside the calendar itself and excludes the print-only route. |
 
+The homepage carries three slots as of 2026-10-24, the only page that does.
+It is the highest-traffic page and has enough distinct blocks to separate
+them: a substantial content section sits between each pair, and none is above
+the hero. Every other page family keeps exactly one slot. Raising density
+further is a revenue-per-page question that should be answered from the
+AdSense report, not assumed.
+
 ## High-traffic placements, added 2026-10-23
 
 The four slots above sit on `/vuosi-`, `/tyopaivat-`, `/tulosta-` and
@@ -108,7 +115,9 @@ traffic, and obey the same guardrails.
 | Placement ID | Route family | Position | Rationale |
 | --- | --- | --- | --- |
 | `week-after-facts` | `/viikko-{week}-{year}` | After the QuickFacts table, before the holiday note and the day table | The largest page family on the site. Keeps the lead answer and the facts table uninterrupted, and stays out of the day table. |
+| `home-after-answer` | `/` | After the live week answer and the parity answer, before the week search tool | The highest-viewability slot on the site. It sits after the hero, never above or inside it: the week number is what the page exists to answer and what it ranks for. |
 | `home-after-search` | `/` | After the week search tool, before the month and year browse blocks | Below both the live answer and the primary tool, so it never sits between an input and its result. |
+| `home-after-browse` | `/` | After the month and year week lists, before the explanatory sections | Keeps the third slot below two substantial content blocks rather than stacking it near the others. |
 | `weeks-in-year-after-answer` | `/kuinka-monta-viikkoa-vuodessa` | After the computed current-year answer, before the ISO explanation | Highest-impression single page. The answer is served first. |
 | `dst-after-facts` | `/kesaaika-{year}` | After the change cards, QuickFacts and the EU directive note, before the FAQ | Strongly seasonal; the directive caveat stays attached to the facts. |
 
