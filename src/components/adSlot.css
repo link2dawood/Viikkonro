@@ -36,14 +36,26 @@
   height: 1px;
 }
 
-/* Live 728x90 unit. The height matches the creative exactly, so the only
-   layout movement is the insertion itself; nothing reflows afterwards. */
+/* Live responsive unit. The creative height varies, so these reserve the
+   CLS budget from docs/adsense-placement-plan.md: 120px for desktop banners
+   and 280px for mobile and rectangle placements. The width stays unconstrained
+   for the banner format so data-full-width-responsive can use the full
+   viewport width on phones. */
 .ad-unit {
-  display: flex;
-  justify-content: center;
   width: 100%;
-  min-height: 90px;
+  min-height: 120px;
   margin: 28px 0;
+}
+.ad-unit--rectangle {
+  width: min(100%, 360px);
+  min-height: 280px;
+  margin-inline: auto;
+}
+@media (max-width: 600px) {
+  .ad-unit {
+    min-height: 280px;
+    margin: 24px 0;
+  }
 }
 
 /* A slot must collapse rather than leave an empty box when AdSense returns no

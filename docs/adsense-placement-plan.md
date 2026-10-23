@@ -22,20 +22,28 @@ that for every generated page, and it still holds: `AdSlot` mounts the unit
 after the first client render, so the static files stay ad-free and the request
 is only made once a real viewport has been measured.
 
-One manual unit is live as of 2026-10-23, following step 4 below:
+One manual unit is live, following step 4 below:
 
 | Unit | Slot | Format | Where it runs |
 | --- | --- | --- | --- |
-| Leaderboard | `8867840228` | Fixed 728x90 display | Viewports >= 768px only |
+| In-content display | `8867840228` | Responsive display | Every viewport |
 
-The unit is fixed, not responsive, so it is not rendered below 768px rather
-than rendered and hidden: AdSense counts an impression for a hidden unit. That
-means phones currently see no ad. Adding a responsive unit for mobile is the
-single biggest remaining revenue item, since this audience is mostly mobile.
+It went live on 2026-10-23 as a fixed 728x90 leaderboard, which could only be
+rendered at 768px and wider: a fixed unit below its own width had to be left
+out entirely rather than rendered and hidden, because AdSense counts an
+impression for a hidden unit. That left phones, most of this audience, with no
+ad at all.
 
-The reserved height matches the 90px creative exactly, so the only layout
-movement is the insertion itself. This replaces the 120px desktop reservation
-below for this unit, which existed for responsive banners of unknown height.
+The same unit was reconfigured in the AdSense account as responsive on
+2026-10-24, keeping its slot ID. The markup now carries no width or height and
+uses `data-ad-format="auto"` with `data-full-width-responsive="true"`, so
+AdSense sizes the creative to the container and may use the full viewport width
+on phones. The viewport gate is gone, and one unit serves all eight placements.
+
+Because a responsive creative varies in height, the reserved geometry is the
+120px desktop and 280px mobile budget in the guardrails below rather than an
+exact creative height. `format="rectangle"` constrains the container width
+again, so it is no longer preview-only.
 
 Three places stay ad free by construction, and PD-19 fails if that changes:
 the private app (`tiimin-lomat/suunnittelu.html`), the embeddable widget
@@ -87,9 +95,6 @@ never be used as the ad-serving switch.
 | --- | --- | --- | --- | --- |
 | `year-summary-after-facts` | `/vuosi-{year}` | After the complete year summary, before navigation and week cards | Responsive banner | Keeps the direct answer and facts uninterrupted. |
 | `working-days-after-result` | `/tyopaivat-{year}` | After calculated totals, before the monthly breakdown | In-content rectangle | Never separates inputs from results and remains outside the table. |
-<!-- The `format` prop on AdSlot now only changes the layout-preview box.
-     Every placement shares the one fixed 728x90 unit, so this slot renders a
-     leaderboard, not a rectangle, until a second unit exists in the account. -->
 | `print-list-before-preview` | `/tulosta-{year}` | After print/download controls, before the printable week table | Responsive banner | Leaves the explanation and actions together and never enters printed output. |
 | `calendar-before-preview` | `/kalenteri-{year}[-alkuvuosi|-loppuvuosi]` | After view controls, before the calendar grid | Responsive banner | Places monetization outside the calendar itself and excludes the print-only route. |
 
