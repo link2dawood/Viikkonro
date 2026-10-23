@@ -158,7 +158,11 @@ describe("PDF renderer: robustness", () => {
     const r = await render({ layout: { id }, events });
     expect(latin1(r.bytes.subarray(0, 5))).toBe("%PDF-");
     expect(r.pages).toBeGreaterThanOrEqual({ "year-glance": 4, "month-page": 12, "week-list": 2 }[id]);
-  });
+    // Renders 300 overlapping events to a real PDF three times over, which
+    // takes ~1.4s alone but timed out at 5.1s under parallel load. Same
+    // reasoning as pageTopics: the work is deliberate, so the limit covers
+    // real rendering cost rather than a regression.
+  }, 20000);
   it("handles overlapping closures, leave, season, school holidays and events on the same days", async () => {
     const input = {
       include: { schoolHolidays: { city: "Helsinki" }, flagDays: true, paydays: { day: 15 } },
