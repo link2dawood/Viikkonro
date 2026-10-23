@@ -35,7 +35,8 @@ const PrivacyPolicy = () => {
             <strong>Paikallinen tallennus:</strong> Yhteydenottolomakkeen
             väärinkäytön estävä lähetysrajoitus tallentaa selaimen{" "}
             <code>localStorage</code>-muistiin vain lähetysaikoja. Laskureiden
-            käyttämiseen ei tarvita mainos- tai analytiikkaevästeitä.
+            käyttämiseen ei tarvita mainos- tai analytiikkaevästeitä, ja
+            mainosevästeiden hylkääminen ei rajoita työkalujen käyttöä.
             Evästevalintasi tallennetaan selaimen <code>localStorage</code>
             -muistiin avaimella <code>viikkonro-consent</code>, jotta sitä ei
             kysytä jokaisella sivulla. Valinta ohjaa Claritylle lähetettäviä
@@ -113,7 +114,7 @@ const PrivacyPolicy = () => {
           <li>Ostoksen toteuttaminen, latausoikeus, käyttäjätilin tarjoaminen ja asiakaspalvelu: sopimuksen täyttäminen tai pyynnöstäsi tehtävät sopimusta edeltävät toimet.</li>
           <li>Tarpeelliset laskutus- ja maksuselvitystiedot: sopimus ja sovellettavat lakisääteiset velvoitteet.</li>
           <li>Palvelun suojaaminen, väärinkäytön ehkäisy ja teknisten ongelmien selvittäminen: oikeutettu etu turvallisen palvelun ylläpitämiseen.</li>
-          <li>Valinnaiset analytiikka- ja mainosevästeet, muistutusten tilaus ja erilliset markkinointiviestit: kyseiseen tarkoitukseen annettu suostumus. Suostumukset ovat toisistaan erillisiä.</li>
+          <li>Valinnaiset analytiikka- ja mainosevästeet, muistutusten tilaus ja erilliset markkinointiviestit: kyseiseen tarkoitukseen annettu suostumus. Suostumukset ovat toisistaan erillisiä. Mainonnan suostumuksen kerää Googlen suostumuksenhallintapalvelu, analytiikan suostumuksen sivuston oma evästebanneri.</li>
         </ul><p>Clarityn ennen evästevalintaa tapahtuva rajoitettu, evästeetön käsittely kuvataan jäljempänä. Palvelun kehittämisessä ja koottujen käyttötietojen arvioinnissa huomioidaan oikeutettu etu ja käyttäjän oikeus vastustaa käsittelyä. Pelkkä evästeiden hylkääminen ei tarkoita kaikkien teknisten verkkopyyntöjen estämistä.</p></div>
         <h2>Android-sovelluksessa käsiteltävät tiedot</h2>
         <div className="prose">
@@ -167,36 +168,61 @@ const PrivacyPolicy = () => {
             <li>Sen ymmärtäminen ja analysointi, miten käytät verkkosivustoamme.</li>
             <li>Teknisten vikojen ja petollisen toiminnan seuranta ja estäminen.</li>
             <li>Android-sovelluksen kaatumisten diagnosointi ja korjaaminen.</li>
-            <li>Mainosten näyttäminen käyttäjän suostumusvalintojen mukaisesti.</li>
+            <li>Mainosten näyttäminen ja mittaaminen käyttäjän suostumusvalintojen mukaisesti maksuttoman palvelun rahoittamiseksi.</li>
           </ul>
         </div>
 
         <h2>Google AdSense, Google Mobile Ads ja mainostunnisteet</h2>
         <div className="prose">
           <p>
-            Sivustolla voidaan näyttää Google AdSense -mainoksia. Google on
-            kolmannen osapuolen mainostoimittaja, joka voi käyttäjän valinnan
-            mukaisesti käyttää evästeitä tai muuta paikallista tallennusta
-            mainosten näyttämiseen, rajoittamiseen, mittaamiseen ja
-            personointiin. Google käytti mainosevästeestään aiemmin nimeä
+            Sivuston maksuttomilla sisältösivuilla näytetään Google AdSense
+            -mainoksia. Mainostulo rahoittaa maksuttomien kalenterien ja
+            laskurien ylläpitoa. Google toimii kolmannen osapuolen
+            mainostoimittajana ja voi käyttäjän valinnan mukaisesti käyttää
+            evästeitä tai muuta selaimen paikallista tallennusta mainosten
+            näyttämiseen, rajoittamiseen, mittaamiseen ja personointiin.
+            Google käytti mainosevästeestään aiemmin nimeä
             <strong> DART-eväste</strong>; mainosevästeiden avulla mainoksia
             voidaan näyttää tällä ja muilla verkkosivustoilla tehtyjen
             vierailujen perusteella.
+          </p>
+          <p>
+            Mainoksia ei ladata kirjautumisen takana olevaan yksityiseen
+            suunnittelutilaan, upotettavaan kalenterivimpaimeen eikä
+            404-sivulle. Mainospaikat ovat sisällön yhteydessä eivätkä
+            laskurien syöttökentissä, laskennan tuloksissa, kalenteriruuduissa
+            tai tulostettavassa aineistossa. Mainosten estoa käyttävä selain
+            voi käyttää maksuttomia työkaluja tavalliseen tapaan.
+          </p>
+          <p>
+            Mainonnan suostumuksen kerää Googlen sertifioitu
+            suostumuksenhallintapalvelu (CMP), joka näytetään AdSensen
+            mainosskriptin kautta. Valinta pyydetään EU:ssa, ETA-alueella,
+            Isossa-Britanniassa ja Sveitsissä sekä muilla alueilla, joilla
+            Google tai sovellettava laki sitä edellyttää. Valinnaiset
+            mainosevästeet ja personoitu mainonta pidetään pois käytöstä,
+            kunnes kävijä tekee valinnan. Valinnan voi myöhemmin muuttaa tai
+            perua samasta Googlen suostumusviestistä sekä Googlen
+            mainosasetuksista. Sivuston oma evästebanneri ja alaosan
+            Evästeasetukset-linkki ohjaavat vain käyttöanalytiikkaa, eivät
+            mainontaa. Mainosvalinnan hylkääminen ei estä kalenterien tai
+            laskurien käyttöä.
+          </p>
+          <p>
+            Mainosten näyttämiseen ja mittaamiseen voidaan käsitellä
+            IP-osoitetta, selaimen ja laitteen teknisiä tietoja, mainosten
+            näyttöjä ja napsautuksia sekä suostumussignaaleja. Googlen ja sen
+            mainoskumppanien säilytysajat ja käsittelyperusteet määräytyvät
+            niiden omien tietosuojakäytäntöjen sekä suostumusviestissä
+            luetellun tarjoajaluettelon mukaan. Viikkonro ei lähetä
+            mainospalveluille yhteydenottolomakkeen sisältöä, ostotunnuksia,
+            laskutustietoja eikä yksityisen suunnittelutilan tietoja.
           </p>
           <p>
             Android-sovelluksessa mainonnan toteuttaa Google Mobile Ads.
             Sovellus pyytää Google UMP:n kautta suostumusvalinnan niillä alueilla,
             joilla Google tai sovellettava laki sitä edellyttää. Sovelluksen
             ydintoiminnot ovat käytettävissä valinnasta riippumatta.
-          </p>
-          <p>
-            EU:ssa, ETA-alueella, Isossa-Britanniassa ja Sveitsissä
-            valinnaiset mainosevästeet ja personoitu mainonta pidetään pois
-            käytöstä, kunnes kävijä tekee valinnan Google-sertifioidussa
-            suostumuksenhallintapalvelussa (CMP). Valinnan hylkääminen ei estä
-            kalenterien tai laskureiden käyttöä. Kun mainospalvelut ovat
-            käytössä, suostumuksen voi myöhemmin perua tai muuttaa bannerin
-            evästeasetuksista.
           </p>
           <p>
             Lisätietoja:{" "}
@@ -206,6 +232,10 @@ const PrivacyPolicy = () => {
             ,{" "}
             <a href="https://policies.google.com/technologies/partner-sites" rel="external noopener">
               miten Google käyttää kumppanisivustoilta saatuja tietoja
+            </a>
+            ,{" "}
+            <a href="https://support.google.com/admanager/answer/9012903" rel="external noopener">
+              Googlen mainosteknologian tarjoajat
             </a>{" "}
             ja{" "}
             <a href="https://myadcenter.google.com/" rel="external noopener">
@@ -261,10 +291,11 @@ const PrivacyPolicy = () => {
           <p>
             Palvelun tekniseen toimittamiseen osallistuvat Vercel ja Cloudflare.
             Yhteydenottoviestit käsittelee Web3Forms ja käyttöanalytiikkaa
-            Microsoft Clarity. Jos AdSense-mainonta on käytössä ja siihen on
-            annettu tarvittava suostumus, Google ja CMP:ssä luetellut
-            mainosteknologian tarjoajat voivat käsitellä tietoja omien
-            tietosuojakäytäntöjensä mukaisesti. Emme myy henkilötietoja.
+            Microsoft Clarity. Maksuttomien sisältösivujen mainonnan toimittaa Google AdSense,
+            ja Google sekä suostumusviestissä luetellut mainosteknologian
+            tarjoajat voivat käsitellä mainonnan tietoja omien
+            tietosuojakäytäntöjensä ja kävijän antaman valinnan mukaisesti.
+            Emme myy henkilötietoja.
           </p>
           <p>Supabase käsittelee kirjautumis- ja yksityisiä organisaatiotietoja, Polar ostoksia ja maksamista, Mailjet tilaus- ja tunnistautumisviestejä ja Brevo tilattuja sähköpostimuistutuksia. Ostajan laskutus- tai kalenteritietoja ei myydä markkinointikäyttöön. Laskun kopion saa Viikkonron asiakaspalvelu asiakassuhteen hoitamista varten.</p>
           <p>Palveluntarjoajat voivat käsitellä tietoja EU:n tai ETA:n ulkopuolella. Siirron oikeusperusta ja suojatoimet määräytyvät käytettävän palvelun sopimusten ja sovellettavan tietosuojalainsäädännön mukaan, esimerkiksi riittävyyspäätöksen tai vakiosopimuslausekkeiden perusteella. Tämä seloste ei lupaa, että kaikki tietoja käsittelevät palvelut sijaitsevat Suomessa tai EU:ssa. Voit pyytää lisätietoja tietosuojayhteydestä.</p>
