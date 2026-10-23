@@ -11,16 +11,35 @@ const today = new Date("2026-10-11T12:00:00Z");
 describe("visible semantic topics use existing tools and calendar rules", () => {
   it("covers all registered public routes with useful, unique, public guide links", () => {
     const paths = new Set(sitemapEntries(2026).map(entry=>entry.path));
+    // Collected into one assertion rather than ~15 expect() calls per route.
+    // With 1,900+ sitemap paths that was ~29,000 assertions, and the per-call
+    // overhead, not pageTopic() itself, is what pushed this test against the
+    // 5s timeout under parallel load. The checks are unchanged, and a failure
+    // now names every offending route instead of stopping at the first.
+    const problems = [];
     for (const path of paths) {
-      const context=pageTopic(path,today);
-      expect(context,path).not.toBeNull();
-      expect(Object.hasOwn(PAGE_TOPICS,context.id),path).toBe(true);
-      expect(context.text.length,path).toBeGreaterThan(60);
-      expect(context.links.length,path).toBeGreaterThan(0);
-      expect(new Set(context.links.map(l=>l.to)).size,path).toBe(context.links.length);
-      for (const l of context.links) { expect(paths.has(l.to),l.to).toBe(true);expect(l.to,path).not.toBe(path);expect(l.purpose.length).toBeGreaterThan(10); }
+      const context = pageTopic(path, today);
+      if (!context) { problems.push(`${path}: no topic context`); continue; }
+      if (!Object.hasOwn(PAGE_TOPICS, context.id)) problems.push(`${path}: unknown topic id ${context.id}`);
+      if (context.text.length <= 60) problems.push(`${path}: topic text too short (${context.text.length})`);
+      if (context.links.length === 0) problems.push(`${path}: no guide links`);
+      if (new Set(context.links.map(l=>l.to)).size !== context.links.length) problems.push(`${path}: duplicate guide links`);
+      for (const l of context.links) {
+        if (!paths.has(l.to)) problems.push(`${path}: links to ${l.to}, which is not a sitemap path`);
+        if (l.to === path) problems.push(`${path}: links to itself`);
+        if (l.purpose.length <= 10) problems.push(`${path}: link ${l.to} has no useful purpose text`);
+      }
     }
-  });
+    expect(problems.slice(0,10), `${problems.length} routes have unusable guide links`).toEqual([]);
+    // Walks every sitemap route on purpose, so its runtime scales with the
+    // site: 1,919 routes at ~0.25ms per pageTopic() call, measured, plus the
+    // sitemap build. Vitest's 5s default is a generic value, not a budget for
+    // that, and under parallel load this test was timing out at 5.1-6.1s while
+    // taking well under a second alone. The limit below is headroom for real
+    // iteration cost as the horizon grows, not cover for a slow regression:
+    // if this test ever approaches it, profile pageTopic() rather than raising
+    // the number again.
+  }, 20000);
   it.each([null,123,"/missing","/viikko-999999-2027","/kuukausi-13-2027","/viikko-1-9999","/api/billing/status","/tiimin-lomat/suunnittelu","/widget/calendar/v1","/yrityskalenteri?company=private"])("excludes invalid, private and nonpage input %s",path => expect(pageTopic(path,today)).toBeNull());
   it("rejects invalid clocks", () => { expect(pageTopic("/",new Date(NaN))).toBeNull();expect(pageTopic("/",null)).toBeNull(); });
   it.each([2026,2027,2028])("keeps contextual links in the selected year %i",year => {
