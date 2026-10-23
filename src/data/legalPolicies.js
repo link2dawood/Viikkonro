@@ -1,5 +1,9 @@
 // Refund policy selected and consumer-rights guidance checked 2026-10-12.
-export const LEGAL_UPDATED = "2026-10-12";
+// Advertising disclosure reviewed 2026-10-18, ahead of AdSense serving going
+// live on 2026-10-23:
+// Google certified CMP collects advertising consent, the first-party banner
+// covers analytics only. See docs/adsense-placement-plan.md.
+export const LEGAL_UPDATED = "2026-10-18";
 export const REFUND_PATH = "/palautusehdot";
 export const LEGAL_PATHS = ["/tietoa-meista","/tietosuoja","/kayttoehdot",REFUND_PATH];
 // Confirmed public contact details. A postal address was explicitly declined.

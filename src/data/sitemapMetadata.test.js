@@ -11,8 +11,8 @@ describe("sitemap content modification dates", () => {
     expect(sitemapLastmod("/parillinen-pariton-viikko", "2026-10-06")).toBe("2026-10-06");
     expect(sitemapLastmod("/koululomat-2028", "2026-10-06")).toBe("2026-10-05");
     expect(sitemapLastmod("/tietosuoja", "2026-10-08")).toBe("2026-10-07");
-    expect(sitemapLastmod("/tietosuoja", "2026-10-12")).toBe("2026-10-12");
-    expect(sitemapLastmod("/palautusehdot", "2026-10-12")).toBe("2026-10-12");
+    expect(sitemapLastmod("/tietosuoja", "2026-10-18")).toBe("2026-10-18");
+    expect(sitemapLastmod("/palautusehdot", "2026-10-18")).toBe("2026-10-18");
   });
 
   it("does not invent year-end or build dates for untracked resources", () => {

@@ -21,7 +21,7 @@ describe("legal documents",()=>{
     for(const target of LEGAL_PATHS) expect(html).toContain(`href="${target}"`);
     expect(canonicalFor(path)).toBe(`https://viikkonro.fi${path}`);expect(routeMeta[path].title).toBeTruthy();
     expect(sitemapEntries().some(entry=>entry.path===path)).toBe(true);
-    expect(sitemapLastmod(path,"2026-10-12")).toBe(LEGAL_UPDATED);
+    expect(sitemapLastmod(path,"2026-10-18")).toBe(LEGAL_UPDATED);
   });
   it("sources all visible refund FAQ questions and answers from shared data",()=>{
     const {html}=page(RefundPolicy,"/palautusehdot");for(const faq of refundFaqs()) {expect(html).toContain(faq.q);expect(html).toContain(faq.a);}
