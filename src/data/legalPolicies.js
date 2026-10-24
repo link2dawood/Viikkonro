@@ -3,7 +3,8 @@
 // live on 2026-10-23:
 // Google certified CMP collects advertising consent, the first-party banner
 // covers analytics only. See docs/adsense-placement-plan.md.
-export const LEGAL_UPDATED = "2026-10-18";
+// Google Analytics disclosure added 2026-10-24.
+export const LEGAL_UPDATED = "2026-10-24";
 export const REFUND_PATH = "/palautusehdot";
 export const LEGAL_PATHS = ["/tietoa-meista","/tietosuoja","/kayttoehdot",REFUND_PATH];
 // Confirmed public contact details. A postal address was explicitly declined.

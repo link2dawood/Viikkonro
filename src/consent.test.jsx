@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
-import { CONSENT_KEY, CONSENT_VERSION, applyConsent, readConsent, saveConsent } from "./consent.js";
+import { CONSENT_KEY, CONSENT_VERSION, applyConsent, applyStoredConsent, readConsent, saveConsent } from "./consent.js";
 import ConsentBanner from "./components/ConsentBanner.jsx";
 
 function memoryStorage(initial = {}) {
@@ -49,6 +49,28 @@ describe("Clarity consent signals", () => {
     applyConsent(false, { revoked: true });
     expect(clarity).toHaveBeenNthCalledWith(1, "consentv2", { ad_Storage: "denied", analytics_Storage: "denied" });
     expect(clarity).toHaveBeenNthCalledWith(2, "consent", false);
+  });
+});
+
+describe("Google Analytics consent signals", () => {
+  it.each([true, false])("updates analytics storage when the choice is %s", (analytics) => {
+    const gtag = vi.fn();
+    globalThis.window = { gtag };
+    applyConsent(analytics);
+    expect(gtag).toHaveBeenCalledExactlyOnceWith("consent", "update", {
+      analytics_storage: analytics ? "granted" : "denied",
+    });
+  });
+
+  it("restores a saved grant for both services", () => {
+    const clarity = vi.fn();
+    const gtag = vi.fn();
+    const localStorage = memoryStorage();
+    saveConsent(true, localStorage);
+    globalThis.window = { clarity, gtag, localStorage };
+    applyStoredConsent();
+    expect(gtag).toHaveBeenCalledWith("consent", "update", { analytics_storage: "granted" });
+    expect(clarity).toHaveBeenCalledWith("consentv2", { ad_Storage: "denied", analytics_Storage: "granted" });
   });
 });
 

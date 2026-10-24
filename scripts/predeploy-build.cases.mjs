@@ -123,23 +123,35 @@ test("every generated page carries the stylesheets for the classes it renders", 
   assert.deepEqual(gaps.slice(0, 10), [], `${gaps.length} page/class pairs are missing their stylesheet`);
 });
 
-test("the inline head script matches its Content-Security-Policy hash", () => {
-  // index.html's inline script sets Clarity's consent defaults and decides,
-  // before the first paint, whether the prerendered cookie banner is shown.
-  // Its sha256 is allow-listed in vercel.json's script-src, so editing the
-  // script without refreshing the hash would silently break the policy.
+test("the inline head scripts match their Content-Security-Policy hashes", () => {
+  // Google Analytics and Clarity both initialize consent in the public head.
+  // Every inline script must retain a matching hash in vercel.json.
   const scripts = [...read("dist/index.html").matchAll(/<script>([\s\S]*?)<\/script>/g)];
-  assert.equal(scripts.length, 1, "expected exactly one inline script in the generated page");
+  assert.equal(scripts.length, 2, "expected Google Analytics and Clarity inline scripts in the generated page");
   // Hash the LF form, which is what the browser receives: git stores this file
   // with LF and Vercel builds on Linux. A Windows checkout materializes CRLF,
   // and hashing that raw gives a digest that is correct nowhere -- it passes
   // locally and fails CI, which has already cost one bad vercel.json edit.
-  const inlineScript = scripts[0][1].replace(/\r\n/g, "\n");
-  const digest = `sha256-${createHash("sha256").update(inlineScript, "utf8").digest("base64")}`;
   const policy = JSON.parse(read("vercel.json")).headers
     .find((rule) => rule.source === "/(.*)").headers
     .find((header) => header.key.startsWith("Content-Security-Policy")).value;
-  assert.ok(policy.includes(digest), `vercel.json script-src is missing ${digest}`);
+  for (const [, script] of scripts) {
+    const inlineScript = script.replace(/\r\n/g, "\n");
+    const digest = `sha256-${createHash("sha256").update(inlineScript, "utf8").digest("base64")}`;
+    assert.ok(policy.includes(digest), `vercel.json script-src is missing ${digest}`);
+  }
+});
+
+test("Google Analytics is present once on public pages and absent from private and embedded pages", () => {
+  const loader = "https://www.googletagmanager.com/gtag/js?id=G-B1M6291M6C";
+  for (const file of ["dist/index.html", "dist/tietosuoja.html", "dist/kalenteri-2027.html"]) {
+    const html = read(file);
+    assert.equal(html.split(loader).length - 1, 1, file);
+    assert.ok(html.indexOf(loader) < html.indexOf("</head>"), file);
+  }
+  for (const file of ["dist/tiimin-lomat/suunnittelu.html", "dist/widget/viikko.html", "dist/widget/calendar/v1.html"]) {
+    assert.doesNotMatch(read(file), /googletagmanager|G-B1M6291M6C/, file);
+  }
 });
 
 function walkFiles(directory, matches) {
