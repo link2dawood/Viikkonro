@@ -39,7 +39,7 @@ const PrivacyPolicy = () => {
             mainosevästeiden hylkääminen ei rajoita työkalujen käyttöä.
             Evästevalintasi tallennetaan selaimen <code>localStorage</code>
             -muistiin avaimella <code>viikkonro-consent</code>, jotta sitä ei
-            kysytä jokaisella sivulla. Valinta ohjaa Claritylle lähetettäviä
+            kysytä jokaisella sivulla. Valinta ohjaa Claritylle ja Google Analyticsille lähetettäviä
             suostumussignaaleja, jotka kuvataan jäljempänä.
           </p>
           <p>
@@ -242,6 +242,13 @@ const PrivacyPolicy = () => {
               Googlen mainosasetukset
             </a>.
           </p>
+        </div>
+
+        <h2>Google Analytics -käyttöanalytiikka</h2>
+        <div className="prose">
+          <p>Käytämme Google Analytics 4 -palvelua julkisten sivujen käyttömäärien ja sivuston toimivuuden mittaamiseen. Google voi käsitellä sivulatauksia, selaimen ja laitteen teknisiä tietoja sekä verkkoyhteyden tietoja. Yksityinen suunnittelutila ja upotettavat widgetit eivät käytä tätä analytiikkaa.</p>
+          <p>Analytiikkaevästeet on oletuksena estetty Google Consent Mode -asetuksella <code>analytics_storage: denied</code>. Ilman suostumusta Googlelle voidaan lähettää evästeettömiä mittauspyyntöjä. Kun sallit analytiikkaevästeet, asetus vaihtuu arvoon <code>granted</code>. Voit muuttaa valintaasi sivuston evästeasetuksista. Mainonnan suostumus käsitellään erikseen Googlen suostumusviestissä.</p>
+          <p>Lisätietoja on <a href="https://policies.google.com/technologies/partner-sites" rel="external noopener">Googlen kumppanisivustoja koskevissa tietosuojatiedoissa</a>.</p>
         </div>
 
         <h2>Microsoft Clarity -käyttöanalytiikka</h2>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { sitemapLastmod } from "./sitemapMetadata.js";
+import { LEGAL_UPDATED } from "./legalPolicies.js";
 
 describe("sitemap content modification dates", () => {
   it("refreshes daily answers but preserves reviewed content dates", () => {
@@ -11,8 +12,8 @@ describe("sitemap content modification dates", () => {
     expect(sitemapLastmod("/parillinen-pariton-viikko", "2026-10-06")).toBe("2026-10-06");
     expect(sitemapLastmod("/koululomat-2028", "2026-10-06")).toBe("2026-10-05");
     expect(sitemapLastmod("/tietosuoja", "2026-10-08")).toBe("2026-10-07");
-    expect(sitemapLastmod("/tietosuoja", "2026-10-18")).toBe("2026-10-18");
-    expect(sitemapLastmod("/palautusehdot", "2026-10-18")).toBe("2026-10-18");
+    expect(sitemapLastmod("/tietosuoja", LEGAL_UPDATED)).toBe(LEGAL_UPDATED);
+    expect(sitemapLastmod("/palautusehdot", LEGAL_UPDATED)).toBe(LEGAL_UPDATED);
   });
 
   it("does not invent year-end or build dates for untracked resources", () => {

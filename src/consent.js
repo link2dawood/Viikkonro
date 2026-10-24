@@ -1,4 +1,4 @@
-// Analytics consent for Microsoft Clarity (client only).
+// Analytics consent for Microsoft Clarity and Google Analytics (client only).
 //
 // index.html starts every page with Clarity's Consent API V2 set to
 // denied (cookieless mode). A visitor's choice from ConsentBanner is kept in
@@ -15,7 +15,7 @@ export const CONSENT_KEY = "viikkonro-consent";
 // Bump when the banner's purposes change, so everyone is asked again. The
 // inline script in index.html checks the same key and version before the
 // first paint, so bump it there too.
-export const CONSENT_VERSION = 1;
+export const CONSENT_VERSION = 2;
 export const CONSENT_OPEN_EVENT = "viikkonro:consent-open";
 // Set on <html> by that inline script while a choice is still needed. It is
 // what reveals the prerendered banner, so recording a choice clears it.
@@ -57,10 +57,14 @@ export function saveConsent(analytics, store = storage(), now = new Date()) {
   }
 }
 
-// Tell Clarity. `revoked` = the visitor had granted and now declined, in
+// Tell both analytics services. Advertising consent remains with Google's CMP.
+// `revoked` = the visitor had granted and now declined, in
 // which case Clarity's cookies are also erased (Consent API v1 call).
 export function applyConsent(analytics, { revoked = false } = {}) {
   clarity("consentv2", { ad_Storage: "denied", analytics_Storage: analytics ? "granted" : "denied" });
+  if (typeof window !== "undefined" && typeof window.gtag === "function") {
+    window.gtag("consent", "update", { analytics_storage: analytics ? "granted" : "denied" });
+  }
   if (revoked) clarity("consent", false);
 }
 

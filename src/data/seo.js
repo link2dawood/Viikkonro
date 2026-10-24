@@ -93,8 +93,8 @@ import { weeksInYearMeta } from "./weeksInYearContent.js";
 // "Päivitetty" line on each page and its dateModified in structured data
 // always agree, and so a date claiming freshness doesn't roll every day just
 // because the site auto-rebuilds while the words on the page haven't changed.
-export const CONTENT_UPDATED = "2026-08-21";
-export const CONTENT_UPDATED_FI = fmtFullFi(new Date(2026, 7, 21));
+export const CONTENT_UPDATED = "2026-10-24";
+export const CONTENT_UPDATED_FI = fmtFullFi(new Date(2026, 9, 24));
 
 // The /data/* JSON feeds' schemaVersion field and the real schema.org
 // Dataset.version property (see prerender.js's datasetSchema()) — bumped only

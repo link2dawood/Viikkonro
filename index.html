@@ -2,6 +2,27 @@
 <html lang="fi">
   <head>
     <meta charset="UTF-8" />
+    <!-- Google tag (gtag.js). Keep consent defaults before config and refresh
+         the inline script hash in vercel.json when changing this block. -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+      });
+      try {
+        var consent = JSON.parse(window.localStorage.getItem('viikkonro-consent'));
+        if (consent && consent.v === 2 && consent.analytics === true) {
+          gtag('consent', 'update', { analytics_storage: 'granted' });
+        }
+      } catch (e) {}
+      gtag('js', new Date());
+      gtag('config', 'G-B1M6291M6C');
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B1M6291M6C"></script>
     <link rel="icon" type="image/svg+xml" href="/favicon-viikkonro-20260915.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mikä viikko nyt on? Viikkonumero | Viikko Nro</title>
@@ -149,7 +170,7 @@
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         c[a]("consentv2",{ad_Storage:"denied",analytics_Storage:"denied"});
         try{var v=JSON.parse(c.localStorage.getItem("viikkonro-consent"));
-          if(!(v&&v.v===1&&typeof v.analytics==="boolean"))l.documentElement.dataset.consent="ask";}
+          if(!(v&&v.v===2&&typeof v.analytics==="boolean"))l.documentElement.dataset.consent="ask";}
         catch(e){l.documentElement.dataset.consent="ask";}
         function go(){var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";l.head.appendChild(t);}
         function idle(){"requestIdleCallback" in c?c.requestIdleCallback(go,{timeout:4000}):setTimeout(go,1500);}

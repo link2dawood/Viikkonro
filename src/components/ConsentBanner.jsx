@@ -6,7 +6,7 @@ const TEXT = {
   fi: {
     label: "Evästeasetukset",
     title: "Evästeet ja analytiikka.",
-    body: "Käytämme Microsoft Claritya sivuston parantamiseen. Valitse, saako analytiikka käyttää evästeitä. Ilman suostumusta analytiikka toimii ilman evästeitä ja kaikki työkalut ovat käytettävissä.",
+    body: "Käytämme Microsoft Claritya ja Google Analyticsia sivuston parantamiseen. Valitse, saako analytiikka käyttää evästeitä. Ilman suostumusta analytiikka toimii ilman evästeitä ja kaikki työkalut ovat käytettävissä.",
     more: "Lue lisää",
     deny: "Vain välttämättömät",
     allow: "Salli analytiikkaevästeet",
