@@ -31,10 +31,15 @@ const Home = () => {
         <Weekcounter lead={meta.lead} />
         <SeasonYear />
         <WeekParity />
+        {/* Top slot sits after the live week answer and the parity answer, not
+            above them: the week number is what the page exists to answer and
+            what it ranks for, so it stays first on screen. */}
+        <AdSlot placement="home-after-answer" />
         <WeeklySearch />
         <AdSlot placement="home-after-search" />
         <WeeksOfMonth />
         <YearsWeek />
+        <AdSlot placement="home-after-browse" />
         <Information />
         <AppsPromo />
         <QuickLinks />
