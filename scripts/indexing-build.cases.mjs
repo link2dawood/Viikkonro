@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import { DATA_FEED_FAMILIES } from "../src/data/openDataContent.js";
-import { weeksInIsoYear } from "../src/components/dateUtils.js";
+import { PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR, weeksInIsoYear } from "../src/components/dateUtils.js";
 import { holidayFaqs, holidayPageFor, VAPPU_UPDATED } from "../src/data/holidayPages.js";
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -72,41 +72,68 @@ test("Vappu 2026-2028 remains canonical, indexable and useful before JavaScript"
   }
 });
 
-test("week pages only index the current and next year while preserving the wider non-week window", () => {
+test("every valid published week is indexable with canonical, schema and sitemap coverage", () => {
   const sitemap = read("dist/sitemap.xml");
-  const robotsFor = (html) => html.match(/<meta\s+name="robots"\s+content="([^"]+)"/)?.[1];
-  // The build renders the homepage with Finland's current calendar year.
+  const weekLocations = [...sitemap.matchAll(/<loc>(https:\/\/viikkonro\.fi\/viikko-\d+-\d{4})<\/loc>/g)].map((match) => match[1]);
+  let expectedWeeks = 0;
+  for (let year = PRERENDER_MIN_YEAR; year <= PRERENDER_MAX_YEAR; year += 1) {
+    expectedWeeks += weeksInIsoYear(year);
+    const yearCanonical = `https://viikkonro.fi/vuosi-${year}`;
+    const yearNodes = nodesFor(read(`dist/vuosi-${year}.html`));
+    const yearPages = yearNodes.filter((node) => node["@id"] === `${yearCanonical}#webpage`);
+    assert.equal(yearPages.length, 1, `${year}: week parent exists even on noindex year hubs`);
+    assert.equal(yearPages[0]["@type"], "CollectionPage", `${year}: preserve year collection schema`);
+    for (let week = 1; week <= weeksInIsoYear(year); week += 1) {
+      const pathname = `/viikko-${week}-${year}`;
+      const canonical = `https://viikkonro.fi${pathname}`;
+      const html = read(`dist${pathname}.html`);
+      const robots = [...html.matchAll(/<meta\s+name="robots"\s+content="([^"]+)"/g)];
+      assert.equal(robots.length, 1, `${pathname}: one robots directive`);
+      assert.match(robots[0][1], /^index, follow/, pathname);
+      assert.ok(html.includes(`<link rel="canonical" href="${canonical}"`), pathname);
+      assert.ok(weekLocations.includes(canonical), `${pathname}: sitemap entry`);
+      const nodes = nodesFor(html);
+      assert.equal(nodes.filter((node) => node["@id"] === `${canonical}#webpage`).length, 1, `${pathname}: page schema`);
+      assert.ok(nodes.some((node) => node["@type"] === "FAQPage"), `${pathname}: FAQ schema`);
+      const page = nodes.find((node) => node["@id"] === `${canonical}#webpage`);
+      assert.ok(page.isPartOf.some((parent) => parent["@id"] === `${yearCanonical}#webpage`), `${pathname}: year relationship`);
+      assert.ok(html.includes(`href="/pdf${pathname}.pdf"`), `${pathname}: visible PDF download`);
+    }
+  }
+  assert.equal(weekLocations.length, expectedWeeks, "all valid weeks, no extra week URLs");
+  assert.equal(new Set(weekLocations).size, expectedWeeks, "no duplicate week URLs");
+  assert.ok(!/<loc>[^<]*\/pdf\//.test(sitemap), "PDF downloads stay outside the sitemap");
+  assert.ok(read("dist/llms-full.txt").includes(`full ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} indexing window`));
+});
+
+test("the six Search Console noindex examples are eligible for indexing", () => {
+  const sitemap = read("dist/sitemap.xml");
+  for (const pathname of [
+    "/viikko-25-2030", "/viikko-51-2023", "/viikko-17-2029",
+    "/viikko-50-2025", "/viikko-30-2033", "/viikko-28-2030",
+  ]) {
+    assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="index, follow/);
+    assert.ok(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
+    assert.ok(fs.existsSync(new URL(`../dist/pdf${pathname}.pdf`, import.meta.url)), `${pathname}: PDF exists`);
+  }
+});
+
+test("non-week dated pages keep their existing indexing window", () => {
+  const sitemap = read("dist/sitemap.xml");
   const year = Number(read("dist/index.html").match(/name="viikkonro-render-day" content="(\d{4})-/)?.[1]);
   assert.ok(Number.isInteger(year) && year > 2000, "build year comes from the rendered day");
-  const weekPaths = [...sitemap.matchAll(/<loc>https:\/\/viikkonro\.fi(\/viikko-\d+-(\d{4}))<\/loc>/g)];
-  assert.equal(weekPaths.length, weeksInIsoYear(year) + weeksInIsoYear(year + 1));
-  for (const [, pathname, pageYear] of weekPaths) {
-    assert.ok(Number(pageYear) >= year && Number(pageYear) <= year + 1, pathname);
-  }
   for (const pageYear of [year - 2, year - 1, year, year + 1, year + 2, year + 4]) {
-    const pathname = `/viikko-42-${pageYear}`;
-    const html = read(`dist${pathname}.html`);
-    const indexable = pageYear === year || pageYear === year + 1;
-    assert.match(robotsFor(html), new RegExp(`^${indexable ? "index" : "noindex"}, follow`), pathname);
-    assert.equal(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), indexable, pathname);
-    // PDFs are generated for the whole horizon regardless of the HTML page's
-    // index status. They are noindex downloads (constitution rule 5), so an
-    // out-of-window year keeps its file instead of losing the download button.
-    assert.ok(fs.existsSync(new URL(`../dist/pdf/viikko-42-${pageYear}.pdf`, import.meta.url)), "PDF still downloadable");
-    assert.ok(
-      read(`dist${pathname}.html`).includes(`href="/pdf/viikko-42-${pageYear}.pdf"`),
-      `${pathname} keeps its visible PDF download link`,
-    );
-    const month = `/kuukausi-10-${pageYear}`;
-    assert.match(robotsFor(read(`dist${month}.html`)), /^index, follow/);
-    assert.ok(sitemap.includes(`https://viikkonro.fi${month}</loc>`), "non-week window is unchanged");
+    const pathname = `/kuukausi-10-${pageYear}`;
+    assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="index, follow/);
+    assert.ok(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
   }
   for (const pageYear of [year - 3, year + 5]) {
-    assert.match(robotsFor(read(`dist/kuukausi-10-${pageYear}.html`)), /^noindex, follow/);
-    assert.ok(!sitemap.includes(`https://viikkonro.fi/kuukausi-10-${pageYear}</loc>`));
+    const pathname = `/kuukausi-10-${pageYear}`;
+    assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="noindex, follow/);
+    assert.ok(!sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
+    const yearPath = `/vuosi-${pageYear}`;
+    assert.match(read(`dist${yearPath}.html`), /<meta\s+name="robots"\s+content="noindex, follow/);
+    assert.ok(!sitemap.includes(`https://viikkonro.fi${yearPath}</loc>`), yearPath);
   }
-  assert.ok(!/<loc>[^<]*\/pdf\//.test(sitemap), "all PDFs remain outside the sitemap");
-  const reference = read("dist/llms-full.txt");
-  assert.ok(reference.includes(`${year}-${year + 1} indexing window`));
-  assert.ok(reference.includes(`${year - 2}-${year + 4} window`));
+  assert.ok(read("dist/llms-full.txt").includes(`${year - 2}-${year + 4} window`));
 });

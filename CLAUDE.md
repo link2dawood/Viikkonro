@@ -85,8 +85,11 @@ unknown public routes, so an unsupported path returns the generated 404 page.
 
 The dated resource horizon starts at `PRERENDER_MIN_YEAR` and ends at
 `PRERENDER_MAX_YEAR` in `src/components/dateUtils.js`. Pages outside the
-indexable year window remain prerendered and directly accessible but receive
-`noindex` and stay out of the sitemap.
+applicable indexable year window remain prerendered and directly accessible
+but receive
+`noindex` and stay out of the sitemap. Valid week pages are indexable
+across the full publishing horizon; other dated families retain their existing
+windows.
 
 ### Routes
 

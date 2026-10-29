@@ -23,7 +23,11 @@ select public.test_assert((public.billing_usage_consume(:'billing_a',0,'business
 select public.test_assert((public.billing_usage_consume(:'billing_a',1,'business-calendar-api','requests','[{"period":"minute","max":100}]',1,clock_timestamp()-interval '1 second')->>'status')='not_entitled','expiration rechecked after usage lock');
 reset role;
 select public.test_assert((select used from private.billing_usage where account_id=:'billing_a' and period='month')=2,'denied minute request does not consume monthly quota');
-select public.test_denied(format('delete from public.team_organizations where id=%L',:'billing_firm_a'),'tenant deletion cannot silently erase billing records','23503');
+select public.test_denied(format('delete from public.team_organizations where id=%L',:'billing_firm_a'),'tenant deletion cannot silently erase billing records','23503,23001');
+-- Both FOREIGN KEY and RESTRICT errors enforce the same deletion boundary.
+-- PostgreSQL documents these as SQLSTATE 23503 and 23001 respectively:
+-- https://www.postgresql.org/docs/current/errcodes-appendix.html
+select public.test_assert(exists(select 1 from private.billing_accounts a join public.team_organizations o on o.id=a.organization_id join private.billing_states s on s.account_id=a.id where a.id=:'billing_a' and o.id=:'billing_firm_a'),'denied tenant deletion preserves the organization and billing ledger');
 set role authenticated;
 select public.test_denied(format('select public.billing_state_get(%L)',:'billing_a'),'browser cannot read server ledger');
 select public.test_denied('select public.billing_catalog_get()','browser cannot access unpublished prices');

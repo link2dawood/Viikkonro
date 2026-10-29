@@ -363,10 +363,8 @@ test("PD-02 keeps the sitemap HTML-only, unique, and complete for new routes", (
   const locations = sitemapLocations();
   const buildYear = Number(read("dist/index.html").match(/name="viikkonro-render-day" content="(\d{4})-/)?.[1]);
   assert.ok(Number.isInteger(buildYear) && buildYear > 2000);
-  // Keep the existing completeness floor, less the five week years now noindexed.
-  const removedWeekCount = [buildYear - 2, buildYear - 1, buildYear + 2, buildYear + 3, buildYear + 4]
-    .reduce((count, year) => count + weeksInIsoYear(year), 0);
-  const minimumUrls = 1000 - removedWeekCount;
+  // The full week horizon is indexable again; preserve the original floor.
+  const minimumUrls = 1000;
   assert.ok(locations.length >= minimumUrls, `expected at least ${minimumUrls} sitemap URLs, got ${locations.length}`);
   assert.equal(new Set(locations).size, locations.length, "sitemap URLs must be unique");
   assert.ok(locations.every((url) => url.startsWith(`${siteOrigin}/`)), "all sitemap URLs use production origin");
