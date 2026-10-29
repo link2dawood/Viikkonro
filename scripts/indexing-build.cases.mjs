@@ -137,3 +137,44 @@ test("non-week dated pages keep their existing indexing window", () => {
   }
   assert.ok(read("dist/llms-full.txt").includes(`${year - 2}-${year + 4} window`));
 });
+
+test("dataset landing pages reuse the shared Dataset and link real download formats", () => {
+  const shared = JSON.parse(read("dist/data/dataset.json"))["@graph"];
+  const home = nodesFor(read("dist/index.html"));
+  const openData = nodesFor(read("dist/avoin-data.html"));
+  const sitemap = read("dist/sitemap.xml");
+  const families = {
+    week: "week", month: "month", year: "year",
+    holiday: "holidays", "working-days": "monthly-workingdays",
+  };
+  for (const [family, id] of Object.entries(families)) {
+    const pathname = `/data/${family}`;
+    const canonical = `https://viikkonro.fi${pathname}`;
+    const html = read(`dist${pathname}.html`);
+    const nodes = nodesFor(html);
+    const datasets = nodes.filter((node) => node["@type"] === "Dataset");
+    assert.equal(datasets.length, 1, pathname);
+    const dataset = datasets[0];
+    assert.equal(dataset["@id"], `https://viikkonro.fi/#dataset-${id}`, "preserve dataset identity, including aliases");
+    for (const graph of [shared, home, openData]) {
+      assert.deepEqual(dataset, graph.find((node) => node["@id"] === dataset["@id"]), "one shared dataset definition");
+    }
+    assert.equal(dataset.url, canonical);
+    assert.equal(dataset.mainEntityOfPage["@id"], `${canonical}#webpage`);
+    const page = nodes.find((node) => node["@id"] === `${canonical}#webpage`);
+    assert.equal(page.mainEntity["@id"], dataset["@id"]);
+    assert.match(html, /<meta\s+name="robots"\s+content="index, follow/);
+    assert.ok(sitemap.includes(`${canonical}</loc>`));
+    assert.ok(html.includes(`<link rel="canonical" href="${canonical}"`));
+    assert.ok(nodes.some((node) => node["@type"] === "FAQPage"), "keep existing FAQ schema");
+    for (const format of ["application/json", "text/csv", "application/xml"]) {
+      const download = dataset.distribution.find((item) => item.encodingFormat === format);
+      assert.equal(download?.["@type"], "DataDownload", `${family}: ${format}`);
+      const path = new URL(download.contentUrl).pathname;
+      assert.ok(fs.existsSync(new URL(`../dist${path}`, import.meta.url)), `${family}: download exists`);
+      if (format !== "application/json") {
+        assert.ok(html.includes(`/data/${family}`) && html.includes(format === "text/csv" ? ".csv" : ".xml"), "visible page documents the advertised formats");
+      }
+    }
+  }
+});
