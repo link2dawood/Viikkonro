@@ -11,7 +11,7 @@ create function public.test_denied(statement text,label text,expected_state text
 declare denied boolean:=false; actual_state text;
 begin
   begin execute statement; exception when others then get stacked diagnostics actual_state=returned_sqlstate; denied:=actual_state=expected_state; end;
-  perform public.test_assert(denied,label);
+  perform public.test_assert(denied,format('%s (expected SQLSTATE %s, received %s)',label,expected_state,coalesce(actual_state,'no error')));
 end $$;
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
