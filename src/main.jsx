@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/react";
 import { hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import "./App.css";
+import "./app.js";
 import { preloadRoute } from "./AppRoutes.jsx";
 import App from "./App.jsx";
 import { registerWebMCPTools } from "./webmcp.js";
