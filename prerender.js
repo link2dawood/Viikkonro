@@ -1190,9 +1190,14 @@ function datasetSchema({
   dateModified,
 }) {
   const urls = Array.isArray(distributionUrl) ? distributionUrl : [distributionUrl];
+  const landingPage = extraDistribution.find((item) => item.encodingFormat === "text/html")?.contentUrl;
   return {
     "@type": "Dataset",
     "@id": `${SITE_URL}/#dataset-${id}`,
+    ...(landingPage ? {
+      url: landingPage,
+      mainEntityOfPage: { "@id": `${landingPage}#webpage` },
+    } : {}),
     name,
     description,
     creator: { "@id": `${SITE_URL}/#organization` },
@@ -1705,13 +1710,15 @@ function androidAppNodes() {
 }
 
 // The 5 dataset landing pages (/data/week, /data/month, /data/year,
-// /data/holiday, /data/working-days) — FAQPage only, sourced from
-// datasetPageFaqs() (src/data/datasetPages.js), the same function the
-// visible <details> list renders from. WebPage node comes from the
-// generic fallback, same as every other unadorned static page.
+// /data/holiday, /data/working-days) reuse the matching Dataset and its real
+// JSON/CSV/XML distributions from datasetNodes(). Selecting by the HTML URL
+// preserves the existing identity for the holiday and working-days aliases.
+// FAQ text stays sourced from datasetPageFaqs(), as in the visible page.
 function datasetPageNodes(family) {
   const url = `${SITE_URL}/data/${family}`;
-  return [{
+  const dataset = datasetNodes().find((node) => node.url === url);
+  if (!dataset) throw new Error(`Dataset schema missing for ${url}`);
+  return [dataset, {
     "@type": "FAQPage",
     "@id": `${url}#faq`,
     inLanguage: "fi-FI",
@@ -3462,6 +3469,10 @@ for (const url of routes) {
         );
       }
       const pageIndex = nodes.findIndex(node => node["@id"] === pageId);
+      if (datasetPageMatch) {
+        const dataset = nodes.find((node) => node["@type"] === "Dataset");
+        nodes[pageIndex].mainEntity = { "@id": dataset["@id"] };
+      }
       nodes[pageIndex] = topicSchema(nodes[pageIndex],pageTopic(url,dateFromDayKey(RENDER_DAY)));
       html = html.replace(
         "</head>",

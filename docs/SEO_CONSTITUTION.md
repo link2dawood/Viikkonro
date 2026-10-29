@@ -272,7 +272,11 @@ file lists, including nested year manifests, served as JSON with
 crawlable and downloadable at their existing URLs. This scoped rule does not
 apply to HTML documentation, per-year data, `dataset.json` or the knowledge
 graph. Keep the indexable `/avoin-data` and dataset documentation pages,
-Dataset schema/distributions and AI discovery links intact.
+Dataset schema/distributions and AI discovery links intact. The five HTML
+pages at `/data/{week,month,year,holiday,working-days}` also embed their
+matching shared Dataset node with JSON, CSV and XML DataDownload entries.
+Keep the existing dataset IDs, including the holiday and working-days aliases,
+and link each page's mainEntity to that dataset.
 
 **Rule**: every `/data/` feed family must have a corresponding
 `schema.org/Dataset` node, discoverable both embedded (homepage,
