@@ -251,8 +251,9 @@ if (forbiddenGeneratedRoutes.length) {
 }
 const routes = routeCandidates;
 
-// Week pages use currentYear..currentYear+1 so generic week searches favor
-// the current calendar. Other dated pages retain currentYear-2..currentYear+4.
+// Valid week pages are indexable across the full publishing horizon so
+// historical and future dates remain searchable. Other dated pages retain
+// currentYear-2..currentYear+4.
 // Out-of-window pages remain prerendered with noindex and leave the sitemap.
 // This governs HTML routes only. PDFs are never sitemap entries and no longer
 // carry a per-family canonical header: vercel.json serves every /pdf/ response
@@ -261,8 +262,8 @@ const routes = routeCandidates;
 // used to advertise pointed at a noindex page for most of the horizon.
 const INDEX_MIN_YEAR = currentYear - 2;
 const INDEX_MAX_YEAR = currentYear + 4;
-const WEEK_INDEX_MIN_YEAR = currentYear;
-const WEEK_INDEX_MAX_YEAR = currentYear + 1;
+const WEEK_INDEX_MIN_YEAR = PRERENDER_MIN_YEAR;
+const WEEK_INDEX_MAX_YEAR = PRERENDER_MAX_YEAR;
 const isIndexable = (p) => {
   const week = p.match(/^\/viikko-\d+-(\d{4})$/);
   if (week) {
@@ -3288,10 +3289,12 @@ for (const url of routes) {
       }
     }
 
-    // Noindexed archive pages keep their crawlable HTML but omit page-level
-    // schema, avoiding hundreds of repeated graph payloads that parsers should
-    // not index anyway.
-    if (isIndexable(url) && !meta.robots?.startsWith("noindex")) {
+    // Archive year hubs retain their CollectionPage and FAQ nodes because
+    // indexable week pages across the full horizon reference them as parents.
+    // Robots metadata and sitemap eligibility still use isIndexable() above.
+    // Other noindex archives continue to omit their page-level schema.
+    const isWeekYearHub = /^\/vuosi-\d+$/.test(url);
+    if ((isIndexable(url) || isWeekYearHub) && !meta.robots?.startsWith("noindex")) {
       const nodes = [];
       const crumb = breadcrumbNode(url);
       if (crumb) nodes.push(crumb);
@@ -4690,7 +4693,7 @@ const llmsFull =
     "",
     "- Purpose: instant ISO 8601 week-number lookup (\"what week is it today / on this date\") plus a full Finnish calendar reference: public holidays, flag days, name days, school holidays, quarters, months, printable calendars and PDF/CSV downloads.",
     "- No login, no paywall, no backend at request time — a prerendered React single-page app. Every meaningful URL is rendered to static HTML at build time (not just the homepage), so crawlers and AI agents see full content without executing JavaScript.",
-    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} (current year plus the next 9). Week pages use the narrower ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window (current year and next year); other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs are downloadable assets rather than pages in every year: they remain crawlable and linked from their HTML page, but are served noindex and excluded from the sitemap, so the HTML page is always the citable source. All years remain reachable by direct URL regardless of index status.`,
+    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Valid week pages use the full ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window and appear in the sitemap; other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs are downloadable assets rather than pages in every year: they remain crawlable and linked from their HTML page, but are served noindex and excluded from the sitemap, so the HTML page is always the citable source. All years remain reachable by direct URL regardless of index status.`,
     "- The contact form is the only feature that talks to a third party (Web3Forms, client-side only); everything else — week/date math, holiday and flag-day dates, name-day lookups — is computed locally from deterministic rules, not fetched from an external API.",
     "- For ISO 8601 rules, Finnish holiday/flag-day definitions and how entities relate to each other, see llms-glossary.txt rather than this file.",
     "",

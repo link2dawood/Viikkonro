@@ -106,7 +106,7 @@ pages linked it as the sunrise location credit until commit 320fffa.
 at least the same node types after any change.
 
 **Lives in**: the per-URL dispatch block in `prerender.js` (search
-`isIndexable(url) && !meta.robots?.startsWith("noindex")`), which calls
+`isIndexable(url) || isWeekYearHub`), which calls
 one or more `*Nodes()` functions per page family (`weekFaqNodes`,
 `monthFaqNodes`, `quarterNodes`, `yearFaqNodes`, `calendarPageNodes`,
 `holidaysEventNodes`, `namedHolidayNodes`, `flagDayNodes`,
@@ -154,7 +154,8 @@ user-approved 2026-10-06 consolidation, and are served `noindex` as of the
 the `urlset` template assembly plus the `<image:image>` block in
 `prerender.js`'s sitemap
 section. Indexability is governed by `isIndexable()`, which applies to HTML
-routes only: week pages use `currentYear`..`currentYear+1`; other dated pages
+routes only: valid week pages use
+`PRERENDER_MIN_YEAR`..`PRERENDER_MAX_YEAR`; other dated pages
 keep `currentYear-2`..`currentYear+4`, with named-holiday pages retaining
 their full-horizon exception. PDFs never reach `isIndexable()` — they are
 uniformly `noindex` by response header (see rule 5). Pages outside their
@@ -196,9 +197,9 @@ rule in `vercel.json`. Asserted by `src/data/pdfCanonical.test.js`.
 
 **Never**: canonicalize a PDF to its HTML page. PDFs are generated across
 the full `PRERENDER_MIN_YEAR`..`PRERENDER_MAX_YEAR` horizon while
-`isIndexable()` narrows week pages to `currentYear`..`currentYear+1` and
-other dated pages to `currentYear-2`..`currentYear+4`, so such a canonical
-points at a `noindex` page for most of the horizon. See the 2026-10-22
+`isIndexable()` includes week pages across the full publishing horizon and
+narrows other dated pages to `currentYear-2`..`currentYear+4`, so such a canonical
+can point at a `noindex` month or calendar page. See the 2026-10-22
 amendment.
 
 **Downloadable assets are never indexable pages.** One policy covers every
@@ -503,6 +504,19 @@ Before considering an SEO/routing/schema-touching task done:
       state exactly what's confirmed, state nothing for what isn't).
 
 ## Amendments
+
+- 2026-10-29: in response to the requested fix for six week URLs excluded by
+  `noindex` (2023, 2025, 2029, 2030 and 2033), valid week pages are eligible
+  for indexing across the full publishing horizon again. The old
+  current/next-year restriction prevented validation from passing for these
+  useful dated pages. The same policy gates robots metadata, page schema and
+  sitemap inclusion. Archive year hubs retain their CollectionPage and FAQ
+  nodes so week-parent references resolve, while their robots and sitemap
+  eligibility keep the non-week window. This expands the eligible week set;
+  Google still decides
+  which pages to index. Other dated-page windows and downloadable-asset
+  exclusions remain unchanged. The 2026-10-22 counts below describe the policy
+  at that time, before this expansion.
 
 - 2026-10-06: the user explicitly approved excluding downloadable PDFs from
   the sitemap and canonicalizing each PDF response to its HTML counterpart.

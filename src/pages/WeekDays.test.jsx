@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { HelmetProvider } from "react-helmet-async";
 import { MemoryRouter } from "react-router-dom";
 import WeekDays from "./WeekDays.jsx";
+import { PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR, weeksInIsoYear } from "../components/dateUtils.js";
 
 function renderWeek(week, year) {
   return renderToStaticMarkup(
@@ -23,7 +24,10 @@ describe("week-page growth links", () => {
   it("does not generate invalid week-53 links", () => {
     const html = renderWeek(53, 2026);
     for (const match of html.matchAll(/href="\/viikko-53-(\d{4})"/g)) {
-      expect([2020, 2026, 2032]).toContain(Number(match[1]));
+      const year = Number(match[1]);
+      expect(year).toBeGreaterThanOrEqual(PRERENDER_MIN_YEAR);
+      expect(year).toBeLessThanOrEqual(PRERENDER_MAX_YEAR);
+      expect(weeksInIsoYear(year)).toBe(53);
     }
     expect(html).not.toMatch(/NaN|undefined|viikko-54/);
   });
