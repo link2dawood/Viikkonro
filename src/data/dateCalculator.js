@@ -24,6 +24,7 @@ import {
 import { holidaysInYear } from "./holidays.js";
 
 export const CALCULATOR_PATH = "/paivamaaralaskuri";
+export const MAX_CALCULATION_AMOUNT = 10000;
 export const OFFSETS = [7, 14, 30, 45, 60, 90, 100, 180];
 export const offsetPath = (n) => `/${n}-paivaa-eteenpain`;
 export const OFFSET_SLUG_RE = /^(\d+)-paivaa-eteenpain$/;
@@ -91,10 +92,15 @@ export const UNITS = {
 
 // One calculation, with everything the result box shows.
 export function calculate(start, amount, unit, direction = 1) {
-  const n = Math.trunc(Number(amount));
-  if (!start || !Number.isFinite(n) || !UNITS[unit]) return null;
+  const n = Number(amount);
+  if (
+    amount === "" || amount == null || !(start instanceof Date) || !Number.isFinite(start.getTime()) ||
+    !Number.isSafeInteger(n) || n < 0 || n > MAX_CALCULATION_AMOUNT ||
+    !UNITS[unit] || ![1, -1].includes(direction)
+  ) return null;
   const from = atMidnight(start);
   const result = UNITS[unit].apply(from, n * direction);
+  if (!Number.isFinite(result.getTime())) return null;
   const span = Math.round((atMidnight(result) - from) / 86400000);
   return {
     from,
