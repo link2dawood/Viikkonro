@@ -6,6 +6,7 @@ import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
 import {
   CALCULATOR_PATH,
+  MAX_CALCULATION_AMOUNT,
   DATE_CALCULATOR_STEPS,
   OFFSETS,
   UNITS,
@@ -81,7 +82,7 @@ const DateCalculator = () => {
               type="number"
               id="dc-amount"
               min="0"
-              max="10000"
+              max={MAX_CALCULATION_AMOUNT}
               inputMode="numeric"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -107,6 +108,11 @@ const DateCalculator = () => {
             </select>
           </div>
         </div>
+        {!r && amount !== "" && (
+          <p className="note-soft" role="status">
+            Tarkista aloituspäivä ja määrä. Anna 0–{MAX_CALCULATION_AMOUNT} kokonaista päivää.
+          </p>
+        )}
         {r && (
           <div className="result" aria-live="polite">
             <div className="main-text">
