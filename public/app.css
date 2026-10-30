@@ -1,0 +1,13 @@
+/* Offline and service worker baseline styling */
+.offline-banner {
+  display: none;
+}
+body[data-offline="true"] .offline-banner {
+  display: block;
+  background: #fdf2f2;
+  color: #991b1b;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}

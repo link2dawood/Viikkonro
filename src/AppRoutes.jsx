@@ -1,6 +1,7 @@
 import { routePage } from "virtual:route-page";
 import { Suspense, useEffect } from "react";
 import { Routes, Route, useParams, Navigate, useLocation, createRoutesFromElements, matchRoutes } from "react-router-dom";
+import RouteErrorBoundary from "./components/RouteErrorBoundary";
 import { M_SLUG, validateYear } from "./components/dateUtils";
 import { trackPageView } from "./analytics";
 import GrowthCTA from "./components/GrowthCTA";
@@ -256,6 +257,7 @@ export function pageModuleForRoute(pathname) {
 }
 
 const AppRoutes = () => {
+  const { pathname } = useLocation();
   return (
     <>
       <RouteAnalytics />
@@ -263,9 +265,11 @@ const AppRoutes = () => {
       {/* Single <main> landmark wraps the routed page content (a11y: screen
           readers use it to jump to the primary content). */}
       <main id="main" tabIndex={-1}>
-        <Suspense fallback={<p className="app" role="status">Ladataan sivua...</p>}>
-          <Routes>{routeElements}</Routes>
-        </Suspense>
+        <RouteErrorBoundary key={pathname}>
+          <Suspense fallback={<p className="app" role="status">Ladataan sivua...</p>}>
+            <Routes>{routeElements}</Routes>
+          </Suspense>
+        </RouteErrorBoundary>
         <TopicGuide />
         <RelatedTools />
         <GrowthCTA />

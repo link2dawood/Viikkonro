@@ -1,18 +1,16 @@
-const CACHE_NAME = 'iso-week-number-cache-v1';
+const CACHE_NAME = 'iso-week-number-cache-v2';
 
 const ESSENTIAL_ASSETS = [
   '/',
   '/index.html',
   '/app.js',
-  '/src/main.jsx',
-  '/src/App.jsx',
-  '/src/AppRoutes.jsx',
-  '/src/App.css',
-  '/src/index.css',
+  '/app.css',
   '/favicon.svg',
   '/favicon-viikkonro-20260915.svg',
   '/logo-mark.svg',
   '/logo-horizontal.svg',
+  '/fonts/bricolage-grotesque-variable-latin.a79fdb52.woff2',
+  '/fonts/inter-variable-latin.3100e775.woff2',
 ];
 
 self.addEventListener('install', (event) => {
@@ -47,6 +45,28 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request && event.request.method && event.request.method !== 'GET') {
+    return;
+  }
+
+  let url;
+  try {
+    url = new URL(event.request.url);
+  } catch {
+    return;
+  }
+
+  const origin = self.location ? self.location.origin : url.origin;
+
+  // Bypass non-http protocols, cross-origin requests, API endpoints, private pages, and the worker itself
+  if (
+    url.origin !== origin ||
+    !url.protocol.startsWith('http') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/tiimin-lomat') ||
+    url.pathname.startsWith('/widget/') ||
+    url.pathname.startsWith('/pdf/') ||
+    url.pathname === '/service-worker.js'
+  ) {
     return;
   }
 
@@ -85,7 +105,13 @@ self.addEventListener('fetch', (event) => {
                 typeof event.request.headers.get === 'function' &&
                 event.request.headers.get('accept')?.includes('text/html')))
           ) {
-            return caches.match('/') || caches.match('/index.html');
+            return caches.match(event.request).then((match) => {
+              if (match) return match;
+              return caches.match('/').then((rootMatch) => {
+                if (rootMatch) return rootMatch;
+                return caches.match('/index.html');
+              });
+            });
           }
           throw error;
         });
