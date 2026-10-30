@@ -62,12 +62,15 @@ describe("service worker runtime events", () => {
     };
     mockCaches = {
       open: vi.fn().mockResolvedValue(mockCache),
-      keys: vi.fn().mockResolvedValue(["old-cache-v0", "iso-week-number-cache-v1"]),
+      keys: vi.fn().mockResolvedValue(["old-cache-v0", "iso-week-number-cache-v2"]),
       delete: vi.fn().mockResolvedValue(true),
       match: vi.fn(),
     };
 
     globalThis.self = {
+      location: {
+        origin: "https://viikkonro.fi",
+      },
       addEventListener: (event, handler) => {
         listeners[event] = handler;
       },
@@ -126,7 +129,7 @@ describe("service worker runtime events", () => {
 
     expect(mockCaches.keys).toHaveBeenCalled();
     expect(mockCaches.delete).toHaveBeenCalledWith("old-cache-v0");
-    expect(mockCaches.delete).not.toHaveBeenCalledWith("iso-week-number-cache-v1");
+    expect(mockCaches.delete).not.toHaveBeenCalledWith("iso-week-number-cache-v2");
   });
 
   it("serves from cache first, and falls back to network when not in cache", async () => {
@@ -173,5 +176,59 @@ describe("service worker runtime events", () => {
     const result2 = await respondPromise2;
     expect(globalThis.fetch).toHaveBeenCalledWith(fetchEvent2.request);
     expect(result2).toBe(mockNetworkResponse);
+  });
+
+  it("bypasses API and cross-origin requests", () => {
+    const swContent = fs.readFileSync(swPath, "utf-8");
+    const runSw = new Function("self", "caches", swContent);
+    runSw(globalThis.self, globalThis.caches);
+
+    const apiEvent = {
+      request: { url: "https://viikkonro.fi/api/billing/catalog", method: "GET" },
+      respondWith: vi.fn(),
+    };
+    listeners.fetch(apiEvent);
+    expect(apiEvent.respondWith).not.toHaveBeenCalled();
+
+    const crossOriginEvent = {
+      request: { url: "https://www.clarity.ms/tag/xyz", method: "GET" },
+      respondWith: vi.fn(),
+    };
+    listeners.fetch(crossOriginEvent);
+    expect(crossOriginEvent.respondWith).not.toHaveBeenCalled();
+  });
+
+  it("falls back to root cached page on offline navigation errors", async () => {
+    const swContent = fs.readFileSync(swPath, "utf-8");
+    const runSw = new Function("self", "caches", swContent);
+    runSw(globalThis.self, globalThis.caches);
+
+    mockCaches.match.mockImplementation((req) => {
+      if (req === "/" || req?.url === "https://viikkonro.fi/") {
+        return Promise.resolve({ status: 200, body: "offline-shell" });
+      }
+      return Promise.resolve(null);
+    });
+
+    globalThis.fetch = vi.fn().mockRejectedValueOnce(new Error("Network down"));
+
+    let respondPromise;
+    const fetchEvent = {
+      request: {
+        url: "https://viikkonro.fi/mika-on-viikkonumero",
+        method: "GET",
+        mode: "navigate",
+        headers: {
+          get: (name) => (name.toLowerCase() === "accept" ? "text/html" : null),
+        },
+      },
+      respondWith: vi.fn((promise) => {
+        respondPromise = promise;
+      }),
+    };
+
+    listeners.fetch(fetchEvent);
+    const result = await respondPromise;
+    expect(result).toEqual({ status: 200, body: "offline-shell" });
   });
 });
