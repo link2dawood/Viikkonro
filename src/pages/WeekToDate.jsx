@@ -3,28 +3,10 @@ import { Link } from "react-router-dom";
 import {
   isoWeek,
   isoYear,
-  mondayOf,
-  weeksInIsoYear,
-  dWritten,
-  getWeekdayName,
 } from "../components/dateUtils";
+import { computeWeekToDate } from "../data/weekToDate";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
-
-function compute(weekStr, yearStr) {
-  const w = Number(weekStr);
-  const y = Number(yearStr);
-  if (!w || !y || w < 1 || w > weeksInIsoYear(y)) return null;
-  const mo = mondayOf(w, y);
-  const su = new Date(mo);
-  su.setDate(mo.getDate() + 6);
-  const days = [...Array(7)].map((_, i) => {
-    const d = new Date(mo);
-    d.setDate(mo.getDate() + i);
-    return { name: getWeekdayName(d), written: dWritten(d) };
-  });
-  return { w, y, start: dWritten(mo), end: dWritten(su), days };
-}
 
 const WeekToDate = () => {
   const [week, setWeek] = useState("");
@@ -34,7 +16,7 @@ const WeekToDate = () => {
     setWeek(String(isoWeek(now)));
     setYear(String(isoYear(now)));
   }, []);
-  const r = compute(week, year);
+  const r = computeWeekToDate(week, year);
 
   return (
     <section className="app">
@@ -61,6 +43,7 @@ const WeekToDate = () => {
               id="wk"
               min="1"
               max="53"
+              step="1"
               value={week}
               onChange={(e) => setWeek(e.target.value)}
             />
@@ -72,6 +55,7 @@ const WeekToDate = () => {
               id="yr"
               min="2000"
               max="2100"
+              step="1"
               value={year}
               onChange={(e) => setYear(e.target.value)}
             />
