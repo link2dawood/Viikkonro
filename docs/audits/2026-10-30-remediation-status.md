@@ -4,28 +4,27 @@ Updated: 2026-11-01
 
 ## Active change
 
-- Finding 5 of 10 audit findings: Week calculator accepts fractional weeks and builds a dead URL.
+- Finding 6 of 10 audit findings: Valid calculator answers link beyond the published page horizon.
 - Change:
-  - Extracted week calculation to `src/data/weekToDate.js` with rigorous validation: requires integer strings matching `/^\d+$/`, rejects non-integers/decimals (e.g. `1.5`), enforces valid year range and ISO week range (`1 <= w <= weeksInIsoYear(y)`).
-  - Updated `src/pages/WeekToDate.jsx` to use `computeWeekToDate` and added `step="1"` to both week and year input fields. When an invalid/fractional week is provided, no result or dead link is rendered.
-  - Added unit test suite in `src/pages/WeekToDate.test.jsx` covering validation and rendering.
-- Branch: `fix/fractional-week-calculator-20261101`
+  - Guarded week-page links on `/viikko-paivamaaraksi` (`src/pages/WeekToDate.jsx`), `/paivamaara-viikoksi` (`src/pages/DateToWeek.jsx`), and `/paivamaaralaskuri` (`src/pages/DateCalculator.jsx`) using `validateYear()`.
+  - When computed week/date results fall beyond the published horizon (years outside 2020-2035, e.g. 2036), the calculator continues to display the full computed date/week information while rendering week numbers as plain text or omitting dead links to nonexistent week pages.
+  - Added unit test coverage in `src/pages/WeekToDate.test.jsx`, `src/pages/DateToWeek.test.jsx`, and `src/pages/DateCalculator.test.jsx`.
+- Branch: `fix/calculator-links-published-horizon-20261101`
 - Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
 
 `npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
 - ESLint: zero errors, zero warnings.
-- Vitest: 99/99 test suites passed, 1188 tests passed.
+- Vitest: 101/101 test suites passed, 1193 tests passed.
 - Predeploy artifacts: 45/45 test cases passed.
 - Build & Prerender: 1920 routes prerendered cleanly.
 - Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Merge PR for Finding 5 (Week calculator validation for integer weeks).
+1. Merge PR for Finding 6 (Calculator links bounded to published week horizon).
 2. Continue fixing the remaining audit findings one at a time, in report order:
-   - Valid calculator answers link beyond the published week horizon.
    - 320 px overflow on `/viikko-53-2026` and `/avoin-data`.
    - "Current year" flips early in UTC+14.
    - Years 0001-0099 silently map to 1901-1999.

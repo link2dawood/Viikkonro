@@ -75,5 +75,27 @@ describe("WeekToDate calculator", () => {
       expect(html).not.toContain("/viikko-1.5-2026");
       expect(html).not.toContain("Viikko 1.5/2026");
     });
+
+    it("does not link week pages beyond the prerender horizon", () => {
+      const futureHtml = renderToStaticMarkup(
+        <HelmetProvider>
+          <MemoryRouter>
+            <WeekToDate initialWeek="1" initialYear="2036" />
+          </MemoryRouter>
+        </HelmetProvider>
+      );
+      expect(futureHtml).toContain("Viikko 1/2036");
+      expect(futureHtml).not.toContain('href="/viikko-1-2036"');
+
+      const validHtml = renderToStaticMarkup(
+        <HelmetProvider>
+          <MemoryRouter>
+            <WeekToDate initialWeek="1" initialYear="2026" />
+          </MemoryRouter>
+        </HelmetProvider>
+      );
+      expect(validHtml).toContain("Viikko 1/2026");
+      expect(validHtml).toContain('href="/viikko-1-2026"');
+    });
   });
 });

@@ -3,19 +3,21 @@ import { Link } from "react-router-dom";
 import {
   isoWeek,
   isoYear,
+  validateYear,
 } from "../components/dateUtils";
 import { computeWeekToDate } from "../data/weekToDate";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
 
-const WeekToDate = () => {
-  const [week, setWeek] = useState("");
-  const [year, setYear] = useState("");
+const WeekToDate = ({ initialWeek, initialYear } = {}) => {
+  const [week, setWeek] = useState(initialWeek ?? "");
+  const [year, setYear] = useState(initialYear ?? "");
   useEffect(() => {
+    if (initialWeek != null || initialYear != null) return;
     const now = new Date();
     setWeek(String(isoWeek(now)));
     setYear(String(isoYear(now)));
-  }, []);
+  }, [initialWeek, initialYear]);
   const r = computeWeekToDate(week, year);
 
   return (
@@ -67,11 +69,13 @@ const WeekToDate = () => {
               <span className="num">Viikko {r.w}/{r.y}</span> alkaa{" "}
               <strong>{r.start}</strong> ja päättyy <strong>{r.end}</strong>.
             </div>
-            <div className="sub">
-              <Link className="open-link" to={`/viikko-${r.w}-${r.y}`}>
-                avaa viikko {r.w} kaikkine tietoineen
-              </Link>
-            </div>
+            {validateYear(r.y) && (
+              <div className="sub">
+                <Link className="open-link" to={`/viikko-${r.w}-${r.y}`}>
+                  avaa viikko {r.w} kaikkine tietoineen
+                </Link>
+              </div>
+            )}
             <div className="table-wrap" style={{ marginTop: "14px" }}>
               <table className="data-table">
                 <thead>
