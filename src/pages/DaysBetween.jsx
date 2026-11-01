@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { dWritten } from "../components/dateUtils";
+import { dWritten, parseDateInput } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
 
@@ -11,11 +11,7 @@ function toInput(d) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 function parse(str) {
-  if (!str) return null;
-  const p = str.split("-");
-  if (p.length !== 3) return null;
-  const d = new Date(+p[0], +p[1] - 1, +p[2]);
-  return Number.isNaN(d.getTime()) ? null : d;
+  return parseDateInput(str);
 }
 
 function compute(fromStr, toStr) {
@@ -67,6 +63,8 @@ const DaysBetween = () => {
             <input
               type="date"
               id="from"
+              min="1000-01-01"
+              max="9999-12-31"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
             />
@@ -76,6 +74,8 @@ const DaysBetween = () => {
             <input
               type="date"
               id="to"
+              min="1000-01-01"
+              max="9999-12-31"
               value={to}
               onChange={(e) => setTo(e.target.value)}
             />

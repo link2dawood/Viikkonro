@@ -4,31 +4,30 @@ Updated: 2026-11-01
 
 ## Active change
 
-- Finding 8 of 10 audit findings: "Current year" changes early in UTC+14.
+- Finding 9 of 10 audit findings: "Years 0001-0099 silently become 1901-1999 in date conversion".
 - Change:
-  - In `src/components/dateUtils.js`, updated `dateFromDayKey(key)` to construct local civil date components (`new Date(y, m - 1, d)`) while preserving its civil day key (`date.__helsinkiDayKey = key`) so local getters (`getFullYear()`, `getMonth()`, `getDate()`) never roll over into the next day in UTC+14 (e.g. Pacific/Kiritimati).
-  - In `src/components/dateUtils.js`, updated `helsinkiDayKey(instant)` to return `instant.__helsinkiDayKey` when present, ensuring round-trip agreement across all client timezones.
-  - In `src/components/dateUtils.js`, updated `dayOfYear(date)` to compute day-of-year via UTC date arithmetic (`Date.UTC(y, m, d) - Date.UTC(y, 0, 1)`), eliminating fractional day rounding discrepancies and DST shifts across all timezones.
-  - In `src/data/currentDateContent.js`, set default reference parameters to `dateFromDayKey(helsinkiDayKey())` so unparameterized helper calls consistently evaluate against Helsinki's civil calendar date.
-  - Added unit test coverage in `src/components/useToday.test.jsx` and `scripts/predeploy-build.cases.mjs`.
-- Branch: `fix/current-year-utc14-timezone-20261101`
+  - In `src/components/dateUtils.js`, introduced `createLocalDate(year, monthIndex, day)` to construct local Date instances without JavaScript's automatic two-digit year remapping into 1900-1999.
+  - In `src/components/dateUtils.js`, introduced `parseDateInput(str, { minYear = 1000, maxYear = 9999 })` validating 4-digit years within supported bounds and rejecting invalid calendar dates.
+  - Updated `dateFromDayKey`, `isoYear`, `isoWeek`, `weeksInIsoYear`, `daysInMonth`, and `mondayOf` to construct and compute years 0-99 without 1900-offset remapping.
+  - In `src/data/dateToWeek.js` and `src/pages/DateToWeek.jsx`, updated date parsing and input bounds (`min="1000-01-01"`, `max="9999-12-31"`) so two-digit years (0001-0099) are rejected and never displayed as 1901-1999.
+  - In `src/pages/DateCalculator.jsx`, `src/components/WeeklySearch.jsx`, and `src/pages/DaysBetween.jsx`, replaced loose date parsing with `parseDateInput` and bounded date picker inputs.
+  - Added unit test coverage in `src/pages/DateToWeek.test.jsx` and regression test in `scripts/predeploy-build.cases.mjs`.
+- Branch: `fix/two-digit-year-date-conversion-20261101`
 - Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
 
 `npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
 - ESLint: zero errors, zero warnings.
-- Vitest: 101/101 test suites passed, 1195 tests passed.
-- Predeploy artifacts: 47/47 test cases passed.
+- Vitest: 101/101 test suites passed, 1196 tests passed.
+- Predeploy artifacts: 48/48 test cases passed.
 - Build & Prerender: 1920 routes prerendered cleanly.
-- Browser test in Pacific/Kiritimati at 2026-12-31T08:00:00Z: displays year 2026 and week 53 as expected.
 - Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Merge PR for Finding 8 ("Current year" changes early in UTC+14).
+1. Merge PR for Finding 9 ("Years 0001-0099 silently become 1901-1999 in date conversion").
 2. Continue fixing the remaining audit findings one at a time, in report order:
-   - Years 0001-0099 silently map to 1901-1999.
    - 414 local JSON-LD `#webpage` references target omitted noindex page nodes.
 3. Keep each fix isolated, run required checks for the release path, push a PR, and wait for protected-branch approval before production deployment.
 
