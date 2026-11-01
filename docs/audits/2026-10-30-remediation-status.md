@@ -1,32 +1,38 @@
 # Adversarial audit remediation status
 
-Updated: 2026-10-30
+Updated: 2026-11-01
 
 ## Active change
 
-- First of 10 audit findings: bound date calculator inputs so extreme values cannot blank or freeze the page.
-- Change: reject blank, fractional, unsafe, negative, and over-10,000 amounts; reject invalid start dates and unrepresentable results; display an accessible Finnish validation message.
-- Branch: `fix/bounded-date-calculations-20261030`
-- Worktree: `/tmp/viikkonro-adversarial-audit-20261030`
-- Commit: `4b8da0f1c9f45aa33a3dd18d416633d48a05fe0d`
-- PR: https://github.com/link2dawood/Viikkonro/pull/99
-- Status: pushed; open; GitHub requires an approving review before merge. Do not bypass protection. Vercel preview succeeded. Production is not yet deployed.
+- Finding 2 of 10 audit findings: Client-side navigation leaves robots and JSON-LD from the previous page.
+- Change:
+  - Added shared `isIndexable(path)` and `robotsFor(url, metaRobots)` in `src/data/seo.js` matching constitutional indexability rules.
+  - Created shared schema.org generator `src/data/pageJsonLd.js` producing page-level JSON-LD for indexable routes and `null` for noindex pages.
+  - Created `syncSeoDom(path, effectiveRobots, effectiveJsonLd, doc)` in `src/data/seoDom.js` ensuring DOM synchronization across client-side SPA navigation.
+  - Updated `src/components/SEO.jsx` to synchronize `<meta name="robots">` and `<script type="application/ld+json">` on every route transition, removing lingering tags.
+  - Added unit test suite `src/components/SEO.test.jsx` verifying reproduction cases in both directions.
+- Branch: `fix/spa-navigation-robots-jsonld-20261101`
+- Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
 
-`npm run test:predeploy` passed locally: ESLint, Vitest, production build/prerender, 44 artifact checks, and crawl check (2,285 internal URLs crawled; zero unreachable, 404 links, or render errors). PR verify and GitGuardian checks passed; Vercel preview passed. `git diff --check` passed.
+`npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
+- ESLint: zero errors, zero warnings.
+- Vitest: 97/97 test suites passed, 1176 tests passed.
+- Build & Prerender: 1920 routes prerendered cleanly.
+- Predeploy artifacts: 44/44 test cases passed.
+- Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Wait for PR #99 to receive its required approval and merge. Then confirm the Vercel production deployment and live behavior for oversized and ordinary inputs.
+1. Merge PR for Finding 2 (SPA navigation retains stale robots directives and JSON-LD).
 2. Continue fixing the remaining audit findings one at a time, in report order:
-   - SPA navigation retains stale robots directives and JSON-LD.
    - Sunrise/sunset shifts to the previous day in positive-offset zones.
    - Missing asset 404s get a one-year immutable cache.
    - Week calculator accepts fractional weeks.
    - Valid calculator answers link beyond the published week horizon.
    - 320 px overflow on `/viikko-53-2026` and `/avoin-data`.
-   - “Current year” flips early in UTC+14.
+   - "Current year" flips early in UTC+14.
    - Years 0001-0099 silently map to 1901-1999.
    - 414 local JSON-LD `#webpage` references target omitted noindex page nodes.
 3. Keep each fix isolated, run required checks for the release path, push a PR, and wait for protected-branch approval before production deployment.
