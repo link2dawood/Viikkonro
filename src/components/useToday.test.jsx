@@ -1,7 +1,9 @@
+/* global process */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
-import { dateFromDayKey, helsinkiDayKey, isoWeek, isoYear } from "./dateUtils.js";
+import { dateFromDayKey, dayOfYear, helsinkiDayKey, isoWeek, isoYear } from "./dateUtils.js";
+import { currentYearFacts } from "../data/currentDateContent.js";
 import { useToday } from "./useToday.js";
 import Weekcounter from "./Weekcounter.jsx";
 import Navbar from "./Navbar.jsx";
@@ -67,5 +69,49 @@ describe("useToday on the server", () => {
       </MemoryRouter>,
     );
     expect(nav).toMatch(/Vk (<!-- -->)?49</);
+  });
+
+  it("preserves Helsinki civil date in UTC+14 (Pacific/Kiritimati) and positive-offset zones", () => {
+    const originalTz = process.env.TZ;
+    try {
+      for (const zone of ["UTC", "Europe/Helsinki", "Asia/Karachi", "Pacific/Kiritimati"]) {
+        process.env.TZ = zone;
+        const d = dateFromDayKey("2026-12-31");
+        expect(d.getFullYear()).toBe(2026);
+        expect(d.getMonth() + 1).toBe(12);
+        expect(d.getDate()).toBe(31);
+        expect(dayOfYear(d)).toBe(365);
+        expect(isoWeek(d)).toBe(53);
+        expect(isoYear(d)).toBe(2026);
+        expect(helsinkiDayKey(d)).toBe("2026-12-31");
+
+        const facts = currentYearFacts(d);
+        expect(facts.year).toBe(2026);
+        expect(facts.days).toBe(365);
+        expect(facts.weeks).toBe(53);
+        expect(facts.quarter).toBe(4);
+        expect(facts.dayOfYear).toBe(365);
+        expect(facts.daysRemaining).toBe(0);
+      }
+    } finally {
+      process.env.TZ = originalTz;
+    }
+  });
+
+  it("keeps current year at 2026 when Helsinki is on 31 Dec 2026 even if client clock is 08:00Z in UTC+14", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-12-31T08:00:00Z"));
+    const originalTz = process.env.TZ;
+    try {
+      process.env.TZ = "Pacific/Kiritimati";
+      const key = helsinkiDayKey();
+      expect(key).toBe("2026-12-31");
+      const d = dateFromDayKey(key);
+      const facts = currentYearFacts(d);
+      expect(facts.year).toBe(2026);
+      expect(facts.currentWeek).toBe(53);
+    } finally {
+      process.env.TZ = originalTz;
+    }
   });
 });

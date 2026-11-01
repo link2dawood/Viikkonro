@@ -653,3 +653,29 @@ test("CSS includes responsive wrapping to avoid narrow 320px viewport overflow",
     "day rows must stack on small screens to fit 320px width",
   );
 });
+
+test("dateFromDayKey and current-date calculations maintain Helsinki civil date in UTC+14", async () => {
+  const { dateFromDayKey, dayOfYear, helsinkiDayKey, isoWeek } = await import("../src/components/dateUtils.js");
+  const { currentYearFacts } = await import("../src/data/currentDateContent.js");
+
+  const originalTz = process.env.TZ;
+  try {
+    for (const zone of ["Europe/Helsinki", "Pacific/Kiritimati", "Asia/Karachi", "UTC"]) {
+      process.env.TZ = zone;
+      const d = dateFromDayKey("2026-12-31");
+      assert.equal(d.getFullYear(), 2026, `year in ${zone}`);
+      assert.equal(d.getMonth() + 1, 12, `month in ${zone}`);
+      assert.equal(d.getDate(), 31, `day in ${zone}`);
+      assert.equal(dayOfYear(d), 365, `dayOfYear in ${zone}`);
+      assert.equal(isoWeek(d), 53, `isoWeek in ${zone}`);
+      assert.equal(helsinkiDayKey(d), "2026-12-31", `helsinkiDayKey in ${zone}`);
+
+      const facts = currentYearFacts(d);
+      assert.equal(facts.year, 2026, `facts.year in ${zone}`);
+      assert.equal(facts.currentWeek, 53, `facts.currentWeek in ${zone}`);
+      assert.equal(facts.quarter, 4, `facts.quarter in ${zone}`);
+    }
+  } finally {
+    process.env.TZ = originalTz;
+  }
+});

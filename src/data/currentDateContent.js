@@ -1,10 +1,12 @@
 import {
   M_FULL,
   WD,
+  dateFromDayKey,
   dayOfYear,
   daysInYear,
   fmtFullFi,
   fmtShortFi,
+  helsinkiDayKey,
   isLeapYear,
   isoWeek,
   isoYear,
@@ -12,7 +14,7 @@ import {
   weeksInIsoYear,
 } from "../components/dateUtils.js";
 
-export function currentMonthFacts(now = new Date()) {
+export function currentMonthFacts(now = dateFromDayKey(helsinkiDayKey())) {
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
@@ -31,7 +33,7 @@ export function currentMonthFacts(now = new Date()) {
   };
 }
 
-export function currentYearFacts(now = new Date()) {
+export function currentYearFacts(now = dateFromDayKey(helsinkiDayKey())) {
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const year = date.getFullYear();
   const totalDays = daysInYear(year);
@@ -82,7 +84,7 @@ export function weekdayResult(value) {
   };
 }
 
-export function currentMonthMeta(now = new Date()) {
+export function currentMonthMeta(now = dateFromDayKey(helsinkiDayKey())) {
   const fact = currentMonthFacts(now);
   return {
     title: `Mikä kuukausi nyt on? ${fact.name} (${fact.month}/${fact.year}) | Viikko Nro`,
@@ -90,10 +92,10 @@ export function currentMonthMeta(now = new Date()) {
   };
 }
 
-export function currentYearMeta(now = new Date()) {
+export function currentYearMeta(now = dateFromDayKey(helsinkiDayKey())) {
   const fact = currentYearFacts(now);
   return {
-    title: `Mikä vuosi nyt on? ${fact.year} – vuoden tiedot | Viikko Nro`,
+    title: `Mikä vuosi nyt on? ${fact.year} - vuoden tiedot | Viikko Nro`,
     description: `Nyt on vuosi ${fact.year}. Vuodessa on ${fact.days} päivää ja ${fact.weeks} ISO-viikkoa. Katso vuoden kuluminen, nykyinen neljännes sekä kaikki viikkonumerot ja kalenterikuukaudet.`,
   };
 }
@@ -104,7 +106,7 @@ export const weekdayMeta = {
     "Selvitä, mikä viikonpäivä jokin päivämäärä oli tai tulee olemaan. Syötä päivä ja näe viikonpäivä, viikkonumero, viikkovuosi sekä suomalainen päivämäärä.",
 };
 
-export function currentMonthFaqs(now = new Date()) {
+export function currentMonthFaqs(now = dateFromDayKey(helsinkiDayKey())) {
   const fact = currentMonthFacts(now);
   return [
     { q: "Mikä kuukausi nyt on?", a: `Nyt on ${fact.nameLower} ${fact.year}.` },
@@ -115,7 +117,7 @@ export function currentMonthFaqs(now = new Date()) {
   ];
 }
 
-export function currentYearFaqs(now = new Date()) {
+export function currentYearFaqs(now = dateFromDayKey(helsinkiDayKey())) {
   const fact = currentYearFacts(now);
   return [
     { q: "Mikä vuosi nyt on?", a: `Nyt on vuosi ${fact.year}.` },
