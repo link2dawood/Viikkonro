@@ -639,3 +639,17 @@ test("missing static assets are rewritten to asset-404 with no-store headers", (
   assert.match(handlerSource, /no-store/);
   assert.match(handlerSource, /status:\s*404/);
 });
+
+test("CSS includes responsive wrapping to avoid narrow 320px viewport overflow", () => {
+  const css = read("src/App.css");
+  assert.match(
+    css,
+    /code\s*\{[\s\S]*?overflow-wrap:\s*anywhere[\s\S]*?word-break:\s*break-word/,
+    "inline code must wrap on narrow screens to prevent horizontal scroll",
+  );
+  assert.match(
+    css,
+    /@media\s*\(max-width:\s*600px\)[\s\S]*?\.day\s*\{[\s\S]*?flex-direction:\s*column/,
+    "day rows must stack on small screens to fit 320px width",
+  );
+});

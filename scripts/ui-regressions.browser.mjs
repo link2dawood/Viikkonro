@@ -35,12 +35,23 @@ try {
   }
   for (const width of [320, 390, 768, 1280]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const family of ["week", "month", "year", "holiday", "working-days"]) {
-      const response = await page.goto(`${base}/data/${family}`);
+    for (const testPath of [
+      "/viikko-53-2026",
+      "/avoin-data",
+      "/data/week",
+      "/data/month",
+      "/data/year",
+      "/data/holiday",
+      "/data/working-days",
+    ]) {
+      const response = await page.goto(`${base}${testPath}`);
       assert.equal(response.status(), 200);
       assert.match(response.headers()["content-type"], /text\/html/);
       assert.equal(await page.locator("main h1").count(), 1);
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${family}: overflow at ${width}px`);
+      assert.ok(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        `${testPath}: overflow at ${width}px`,
+      );
     }
     await page.goto(`${base}/lomasuunnittelija`);
     const secondary = page.locator(".vp-pro button.btn.btn-ghost");
