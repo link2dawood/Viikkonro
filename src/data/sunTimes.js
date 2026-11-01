@@ -24,16 +24,16 @@
 // on whatever D-05 decides about prerendering them — not something this
 // file can guarantee in isolation.
 
-// suncalc is CommonJS with no default export — named imports only.
+// suncalc is CommonJS with no default export - named imports only.
 import { getTimes, getPosition } from "suncalc";
-import { mondayOf } from "../components/dateUtils";
+import { mondayOf } from "../components/dateUtils.js";
 
 export const HELSINKI = { lat: 60.1699, lon: 24.9384, name: "Helsinki" };
 // Finland's northernmost municipality, well north of the Arctic Circle
-// (66.5°N) — used for the explicit polar day/night tests the handoff asks
+// (66.5°N) - used for the explicit polar day/night tests the handoff asks
 // for. Coordinates and polar-day/night windows verified against independent
-// sources (checked 2026-07-23): kaamos (polar night) 26 Nov–15 Jan,
-// midnight sun 17 May–28 Jul.
+// sources (checked 2026-07-23): kaamos (polar night) 26 Nov-15 Jan,
+// midnight sun 17 May-28 Jul.
 export const UTSJOKI = { lat: 69.9086, lon: 27.0272, name: "Utsjoki" };
 
 function addDays(date, n) {
@@ -47,7 +47,25 @@ function addDays(date, n) {
 // sunrise/sunset crossing that day; polarDay/polarNight say which.
 export function sunTimesForDate(date, location = HELSINKI) {
   const { lat, lon } = location;
-  const times = getTimes(date, lat, lon);
+
+  // Calculate solar position using a probe at midday (12:00 UTC) for the
+  // civil calendar date (y, m, d). Passing a local midnight instant causes
+  // positive-offset timezones (e.g. Europe/Helsinki UTC+2/+3, Asia/Karachi UTC+5)
+  // to fall on the previous UTC date, shifting sunrise/sunset calculations to
+  // the previous civil day (Finding 3 fix).
+  let y, m, d;
+  if (typeof date === "string") {
+    const parts = date.split("-").map(Number);
+    y = parts[0];
+    m = parts[1] - 1;
+    d = parts[2];
+  } else {
+    y = date.getFullYear();
+    m = date.getMonth();
+    d = date.getDate();
+  }
+  const probe = new Date(Date.UTC(y, m, d, 12, 0, 0));
+  const times = getTimes(probe, lat, lon);
 
   const sunriseValid = times.sunrise && !isNaN(times.sunrise.getTime());
   const sunsetValid = times.sunset && !isNaN(times.sunset.getTime());
@@ -63,7 +81,7 @@ export function sunTimesForDate(date, location = HELSINKI) {
   }
 
   // No crossing today. solarNoon is a pure position calculation (not a
-  // threshold crossing), so it's always a valid instant — use the sun's
+  // threshold crossing), so it's always a valid instant - use the sun's
   // altitude there to tell polar day (sun up all day) from polar night
   // (sun down all day).
   const noonAltitude = getPosition(times.solarNoon, lat, lon).altitude;

@@ -4,35 +4,34 @@ Updated: 2026-11-01
 
 ## Active change
 
-- Finding 2 of 10 audit findings: Client-side navigation leaves robots and JSON-LD from the previous page.
+- Finding 3 of 10 audit findings: Solar data uses the previous civil day for Finnish and other positive-offset visitors.
 - Change:
-  - Added shared `isIndexable(path)` and `robotsFor(url, metaRobots)` in `src/data/seo.js` matching constitutional indexability rules.
-  - Created shared schema.org generator `src/data/pageJsonLd.js` producing page-level JSON-LD for indexable routes and `null` for noindex pages.
-  - Created `syncSeoDom(path, effectiveRobots, effectiveJsonLd, doc)` in `src/data/seoDom.js` ensuring DOM synchronization across client-side SPA navigation.
-  - Updated `src/components/SEO.jsx` to synchronize `<meta name="robots">` and `<script type="application/ld+json">` on every route transition, removing lingering tags.
-  - Added unit test suite `src/components/SEO.test.jsx` verifying reproduction cases in both directions.
-- Branch: `fix/spa-navigation-robots-jsonld-20261101`
+  - Updated `sunTimesForDate` in `src/data/sunTimes.js` to construct a midday (12:00 UTC) solar probe instant for the target civil date `(y, m, d)`, preventing positive-offset visitor timezones (e.g. Europe/Helsinki UTC+2/+3, Asia/Karachi UTC+5, Pacific/Kiritimati UTC+14) from shifting the probe into the previous UTC date.
+  - Added unit test cases in `src/data/sunTimes.test.js` verifying 23 March 2026 (week 13) yields `06.13-18.41` regardless of visitor timezone, DST jump handling on 29 March 2026 (`06.54-19.56`), and string date format support.
+- Branch: `fix/solar-data-positive-offset-20261101`
 - Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
 
 `npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
 - ESLint: zero errors, zero warnings.
-- Vitest: 97/97 test suites passed, 1176 tests passed.
-- Build & Prerender: 1920 routes prerendered cleanly.
+- Vitest: 97/97 test suites passed, 1179 tests passed.
+- Build & Prerender: 1920 routes prerendered cleanly; verified `dist/viikko-13-2026.html` renders `06.13-18.41` for Monday 23 March 2026.
 - Predeploy artifacts: 44/44 test cases passed.
 - Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Merge PR for Finding 2 (SPA navigation retains stale robots directives and JSON-LD).
+1. Merge PR for Finding 3 (Solar data consistency across positive-offset zones).
 2. Continue fixing the remaining audit findings one at a time, in report order:
-   - Sunrise/sunset shifts to the previous day in positive-offset zones.
    - Missing asset 404s get a one-year immutable cache.
    - Week calculator accepts fractional weeks.
    - Valid calculator answers link beyond the published week horizon.
    - 320 px overflow on `/viikko-53-2026` and `/avoin-data`.
    - "Current year" flips early in UTC+14.
+   - Years 0001-0099 silently map to 1901-1999.
+   - 414 local JSON-LD `#webpage` references target omitted noindex page nodes.
+3. Keep each fix isolated, run required checks for the release path, push a PR, and wait for protected-branch approval before production deployment.
    - Years 0001-0099 silently map to 1901-1999.
    - 414 local JSON-LD `#webpage` references target omitted noindex page nodes.
 3. Keep each fix isolated, run required checks for the release path, push a PR, and wait for protected-branch approval before production deployment.
