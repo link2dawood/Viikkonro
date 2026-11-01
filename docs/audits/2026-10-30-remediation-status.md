@@ -4,12 +4,12 @@ Updated: 2026-11-01
 
 ## Active change
 
-- Finding 6 of 10 audit findings: Valid calculator answers link beyond the published page horizon.
+- Finding 7 of 10 audit findings: Two pages overflow horizontally at 320 px.
 - Change:
-  - Guarded week-page links on `/viikko-paivamaaraksi` (`src/pages/WeekToDate.jsx`), `/paivamaara-viikoksi` (`src/pages/DateToWeek.jsx`), and `/paivamaaralaskuri` (`src/pages/DateCalculator.jsx`) using `validateYear()`.
-  - When computed week/date results fall beyond the published horizon (years outside 2020-2035, e.g. 2036), the calculator continues to display the full computed date/week information while rendering week numbers as plain text or omitting dead links to nonexistent week pages.
-  - Added unit test coverage in `src/pages/WeekToDate.test.jsx`, `src/pages/DateToWeek.test.jsx`, and `src/pages/DateCalculator.test.jsx`.
-- Branch: `fix/calculator-links-published-horizon-20261101`
+  - Added responsive styling in `src/App.css` under `@media (max-width: 600px)` for `.day` layout: sets `flex-direction: column; gap: 8px;`, `width: 100%` on `.day-head`, and allows `.day .dt` date text to wrap (`white-space: normal; overflow-wrap: break-word;`), resolving the 376 px horizontal overflow on `/viikko-53-2026`.
+  - Added global inline `code` wrapping (`overflow-wrap: anywhere; word-break: break-word;`), resolving the 376 px horizontal overflow from long API path examples on `/avoin-data`.
+  - Added regression test cases in `scripts/predeploy-build.cases.mjs` and updated `scripts/ui-regressions.browser.mjs` to assert no horizontal overflow on `/viikko-53-2026` and `/avoin-data` at 320 px.
+- Branch: `fix/narrow-viewport-overflow-20261101`
 - Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
@@ -17,15 +17,15 @@ Updated: 2026-11-01
 `npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
 - ESLint: zero errors, zero warnings.
 - Vitest: 101/101 test suites passed, 1193 tests passed.
-- Predeploy artifacts: 45/45 test cases passed.
+- Predeploy artifacts: 46/46 test cases passed.
 - Build & Prerender: 1920 routes prerendered cleanly.
+- Browser UI regressions: 0 horizontal overflows at 320 px across all audited routes.
 - Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Merge PR for Finding 6 (Calculator links bounded to published week horizon).
+1. Merge PR for Finding 7 (Horizontal overflow at 320 px on `/viikko-53-2026` and `/avoin-data`).
 2. Continue fixing the remaining audit findings one at a time, in report order:
-   - 320 px overflow on `/viikko-53-2026` and `/avoin-data`.
    - "Current year" flips early in UTC+14.
    - Years 0001-0099 silently map to 1901-1999.
    - 414 local JSON-LD `#webpage` references target omitted noindex page nodes.

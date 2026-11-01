@@ -84,6 +84,17 @@ img {
 .mono {
   font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
 }
+code {
+  font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+pre code {
+  font-size: inherit;
+  overflow-wrap: normal;
+  word-break: normal;
+}
 .app {
   max-width: var(--maxw);
   margin: 0 auto;
@@ -1282,6 +1293,17 @@ footer {
 @media (max-width: 600px) {
   .app {
     padding: 0 18px;
+  }
+  .day {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .day-head {
+    width: 100%;
+  }
+  .day .dt {
+    white-space: normal;
+    overflow-wrap: break-word;
   }
   /* Stack the previous/next cards so they don't get cramped side by side. */
   .prevnext {
