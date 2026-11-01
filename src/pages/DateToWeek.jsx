@@ -6,6 +6,7 @@ import {
   mondayOf,
   dWritten,
   getWeekdayName,
+  validateYear,
 } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
@@ -41,11 +42,12 @@ function compute(str) {
   };
 }
 
-const DateToWeek = () => {
-  const [str, setStr] = useState("");
+const DateToWeek = ({ initialDate } = {}) => {
+  const [str, setStr] = useState(initialDate ?? "");
   useEffect(() => {
+    if (initialDate != null) return;
     setStr(toInput(new Date()));
-  }, []);
+  }, [initialDate]);
   const r = compute(str);
 
   return (
@@ -79,10 +81,15 @@ const DateToWeek = () => {
               <span className="num">viikolla {r.w}</span>.
             </div>
             <div className="sub">
-              Viikko {r.w}/{r.y} · {r.range} ·{" "}
-              <Link className="open-link" to={`/viikko-${r.w}-${r.y}`}>
-                avaa viikko {r.w}
-              </Link>
+              Viikko {r.w}/{r.y} · {r.range}
+              {validateYear(r.y) && (
+                <>
+                  {" · "}
+                  <Link className="open-link" to={`/viikko-${r.w}-${r.y}`}>
+                    avaa viikko {r.w}
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { fmtFullFi, WD_ESSIVE } from "../components/dateUtils";
+import { fmtFullFi, WD_ESSIVE, validateYear } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
@@ -47,12 +47,12 @@ const EXAMPLES = [
 // Date calculator (/paivamaaralaskuri): add or subtract days, weeks, months or
 // working days. The default start is useToday(), so the prerendered HTML and
 // the first client render agree (see useToday.js).
-const DateCalculator = () => {
+const DateCalculator = ({ initialStart, initialAmount, initialUnit, initialDirection } = {}) => {
   const today = useToday();
-  const [start, setStart] = useState(() => toInput(today));
-  const [amount, setAmount] = useState("30");
-  const [unit, setUnit] = useState("paivaa");
-  const [direction, setDirection] = useState(1);
+  const [start, setStart] = useState(() => initialStart ?? toInput(today));
+  const [amount, setAmount] = useState(initialAmount ?? "30");
+  const [unit, setUnit] = useState(initialUnit ?? "paivaa");
+  const [direction, setDirection] = useState(initialDirection ?? 1);
   const r = calculate(parse(start), amount, unit, direction);
   const faqs = dateCalculatorFaqs();
 
@@ -120,8 +120,12 @@ const DateCalculator = () => {
             </div>
             <div className="sub">
               {r.weekday},{" "}
-              <Link to={`/viikko-${r.week}-${r.weekYear}`}>viikko {r.week}</Link> ·{" "}
-              {r.calendarDays} kalenteripäivää aloituspäivästä
+              {validateYear(r.weekYear) ? (
+                <Link to={`/viikko-${r.week}-${r.weekYear}`}>viikko {r.week}</Link>
+              ) : (
+                `viikko ${r.week}`
+              )}{" "}
+              · {r.calendarDays} kalenteripäivää aloituspäivästä
               {r.holiday ? ` · ${r.holiday} (arkipyhä)` : ""}
             </div>
           </div>
