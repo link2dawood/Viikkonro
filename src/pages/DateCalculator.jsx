@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { fmtFullFi, WD_ESSIVE, validateYear } from "../components/dateUtils";
+import { fmtFullFi, WD_ESSIVE, validateYear, parseDateInput } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
@@ -18,9 +18,7 @@ import {
 const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
 const toInput = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 function parse(str) {
-  const p = (str || "").split("-").map(Number);
-  if (p.length !== 3 || p.some(Number.isNaN)) return null;
-  return new Date(p[0], p[1] - 1, p[2]);
+  return parseDateInput(str);
 }
 const whenFi = (d) => `${WD_ESSIVE[d.getDay()]} ${fmtFullFi(d)}`;
 
@@ -74,7 +72,14 @@ const DateCalculator = ({ initialStart, initialAmount, initialUnit, initialDirec
         <div className="two-fields">
           <div>
             <label htmlFor="dc-start">Aloituspäivä</label>
-            <input type="date" id="dc-start" value={start} onChange={(e) => setStart(e.target.value)} />
+            <input
+              type="date"
+              id="dc-start"
+              min="1000-01-01"
+              max="9999-12-31"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+            />
           </div>
           <div>
             <label htmlFor="dc-amount">Määrä</label>

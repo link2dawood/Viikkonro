@@ -679,3 +679,28 @@ test("dateFromDayKey and current-date calculations maintain Helsinki civil date 
     process.env.TZ = originalTz;
   }
 });
+
+test("two-digit years 0001-0099 are rejected by date converters and do not silently map to 1901-1999", async () => {
+  const {
+    createLocalDate,
+    dateFromDayKey,
+    isoWeek,
+    isoYear,
+    parseDateInput,
+  } = await import("../src/components/dateUtils.js");
+  const { computeDateToWeek } = await import("../src/data/dateToWeek.js");
+
+  // Input parser rejects years outside 1000-9999
+  assert.equal(parseDateInput("0099-01-04"), null, "0099-01-04 must be rejected");
+  assert.equal(parseDateInput("0001-01-01"), null, "0001-01-01 must be rejected");
+  assert.equal(computeDateToWeek("0099-01-04"), null, "computeDateToWeek must reject 0099-01-04");
+
+  // Core date utilities construct and preserve exact years without 1900-offset remapping
+  const d99 = createLocalDate(99, 0, 4);
+  assert.equal(d99.getFullYear(), 99, "createLocalDate must set year 99, not 1999");
+  assert.equal(isoYear(d99), 99, "isoYear must compute 99, not 1999");
+  assert.equal(isoWeek(d99), 1, "isoWeek must compute week 1 for 4 Jan 0099");
+
+  const dKey = dateFromDayKey("0099-01-04");
+  assert.equal(dKey.getFullYear(), 99, "dateFromDayKey must preserve year 99");
+});

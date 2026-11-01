@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  isoWeek,
-  isoYear,
-  mondayOf,
-  dWritten,
-  getWeekdayName,
-  validateYear,
-} from "../components/dateUtils";
+import { validateYear } from "../components/dateUtils";
+import { computeDateToWeek } from "../data/dateToWeek";
 import SEO from "../components/SEO";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
 
@@ -18,37 +12,13 @@ function toInput(d) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// Pure function of the input string (computed in render, not an effect) so the
-// result is present in the prerendered HTML once a date is set. Same approach
-// as WeeklySearch — hydration-safe because the input starts empty on both SSR
-// and first client render, then the effect fills in today's date.
-function compute(str) {
-  if (!str) return null;
-  const p = str.split("-");
-  if (p.length !== 3) return null;
-  const d = new Date(+p[0], +p[1] - 1, +p[2]);
-  if (Number.isNaN(d.getTime())) return null;
-  const w = isoWeek(d);
-  const y = isoYear(d);
-  const mo = mondayOf(w, y);
-  const su = new Date(mo);
-  su.setDate(mo.getDate() + 6);
-  return {
-    w,
-    y,
-    weekday: getWeekdayName(d),
-    written: dWritten(d),
-    range: `${dWritten(mo)} – ${dWritten(su)}`,
-  };
-}
-
 const DateToWeek = ({ initialDate } = {}) => {
   const [str, setStr] = useState(initialDate ?? "");
   useEffect(() => {
     if (initialDate != null) return;
     setStr(toInput(new Date()));
   }, [initialDate]);
-  const r = compute(str);
+  const r = computeDateToWeek(str);
 
   return (
     <section className="app">
@@ -71,6 +41,8 @@ const DateToWeek = ({ initialDate } = {}) => {
         <input
           type="date"
           id="dpick"
+          min="1000-01-01"
+          max="9999-12-31"
           value={str}
           onChange={(e) => setStr(e.target.value)}
         />

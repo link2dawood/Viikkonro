@@ -18,24 +18,52 @@ export function helsinkiDayKey(instant = new Date()) {
   }).format(instant);
 }
 
+// Construct a local Date instance without JavaScript's 0-99 year remapping into 1900-1999.
+export function createLocalDate(year, monthIndex, day = 1) {
+  const d = new Date(year, monthIndex, 1);
+  if (year >= 0 && year < 100) {
+    d.setFullYear(year);
+  }
+  if (day !== 1) {
+    d.setDate(day);
+  }
+  return d;
+}
+
+// Safely parse an ISO date string ("YYYY-MM-DD") into a local Date without
+// JS two-digit year remapping and rejecting invalid calendar dates.
+export function parseDateInput(str, { minYear = 1000, maxYear = 9999 } = {}) {
+  if (!str) return null;
+  const p = String(str).trim().split("-").map(Number);
+  if (p.length !== 3 || p.some(Number.isNaN)) return null;
+  const [year, monthIndex, day] = [p[0], p[1] - 1, p[2]];
+  if (!Number.isInteger(year) || year < minYear || year > maxYear) return null;
+  if (!Number.isInteger(monthIndex) || monthIndex < 0 || monthIndex > 11) return null;
+  if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+  const d = createLocalDate(year, monthIndex, day);
+  if (Number.isNaN(d.getTime())) return null;
+  if (d.getFullYear() !== year || d.getMonth() !== monthIndex || d.getDate() !== day) return null;
+  return d;
+}
+
 // A Date for a Helsinki calendar day. Local getters (getFullYear/getMonth/getDate)
 // reflect the Helsinki civil date regardless of the visitor's local timezone (including
 // UTC-12 to UTC+14), and Intl conversions back to Helsinki agree.
 export function dateFromDayKey(key) {
   const [y, m, d] = key.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
+  const date = createLocalDate(y, m - 1, d);
   date.__helsinkiDayKey = key;
   return date;
 }
 export function isoYear(date) {
-  var t = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  var t = createLocalDate(date.getFullYear(), date.getMonth(), date.getDate());
   var day = (t.getDay() + 6) % 7;
   t.setDate(t.getDate() - day + 3); // Thursday decides the year
   return t.getFullYear();
 }
 
 export function isoWeek(d) {
-  var t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  var t = createLocalDate(d.getFullYear(), d.getMonth(), d.getDate());
   var day = (t.getDay() + 6) % 7;
   t.setDate(t.getDate() - day + 3);
   var firstThu = t.valueOf();
@@ -47,7 +75,7 @@ export function isoWeek(d) {
 }
 
 export function weeksInIsoYear(y) {
-  return isoWeek(new Date(y, 11, 28));
+  return isoWeek(createLocalDate(y, 11, 28));
 }
 
 // ISO 8601 week-date notation ("2026-W32") — the standard's own compact
@@ -64,7 +92,7 @@ export function isoWeekDateLabel(week, year) {
 // bug fixed in one copy could stay wrong in the others. `month` is 1-indexed
 // (1 = January), matching every other month-accepting function here.
 export function daysInMonth(year, month) {
-  return new Date(year, month, 0).getDate();
+  return createLocalDate(year, month, 0).getDate();
 }
 
 export function isLeapYear(y) {
@@ -105,9 +133,9 @@ export var SEASON_KEYS_EN = ["winter", "spring", "summer", "autumn"];
 export var SEASON_NOMINATIVE_FI = ["Talvi", "Kevät", "Kesä", "Syksy"];
 
 export function mondayOf(week, year) {
-  var jan4 = new Date(year, 0, 4);
+  var jan4 = createLocalDate(year, 0, 4);
   var j = (jan4.getDay() + 6) % 7;
-  var firstMon = new Date(year, 0, 4 - j);
+  var firstMon = createLocalDate(year, 0, 4 - j);
   var m = new Date(firstMon);
   m.setDate(firstMon.getDate() + (week - 1) * 7);
   return m;

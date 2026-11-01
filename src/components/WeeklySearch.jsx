@@ -1,6 +1,6 @@
 import { useToday } from "./useToday";
 import React, { useState, useEffect } from "react";
-import { isoWeek, isoYear, mondayOf } from "./dateUtils";
+import { isoWeek, isoYear, mondayOf, parseDateInput } from "./dateUtils";
 import { Link } from "react-router-dom";
 import { weekParity } from "../data/weekParity.js";
 // FORMATTING HELPERS
@@ -29,10 +29,8 @@ const WEEKDAYS = [
 // function directly with today's date instead, so the section still has real,
 // crawlable text before that effect ever runs.
 function computeResult(selectedDateStr) {
-  if (!selectedDateStr) return null;
-  const parts = selectedDateStr.split("-");
-  if (parts.length !== 3) return null;
-  const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+  const d = parseDateInput(selectedDateStr);
+  if (!d) return null;
 
   const wk = isoWeek(d);
   const yr = isoYear(d);
@@ -89,6 +87,8 @@ const WeeklySearch = () => {
           <input
             type="date"
             id="dpick"
+            min="1000-01-01"
+            max="9999-12-31"
             value={selectedDateStr}
             onChange={(e) => setSelectedDateStr(e.target.value)}
           />
