@@ -262,7 +262,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
         {years.map((yy) => (
           <Link
             key={yy}
-            to={print ? `/tulostettava-kalenteri-${yy}` : `/kalenteri-${yy}`}
+            to={print ? (yy === y ? `/kalenteri-${yy}` : `/tulostettava-kalenteri-${yy}`) : `/kalenteri-${yy}`}
             className={`pill ${yy === y ? "active" : ""}`}
           >
             {yy}
