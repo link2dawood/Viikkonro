@@ -296,11 +296,18 @@ export function schoolHolidayMeta(year) {
   const page = schoolHolidayPage(year);
   if (!page) return null;
   const tier = pageConfidenceTier(year);
+  const helsinkiWinter = page.winter.find((group) =>
+    group.cities.includes("Helsinki"),
+  );
+  const winterSummary =
+    year === 2027 && helsinkiWinter
+      ? `Hiihtoloma ${year} Helsingissä on viikolla ${helsinkiWinter.week}.`
+      : `Hiihtoloma ${year} on viikoilla 8-10.`;
   // Leads with "Syysloma <year>", the page's largest query, and states the
   // real autumn weeks and dates from page.autumn instead of generic copy.
   const base = {
     title: `Syysloma ${year} ja hiihtoloma ${year}: koululomat | Viikko Nro`,
-    description: `${autumnSummary(page)} Hiihtoloma ${year} on viikoilla 8-10. Katso koululomat alueittain.`,
+    description: `${autumnSummary(page)} ${winterSummary} Katso koululomat alueittain.`,
   };
   // STEP 4: Tier B pages must noindex,follow and their description must
   // carry the exact required disclaimer — not a paraphrase, so it reads

@@ -47,11 +47,19 @@ export function dstChanges(year) {
 export function dstMeta(year, now = new Date()) {
   const { start, end } = dstChanges(year);
   const buildDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const autumnFirst = year === now.getFullYear() && buildDate > start.date && buildDate <= end.date;
+  const autumnFocusEnds = new Date(end.date);
+  autumnFocusEnds.setDate(autumnFocusEnds.getDate() + 30);
+  const autumnFirst =
+    year === now.getFullYear() &&
+    buildDate > start.date &&
+    buildDate <= autumnFocusEnds;
   if (autumnFirst) {
+    const changePassed = buildDate >= end.date;
+    const endShort = `${end.date.getDate()}.${end.date.getMonth() + 1}.`;
+    const startShort = `${start.date.getDate()}.${start.date.getMonth() + 1}.`;
     return {
-      title: `Kelloja siirretään ${fmtShortFi(end.date)}: talviaika alkaa | Viikko Nro`,
-      description: `Milloin kelloja siirretään? Talviaika alkaa ${WD_ESSIVE[end.date.getDay()]} ${fmtShortFi(end.date)} klo 4.00, kellot siirtyvät tunti taaksepäin klo 3.00:een. Vuoden kesäaika alkoi ${fmtShortFi(start.date)}.`,
+      title: `Talviaika ${year}: kellojen siirto ${end.date.getDate()}.${end.date.getMonth() + 1}. | Viikkonro`,
+      description: `Milloin kelloja siirretään? Talviaika ${year} ${changePassed ? "alkoi" : "alkaa"} ${WD_ESSIVE[end.date.getDay()]} ${endShort} klo 4.00. Kelloja ${changePassed ? "siirrettiin" : "siirretään"} tunti taaksepäin klo 3.00:een, kesäaika alkoi ${startShort}`,
     };
   }
   return {

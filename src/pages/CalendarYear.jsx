@@ -6,6 +6,7 @@ import {
   isoWeek,
   isoYear,
   M_FULL,
+  fmtFullFi,
   weeksInIsoYear,
   PRERENDER_MIN_YEAR as YEAR_MIN,
   PRERENDER_MAX_YEAR as YEAR_MAX,
@@ -16,12 +17,14 @@ import { hasNameDayPage, nameDaySlug } from "../data/nameDays";
 import SEO from "../components/SEO";
 import AdSlot from "../components/AdSlot";
 import YearActions from "../components/YearActions";
-import { calendarFaqs, calendarPdfPath, canonicalFor, calendarMeta } from "../data/seo";
+import { calendarAnswer, calendarFaqs, calendarPdfPath, canonicalFor, calendarMeta } from "../data/seo";
 import {
   downloadCalendarCsv,
+  printableCalendarAnswer,
   printableCalendarFaqs,
 } from "../data/printCalendarContent";
 import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
+import { bridgeDays, longWeekends } from "../data/longWeekends";
 
 // Year horizon (YEAR_MIN/YEAR_MAX) is imported from dateUtils so the pills,
 // cross-links, and every page's prev/next nav share one rolling source of truth.
@@ -39,6 +42,8 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
   const totalWeeks = weeksInIsoYear(y);
   const faqs = !half && !print ? calendarFaqs(y) : [];
   const printFaqs = print ? printableCalendarFaqs(y) : [];
+  const breaks = !half && !print ? longWeekends(y) : [];
+  const bridges = !half && !print ? bridgeDays(y) : [];
 
   // "Today" in Europe/Helsinki (see useToday.js): the build's day during
   // hydration, the live day right after. Highlight only applies in the
@@ -169,7 +174,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
           <>
             <Link to={`/kalenteri-${y}`}>Kalenteri {y}</Link> /{" "}
             {print
-              ? `Tulostettava A4-kuukausikalenteri ${y}`
+              ? `Tulostettava kalenteri ${y}`
               : `${half === 1 ? "1. vuosipuolisko" : "2. vuosipuolisko"} ${y}`}
           </>
         ) : (
@@ -179,17 +184,14 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
 
       <h1>
         {print
-          ? `Tulostettava A4-kuukausikalenteri ${y}`
-          : `Viikkokalenteri ${y}${halfLabel}`}
+          ? `Tulostettava kalenteri ${y}`
+          : `Kalenteri ${y}${halfLabel}`}
       </h1>
 
       {!half && !print ? (
         <p className="lead">
-          <strong>
-            Viikkokalenteri {y} näyttää vuoden kaikki {totalWeeks} viikkoa,
-            viikkonumerot, päivämäärät ja Suomen juhlapäivät yhdessä näkymässä.
-          </strong>{" "}
-          Kalenterin voi tulostaa tai tallentaa PDF-muodossa.
+          <strong>{calendarAnswer(y)}</strong>{" "}
+          Kalenterin viikkonumerosta pääset avaamaan viikon päivät ja lisätiedot.
           {isCurrentYear
             ? " Kuluva viikko on rajattu vihreällä ja tämä päivä korostettu."
             : ""}
@@ -197,13 +199,13 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
       ) : (
         <p className={print ? "lead print-support" : "lead"}>
           {print
-            ? `A4-kuukausikalenteri näyttää vuoden ${y} kaikki 12 kuukautta ja ${totalWeeks} ISO-viikkoa yhdellä vaakasivulla. `
+            ? <><strong>{printableCalendarAnswer(y)}</strong>{" "}</>
             : `Vuoden ${y} ${half === 1 ? "ensimmäinen" : "toinen"} vuosipuolisko sisältää kuusi kuukautta. `}
-          Kalenteri noudattaa ISO 8601 -standardia: viikko alkaa maanantaista
+          {!print && <>Kalenteri noudattaa ISO 8601 -standardia: viikko alkaa maanantaista
           ja päättyy sunnuntaihin. Juhlapäivät ja viikkonumerot on merkitty.
           {isCurrentYear
             ? " Kuluva viikko on rajattu vihreällä ja tämä päivä korostettu."
-            : ""}
+            : ""}</>}
         </p>
       )}
 
@@ -245,7 +247,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
 
       {!half && !print && (
         <div className="panel noprint">
-          <div className="now-label">Viikkokalenteri {y} lyhyesti</div>
+          <div className="now-label">Kalenteri {y} lyhyesti</div>
           <ul className="clean">
             <li>Vuodessa {y} on {totalWeeks} ISO-viikkoa.</li>
             <li>Kalenterissa näkyvät kaikki 12 kuukautta ja viikkonumerot.</li>
@@ -260,7 +262,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
         {years.map((yy) => (
           <Link
             key={yy}
-            to={`/kalenteri-${yy}`}
+            to={print ? `/tulostettava-kalenteri-${yy}` : `/kalenteri-${yy}`}
             className={`pill ${yy === y ? "active" : ""}`}
           >
             {yy}
@@ -343,7 +345,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
             löytyvät vuosiluettelosta. Valmiin PDF:n voit ladata yllä olevasta
             painikkeesta, ja Excel-CSV sisältää päivämäärät taulukkolaskentaa varten.
           </p>
-          <h2>Miten viikkokalenteria {y} käytetään?</h2>
+          <h2>Miten kalenteria {y} käytetään?</h2>
           <ol>
             <li>Etsi kuukausi ja päivämäärä koko vuoden viikkonäkymästä.</li>
             <li>
@@ -361,13 +363,58 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
             <li>Tulosta näkymä tai tallenna se PDF-tiedostoksi painikkeesta.</li>
           </ol>
 
-          <h2>Usein kysytyt kysymykset viikkokalenterista {y}</h2>
+          <h2>Usein kysytyt kysymykset kalenterista {y}</h2>
           {faqs.map((item, index) => (
             <details key={item.q} open={index === 0}>
               <summary>{item.q}</summary>
               <p>{item.a}</p>
             </details>
           ))}
+        </section>
+      )}
+
+      {!half && !print && (
+        <section className="prose noprint" aria-labelledby="pitkat-viikonloput">
+          <h2 id="pitkat-viikonloput">Pitkät viikonloput {y}</h2>
+          <p>
+            Päivämäärät yhdistävät viikonloput ja Suomen kalenterin viralliset
+            pyhäpäivät. Mukana ovat myös tämän kalenterin suunnittelutavassa
+            vapaiksi lasketut aatot. Työpaikan työehtosopimus voi vaikuttaa
+            vapaapäiviin.
+          </p>
+          {breaks.length > 0 ? (
+            <ul>
+              {breaks.map((run) => (
+                <li key={`${run.start.toISOString()}-${run.end.toISOString()}`}>
+                  <strong>{fmtFullFi(run.start)} - {fmtFullFi(run.end)} ({run.days} päivää)</strong>
+                  {run.holidays.length > 0 && <>: {run.holidays.join(", ")}</>}
+                  {run.weeks.length > 0 && (
+                    <>. Viikot: {run.weeks.map((week, index) => (
+                      <span key={`${week.year}-${week.week}`}>
+                        {index > 0 ? ", " : ""}
+                        <Link to={`/viikko-${week.week}-${week.year}`}>{week.week}/{week.year}</Link>
+                      </span>
+                    ))}</>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Tälle vuodelle ei löytynyt vähintään kolmen päivän jaksoja.</p>
+          )}
+          {bridges.length > 0 && (
+            <>
+              <h3>Siltapäivät {y}</h3>
+              <ul>
+                {bridges.map((bridge) => (
+                  <li key={bridge.date.toISOString()}>
+                    Ota {fmtFullFi(bridge.date)} vapaaksi, niin vapaata on {bridge.freeDays} päivää
+                    ({fmtFullFi(bridge.start)} - {fmtFullFi(bridge.end)}).
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
       )}
 

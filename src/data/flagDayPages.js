@@ -156,7 +156,11 @@ export function flagDaysInYear(year) {
 export function flagDaysMeta(year) {
   const days = flagDaysInYear(year);
   const suomenLipunPaiva = days.find((d) => d.altName === "Suomen lipun päivä");
-  const highlights = [days[0].name, suomenLipunPaiva?.altName].filter(Boolean);
+  const isanpaiva = days.find((d) => d.name === "Isänpäivä");
+  const highlights = [
+    isanpaiva && "Isänpäivä " + fmtFullFi(isanpaiva.date),
+    suomenLipunPaiva && suomenLipunPaiva.altName + " " + fmtFullFi(suomenLipunPaiva.date),
+  ].filter(Boolean);
   return {
     title: `Liputuspäivät ${year} | Viikko Nro`,
     description: `Vuonna ${year} Suomessa on ${days.length} liputuspäivää, muun muassa ${highlights.join(" ja ")}. Katso kaikki päivämäärät, viikonpäivät ja viikkonumerot.`,

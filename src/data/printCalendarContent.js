@@ -46,6 +46,10 @@ export function downloadCalendarCsv(year) {
   downloadBlob(`viikkokalenteri-${year}.csv`, calendarCsv(year), "text/csv;charset=utf-8");
 }
 
+export function printableCalendarAnswer(year) {
+  return `Tulostettava kalenteri ${year} on maksuton A4-vuosikalenteri. Siinä ovat kaikki 12 kuukautta, viikkonumerot sekä Suomen juhla- ja liputuspäivät. Voit tulostaa sen tai ladata PDF:n.`;
+}
+
 export function printListFaqs(year) {
   return [
     {
@@ -74,11 +78,11 @@ export function printListFaqs(year) {
 export function printableCalendarFaqs(year) {
   return [
     {
-      q: `Mitä tulostettava A4-kuukausikalenteri ${year} sisältää?`,
-      a: `A4-kuukausikalenteri sisältää vuoden ${year} kaikki 12 kuukautta, ${weeksInIsoYear(year)} ISO-viikkoa, viikkonumerot sekä Suomen juhla- ja liputuspäivät.`,
+      q: `Mitä tulostettava kalenteri ${year} sisältää?`,
+      a: `Tulostettava kalenteri ${year} sisältää kaikki 12 kuukautta, ${weeksInIsoYear(year)} ISO-viikkoa, viikkonumerot sekä Suomen juhla- ja liputuspäivät.`,
     },
     {
-      q: `Miten A4-kuukausikalenteri ${year} tallennetaan PDF-muodossa?`,
+      q: `Miten tulostan kalenterin ${year} tai tallennan sen PDF-muodossa?`,
       a: "Paina Tulosta / tallenna PDF ja valitse tulostusikkunasta PDF-tallennus. Kalenteri on sovitettu A4-vaakasivulle.",
     },
     {
@@ -86,12 +90,12 @@ export function printableCalendarFaqs(year) {
       a: "Kyllä. Kalenterin tulostaminen, PDF-tallennus ja CSV-lataus ovat ilmaisia eivätkä vaadi rekisteröitymistä.",
     },
     {
-      q: "Saako kalenterin Excel-muodossa?",
-      a: "Kalenterin tiedot voi ladata Excel-yhteensopivana UTF-8 CSV-tiedostona, joka toimii myös Numbersissa ja Google Sheetsissä.",
+      q: `Sisältääkö tulostettava kalenteri ${year} viikkonumerot?`,
+      a: "Kyllä. Kalenteri käyttää ISO 8601 -viikkonumeroita. Viikko alkaa maanantaista ja viikko 1 sisältää vuoden ensimmäisen torstain.",
     },
     {
-      q: "Mihin viikkonumerot perustuvat?",
-      a: "Viikkonumerot perustuvat ISO 8601 -standardiin: viikko alkaa maanantaista ja viikko 1 sisältää vuoden ensimmäisen torstain.",
+      q: "Saako tulostettavaa kalenteria jakaa koulussa tai työpaikalla?",
+      a: "Kyllä. Maksutonta kalenteria saa tulostaa ja jakaa omaan käyttöön esimerkiksi koulussa ja työpaikalla. Verkkosivulle jaettaessa lisää linkki alkuperäiseen kalenteriin.",
     },
   ];
 }

@@ -401,6 +401,28 @@ section {
   color: var(--ink-soft);
   margin-top: 4px;
 }
+.week-parity {
+  display: inline-flex;
+  margin: 12px 0 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: 14px;
+  font-weight: 700;
+}
+.home-week-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 650;
+}
+.home-week-nav a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
 .progress-block {
   border-left: 1px solid var(--line);
   padding-left: 28px;

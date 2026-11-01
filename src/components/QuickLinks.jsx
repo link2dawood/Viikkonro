@@ -14,11 +14,19 @@ const QuickLinks = () => {
         <div className="quicklinks">
           <Link
             className="ql"
-            to={`/kalenteri-${promotedYear}`}
+            to={`/vuosi-${promotedYear}`}
             onClick={() => window.scrollTo(0, 0)}
           >
             <b>Viikkokalenteri {promotedYear}</b>
-            <span>Kaikki viikot ja juhlapäivät yhdellä sivulla</span>
+            <span>Kaikki viikot päivämäärineen ja viikkonumeroineen</span>
+          </Link>
+          <Link
+            className="ql"
+            to={`/tulostettava-kalenteri-${promotedYear}`}
+            onClick={() => window.scrollTo(0, 0)}
+          >
+            <b>Tulostettava kalenteri {promotedYear}</b>
+            <span>Lataa vuosikalenteri PDF-muodossa</span>
           </Link>
           <Link
             className="ql"

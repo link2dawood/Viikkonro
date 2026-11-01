@@ -26,7 +26,7 @@ export const faqCategories = [
         a: "Kuluva viikkonumero lasketaan ISO 8601 -standardin mukaan: viikko alkaa maanantaina ja päättyy sunnuntaina. Viikkonro.fi näyttää tämänhetkisen viikon numeron, alkamis- ja päättymispäivän sekä sen, monesko viikko vuodesta on kyseessä. Numero päivittyy automaattisesti joka maanantai kello 00.00.",
       },
       {
-        q: "Monesko viikko nyt menee?",
+        q: "Monesko viikko nyt on?",
         a: "Sama kuin kuluva viikkonumero – katso se etusivun laskurista. Suomessa viikot numeroidaan ISO 8601 -standardilla, ja vuoteen mahtuu 52 tai 53 viikkoa.",
       },
       {

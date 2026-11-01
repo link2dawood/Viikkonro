@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { dstMeta } from "./dstPages.js";
 
 describe("clock-change metadata", () => {
-  it("leads with the autumn change for the current year once summer time is in effect", () => {
+  it("leads with the autumn change and names the year during autumn search season", () => {
     const meta = dstMeta(2026, new Date(2026, 9, 15));
 
-    expect(meta.title).toBe("Kelloja siirretään 25.10.2026: talviaika alkaa | Viikko Nro");
+    expect(meta.title).toBe("Talviaika 2026: kellojen siirto 25.10. | Viikkonro");
     expect(meta.title.length).toBeLessThan(60);
     // Leads with the dominant Search Console phrasing ("milloin kelloja
     // siirretään") rather than the noun "kellojen siirto" the page used before.
@@ -34,9 +34,9 @@ describe("clock-change metadata boundaries", () => {
     [new Date(2026, 2, 29, 23, 59), false],
     [new Date(2026, 2, 30), true],
     [new Date(2026, 9, 25, 23, 59), true],
-    [new Date(2026, 9, 26), false],
+    [new Date(2026, 9, 26), true],
   ])("selects the season for build date %s", (now, autumnFirst) => {
-    expect(dstMeta(2026, now).title.includes("talviaika")).toBe(autumnFirst);
+    expect(dstMeta(2026, now).title.toLowerCase().includes("talviaika")).toBe(autumnFirst);
   });
 
   it.each([2025, 2027])("keeps spring first for a different page year (%i)", (year) => {
@@ -55,8 +55,8 @@ describe("clock-change metadata boundaries", () => {
         expect(meta.description).toContain("tunti taaksepäin");
         expect(meta.description).toContain("3.00");
         expect(meta.description).toContain("4.00");
-        expect(meta.description).toMatch(/\d{1,2}\.3\.\d{4}/);
-        expect(meta.description).toMatch(/\d{1,2}\.10\.\d{4}/);
+        expect(meta.description).toMatch(/\d{1,2}\.3\./);
+        expect(meta.description).toMatch(/\d{1,2}\.10\./);
       }
     }
   });
