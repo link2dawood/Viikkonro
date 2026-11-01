@@ -4,29 +4,30 @@ Updated: 2026-11-01
 
 ## Active change
 
-- Finding 7 of 10 audit findings: Two pages overflow horizontally at 320 px.
+- Finding 8 of 10 audit findings: "Current year" changes early in UTC+14.
 - Change:
-  - Added responsive styling in `src/App.css` under `@media (max-width: 600px)` for `.day` layout: sets `flex-direction: column; gap: 8px;`, `width: 100%` on `.day-head`, and allows `.day .dt` date text to wrap (`white-space: normal; overflow-wrap: break-word;`), resolving the 376 px horizontal overflow on `/viikko-53-2026`.
-  - Added global inline `code` wrapping (`overflow-wrap: anywhere; word-break: break-word;`), resolving the 376 px horizontal overflow from long API path examples on `/avoin-data`.
-  - Added regression test cases in `scripts/predeploy-build.cases.mjs` and updated `scripts/ui-regressions.browser.mjs` to assert no horizontal overflow on `/viikko-53-2026` and `/avoin-data` at 320 px.
-- Branch: `fix/narrow-viewport-overflow-20261101`
+  - In `src/components/dateUtils.js`, updated `dateFromDayKey(key)` to construct local civil date components (`new Date(y, m - 1, d)`) while preserving its civil day key (`date.__helsinkiDayKey = key`) so local getters (`getFullYear()`, `getMonth()`, `getDate()`) never roll over into the next day in UTC+14 (e.g. Pacific/Kiritimati).
+  - In `src/components/dateUtils.js`, updated `helsinkiDayKey(instant)` to return `instant.__helsinkiDayKey` when present, ensuring round-trip agreement across all client timezones.
+  - In `src/components/dateUtils.js`, updated `dayOfYear(date)` to compute day-of-year via UTC date arithmetic (`Date.UTC(y, m, d) - Date.UTC(y, 0, 1)`), eliminating fractional day rounding discrepancies and DST shifts across all timezones.
+  - In `src/data/currentDateContent.js`, set default reference parameters to `dateFromDayKey(helsinkiDayKey())` so unparameterized helper calls consistently evaluate against Helsinki's civil calendar date.
+  - Added unit test coverage in `src/components/useToday.test.jsx` and `scripts/predeploy-build.cases.mjs`.
+- Branch: `fix/current-year-utc14-timezone-20261101`
 - Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
 
 `npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
 - ESLint: zero errors, zero warnings.
-- Vitest: 101/101 test suites passed, 1193 tests passed.
-- Predeploy artifacts: 46/46 test cases passed.
+- Vitest: 101/101 test suites passed, 1195 tests passed.
+- Predeploy artifacts: 47/47 test cases passed.
 - Build & Prerender: 1920 routes prerendered cleanly.
-- Browser UI regressions: 0 horizontal overflows at 320 px across all audited routes.
+- Browser test in Pacific/Kiritimati at 2026-12-31T08:00:00Z: displays year 2026 and week 53 as expected.
 - Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Merge PR for Finding 7 (Horizontal overflow at 320 px on `/viikko-53-2026` and `/avoin-data`).
+1. Merge PR for Finding 8 ("Current year" changes early in UTC+14).
 2. Continue fixing the remaining audit findings one at a time, in report order:
-   - "Current year" flips early in UTC+14.
    - Years 0001-0099 silently map to 1901-1999.
    - 414 local JSON-LD `#webpage` references target omitted noindex page nodes.
 3. Keep each fix isolated, run required checks for the release path, push a PR, and wait for protected-branch approval before production deployment.

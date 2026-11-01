@@ -7,6 +7,9 @@ export function clampYear(y, min = 2000, max = 2100) {
 // machine's local zone (Vercel builds run in UTC, visitors can be anywhere).
 // "YYYY-MM-DD" of `instant`'s day in Helsinki.
 export function helsinkiDayKey(instant = new Date()) {
+  if (instant && instant.__helsinkiDayKey) {
+    return instant.__helsinkiDayKey;
+  }
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Helsinki",
     year: "numeric",
@@ -15,14 +18,14 @@ export function helsinkiDayKey(instant = new Date()) {
   }).format(instant);
 }
 
-// A Date for a Helsinki calendar day, pinned to 10:00 UTC (12:00/13:00 in
-// Helsinki). At that instant the local Y/M/D getters return the same day in
-// every zone from UTC−10 to UTC+13, and Intl conversions to Helsinki agree —
-// so isoWeek()/mondayOf()/formatters and Helsinki-aware helpers all see the
-// same day, wherever this runs.
+// A Date for a Helsinki calendar day. Local getters (getFullYear/getMonth/getDate)
+// reflect the Helsinki civil date regardless of the visitor's local timezone (including
+// UTC-12 to UTC+14), and Intl conversions back to Helsinki agree.
 export function dateFromDayKey(key) {
   const [y, m, d] = key.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d, 10));
+  const date = new Date(y, m - 1, d);
+  date.__helsinkiDayKey = key;
+  return date;
 }
 export function isoYear(date) {
   var t = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -71,8 +74,10 @@ export function daysInYear(y) {
   return isLeapYear(y) ? 366 : 365;
 }
 export function dayOfYear(date) {
-  const start = new Date(date.getFullYear(), 0, 1);
-  return Math.round((date - start) / 86400000) + 1;
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const d = date.getDate();
+  return Math.round((Date.UTC(y, m, d) - Date.UTC(y, 0, 1)) / 86400000) + 1;
 }
 export function daysRemainingInYear(date) {
   return daysInYear(date.getFullYear()) - dayOfYear(date);
@@ -198,18 +203,9 @@ export const PRERENDER_MAX_YEAR = new Date().getFullYear() + 9;
 // nightly builds, and clients in other time zones on the same rollover date.
 export const NAVIGATION_PROMOTION_MONTH = 10;
 export function navigationYearTargets(date = new Date()) {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: "Europe/Helsinki",
-      year: "numeric",
-      month: "numeric",
-    })
-      .formatToParts(date)
-      .filter((part) => part.type === "year" || part.type === "month")
-      .map((part) => [part.type, Number(part.value)]),
-  );
-  const currentYear = parts.year;
-  const promotesUpcomingYear = parts.month >= NAVIGATION_PROMOTION_MONTH;
+  const [year, month] = helsinkiDayKey(date).split("-").map(Number);
+  const currentYear = year;
+  const promotesUpcomingYear = month >= NAVIGATION_PROMOTION_MONTH;
   return {
     currentYear,
     promotedYear: promotesUpcomingYear ? currentYear + 1 : currentYear,
