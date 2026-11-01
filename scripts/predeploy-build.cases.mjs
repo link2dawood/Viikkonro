@@ -621,3 +621,21 @@ test("PD-19 ships the AdSense loader on content pages only, with ads.txt and pol
   assert.match(read("src/App.css"), /@media print \{[\s\S]*?ins\.adsbygoogle[\s\S]*?display: none/,
     "the rule belongs in the print block");
 });
+
+test("missing static assets are rewritten to asset-404 with no-store headers", () => {
+  const vercel = JSON.parse(read("vercel.json"));
+  const rewrites = vercel.rewrites || [];
+  assert.ok(
+    rewrites.some((r) => r.source === "/assets/(.*)" && r.destination === "/api/asset-404"),
+    "vercel.json must rewrite missing assets to /api/asset-404",
+  );
+  assert.ok(
+    rewrites.some((r) => r.source === "/fonts/(.*)" && r.destination === "/api/asset-404"),
+    "vercel.json must rewrite missing fonts to /api/asset-404",
+  );
+  const handlerFile = fs.existsSync(path.join(root, "api/asset-404.js"));
+  assert.ok(handlerFile, "api/asset-404.js must exist");
+  const handlerSource = read("api/asset-404.js");
+  assert.match(handlerSource, /no-store/);
+  assert.match(handlerSource, /status:\s*404/);
+});

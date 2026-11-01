@@ -176,6 +176,16 @@
       "statusCode": 301
     }
   ],
+  "rewrites": [
+    {
+      "source": "/assets/(.*)",
+      "destination": "/api/asset-404"
+    },
+    {
+      "source": "/fonts/(.*)",
+      "destination": "/api/asset-404"
+    }
+  ],
   "headers": [
       {
         "source": "/widget/calendar/(.*)",
@@ -232,6 +242,27 @@
         {
           "key": "Cache-Control",
           "value": "no-store"
+        },
+        {
+          "key": "CDN-Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Vercel-CDN-Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/api/asset-404",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
         },
         {
           "key": "CDN-Cache-Control",
