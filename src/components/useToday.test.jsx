@@ -52,8 +52,15 @@ describe("useToday on the server", () => {
 
   it("puts the render day's week in the homepage hero and the navbar badge", () => {
     globalThis.__VIIKKONRO_RENDER_DAY__ = "2026-11-30"; // Monday of week 49
-    const hero = renderToStaticMarkup(<Weekcounter lead="" />);
+    const hero = renderToStaticMarkup(
+      <MemoryRouter initialEntries={["/"]}>
+        <Weekcounter lead="" />
+      </MemoryRouter>,
+    );
     expect(hero).toContain('<span id="weekNow">49</span>');
+    expect(hero).toContain('id="weekParityNow"');
+    expect(hero).toContain('href="/viikko-48-2026"');
+    expect(hero).toContain('href="/viikko-50-2026"');
     const nav = renderToStaticMarkup(
       <MemoryRouter initialEntries={["/"]}>
         <Navbar />

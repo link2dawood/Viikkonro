@@ -293,9 +293,13 @@ export function observanceMeta(slug, year) {
     page.slug === "laskiainen"
       ? `Laskiaissunnuntai ${page.year} on ${wdm(page.date)} ja laskiaistiistai ${wdm(extra.date)}`
       : `${page.name} ${page.year} on ${whenFi(page.date)}, viikolla ${page.week}.`;
+  const description =
+    page.slug === "isanpaiva"
+      ? `Milloin on isänpäivä ${page.year}? ${whenFi(page.date)}. Se kuuluu viikkoon ${page.week} ja on virallinen liputuspäivä.`
+      : `${lead} Katso päivän määräytyminen, liputus ja päivämäärät tuleville vuosille.`;
   return {
     title,
-    description: `${lead} Katso päivän määräytyminen, liputus ja päivämäärät tuleville vuosille.`,
+    description,
   };
 }
 
@@ -325,6 +329,12 @@ export function observanceFaqs(page) {
       a: page.flagDay,
     },
   ];
+  if (page.slug === "isanpaiva") {
+    faqs.push({
+      q: `Onko isäinpäivä ${y} sama asia kuin isänpäivä?`,
+      a: `Kyllä. Isäinpäivä on vanhahtava nimitys isänpäivälle. Vuonna ${y} Isänpäivää vietetään ${whenFi(page.date)}.`,
+    });
+  }
   if (next) {
     faqs.push({
       q: `Milloin on ${lower} ${y + 1}?`,

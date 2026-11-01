@@ -8,7 +8,7 @@ import { schoolHolidayMeta } from "./schoolHolidayPages.js";
 // "syysloma 2026", "pääsiäinen 2027", "viikko 42".
 describe("keyword-targeted metadata", () => {
   it("opens the homepage description with the alternate head-query order", () => {
-    expect(homeMeta(new Date(2026, 9, 1)).description).toMatch(/^Mikä viikko on nyt\? Nyt on viikko 40 /);
+    expect(homeMeta(new Date(2026, 9, 1)).description).toMatch(/^Mikä viikko on nyt\? Nyt on viikko 40/);
   });
 
   it("leads year and calendar titles with the literal queries", () => {

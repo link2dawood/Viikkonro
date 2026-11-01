@@ -704,14 +704,21 @@ export function calendarMeta(y, half, print) {
   };
 }
 
+// Direct answer for the annual month-grid page. /vuosi-{year} owns the
+// separate viikkokalenteri and full week-list intent.
+export function calendarAnswer(year) {
+  const total = weeksInIsoYear(year);
+  return `Kalenteri ${year} sisältää kaikki 12 kuukautta, ${total} ISO-viikkoa, viikkonumerot sekä Suomen juhla- ja liputuspäivät.`;
+}
+
 // Shared by CalendarYear.jsx and prerender.js so the visible calendar FAQ and
 // its FAQPage JSON-LD always contain exactly the same questions and answers.
 export function calendarFaqs(y) {
   const total = weeksInIsoYear(y);
   return [
     {
-      q: `Mikä on viikkokalenteri ${y} yhdellä lauseella?`,
-      a: `Viikkokalenteri ${y} näyttää vuoden kaikki ${total} ISO-viikkoa, päivämäärät, viikkonumerot ja Suomen juhlapäivät yhdessä näkymässä.`,
+      q: `Mitä kalenteri ${y} sisältää?`,
+      a: calendarAnswer(y),
     },
     {
       q: `Mihin viikkoihin vuoden ${y} ensimmäinen ja viimeinen päivä kuuluvat?`,
@@ -722,16 +729,16 @@ export function calendarFaqs(y) {
       a: `Vuodessa ${y} on ${total} ISO-viikkoa. Viikko alkaa maanantaina ja päättyy sunnuntaina.`,
     },
     {
-      q: `Miten viikkokalenteri ${y} tulostetaan tai tallennetaan PDF-muodossa?`,
-      a: `Paina kalenterin Tulosta / tallenna PDF -painiketta ja valitse selaimen tulostusikkunasta tulostin tai PDF-tallennus. Kalenteri sovitetaan A4-vaakasivulle.`,
+      q: `Miten tulostan tai tallennan kalenterin ${y}?`,
+      a: `Voit tulostaa tämän kalenterin selaimesta tai ladata valmiin PDF:n. Tulostettavan kalenterin ${y} A4-versiot ja CSV-lataus löytyvät omalta sivultaan.`,
     },
     {
-      q: `Mitä viikkonäkymä ${y} näyttää?`,
-      a: `Viikkonäkymä näyttää jokaisen kuukauden päivät, maanantaisin alkavat viikkonumerot sekä Suomen juhla- ja liputuspäivät. Viikkonumerosta voi avata viikon oman sivun.`,
+      q: `Miten löydän kuukauden viikkonumerot kalenterista?`,
+      a: `Jokaisen kuukauden maanantairivillä näkyy ISO-viikon numero. Avaa viikkonumerosta viikon kaikki päivät ja juhlapäivät.`,
     },
     {
-      q: `Voiko viikkokalenterista avata yksittäisen viikon päivämäärät?`,
-      a: `Kyllä. Napsauta kalenterissa maanantain vieressä näkyvää viikkonumeroa, niin saat viikon kaikki seitsemän päivämäärää, työpäivien määrän ja päivänvalotiedot.`,
+      q: `Voinko avata viikon päivät kalenterin viikkonumerosta?`,
+      a: `Kyllä. Avaa maanantain vieressä oleva viikkonumero, niin näet viikon kaikki seitsemän päivämäärää, arkipyhät, työpäivien määrän ja päivänvalotiedot.`,
     },
   ];
 }
@@ -747,20 +754,16 @@ export function homeMeta(now) {
   const mo = mondayOf(week, year);
   const su = new Date(mo);
   su.setDate(mo.getDate() + 6);
-  // The live week and compact start date distinguish every weekly build while
-  // leaving room for both the exact head query and the full "viikkonumero"
-  // keyword. Even a two-digit week/date remains below 60 characters.
-  const startDate = formatShort(mo);
   // The direct-answer sentence rendered as the homepage's on-page lead
   // paragraph (Weekcounter.jsx). The meta description below targets the exact
   // head query while drawing its dates from these same computed values.
   const lead = `Juuri nyt on viikko ${week} (viikkonumero ${week}) vuonna ${year}. Viikko alkaa ${WD_ESSIVE[mo.getDay()]} ${fmtShortFi(mo)} ja päättyy ${WD_ESSIVE[su.getDay()]} ${fmtShortFi(su)}.`;
+  const startDate = `${mo.getDate()}.${mo.getMonth() + 1}.`;
   return {
     title: `Viikkonumero ${week} (${startDate}): Mikä viikko nyt on? | Viikko Nro`,
-    // Opens with the other common word order of the head query ("mikä viikko
-    // on nyt"; the title carries "mikä viikko nyt on"), then the live answer,
-    // keeping "kuluva viikko" and "viikon numero" inside the 140-160 budget.
-    description: `Mikä viikko on nyt? Nyt on viikko ${week} vuonna ${year}. Kuluva viikko alkaa ${WD_ESSIVE[mo.getDay()]} ${formatShort(mo)} ja päättyy ${WD_ESSIVE[su.getDay()]} ${formatShort(su)} Katso minkä tahansa päivän viikon numero.`,
+    // Keep the requested main query first and include the live answer. The
+    // current week, calendar dates and parity also appear in visible page copy.
+    description: `Mikä viikko on nyt? Nyt on viikko ${week} vuonna ${year}. Tarkista ajankohtainen viikkonumero, viikon päivämäärät sekä parillinen tai pariton viikko helposti.`,
     lead,
   };
 }

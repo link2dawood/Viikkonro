@@ -1,5 +1,6 @@
 import { useToday } from "./useToday";
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   isoWeek,
   isoYear,
@@ -8,6 +9,7 @@ import {
   getWeekdayName,
   getDate,
 } from "./dateUtils";
+import { weekParity } from "../data/weekParity.js";
 
 // Computed directly in the render body, not an effect: an effect never runs
 // during SSR/prerendering, so the static/no-JS HTML (what F-04's title fix
@@ -22,13 +24,22 @@ const Weekcounter = ({ lead }) => {
   const monday = mondayOf(weekNow, yearNow);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
+  const previousMonday = new Date(monday);
+  previousMonday.setDate(monday.getDate() - 7);
+  const nextMonday = new Date(monday);
+  nextMonday.setDate(monday.getDate() + 7);
+  const previousWeek = isoWeek(previousMonday);
+  const previousYear = isoYear(previousMonday);
+  const nextWeek = isoWeek(nextMonday);
+  const nextYear = isoYear(nextMonday);
 
   const formattedDate = getWeekdayName(now) + " " + getDate(now);
 
-  const options = { month: "long", day: "numeric" };
-  const startStr = monday.toLocaleDateString("fi-FI", options);
-  const endStr = sunday.toLocaleDateString("fi-FI", options);
-  const dateRange = `${startStr} – ${endStr}, ${yearNow}`;
+  const dateOptions = { year: "numeric", month: "long", day: "numeric" };
+  const dateRange = `${monday.toLocaleDateString("fi-FI", dateOptions)} - ${sunday.toLocaleDateString(
+    "fi-FI",
+    dateOptions,
+  )}`;
 
   const pct = Math.round((weekNow / totalWeeks) * 100);
 
@@ -63,6 +74,23 @@ const Weekcounter = ({ lead }) => {
                 <div className="range" id="rangeNow">
                   {dateRange}
                 </div>
+                <p className="week-parity" id="weekParityNow">
+                  Viikko {weekParity(weekNow)}
+                </p>
+                <nav className="home-week-nav" aria-label="Selaa viikkoja">
+                  <Link
+                    to={`/viikko-${previousWeek}-${previousYear}`}
+                    aria-label={`Edellinen viikko ${previousWeek}/${previousYear}`}
+                  >
+                    ← Viikko {previousWeek}/{previousYear}
+                  </Link>
+                  <Link
+                    to={`/viikko-${nextWeek}-${nextYear}`}
+                    aria-label={`Seuraava viikko ${nextWeek}/${nextYear}`}
+                  >
+                    Viikko {nextWeek}/{nextYear} →
+                  </Link>
+                </nav>
               </div>
             </div>
             <div className="progress-block">
