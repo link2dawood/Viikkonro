@@ -10,6 +10,35 @@
 // Vite transform and so only ever sees real process.env).
 export const SITE_URL = process.env.SITE_ORIGIN || "https://viikkonro.fi";
 
+export const DEFAULT_ROBOTS =
+  "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
+export const NOINDEX_ROBOTS = "noindex, follow";
+
+export function isIndexable(p, currentYear = new Date().getFullYear()) {
+  const week = p.match(/^\/viikko-\d+-(\d{4})$/);
+  if (week) {
+    const year = Number(week[1]);
+    return year >= PRERENDER_MIN_YEAR && year <= PRERENDER_MAX_YEAR;
+  }
+  // Named-holiday pages are the deliberately expanded content cluster: all
+  // 15 holidays across the complete 2020..current+9 publishing horizon are
+  // indexable and included in the sitemap.
+  if (/^\/pyhat-\d{4}\/[a-z0-9-]+$/.test(p)) return true;
+  if (/^\/widget\b/.test(p) || p === "/404") return false;
+  const m = p.match(/-(\d{4})(?:-(?:alkuvuosi|loppuvuosi))?$/);
+  if (!m) return true; // static pages have no year -> always indexable
+  const y = Number(m[1]);
+  const indexMinYear = currentYear - 2;
+  const indexMaxYear = currentYear + 4;
+  return y >= indexMinYear && y <= indexMaxYear;
+}
+
+export function robotsFor(url, metaRobots, currentYear) {
+  if (metaRobots) return metaRobots;
+  const path = url ? url.split("?")[0].replace(/^https?:\/\/[^/]+/, "") || "/" : "/";
+  return isIndexable(path, currentYear) ? DEFAULT_ROBOTS : NOINDEX_ROBOTS;
+}
+
 // Finnish date formatters live in one place (dateUtils.js). Imported with an
 // explicit .js extension so plain-Node prerender.js can resolve it too (the
 // ISO-week math below stays inline — untouched — per the no-touch rule).
