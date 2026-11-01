@@ -708,10 +708,14 @@ function entityParentExtra(url) {
   }
   if ((m = url.match(/^\/pyhat-(\d+)\/[a-z0-9-]+$/))) {
     const year = m[1];
+    const hubPath = `/pyhapaivat-${year}`;
+    const hubId = isIndexable(hubPath)
+      ? `${canonicalFor(hubPath)}#webpage`
+      : `${canonicalFor(`/vuosi-${year}`)}#webpage`;
     return {
       isPartOf: [
         { "@id": `${SITE_URL}/#website` },
-        { "@id": `${canonicalFor(`/pyhapaivat-${year}`)}#webpage` },
+        { "@id": hubId },
       ],
     };
   }
@@ -2656,14 +2660,15 @@ function weekCollectionNodes(pathname) {
     // references to each page's own #webpage node, alongside the week
     // ItemList, rather than folding them into one mixed ItemList, so the
     // existing week-only mainEntity contract stays unchanged for any consumer.
-    hasPart = [
-      ...M_FULL.map((_, index) => ({
-        "@id": `${canonicalFor(`/kuukausi-${index + 1}-${year}`)}#webpage`,
-      })),
-      ...[1, 2, 3, 4].map((q) => ({
-        "@id": `${canonicalFor(`/q${q}-${year}`)}#webpage`,
-      })),
-    ];
+    const monthParts = M_FULL.map((_, index) => `/kuukausi-${index + 1}-${year}`)
+      .filter((p) => isIndexable(p))
+      .map((p) => ({ "@id": `${canonicalFor(p)}#webpage` }));
+    const quarterParts = [1, 2, 3, 4]
+      .map((q) => `/q${q}-${year}`)
+      .filter((p) => isIndexable(p))
+      .map((p) => ({ "@id": `${canonicalFor(p)}#webpage` }));
+    const allParts = [...monthParts, ...quarterParts];
+    if (allParts.length > 0) hasPart = allParts;
     speakable = {
       "@type": "SpeakableSpecification",
       cssSelector: [".answer-sentence"],
@@ -2769,7 +2774,9 @@ function namedHolidayNodes(year, slug) {
         // until this fix.
         mentions: [
           { "@id": `${canonicalFor(links.week.path)}#webpage` },
-          { "@id": `${canonicalFor(links.month.path)}#webpage` },
+          ...(isIndexable(links.month.path)
+            ? [{ "@id": `${canonicalFor(links.month.path)}#webpage` }]
+            : []),
           { "@id": `${canonicalFor(links.year.path)}#webpage` },
         ],
         speakable: {
@@ -2960,7 +2967,9 @@ function observanceNodes(url) {
       about: { "@type": "Thing", name: page.name },
       mentions: [
         { "@id": `${canonicalFor(page.weekPath)}#webpage` },
-        { "@id": `${canonicalFor(page.monthPath)}#webpage` },
+        ...(isIndexable(page.monthPath)
+          ? [{ "@id": `${canonicalFor(page.monthPath)}#webpage` }]
+          : []),
         { "@id": `${canonicalFor(`/vuosi-${page.year}`)}#webpage` },
       ],
       speakable: { "@type": "SpeakableSpecification", cssSelector: [".answer-sentence"] },
