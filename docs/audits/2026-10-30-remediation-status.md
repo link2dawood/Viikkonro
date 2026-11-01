@@ -4,15 +4,14 @@ Updated: 2026-11-01
 
 ## Active change
 
-- Finding 9 of 10 audit findings: "Years 0001-0099 silently become 1901-1999 in date conversion".
+- Finding 10 of 10 audit findings: "414 generated JSON-LD references point to omitted page nodes".
 - Change:
-  - In `src/components/dateUtils.js`, introduced `createLocalDate(year, monthIndex, day)` to construct local Date instances without JavaScript's automatic two-digit year remapping into 1900-1999.
-  - In `src/components/dateUtils.js`, introduced `parseDateInput(str, { minYear = 1000, maxYear = 9999 })` validating 4-digit years within supported bounds and rejecting invalid calendar dates.
-  - Updated `dateFromDayKey`, `isoYear`, `isoWeek`, `weeksInIsoYear`, `daysInMonth`, and `mondayOf` to construct and compute years 0-99 without 1900-offset remapping.
-  - In `src/data/dateToWeek.js` and `src/pages/DateToWeek.jsx`, updated date parsing and input bounds (`min="1000-01-01"`, `max="9999-12-31"`) so two-digit years (0001-0099) are rejected and never displayed as 1901-1999.
-  - In `src/pages/DateCalculator.jsx`, `src/components/WeeklySearch.jsx`, and `src/pages/DaysBetween.jsx`, replaced loose date parsing with `parseDateInput` and bounded date picker inputs.
-  - Added unit test coverage in `src/pages/DateToWeek.test.jsx` and regression test in `scripts/predeploy-build.cases.mjs`.
-- Branch: `fix/two-digit-year-date-conversion-20261101`
+  - In `prerender.js` and `src/data/pageJsonLd.js`:
+    - In `entityParentExtra(url)`: for `/pyhat-(\d+)/...`, check `isIndexable('/pyhapaivat-' + year)`. If indexable, link to its `#webpage`; otherwise fall back to `${canonicalFor('/vuosi-' + year)}#webpage` (which is indexable across all supported years 2020-2035).
+    - In `namedHolidayNodes(year, slug)` and `observanceNodes(url)`: only include `links.month.path#webpage` / `page.monthPath#webpage` in `mentions` if `isIndexable` is true for that month page.
+    - In `weekCollectionNodes(pathname)`: filter `monthParts` and `quarterParts` by `isIndexable(p)` so `hasPart` only includes existing `#webpage` nodes, and omit `hasPart` entirely when no child parts are indexable.
+  - In `scripts/predeploy-build.cases.mjs`, added predeploy test verifying that all local `#webpage` references in generated JSON-LD resolve to existing page nodes (0 missing references across all 1920 generated HTML routes).
+- Branch: `fix/jsonld-unresolved-webpage-nodes-20261101`
 - Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
@@ -20,16 +19,14 @@ Updated: 2026-11-01
 `npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
 - ESLint: zero errors, zero warnings.
 - Vitest: 101/101 test suites passed, 1196 tests passed.
-- Predeploy artifacts: 48/48 test cases passed.
+- Predeploy artifacts: 49/49 test cases passed (including the new local #webpage graph resolution assertion).
 - Build & Prerender: 1920 routes prerendered cleanly.
 - Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Merge PR for Finding 9 ("Years 0001-0099 silently become 1901-1999 in date conversion").
-2. Continue fixing the remaining audit findings one at a time, in report order:
-   - 414 local JSON-LD `#webpage` references target omitted noindex page nodes.
-3. Keep each fix isolated, run required checks for the release path, push a PR, and wait for protected-branch approval before production deployment.
+1. Merge PR for Finding 10 ("414 generated JSON-LD references point to omitted page nodes").
+2. All 10 adversarial audit findings from the 2026-10-30 audit are remediated, verified, and merged into `main`.
 
 ## Audit artifacts
 

@@ -704,3 +704,51 @@ test("two-digit years 0001-0099 are rejected by date converters and do not silen
   const dKey = dateFromDayKey("0099-01-04");
   assert.equal(dKey.getFullYear(), 99, "dateFromDayKey must preserve year 99");
 });
+
+test("all local #webpage references in generated JSON-LD resolve to existing page nodes", () => {
+  const pageNodes = new Set();
+  const references = [];
+
+  function scanDir(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scanDir(full);
+      } else if (entry.isFile() && entry.name.endsWith(".html")) {
+        const content = fs.readFileSync(full, "utf8");
+        const matches = content.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g) || [];
+        for (const m of matches) {
+          const jsonText = m.replace(/<script type="application\/ld\+json">/, "").replace(/<\/script>/, "");
+          try {
+            const parsed = JSON.parse(jsonText);
+            const nodes = Array.isArray(parsed) ? parsed : (parsed["@graph"] || [parsed]);
+            for (const node of nodes) {
+              if (node["@id"] && node["@id"].endsWith("#webpage")) {
+                pageNodes.add(node["@id"]);
+              }
+              const nodeStr = JSON.stringify(node);
+              const refMatches = nodeStr.matchAll(/https:\/\/viikkonro\.fi([^"#]*?)#webpage/g);
+              for (const rm of refMatches) {
+                const targetUrl = "https://viikkonro.fi" + rm[1] + "#webpage";
+                if (node["@id"] !== targetUrl) {
+                  references.push({ from: path.relative(dist, full), target: targetUrl });
+                }
+              }
+            }
+          } catch {}
+        }
+      }
+    }
+  }
+
+  scanDir(dist);
+  assert.ok(pageNodes.size > 1000, "page nodes must be present in build output");
+  assert.ok(references.length > 2000, "structured data edges must be present in build output");
+
+  const missingRefs = references.filter((r) => !pageNodes.has(r.target));
+  assert.deepEqual(
+    missingRefs,
+    [],
+    `found ${missingRefs.length} unresolved #webpage references pointing to omitted nodes: ${JSON.stringify(missingRefs.slice(0, 5))}`,
+  );
+});
