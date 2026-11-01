@@ -103,6 +103,33 @@ describe("sunTimesForWeek", () => {
   });
 });
 
+describe("Finding 3: Solar data consistency across positive-offset timezones", () => {
+  it("computes the correct civil-day solar times for 23 March 2026 (week 13)", () => {
+    // 23 March 2026 in Helsinki: sunrise is ~06.13 and sunset is ~18.41
+    // Prior bug shifted positive-offset visitors to 22 March (06.16 / 18.39)
+    const week13 = sunTimesForWeek(2026, 13, HELSINKI);
+    const monday = week13[0];
+    expect(formatHelsinkiTime(monday.sunrise)).toBe("06.13");
+    expect(formatHelsinkiTime(monday.sunset)).toBe("18.41");
+    expect(monday.daylightMinutes).toBe(749);
+    expect(monday.deltaMinutesFromPreviousDay).toBe(6);
+  });
+
+  it("handles daylight saving transition correctly on Sunday 29 March 2026", () => {
+    // Sunday 29 March 2026: clocks spring forward from UTC+2 to UTC+3 at 03:00
+    const week13 = sunTimesForWeek(2026, 13, HELSINKI);
+    const sunday = week13[6];
+    expect(formatHelsinkiTime(sunday.sunrise)).toBe("06.54");
+    expect(formatHelsinkiTime(sunday.sunset)).toBe("19.56");
+  });
+
+  it("accepts ISO date string format YYYY-MM-DD", () => {
+    const r = sunTimesForDate("2026-03-23", HELSINKI);
+    expect(formatHelsinkiTime(r.sunrise)).toBe("06.13");
+    expect(formatHelsinkiTime(r.sunset)).toBe("18.41");
+  });
+});
+
 describe("formatHelsinkiTime", () => {
   it("returns null for a null input instead of throwing or formatting garbage", () => {
     expect(formatHelsinkiTime(null)).toBeNull();
