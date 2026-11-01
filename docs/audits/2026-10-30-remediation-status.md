@@ -4,29 +4,27 @@ Updated: 2026-11-01
 
 ## Active change
 
-- Finding 4 of 10 audit findings: Missing static assets receive a one-year immutable browser cache.
+- Finding 5 of 10 audit findings: Week calculator accepts fractional weeks and builds a dead URL.
 - Change:
-  - Added `rewrites` in `vercel.json` for `/assets/(.*)` and `/fonts/(.*)` pointing to `/api/asset-404`. Because Vercel's static filesystem check takes precedence over rewrites, valid built assets are served directly from the filesystem with 1-year immutable caching.
-  - Added serverless endpoint `api/asset-404.js` returning HTTP 404 with `Cache-Control: no-cache, no-store, must-revalidate`, `CDN-Cache-Control: no-store`, `Vercel-CDN-Cache-Control: no-store`, and `X-Robots-Tag: noindex, nofollow`, completely eliminating negative caching of missing chunks or nonexistent static assets.
-  - Added header rule in `vercel.json` for `/api/asset-404` to ensure CDN and browser caches receive no-store directives.
-  - Added unit test in `src/platform/api/assetNotFound.test.js` and predeploy validation check in `scripts/predeploy-build.cases.mjs`.
-- Branch: `fix/missing-asset-cache-headers-20261101`
+  - Extracted week calculation to `src/data/weekToDate.js` with rigorous validation: requires integer strings matching `/^\d+$/`, rejects non-integers/decimals (e.g. `1.5`), enforces valid year range and ISO week range (`1 <= w <= weeksInIsoYear(y)`).
+  - Updated `src/pages/WeekToDate.jsx` to use `computeWeekToDate` and added `step="1"` to both week and year input fields. When an invalid/fractional week is provided, no result or dead link is rendered.
+  - Added unit test suite in `src/pages/WeekToDate.test.jsx` covering validation and rendering.
+- Branch: `fix/fractional-week-calculator-20261101`
 - Status: verified locally; all tests, build, artifacts, and crawl checks passing.
 
 ## Verification
 
 `npm run lint`, `npx vitest run`, `npm run build`, `npm run test:predeploy:artifacts`, and `npm run check:crawl` all passed:
 - ESLint: zero errors, zero warnings.
-- Vitest: 98/98 test suites passed, 1182 tests passed.
+- Vitest: 99/99 test suites passed, 1188 tests passed.
 - Predeploy artifacts: 45/45 test cases passed.
 - Build & Prerender: 1920 routes prerendered cleanly.
 - Crawl check: 2285 distinct internal URLs crawled from `/`, 0 unreachable, 0 beyond 3 clicks, 0 render errors.
 
 ## Resume sequence
 
-1. Merge PR for Finding 4 (Prevent negative immutable caching for missing assets).
+1. Merge PR for Finding 5 (Week calculator validation for integer weeks).
 2. Continue fixing the remaining audit findings one at a time, in report order:
-   - Week calculator accepts fractional weeks.
    - Valid calculator answers link beyond the published week horizon.
    - 320 px overflow on `/viikko-53-2026` and `/avoin-data`.
    - "Current year" flips early in UTC+14.
