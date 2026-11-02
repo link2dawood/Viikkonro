@@ -121,6 +121,20 @@ traffic, and obey the same guardrails.
 | `weeks-in-year-after-answer` | `/kuinka-monta-viikkoa-vuodessa` | After the computed current-year answer, before the ISO explanation | Highest-impression single page. The answer is served first. |
 | `dst-after-facts` | `/kesaaika-{year}` | After the change cards, QuickFacts and the EU directive note, before the FAQ | Strongly seasonal; the directive caveat stays attached to the facts. |
 
+## High-dwell planning placements, added 2026-11-03
+
+These placements monetize high-dwell informational and planning pages where
+users spend minutes researching dates, calculating leave, and planning long
+weekends. They obey the single-slot-per-page rule and sit cleanly below
+introductory answers and interactive tools.
+
+| Placement ID | Route family | Position | Rationale |
+| --- | --- | --- | --- |
+| `school-holidays-after-summary` | `/koululomat-{year}` | After the summary panels and verification note, before the winter holiday tables | High dwell time as parents and educators consult municipal schedules. |
+| `holiday-after-facts` | `/pyhat-{year}/{slug}` | After QuickFacts and updated note, before detailed holiday rules and long-weekend planning | Strong organic intent from Search Console for individual holiday queries. |
+| `public-holidays-after-summary` | `/pyhapaivat-{year}` | After the annual overview lead and rule classification note, before the holiday table | Captures high-volume annual public-holiday query volume without separating table data. |
+| `annual-leave-after-calc` | `/vuosilomalaskuri` | After the interactive calculation results and statutory leave note, before usage instructions | Sits below the tool results, preserving UX while engaging users reading accrual guidelines. |
+
 ## Guardrails for post-approval integration
 
 - Slots stay out of the header, navigation, footer, calculator controls,

@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
+import AdSlot from "../components/AdSlot";
 import {
   PRERENDER_MAX_YEAR,
   PRERENDER_MIN_YEAR,
@@ -83,6 +84,8 @@ const NamedHoliday = () => {
         />
 
         <p className="note-soft">Sisältö päivitetty {page.updated ? fmtFullFi(dateFromDayKey(page.updated)) : CONTENT_UPDATED_FI}.</p>
+
+        <AdSlot placement="holiday-after-facts" />
 
         <h2>Milloin {page.displayName.toLowerCase()} on vuonna {page.year}?</h2>
         <p>

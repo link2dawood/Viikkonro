@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { fmtFullFi } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import AdSlot from "../components/AdSlot";
 import {
   CONFIDENCE,
   autumnSummary,
@@ -163,6 +164,8 @@ const SchoolHolidays = ({ year }) => {
         </div>
 
         <p className="note-soft">Sisältö ja lähteet tarkistettu {verifiedAt}.</p>
+
+        <AdSlot placement="school-holidays-after-summary" />
 
         <h2>Milloin hiihtoloma {selectedYear} on?</h2>
         <p>
