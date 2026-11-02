@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { calendarFaqs, monthMeta, workingDaysMeta, yearMeta } from "./seo.js";
+import {
+  OBSERVANCES,
+  TRADITIONS,
+  observanceMeta,
+  observancePage,
+} from "./observanceDays.js";
 
 describe("generated metadata promises", () => {
   it("explains the calendar-year and ISO-year boundary with computed facts", () => {
@@ -43,6 +49,23 @@ describe("generated metadata promises", () => {
       expect(answers).not.toContain("nimipäivät");
       expect(answers).toContain("päivänvalotiedot");
     }
+  });
+
+  it("promises perinteet and liputus only where the observance page renders them", () => {
+    let hooked = 0;
+    for (const observance of OBSERVANCES) {
+      for (let year = 2026; year <= 2035; year += 1) {
+        const { title } = observanceMeta(observance.slug, year);
+        if (!title.includes("perinteet ja liputus")) continue;
+        hooked += 1;
+        // ObservanceDay.jsx renders "<genetiivi> perinteet" from TRADITIONS and
+        // "Onko <päivä> liputuspäivä?" from page.flagDay.
+        expect(observance.isFlagDay).toBe(true);
+        expect(TRADITIONS[observance.slug].length).toBeGreaterThan(0);
+        expect(observancePage(observance.slug, year).flagDay.length).toBeGreaterThan(0);
+      }
+    }
+    expect(hooked).toBeGreaterThan(0);
   });
 
   it("keeps working-day metadata focused on both calculation modes", () => {

@@ -54,6 +54,34 @@ describe("named holiday pages", () => {
     }
   });
 
+  it("leads generic holiday titles with the weekday and short date", () => {
+    expect(holidayPageMeta(2026, "itsenaisyyspaiva").title).toBe(
+      "Itsenäisyyspäivä 2026: su 6.12., viikko 49 | Viikko Nro",
+    );
+
+    const EN_DASH = String.fromCharCode(0x2013);
+    const WD_SHORT = ["su", "ma", "ti", "ke", "to", "pe", "la"];
+    // Vappu, pääsiäinen, helatorstai and juhannus have their own hand-written
+    // titles (multi-day spans, bridge days) and keep them.
+    const OWN_FORMAT = new Set(["vappu", "paasiaispaiva", "helatorstai", "juhannusaatto"]);
+    for (let year = 2026; year <= 2030; year += 1) {
+      for (const item of HOLIDAY_DEFINITIONS) {
+        const { title } = holidayPageMeta(year, item.slug);
+        expect(title.length).toBeLessThanOrEqual(60);
+        expect(title).not.toContain(EN_DASH);
+        if (OWN_FORMAT.has(item.slug)) continue;
+        const page = holidayPageFor(year, item.slug);
+        const wd = WD_SHORT[page.date.getDay()];
+        const day = `${page.date.getDate()}.${page.date.getMonth() + 1}.`;
+        expect(title).toBe(
+          `${page.seoName} ${year}: ${wd} ${day}, viikko ${page.week} | Viikko Nro`,
+        );
+        // The year belongs to the leading query phrase, not to the date.
+        expect(title).not.toContain(`${day}${year}`);
+      }
+    }
+  });
+
   it("provides five visible-schema FAQ entries per page", () => {
     const page = holidayPageFor(2026, "juhannuspaiva");
     expect(holidayFaqs(page)).toHaveLength(5);

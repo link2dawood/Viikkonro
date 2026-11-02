@@ -423,6 +423,12 @@ export function fmtDayRangeFi(start, end) {
   }
   return `${start.getDate()}.${start.getMonth() + 1}.-${end.getDate()}.${end.getMonth() + 1}.`;
 }
+// "su 8.11." — weekday abbreviation plus day and month, no year. Titles that
+// answer a long-weekend question need the weekday, and the year is already in
+// the title's leading query phrase, so repeating it only costs characters.
+export function fmtWeekdayDayMonthFi(date) {
+  return `${WD[date.getDay()].slice(0, 2).toLowerCase()} ${date.getDate()}.${date.getMonth() + 1}.`;
+}
 // Range: "20.–26. heinäkuuta 2026" (same month); "29.6.–5.7.2026" (same year,
 // different months); "29.12.2026–4.1.2027" (spanning a year boundary).
 export function fmtRangeFi(mo, su) {
