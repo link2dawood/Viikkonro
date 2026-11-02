@@ -82,7 +82,11 @@ const PublicHolidays = ({ year: pYear } = {}) => {
               return (
                 <tr key={h.name}>
                   <td>
-                    <Link to={`/pyhat-${year}/${holidaySlug}`}>{h.name}</Link>
+                    {/* "Itsenäisyyspäivä 2026", not "Itsenäisyyspäivä": the
+                        anchor text carries the query the detail page targets. */}
+                    <Link to={`/pyhat-${year}/${holidaySlug}`}>
+                      {h.name} {year}
+                    </Link>
                   </td>
                   <td>{dWritten(h.date)}</td>
                   <td>{getWeekdayName(h.date)}</td>
