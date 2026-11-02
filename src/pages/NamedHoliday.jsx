@@ -10,10 +10,12 @@ import {
 import {
   easterHolidays,
   EASTER_SLUGS,
+  helatorstaiPlanning,
   holidayFaqs,
   holidayPageFor,
   holidayPageMeta,
   holidayWeekLinks,
+  juhannusPlanning,
   vappuPlanning,
 } from "../data/holidayPages";
 import { HOLIDAY_LEGAL_BASIS } from "../data/holidays";
@@ -39,6 +41,8 @@ const NamedHoliday = () => {
   const legalBasis = HOLIDAY_LEGAL_BASIS[page.displayName];
   const easter = EASTER_SLUGS.includes(page.slug) ? easterHolidays(page.year) : null;
   const vappu = vappuPlanning(page);
+  const helatorstai = helatorstaiPlanning(page);
+  const juhannus = juhannusPlanning(page);
 
   return (
     <section className="app">
@@ -102,6 +106,16 @@ const NamedHoliday = () => {
                 </li>
               ))}
             </ul>
+            {page.slug === "paasiaispaiva" && page.year === 2027 && (
+              <div className="panel">
+                <div className="now-label">Kesäaika ja pääsiäinen 2027</div>
+                <p>
+                  Kesäaikaan siirtyminen osuu vuonna 2027 pääsiäisyölle sunnuntaina 28.3.2027.
+                  Kelloja siirretään tunti eteenpäin kello 03.00. Katso lisätiedot{" "}
+                  <Link to={`/kesaaika-${page.year}`}>kesäaika {page.year}</Link> -sivulta.
+                </p>
+              </div>
+            )}
           </>
         )}
 
@@ -185,6 +199,85 @@ const NamedHoliday = () => {
           </>
         )}
 
+        {helatorstai && (
+          <>
+            <h2>Siltapäivä ja pitkä viikonloppu {page.year}</h2>
+            <p>
+              Helatorstai osuu aina torstaille ({fmtFullFi(page.date)}). Perjantai{" "}
+              {fmtFullFi(helatorstai.bridgeDate)} on normaali arkipäivä, mutta ottamalla
+              sen vapaaksi saat neljän päivän yhtenäisen loman torstaista sunnuntaihin.
+              Voit suunnitella vapaat <Link to="/vuosilomalaskuri">vuosilomalaskurilla</Link>.
+            </p>
+
+            <h2>Miksi helatorstai on eri päivänä joka vuosi?</h2>
+            <p>
+              Helatorstaita vietetään 40. pääsiäispäivänä eli tasan 39 päivää pääsiäissunnuntain
+              jälkeen. Koska pääsiäinen määräytyy kevätpäiväntasauksen jälkeisen täysikuun mukaan,
+              helatorstain päivämäärä vaihtelee vuosittain. Helatorstain jälkeen kymmenen päivää
+              myöhemmin vietetään <Link to={`/pyhat-${page.year}/helluntaipaiva`}>helluntaipäivää</Link>.
+            </p>
+
+            <h2>Helatorstai lähivuosina</h2>
+            <div className="table-wrap">
+              <table className="data-table">
+                <caption>Helatorstain päivämäärä, viikonpäivä ja ISO-viikko</caption>
+                <thead><tr><th scope="col">Vuosi</th><th scope="col">Päivämäärä</th><th scope="col">Viikonpäivä</th><th scope="col">ISO-viikko</th></tr></thead>
+                <tbody>
+                  {helatorstai.nearbyYears.map((item) => (
+                    <tr key={item.year}>
+                      <th scope="row">{item.year === page.year ? `Helatorstai ${item.year}` : <Link to={item.path}>Helatorstai {item.year}</Link>}</th>
+                      <td>{fmtFullFi(item.date)}</td><td>{item.weekday}</td>
+                      <td><Link to={`/viikko-${item.week}-${item.weekYear}`}>Viikko {item.week}</Link></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {juhannus && (
+          <>
+            <h2>Onko juhannusaatto vapaapäivä?</h2>
+            <p>
+              Juhannusaatto ei ole Suomessa lakisääteinen kirkollinen pyhäpäivä, mutta useimmissa
+              työehtosopimuksissa se on sovittu koko päivän palkalliseksi vapaapäiväksi.
+              Juhannuspäivä ({fmtFullFi(juhannus.jpDate)}) on virallinen pyhäpäivä.
+              Katso lisätietoa myös <Link to={`/pyhat-${page.year}/juhannuspaiva`}>juhannuspäivän sivulta</Link>.
+            </p>
+
+            <h2>Juhannuksen liputus</h2>
+            <p>
+              Juhannuksena vietetään Suomen lipun päivää. Liputusasetuksen (383/1978, 4 §) mukaan
+              juhannusliputus poikkeaa tavanomaisista liputusajoista: liputus alkaa juhannusaattona
+              kello 18 ja päättyy juhannuspäivänä kello 21. Katso lisätiedot{" "}
+              <Link to={`/liputuspaivat-${page.year}#suomen-lipun-paiva`}>vuoden {page.year} liputuspäivistä</Link>.
+            </p>
+
+            <h2>Juhannus lähivuosina</h2>
+            <div className="table-wrap">
+              <table className="data-table">
+                <caption>Juhannusaaton ja juhannuspäivän ajankohdat lähivuosina</caption>
+                <thead><tr><th scope="col">Vuosi</th><th scope="col">Juhannusaatto</th><th scope="col">Juhannuspäivä</th><th scope="col">ISO-viikko</th></tr></thead>
+                <tbody>
+                  {juhannus.nearbyYears.map((item) => {
+                    const jpd = new Date(item.date);
+                    jpd.setDate(jpd.getDate() + 1);
+                    return (
+                      <tr key={item.year}>
+                        <th scope="row">{item.year === page.year ? `Juhannus ${item.year}` : <Link to={item.path}>Juhannus {item.year}</Link>}</th>
+                        <td>{fmtFullFi(item.date)}</td>
+                        <td>{fmtFullFi(jpd)}</td>
+                        <td><Link to={`/viikko-${item.week}-${item.weekYear}`}>Viikko {item.week}</Link></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
         <h2>Usein kysyttyä: {page.displayName.toLowerCase()}</h2>
         <div className="faq-list">
           {faqs.map((item) => (
@@ -196,7 +289,7 @@ const NamedHoliday = () => {
         </div>
 
         <p>
-          Katso myös <Link to={`/kalenteri-${page.year}`}>viikkokalenteri {page.year}</Link>,{" "}
+          Katso myös <Link to={`/kalenteri-${page.year}`}>kalenteri {page.year}</Link>,{" "}
           <Link to={`/pyhapaivat-${page.year}`}>kaikki pyhäpäivät {page.year}</Link>,{" "}
           <Link to={`/liputuspaivat-${page.year}`}>liputuspäivät {page.year}</Link>,{" "}
           <Link to={links.month.path}>{links.month.label}</Link>,{" "}

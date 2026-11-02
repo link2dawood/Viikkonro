@@ -90,7 +90,7 @@ export const HOLIDAY_DEFINITIONS = [
     sourceName: "Juhannusaatto",
     displayName: "Juhannusaatto",
     seoName: "Juhannusaatto",
-    rule: "Juhannusaatto on juhannuspäivää edeltävä perjantai, joten se osuu 19.–25. kesäkuuta.",
+    rule: "Juhannusaatto on juhannuspäivää edeltävä perjantai, joten se osuu 19.-25. kesäkuuta.",
     kind: "liikkuva juhlapäivä",
   },
   {
@@ -98,7 +98,7 @@ export const HOLIDAY_DEFINITIONS = [
     sourceName: "Juhannuspäivä",
     displayName: "Juhannuspäivä",
     seoName: "Juhannus",
-    rule: "Juhannuspäivä on 20.–26. kesäkuuta väliin osuva lauantai.",
+    rule: "Juhannuspäivä on 20.-26. kesäkuuta väliin osuva lauantai.",
     kind: "liikkuva pyhäpäivä",
   },
   {
@@ -242,6 +242,31 @@ export function vappuPlanning(page) {
   };
 }
 
+export function helatorstaiPlanning(page) {
+  if (!page || page.slug !== "helatorstai") return null;
+  const bridgeDate = new Date(page.date);
+  bridgeDate.setDate(bridgeDate.getDate() + 1);
+  return {
+    bridgeDate,
+    bridgeWeekdayEssive: WD_ESSIVE[bridgeDate.getDay()],
+    nearbyYears: [page.year - 1, page.year, page.year + 1]
+      .filter((year) => year >= PRERENDER_MIN_YEAR && year <= PRERENDER_MAX_YEAR)
+      .map((year) => holidayPageFor(year, page.slug)),
+  };
+}
+
+export function juhannusPlanning(page) {
+  if (!page || page.slug !== "juhannusaatto") return null;
+  const jpDate = new Date(page.date);
+  jpDate.setDate(jpDate.getDate() + 1);
+  return {
+    jpDate,
+    nearbyYears: [page.year - 1, page.year, page.year + 1]
+      .filter((year) => year >= PRERENDER_MIN_YEAR && year <= PRERENDER_MAX_YEAR)
+      .map((year) => holidayPageFor(year, page.slug)),
+  };
+}
+
 // The three official Easter holidays (pitkäperjantai, pääsiäispäivä, toinen
 // pääsiäispäivä) as resolved pages, in date order. "Pääsiäinen <year>" is
 // searched as the whole long weekend, not only its Sunday, so the Easter
@@ -277,6 +302,28 @@ export function holidayPageMeta(year, slug) {
       description: `Vappu ${page.year} on ${page.weekdayEssive} ${fmtFullFi(page.date)}, viikolla ${page.week}. Katso vappuaatto, ma-pe-työpäivät, suomalaisen työn päivän liputus ja vertaa lähivuosia.`,
     };
   }
+  if (slug === "helatorstai") {
+    const bridgeDate = new Date(page.date);
+    bridgeDate.setDate(bridgeDate.getDate() + 1);
+    const bridgeDay = `${bridgeDate.getDate()}.${bridgeDate.getMonth() + 1}.`;
+    const dayMonth = `${page.date.getDate()}.${page.date.getMonth() + 1}.`;
+    const dateFormatted = `${page.date.getDate()}.${page.date.getMonth() + 1}.${page.year}`;
+    return {
+      title: `Helatorstai ${page.year}: ${page.weekday.toLowerCase()} ${dayMonth}, viikko ${page.week} | Viikko Nro`,
+      description: `Helatorstai on ${page.weekdayEssive} ${dateFormatted} (viikko ${page.week}). Se on arkipyhä ja yleinen vapaapäivä. Ota perjantai ${bridgeDay} vapaaksi, niin saat neljän päivän loman.`,
+    };
+  }
+  if (slug === "juhannusaatto") {
+    const jpDate = new Date(page.date);
+    jpDate.setDate(jpDate.getDate() + 1);
+    const dayMonth = `${page.date.getDate()}.${page.date.getMonth() + 1}.`;
+    const aattoDate = `${page.date.getDate()}.${page.date.getMonth() + 1}.${page.year}`;
+    const jpFormatted = `${jpDate.getDate()}.${jpDate.getMonth() + 1}.${jpDate.getFullYear()}`;
+    return {
+      title: `Juhannus ${page.year}: juhannusaatto ${dayMonth}, viikko ${page.week} | Viikko Nro`,
+      description: `Juhannusaatto on ${page.weekdayEssive} ${aattoDate} ja juhannuspäivä lauantaina ${jpFormatted} (viikko ${page.week}). Katso onko aatto vapaapäivä ja milloin liputetaan.`,
+    };
+  }
   const easter = slug === "paasiaispaiva" ? easterHolidays(page.year) : null;
   if (easter) {
     const [friday, , monday] = easter;
@@ -295,7 +342,7 @@ export function holidayPageMeta(year, slug) {
     description = description.replace(", asema ja", " ja");
   }
   return {
-    title: `${page.seoName} ${page.year} – ${fmtShortFi(page.date)}, viikko ${page.week} | Viikko Nro`,
+    title: `${page.seoName} ${page.year}: ${fmtShortFi(page.date)}, viikko ${page.week} | Viikko Nro`,
     description,
   };
 }
@@ -327,6 +374,8 @@ export function holidayFaqs(page) {
     },
     ...easterFaq(page),
     ...vappuFaq(page),
+    ...helatorstaiFaq(page),
+    ...juhannusFaq(page),
   ];
 }
 
@@ -357,6 +406,40 @@ function easterFaq(page) {
     {
       q: `Milloin pääsiäinen ${page.year} on?`,
       a: `Pääsiäisen pyhät ${page.year} ovat ${text}. Ne ovat ${easterWeeksText(easter)}, ja pääsiäispäivä on aina sunnuntai.`,
+    },
+  ];
+}
+
+function helatorstaiFaq(page) {
+  const planning = helatorstaiPlanning(page);
+  if (!planning) return [];
+  return [
+    {
+      q: `Onko helatorstain jälkeinen perjantai vapaapäivä?`,
+      a: `Helatorstain jälkeinen perjantai (${fmtShortFi(planning.bridgeDate)}) on normaali työpäivä, mutta ottamalla sen vapaaksi saa neljän päivän yhtenäisen loman torstaista sunnuntaihin.`,
+    },
+    {
+      q: `Miksi helatorstai on eri päivänä joka vuosi?`,
+      a: `Helatorstaita vietetään tasan 39 päivää pääsiäissunnuntain jälkeen. Koska pääsiäisen ajankohta riippuu kevätpäiväntasauksen jälkeisestä täysikuusta, myös helatorstain päivämäärä siirtyy vuosittain.`,
+    },
+  ];
+}
+
+function juhannusFaq(page) {
+  const planning = juhannusPlanning(page);
+  if (!planning) return [];
+  return [
+    {
+      q: `Onko juhannusaatto vapaapäivä töistä?`,
+      a: "Juhannusaatto ei ole lakisääteinen virallinen pyhäpäivä, mutta useimmissa suomalaisissa työehtosopimuksissa se on sovittu koko päivän palkalliseksi vapaaksi.",
+    },
+    {
+      q: "Miten juhannuksena liputetaan?",
+      a: "Juhannuksena vietetään Suomen lipun päivää. Liputusasetuksen (383/1978, 4 §) mukaan liputus alkaa juhannusaattona klo 18 ja päättyy juhannuspäivänä klo 21.",
+    },
+    {
+      q: `Milloin on juhannuspäivä vuonna ${page.year}?`,
+      a: `Juhannuspäivä on lauantaina ${fmtFullFi(planning.jpDate)} (viikko ${page.week}). Se on Suomessa virallinen pyhäpäivä ja liputuspäivä.`,
     },
   ];
 }
