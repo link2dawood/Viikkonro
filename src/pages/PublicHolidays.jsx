@@ -9,6 +9,7 @@ import {
   PRERENDER_MAX_YEAR as YEAR_MAX,
 } from "../components/dateUtils";
 import SEO from "../components/SEO";
+import AdSlot from "../components/AdSlot";
 import { canonicalFor, holidaysMeta } from "../data/seo";
 import { holidayDateRuleKey, holidaysInYear } from "../data/holidays";
 import { holidaySlugForName } from "../data/holidayPages";
@@ -59,6 +60,8 @@ const PublicHolidays = ({ year: pYear } = {}) => {
         mukaan tietylle viikolle osuvia lauantaita — siksi vain osa
         pyhäpäivistä siirtyy eri päivälle vuodesta toiseen.
       </p>
+
+      <AdSlot placement="public-holidays-after-summary" />
 
       <div className="table-wrap">
         <table className="data-table">

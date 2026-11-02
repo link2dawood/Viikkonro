@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { mondayOf } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import DayRuleNote from "../components/DayRuleNote";
+import AdSlot from "../components/AdSlot";
 import { useToday } from "../components/useToday";
 import { canonicalFor, routeMeta, CONTENT_UPDATED_FI } from "../data/seo";
 import {
@@ -142,6 +143,8 @@ const AnnualLeave = () => {
 
       <section className="prose">
         <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
+
+        <AdSlot placement="annual-leave-after-calc" />
 
         <h2>Näin käytät vuosilomalaskuria</h2>
         <ol>
