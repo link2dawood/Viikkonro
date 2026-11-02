@@ -6,8 +6,8 @@ import {
   isoWeek,
   isoYear,
   M_FULL,
-  fmtFullFi,
   weeksInIsoYear,
+  WD,
   PRERENDER_MIN_YEAR as YEAR_MIN,
   PRERENDER_MAX_YEAR as YEAR_MAX,
 } from "../components/dateUtils";
@@ -185,7 +185,9 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
       <h1>
         {print
           ? `Tulostettava kalenteri ${y}`
-          : `Kalenteri ${y}${halfLabel}`}
+          : half
+            ? `Viikkokalenteri ${y}${halfLabel}`
+            : `Kalenteri ${y}`}
       </h1>
 
       {!half && !print ? (
@@ -212,6 +214,13 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
       {/* The print page keeps its own download/print buttons up top, so it
           only gets the related links (below its button row). */}
       {!print && <YearActions year={y} view="kalenteri" />}
+      {!half && !print && y + 1 <= YEAR_MAX && (
+        <p className="year-top-links noprint">
+          Katso myös seuraava vuosi:{" "}
+          <Link to={`/kalenteri-${y + 1}`}>Kalenteri {y + 1}</Link> ja{" "}
+          <Link to={`/vuosi-${y + 1}`}>viikot {y + 1}</Link>.
+        </p>
+      )}
 
       {print && (
         <section className="print-support">
@@ -278,13 +287,13 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
           to={`/kalenteri-${y}-alkuvuosi`}
           className={`pill ${half === 1 ? "active" : ""}`}
         >
-          1. vuosipuolisko (tammi–kesäkuu)
+          1. vuosipuolisko (tammi-kesäkuu)
         </Link>
         <Link
           to={`/kalenteri-${y}-loppuvuosi`}
           className={`pill ${half === 2 ? "active" : ""}`}
         >
-          2. vuosipuolisko (heinä–joulukuu)
+          2. vuosipuolisko (heinä-joulukuu)
         </Link>
       </div>
 
@@ -377,6 +386,7 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
         <section className="prose noprint" aria-labelledby="pitkat-viikonloput">
           <h2 id="pitkat-viikonloput">Pitkät viikonloput {y}</h2>
           <p>
+            Vuonna {y} on {breaks.length} jaksoa, jolloin vapaata on vähintään kolme päivää peräkkäin.
             Päivämäärät yhdistävät viikonloput ja Suomen kalenterin viralliset
             pyhäpäivät. Mukana ovat myös tämän kalenterin suunnittelutavassa
             vapaiksi lasketut aatot. Työpaikan työehtosopimus voi vaikuttaa
@@ -386,7 +396,9 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
             <ul>
               {breaks.map((run) => (
                 <li key={`${run.start.toISOString()}-${run.end.toISOString()}`}>
-                  <strong>{fmtFullFi(run.start)} - {fmtFullFi(run.end)} ({run.days} päivää)</strong>
+                  <strong>
+                    {run.start.getDate()}.{run.start.getMonth() + 1}.{run.start.getFullYear()} - {run.end.getDate()}.{run.end.getMonth() + 1}.{run.end.getFullYear()} ({run.days} päivää)
+                  </strong>
                   {run.holidays.length > 0 && <>: {run.holidays.join(", ")}</>}
                   {run.weeks.length > 0 && (
                     <>. Viikot: {run.weeks.map((week, index) => (
@@ -406,12 +418,17 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
             <>
               <h3>Siltapäivät {y}</h3>
               <ul>
-                {bridges.map((bridge) => (
-                  <li key={bridge.date.toISOString()}>
-                    Ota {fmtFullFi(bridge.date)} vapaaksi, niin vapaata on {bridge.freeDays} päivää
-                    ({fmtFullFi(bridge.start)} - {fmtFullFi(bridge.end)}).
-                  </li>
-                ))}
+                {bridges.map((bridge) => {
+                  const dayName = WD[bridge.date.getDay()].toLowerCase();
+                  const dStr = `${bridge.date.getDate()}.${bridge.date.getMonth() + 1}.${bridge.date.getFullYear()}`;
+                  const startStr = `${bridge.start.getDate()}.${bridge.start.getMonth() + 1}.${bridge.start.getFullYear()}`;
+                  const endStr = `${bridge.end.getDate()}.${bridge.end.getMonth() + 1}.${bridge.end.getFullYear()}`;
+                  return (
+                    <li key={bridge.date.toISOString()}>
+                      ota {dayName} {dStr} vapaaksi, niin vapaata on {bridge.freeDays} päivää ({startStr} - {endStr}).
+                    </li>
+                  );
+                })}
               </ul>
             </>
           )}

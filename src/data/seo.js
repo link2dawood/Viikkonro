@@ -740,6 +740,23 @@ export function calendarAnswer(year) {
   return `Kalenteri ${year} sisältää kaikki 12 kuukautta, ${total} ISO-viikkoa, viikkonumerot sekä Suomen juhla- ja liputuspäivät.`;
 }
 
+// Direct answer for the year week-calendar page (/vuosi-{year}).
+export function yearAnswer(year) {
+  const total = weeksInIsoYear(year);
+  const mo1 = mondayOf(1, year);
+  const moLast = mondayOf(total, year);
+  const suLast = new Date(moLast);
+  suLast.setDate(suLast.getDate() + 6);
+  const jan1 = new Date(year, 0, 1);
+  const jan1Week = isoWeek(jan1);
+  const jan1IsoYear = isoYear(jan1);
+  const extra =
+    jan1IsoYear !== year
+      ? ` Uudenvuodenpäivä 1.1.${year} kuuluu vielä vuoden ${jan1IsoYear} viikkoon ${jan1Week}.`
+      : "";
+  return `Vuodessa ${year} on ${total} viikkoa. Viikko 1 alkaa maanantaina ${fmtShortFi(mo1)} ja viikko ${total} päättyy sunnuntaina ${fmtShortFi(suLast)}.${extra}`;
+}
+
 // Shared by CalendarYear.jsx and prerender.js so the visible calendar FAQ and
 // its FAQPage JSON-LD always contain exactly the same questions and answers.
 export function calendarFaqs(y) {

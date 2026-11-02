@@ -16,8 +16,8 @@ import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
 import AdSlot from "../components/AdSlot";
 import YearActions from "../components/YearActions";
-import { calendarPdfPath, canonicalFor, yearFaqs, yearMeta, yearStats } from "../data/seo";
-import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
+import { calendarPdfPath, canonicalFor, yearAnswer, yearFaqs, yearMeta, yearStats } from "../data/seo";
+import { CONFIDENCE, pageConfidenceTier, schoolHolidayPage } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
 
 const YearCalendar = ({ year: pYear } = {}) => {
@@ -67,11 +67,18 @@ const YearCalendar = ({ year: pYear } = {}) => {
       >
         <div className="n">Viikko {w}</div>
         <div className="r">
-          {dShort(mo)} – {dShort(su)}
+          {dShort(mo)} - {dShort(su)}
         </div>
       </Link>
     );
   }
+
+  const schoolPage = schoolHolidayPage(selectedYear);
+  const winterWeeks = schoolPage?.winter?.map((w) => w.week) || [];
+  const jan1 = new Date(selectedYear, 0, 1);
+  const jan1Week = isoWeek(jan1);
+  const jan1IsoYear = isoYear(jan1);
+  const startsOnPrevYearWeek = jan1IsoYear !== selectedYear;
 
   return (
     <section className="app">
@@ -84,12 +91,10 @@ const YearCalendar = ({ year: pYear } = {}) => {
         <Link to="/">Etusivu</Link> / Viikot {year}
       </div>
 
-      <h1>Viikot {year} ja viikkonumerot</h1>
+      <h1>Viikkokalenteri {year}: viikkonumerot ja viikot</h1>
 
       <p className="lead">
-        <span className="answer-sentence">
-          Vuodessa {year} on <strong>{weeks.length} viikkoa</strong>.
-        </span>{" "}
+        <strong className="answer-sentence">{yearAnswer(selectedYear)}</strong>{" "}
         Napsauta viikkoa nähdäksesi sen päivämäärät.
       </p>
 
@@ -128,11 +133,45 @@ const YearCalendar = ({ year: pYear } = {}) => {
         ))}
       </div>
 
+      <h2>Viikot {selectedYear}</h2>
       <div className="grid">
         {weeks.map((w) => (
           <WeekCard key={w} w={w} y={selectedYear} />
         ))}
       </div>
+
+      {winterWeeks.length > 0 && (
+        <section className="prose">
+          <h2>Hiihtolomaviikot {selectedYear}: {winterWeeks.slice(0, -1).join(", ")} ja {winterWeeks[winterWeeks.length - 1]}</h2>
+          <p>
+            Koulujen talvilomat ja hiihtolomat vuonna {selectedYear} jakautuvat
+            eri kunnissa viikoille {winterWeeks.slice(0, -1).join(", ")} ja {winterWeeks[winterWeeks.length - 1]}.
+            Katso tarkat tiedot sivulta{" "}
+            <Link to={`/koululomat-${selectedYear}`}>koululomat {selectedYear}</Link>.
+          </p>
+          <ul>
+            {schoolPage.winter.map((group) => (
+              <li key={group.week}>
+                <Link to={`/viikko-${group.week}-${selectedYear}`}>Viikko {group.week}</Link>: {group.cities.join(", ")}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {startsOnPrevYearWeek && (
+        <section className="prose">
+          <h2>Miksi vuosi {selectedYear} alkaa viikolla {jan1Week}?</h2>
+          <p>
+            Vuoden {selectedYear} ensimmäinen päivä 1.1.{selectedYear} kuuluu vielä
+            edellisen vuoden viimeiseen viikkoon,{" "}
+            <Link to={`/viikko-${jan1Week}-${jan1IsoYear}`}>viikko {jan1Week}/{jan1IsoYear}</Link>.
+            ISO 8601 -standardin mukaan viikon vuosi määräytyy sen torstain mukaan:
+            jos vuoden ensimmäinen päivä on perjantai, lauantai tai sunnuntai, se
+            kuuluu edellisen vuoden viimeiseen viikkoon.
+          </p>
+        </section>
+      )}
       <section className="prose" id="parilliset-ja-parittomat-viikot">
         <h2>Parilliset ja parittomat viikot {year}</h2>
         <p>
