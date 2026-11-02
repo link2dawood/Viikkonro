@@ -45,9 +45,16 @@ function HolidayTable({ groups, year, label }) {
                 </Link>
               </td>
               <td>
-                {fmtFullFi(group.startDate)}–{fmtFullFi(group.endDate)}
+                {fmtFullFi(group.startDate)} - {fmtFullFi(group.endDate)}
               </td>
-              <td>{group.cities.join(", ")}</td>
+              <td>
+                {group.cities.map((city, idx) => (
+                  <span key={city}>
+                    {idx > 0 && ", "}
+                    <span id={city.toLowerCase()}>{city}</span>
+                  </span>
+                ))}
+              </td>
               <td>{SCHOOL_HOLIDAY_SOURCES[group.sourceKey].source}</td>
               <td>
                 <ConfidenceBadge confidence={group.confidence} />
@@ -128,7 +135,7 @@ const SchoolHolidays = ({ year }) => {
         <div className="panel">
           <div className="now-label">Koululomat {selectedYear} lyhyesti</div>
           <ul>
-            <li><strong>Hiihto- eli talviloma:</strong> viikot 8–10 alueittain.</li>
+            <li><strong>Hiihto- eli talviloma:</strong> viikot 8-10 alueittain.</li>
             <li>
               <strong>Syysloma:</strong>{" "}
               {autumnCitiesSummary}. Muut kunnat tarkistettava erikseen.
@@ -204,7 +211,7 @@ const SchoolHolidays = ({ year }) => {
         <h2>Miksi koululomat vaihtelevat alueittain?</h2>
         <p>
           Suomessa opetuksen järjestäjä päättää lukuvuoden työ- ja loma-ajoista
-          lain asettamissa rajoissa. Talvilomien porrastus viikoille 8–10
+          lain asettamissa rajoissa. Talvilomien porrastus viikoille 8-10
           jakaa lomaliikennettä, mutta myös syys- ja joululomissa on
           kuntakohtaisia eroja. Lukion, ammatillisen koulutuksen ja
           esiopetuksen kalenterit voivat lisäksi poiketa peruskoulusta.
@@ -224,12 +231,16 @@ const SchoolHolidays = ({ year }) => {
         <h2>Aiheeseen liittyviä sivuja</h2>
         <div className="quicklinks">
           <Link className="ql" to={"/kalenteri-" + selectedYear}>
-            <b>Viikkokalenteri {selectedYear}</b>
+            <b>Kalenteri {selectedYear}</b>
             <span>Kaikki kuukaudet, viikot ja juhlapäivät</span>
           </Link>
           <Link className="ql" to={"/vuosi-" + selectedYear}>
-            <b>Viikkonumerot {selectedYear}</b>
+            <b>Viikkokalenteri {selectedYear}</b>
             <span>Kaikki ISO-viikot päivämäärineen</span>
+          </Link>
+          <Link className="ql" to="/vuosilomalaskuri">
+            <b>Vuosilomalaskuri</b>
+            <span>Laske ja suunnittele omat lomat</span>
           </Link>
           {/* STEP 6: only ever link to OTHER confirmed years — an estimated
               or unknown page must not receive aggressive internal linking,

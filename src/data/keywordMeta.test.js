@@ -48,9 +48,33 @@ describe("keyword-targeted metadata", () => {
     expect(holidayFaqs(holidayPageFor(2027, "vappu"))).toHaveLength(7);
   });
 
+  it("targets helatorstai and juhannus 2027 with query-led titles and bridge dates", () => {
+    const helatorstai = holidayPageMeta(2027, "helatorstai");
+    expect(helatorstai.title).toBe("Helatorstai 2027: torstai 6.5., viikko 18 | Viikko Nro");
+    expect(helatorstai.description).toBe(
+      "Helatorstai on torstaina 6.5.2027 (viikko 18). Se on arkipyhä ja yleinen vapaapäivä. Ota perjantai 7.5. vapaaksi, niin saat neljän päivän loman.",
+    );
+    expect(holidayFaqs(holidayPageFor(2027, "helatorstai"))).toHaveLength(7);
+
+    const juhannus = holidayPageMeta(2027, "juhannusaatto");
+    expect(juhannus.title).toBe("Juhannus 2027: juhannusaatto 25.6., viikko 25 | Viikko Nro");
+    expect(juhannus.description).toBe(
+      "Juhannusaatto on perjantaina 25.6.2027 ja juhannuspäivä lauantaina 26.6.2027 (viikko 25). Katso onko aatto vapaapäivä ja milloin liputetaan.",
+    );
+    expect(holidayFaqs(holidayPageFor(2027, "juhannusaatto"))).toHaveLength(8);
+  });
+
   it("keeps new copy free of en dashes", () => {
     const EN_DASH = String.fromCharCode(0x2013);
-    for (const meta of [yearMeta(2026), calendarMeta(2027), schoolHolidayMeta(2026), holidayPageMeta(2027, "paasiaispaiva")]) {
+    for (const meta of [
+      yearMeta(2026),
+      calendarMeta(2027),
+      schoolHolidayMeta(2026),
+      schoolHolidayMeta(2027),
+      holidayPageMeta(2027, "paasiaispaiva"),
+      holidayPageMeta(2027, "helatorstai"),
+      holidayPageMeta(2027, "juhannusaatto"),
+    ]) {
       expect(meta.title + meta.description).not.toContain(EN_DASH);
     }
     // Week titles keep their established format (weekMeta.test.js); only the

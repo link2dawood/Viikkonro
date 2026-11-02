@@ -36,7 +36,7 @@ const SOURCES_VERIFIED_AT = SCHOOL_HOLIDAY_UPDATED;
 export const SCHOOL_HOLIDAY_SOURCES = {
   oph2025: {
     source: "Opetushallitus",
-    label: "Opetushallitus: lukuvuosi 2025–2026",
+    label: "Opetushallitus: lukuvuosi 2025-2026",
     url: "https://www.oph.fi/fi/uutiset/2025/koulujen-tyo-ja-loma-ajat-lukuvuonna-2025-2026",
     sourceUrl: "https://www.oph.fi/fi/uutiset/2025/koulujen-tyo-ja-loma-ajat-lukuvuonna-2025-2026",
     verifiedAt: SOURCES_VERIFIED_AT,
@@ -44,7 +44,7 @@ export const SCHOOL_HOLIDAY_SOURCES = {
   },
   oph2026: {
     source: "Opetushallitus",
-    label: "Opetushallitus: lukuvuosi 2026–2027",
+    label: "Opetushallitus: lukuvuosi 2026-2027",
     url: "https://www.oph.fi/fi/uutiset/2026/koulujen-tyo-ja-loma-ajat-lukuvuonna-2026-2027",
     sourceUrl: "https://www.oph.fi/fi/uutiset/2026/koulujen-tyo-ja-loma-ajat-lukuvuonna-2026-2027",
     verifiedAt: SOURCES_VERIFIED_AT,
@@ -162,9 +162,9 @@ const PAGES = {
       ),
     ],
     otherPeriods: [
-      "Lukuvuosi 2025–2026 päättyi peruskouluissa lauantaina 30.5.2026.",
-      "Lukuvuosi 2026–2027 alkoi useimmissa kunnissa 12.–13.8.2026.",
-      "Joululoma 2026 alkoi kunnasta riippuen yleensä 20.–23.12. ja päättyi useimmiten 6.1.2027.",
+      "Lukuvuosi 2025-2026 päättyi peruskouluissa lauantaina 30.5.2026.",
+      "Lukuvuosi 2026-2027 alkoi useimmissa kunnissa 12.-13.8.2026.",
+      "Joululoma 2026 alkoi kunnasta riippuen yleensä 20.-23.12. ja päättyi useimmiten 6.1.2027.",
     ],
     coverageNote:
       "Taulukko vertaa Manner-Suomen maakuntien pääkaupunkien perusopetusta. Oman koulun päivät voivat poiketa kunnan yleisistä päivistä.",
@@ -195,9 +195,9 @@ const PAGES = {
       "Turku", "Vaasa",
     ],
     otherPeriods: [
-      "Lukuvuosi 2026–2027 päättyy peruskouluissa lauantaina 5.6.2027.",
-      "Helsingin lukuvuosi 2027–2028 alkaa 11.8.2027; muiden kuntien aloituspäivät tarkistetaan niiden omista päätöksistä.",
-      "Helsingin joululoma on 23.12.2027–7.1.2028. Tätä ajankohtaa ei pidä yleistää kaikkiin kuntiin.",
+      "Lukuvuosi 2026-2027 päättyy peruskouluissa lauantaina 5.6.2027.",
+      "Helsingin lukuvuosi 2027-2028 alkaa 11.8.2027; muiden kuntien aloituspäivät tarkistetaan niiden omista päätöksistä.",
+      "Helsingin joululoma on 23.12.2027-7.1.2028. Tätä ajankohtaa ei pidä yleistää kaikkiin kuntiin.",
     ],
     coverageNote:
       "Talvilomavertailu kattaa Manner-Suomen maakuntien pääkaupunkeja. Syksyn 2027 taulukossa näytetään vain erikseen vahvistettu Helsinki; tarkista muut kunnat niiden omilta sivuilta.",
@@ -344,7 +344,7 @@ export function schoolHolidayFaqs(year) {
   return [
     {
       q: `Milloin hiihtoloma ${year} on?`,
-      a: `Hiihtoloma ${year} pidetään alueittain viikoilla 8–10. Kaupunkivertailu: ${winter}.`,
+      a: `Hiihtoloma ${year} pidetään alueittain viikoilla 8-10. Kaupunkivertailu: ${winter}.`,
     },
     {
       q: `Milloin syysloma ${year} on?`,
