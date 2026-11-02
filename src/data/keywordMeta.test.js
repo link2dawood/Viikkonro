@@ -34,6 +34,7 @@ describe("keyword-targeted metadata", () => {
   });
 
   it("names syysloma on week pages only where it is confirmed", () => {
+    expect(weekMeta(42, 2026).title).toContain("syyslomaviikko");
     expect(weekMeta(42, 2026).description).toContain("syyslomaviikko monessa kunnassa");
     expect(weekMeta(42, 2027).description).toContain("syyslomaviikko (vahvistettu: Helsinki)");
     expect(weekMeta(40, 2026).description).not.toContain("loma");
@@ -74,11 +75,10 @@ describe("keyword-targeted metadata", () => {
       holidayPageMeta(2027, "paasiaispaiva"),
       holidayPageMeta(2027, "helatorstai"),
       holidayPageMeta(2027, "juhannusaatto"),
+      weekMeta(46, 2026),
+      weekMeta(42, 2026),
     ]) {
       expect(meta.title + meta.description).not.toContain(EN_DASH);
     }
-    // Week titles keep their established format (weekMeta.test.js); only the
-    // new school-holiday description is checked.
-    expect(weekMeta(42, 2026).description).not.toContain(EN_DASH);
   });
 });

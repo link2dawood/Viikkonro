@@ -168,7 +168,8 @@ const invalidWeekMetadataFiles = generatedHtmlFiles
     const vkBodyPattern = new RegExp(`<strong>vk (?:<!-- -->)?${week}</strong>`);
     const vkoBodyPattern = new RegExp(`<strong>vko (?:<!-- -->)?${week}</strong>`);
     return (
-      !title.startsWith(`Viikko ${week} vuonna ${year} – `) ||
+      !title.startsWith(`Viikko ${week} ${year} (`) ||
+      title.includes("vuonna") ||
       title.includes("(vk") ||
       !vkBodyPattern.test(html) ||
       !vkoBodyPattern.test(html)
