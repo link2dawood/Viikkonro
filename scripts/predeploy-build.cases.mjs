@@ -341,7 +341,7 @@ test("PD-01 generates every critical SEO landing page with indexable self-canoni
     ["/ukk", /^Viikkonumero:/],
     ["/tyopaivalaskuri", /^Työpäivälaskuri/],
     ["/tyopaivat-2026", /^Työpäivät 2026:/],
-    ["/viikko-42-2026", /^Viikko 42 vuonna 2026/],
+    ["/viikko-42-2026", /^Viikko 42 2026 \(/],
   ];
 
   for (const [route, titlePattern] of cases) {

@@ -49,7 +49,6 @@ import {
   M_SLUG,
   daysInYear,
   fmtFullFi,
-  fmtRangeCompactFi,
   fmtShortFi,
   isLeapYear,
   PRERENDER_MIN_YEAR,
@@ -68,7 +67,7 @@ import {
   holidayPageMeta,
 } from "./holidayPages.js";
 import { holidaysInYear } from "./holidays.js";
-import { flagDaysMeta } from "./flagDayPages.js";
+import { flagDaysInYear, flagDaysMeta } from "./flagDayPages.js";
 import {
   nameDayDateKeys,
   nameDayNames,
@@ -182,6 +181,81 @@ const M_FULL = [
   "Joulukuu",
 ];
 
+const TITLE_MAX = 60;
+const BRAND = " | Viikko Nro";
+
+// The one extra reason to click, appended after the date range. A whitelist on
+// purpose: a long official flag-day name ("Mikael Agricolan päivä / Suomen
+// kielen päivä") can never reach a 60-character title, and days that belong to
+// the same celebration collapse into the single word people actually search
+// ("joulu", "pääsiäinen", "juhannus").
+const TITLE_HOOKS = {
+  Uudenvuodenpäivä: "uudenvuodenpäivä",
+  Loppiainen: "loppiainen",
+  Pitkäperjantai: "pääsiäinen",
+  "1. pääsiäispäivä": "pääsiäinen",
+  "2. pääsiäispäivä": "pääsiäinen",
+  Vappu: "vappu",
+  Äitienpäivä: "äitienpäivä",
+  Helatorstai: "helatorstai",
+  Helluntai: "helluntai",
+  Juhannusaatto: "juhannus",
+  Juhannuspäivä: "juhannus",
+  Pyhäinpäivä: "pyhäinpäivä",
+  Isänpäivä: "isänpäivä",
+  Itsenäisyyspäivä: "itsenäisyyspäivä",
+  Jouluaatto: "joulu",
+  Joulupäivä: "joulu",
+  Tapaninpäivä: "joulu",
+};
+
+// Holidays and flag days falling inside one ISO week, date-ordered. The same
+// both-calendar-year logic as pageJsonLd.js's holidaysInWeekForPrerender() and
+// flagDaysInWeekForPrerender(), reimplemented here rather than imported because
+// pageJsonLd.js imports THIS module: the cycle would run that module's body
+// before this one's consts exist.
+function namedDaysInWeek(w, y) {
+  const mo = mondayOf(w, y);
+  const su = new Date(mo);
+  su.setDate(mo.getDate() + 6);
+  const years = [...new Set([mo.getFullYear(), su.getFullYear()])];
+  return years
+    .flatMap((year) => [...holidaysInYear(year), ...flagDaysInYear(year)])
+    .filter((d) => d.date >= mo && d.date <= su)
+    .sort((a, b) => a.date - b.date);
+}
+
+// Hook priority: a confirmed school-holiday week first (that is why these pages
+// are searched), then at most two whitelisted holiday/flag-day words.
+function weekTitleHooks(w, y, schoolPeriods) {
+  if (schoolPeriods.length) return [`${schoolPeriods[0].type}viikko`];
+  const names = namedDaysInWeek(w, y)
+    .map((d) => TITLE_HOOKS[d.name])
+    .filter(Boolean);
+  return [...new Set(names)].slice(0, 2);
+}
+
+// "Viikko 46 2026 (9.-15.11.): päivät ja PDF | Viikko Nro" — the exact query
+// phrase "viikko 46 2026" leads, with no "vuonna" breaking it up (the H1 in
+// WeekDays.jsx keeps the natural Finnish wording). Candidates are tried richest
+// first and the first one inside TITLE_MAX wins, so a long hook is dropped
+// rather than overflowing the SERP line.
+function weekTitle(w, y, mo, su, hooks) {
+  const range =
+    mo.getFullYear() === su.getFullYear()
+      ? fmtDayRangeFi(mo, su)
+      : `${fmtShortFi(mo)}-${fmtShortFi(su)}`;
+  const base = `Viikko ${w} ${y} (${range})`;
+  const candidates = [
+    hooks.length ? `${base}: ${hooks.join(", ")}` : null,
+    hooks.length > 1 ? `${base}: ${hooks[0]}` : null,
+    // Every week page renders the seven dates and links its own week PDF.
+    `${base}: päivät ja PDF`,
+    base,
+  ].filter(Boolean);
+  return candidates.map((t) => t + BRAND).find((t) => t.length <= TITLE_MAX);
+}
+
 // Per-route <title>/<description> for the DYNAMIC pages. These are the single
 // source of truth used by BOTH the page components (their <SEO> tag) and
 // prerender.js (the static <head> it writes), so the crawlable HTML and the
@@ -204,7 +278,7 @@ export function weekMeta(w, y) {
     ? `${schoolPeriods[0].type}viikko ${schoolCities.length > 1 ? "monessa kunnassa" : `(vahvistettu: ${schoolCities[0]})`}`
     : null;
   return {
-    title: `Viikko ${w} vuonna ${y} – ${fmtRangeCompactFi(mo, su)} | Viikko Nro`,
+    title: weekTitle(w, y, mo, su, weekTitleHooks(w, y, schoolPeriods)),
     // Short dates (fmtFullFi ran ~190 chars → truncated in SERPs). ~148 chars
     // keeps every keyword term within Google's snippet limit.
     description: schoolWeekText
