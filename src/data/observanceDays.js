@@ -17,6 +17,7 @@
 // Every date below is computed; nothing is typed in per year.
 import {
   fmtFullFi,
+  fmtWeekdayDayMonthFi as wdm,
   isoWeek,
   isoYear,
   M_GENITIVE,
@@ -56,9 +57,6 @@ function firstAdvent(year) {
   return null;
 }
 
-// "8.11." and "su 8.11."
-const dm = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
-const wdm = (d) => `${WD[d.getDay()].slice(0, 2).toLowerCase()} ${dm(d)}`;
 function joinFi(parts) {
   if (parts.length <= 1) return parts.join("");
   return `${parts.slice(0, -1).join(", ")} ja ${parts[parts.length - 1]}`;
@@ -285,10 +283,18 @@ export function observanceMeta(slug, year) {
   const page = observancePage(slug, year);
   if (!page) return null;
   const extra = page.extras[0];
+  // A flag day's searchers want more than the date Google already shows, so the
+  // title names the two sections ObservanceDay.jsx renders for it: "<genetiivi>
+  // perinteet" and "Onko <päivä> liputuspäivä?". The week number gives way to
+  // them, and a title that would pass 60 characters keeps the plain form.
+  const withHook = `${page.name} ${page.year}: ${wdm(page.date)}, perinteet ja liputus | Viikko Nro`;
+  const plain = `${page.name} ${page.year}: ${wdm(page.date)}, viikko ${page.week} | Viikko Nro`;
   const title =
     page.slug === "laskiainen"
       ? `Laskiainen ${page.year}: ${wdm(page.date)} ja ${wdm(extra.date)} | Viikko Nro`
-      : `${page.name} ${page.year}: ${wdm(page.date)}, viikko ${page.week} | Viikko Nro`;
+      : page.isFlagDay && withHook.length <= 60
+        ? withHook
+        : plain;
   const lead =
     page.slug === "laskiainen"
       ? `Laskiaissunnuntai ${page.year} on ${wdm(page.date)} ja laskiaistiistai ${wdm(extra.date)}`

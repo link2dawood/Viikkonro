@@ -476,6 +476,23 @@ describe("observance days", () => {
     expect(OBSERVANCE_SLUG_RE.test("halloween-2026")).toBe(false);
   });
 
+  it("names the rendered sections in a flag day's title when they fit", () => {
+    expect(observanceMeta("isanpaiva", 2026).title).toBe(
+      "Isänpäivä 2026: su 8.11., perinteet ja liputus | Viikko Nro",
+    );
+    expect(observanceMeta("aitienpaiva", 2027).title).toBe(
+      "Äitienpäivä 2027: su 9.5., perinteet ja liputus | Viikko Nro",
+    );
+    // Not a flag day, so the plain week-number title stays.
+    expect(observanceMeta("ystavanpaiva", 2027).title).toBe(
+      "Ystävänpäivä 2027: su 14.2., viikko 6 | Viikko Nro",
+    );
+    // Here the hook would pass 60 characters, so the plain form wins.
+    expect(observanceMeta("aitienpaiva", 2026).title).toBe(
+      "Äitienpäivä 2026: su 10.5., viikko 19 | Viikko Nro",
+    );
+  });
+
   it("writes titles, descriptions and FAQs within limits and without en dashes", () => {
     for (const o of OBSERVANCES) {
       const meta = observanceMeta(o.slug, 2027);

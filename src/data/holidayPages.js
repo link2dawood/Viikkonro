@@ -2,6 +2,7 @@ import {
   fmtDayRangeFi,
   fmtFullFi,
   fmtShortFi,
+  fmtWeekdayDayMonthFi,
   isoWeek,
   isoYear,
   M_GENITIVE,
@@ -342,7 +343,9 @@ export function holidayPageMeta(year, slug) {
     description = description.replace(", asema ja", " ja");
   }
   return {
-    title: `${page.seoName} ${page.year}: ${fmtShortFi(page.date)}, viikko ${page.week} | Viikko Nro`,
+    // "su 6.12." rather than "6.12.2026": the weekday is what a long-weekend
+    // check needs, and the year is already in the leading query phrase.
+    title: `${page.seoName} ${page.year}: ${fmtWeekdayDayMonthFi(page.date)}, viikko ${page.week} | Viikko Nro`,
     description,
   };
 }

@@ -77,6 +77,7 @@ describe("keyword-targeted metadata", () => {
       holidayPageMeta(2027, "juhannusaatto"),
       weekMeta(46, 2026),
       weekMeta(42, 2026),
+      holidayPageMeta(2026, "itsenaisyyspaiva"),
     ]) {
       expect(meta.title + meta.description).not.toContain(EN_DASH);
     }
