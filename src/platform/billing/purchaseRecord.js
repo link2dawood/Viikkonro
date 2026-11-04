@@ -1,10 +1,19 @@
 import { fail } from "./catalog.js";
+import { createCalendarConfig } from "../calendar/config.js";
+import { buildCalendarModel } from "../calendar/model.js";
+import { companyCalendarToIcs, newCalendarIdentity } from "../export/companyIcs.js";
 
 export const PURCHASE_MARKETING_VERSION = "planning-offers-fi-v1";
 export const PURCHASE_MARKETING_TEXT = "Haluan sähköpostitse Viikkonron suunnittelutuotteiden uutisia ja tarjouksia. Voin perua suostumuksen milloin tahansa.";
 
 const text = (value, max = 300) => typeof value === "string" ? value.slice(0, max) : null;
 export const validEmail = value => typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && !/[\r\n]/.test(value) && !value.includes(String.fromCharCode(0));
+
+export function generateYearIcs(year) {
+  const config = createCalendarConfig({ year });
+  const model = buildCalendarModel(config);
+  return companyCalendarToIcs(model, { calendarId: newCalendarIdentity() });
+}
 
 // Explicit allowlist: never retain raw provider payloads, card details, calendar
 // content, arbitrary metadata or company uploads.
@@ -20,7 +29,8 @@ export function purchaseRecord(order, session) {
     customer_id: order.customer_id, checkout_id: order.checkout_id,
     product_id: session.productId, provider_product_id: order.product_id,
     price_id: session.priceId, contract_id: session.contractId, calendar_year: session.year,
-    email: order.customer.email.trim().toLowerCase(), billing_name: text(order.billing_name),
+    email: order.customer.email.trim().toLowerCase(),
+    billing_name: text(order.billing_name) || text(order.metadata?.company_name),
     billing_address: address,
     tax_id: Array.isArray(order.customer.tax_id) ? order.customer.tax_id.map(v => text(v, 80)) : null,
     currency: "EUR", subtotal_cents: order.subtotal_amount, tax_cents: order.tax_amount,
@@ -46,7 +56,8 @@ export async function processPurchaseNotification(event, { provider, store, mail
   if (claim.status !== "claimed") fail("receipt_pending");
   try {
     const pdf = await provider.invoicePdf(purchase);
-    const delivery = await mailer.sendInvoice(purchase.record, pdf);
+    const icsContent = generateYearIcs(purchase.record.calendar_year);
+    const delivery = await mailer.sendInvoice(purchase.record, pdf, { icsContent });
     await store.complete(purchase.record.order_id, claim.token, delivery.id);
   } catch {
     await store.release(purchase.record.order_id, claim.token);

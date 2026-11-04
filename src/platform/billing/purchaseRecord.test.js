@@ -182,6 +182,54 @@ describe("invoice email and private persistence adapters", () => {
     expect(message.DeduplicateCampaign).toBe(true);
     expect(message.TrackOpens).toBe("disabled"); expect(message.TrackClicks).toBe("disabled");
   });
+  it("sends the official invoice and calendar ICS file to the buyer with BCC, disabled tracking and deduplication", async () => {
+    const fetchImpl = vi.fn(async () => Response.json({ Messages: [{ Status: "success", To: [{ MessageUUID: "message-1" }] }] }));
+    const icsFixture = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR";
+    await createInvoiceMailer(env, { fetchImpl }).sendInvoice(purchaseRecord(order, session), pdf, { icsContent: icsFixture });
+    const message = JSON.parse(fetchImpl.mock.calls[0][1].body).Messages[0];
+    expect(message.To).toEqual([{ Email: "buyer@example.test" }]);
+    expect(message.Bcc).toEqual([{ Email: "owner@example.test" }]);
+    expect(message).not.toHaveProperty("Cc");
+    expect(message.Subject).toContain("lasku ja kalenteritiedosto");
+    expect(message.TextPart).toContain("29,00");
+    expect(message.TextPart).toContain("ICS-tiedosto");
+    expect(message.Attachments).toHaveLength(2);
+    expect(Buffer.from(message.Attachments[0].Base64Content, "base64")).toEqual(pdf);
+    expect(message.Attachments[1].Filename).toBe("viikkonro-yrityskalenteri-2027.ics");
+    expect(message.Attachments[1].ContentType).toBe("text/calendar; charset=utf-8");
+    expect(Buffer.from(message.Attachments[1].Base64Content, "base64").toString("utf-8")).toBe(icsFixture);
+    expect(message.DeduplicateCampaign).toBe(true);
+    expect(message.TrackOpens).toBe("disabled"); expect(message.TrackClicks).toBe("disabled");
+  });
+  it("sends custom calendar email with ICS and PDF attachments to the specified address", async () => {
+    const fetchImpl = vi.fn(async () => Response.json({ Messages: [{ Status: "success", To: [{ MessageUUID: "custom-msg-1" }] }] }));
+    const icsContent = "BEGIN:VCALENDAR\r\nSUMMARY:Custom Calendar\r\nEND:VCALENDAR";
+    const pdfBytes = new Uint8Array([37, 80, 68, 70]);
+    const res = await createInvoiceMailer(env, { fetchImpl }).sendCalendarEmail({
+      email: "colleague@example.fi",
+      year: 2027,
+      icsContent,
+      pdfBytes,
+      companyName: "Mehiläinen",
+    });
+    expect(res.id).toBe("custom-msg-1");
+    const message = JSON.parse(fetchImpl.mock.calls[0][1].body).Messages[0];
+    expect(message.To).toEqual([{ Email: "colleague@example.fi" }]);
+    expect(message.Subject).toBe("Viikkonro Mehiläinen – Yrityskalenteri 2027 – kalenteritiedostot");
+    expect(message.Attachments).toHaveLength(2);
+    expect(message.Attachments[0].Filename).toBe("yrityskalenteri-2027.ics");
+    expect(message.Attachments[1].Filename).toBe("yrityskalenteri-2027.pdf");
+  });
+  it("processPurchaseNotification generates year ICS and passes it to sendInvoice", async () => {
+    const deps = dependencies();
+    await processPurchaseNotification({ orderId: "order-1" }, deps);
+    expect(deps.mailer.sendInvoice).toHaveBeenCalledOnce();
+    const calls = deps.mailer.sendInvoice.mock.calls[0];
+    expect(calls[0].calendar_year).toBe(2027);
+    expect(calls[1]).toEqual(pdf);
+    expect(calls[2].icsContent).toContain("BEGIN:VCALENDAR");
+    expect(calls[2].icsContent).toContain("END:VCALENDAR");
+  });
   it("does not BCC the same recipient twice; provider errors fail safely", async () => {
     const fetchImpl = vi.fn(async () => Response.json({ Messages: [{ Status: "error" }] }));
     await expect(createInvoiceMailer({ ...env, BILLING_OWNER_EMAIL: "buyer@example.test" }, { fetchImpl }).sendInvoice(purchaseRecord(order, session), pdf)).rejects.toThrow("invoice_email_unavailable");

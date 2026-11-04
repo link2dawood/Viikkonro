@@ -71,6 +71,48 @@ describe("commerce HTTP authorization and artifacts",() => {
     await handleCommerce(request("checkout",{ year:2027 }),deps(p));
     expect(p.resumeCheckout).toHaveBeenCalledOnce();expect(p.startCheckout).toHaveBeenCalledOnce();
   });
+  it("passes validated buyer email and company name to startCheckout", async () => {
+    const p = provider(null);
+    const r = await handleCommerce(request("checkout", { year: 2027, email: "Buyer@Firm.fi", companyName: "Firm Oy" }, { cookie: "" }), deps(p));
+    expect(r.status).toBe(200);
+    expect(p.startCheckout.mock.calls[0][0]).toMatchObject({
+      customerEmail: "buyer@firm.fi",
+      companyName: "Firm Oy",
+    });
+    // Invalid email is rejected
+    const bad = await handleCommerce(request("checkout", { year: 2027, email: "invalid-email" }, { cookie: "" }), deps(p));
+    expect(bad.status).toBe(400);
+  });
+  it("delivers customized calendar files via email action to authorized buyers", async () => {
+    const p = provider();
+    const mailer = { sendCalendarEmail: vi.fn(async () => ({ id: "sent-msg-1" })) };
+    const r = await handleCommerce(
+      request("email", {
+        year: 2027,
+        email: "customer@example.fi",
+        calendarId: "a".repeat(32),
+        includePdf: true,
+        config: { year: 2027, branding: { companyName: "Yritys Oy" }, events: [{ id: "e1", date: "2027-05-01", title: "Vappu" }] },
+      }, { cookie: purchaseCookie(session, secret, at).split(";")[0] }),
+      { ...deps(p), mailer }
+    );
+    expect(r.status).toBe(200);
+    expect(await r.json()).toEqual({ sent: true, email: "customer@example.fi" });
+    expect(mailer.sendCalendarEmail).toHaveBeenCalledOnce();
+    const args = mailer.sendCalendarEmail.mock.calls[0][0];
+    expect(args.email).toBe("customer@example.fi");
+    expect(args.year).toBe(2027);
+    expect(args.icsContent).toContain("Vappu");
+    expect(args.pdfBytes).toBeInstanceOf(Uint8Array);
+    expect(args.companyName).toBe("Yritys Oy");
+
+    // Unpaid request is rejected with 403
+    const unpaid = await handleCommerce(
+      request("email", { year: 2027, email: "customer@example.fi", calendarId: "a".repeat(32), config: { year: 2027 } }, { cookie: "" }),
+      { ...deps(provider(null)), mailer }
+    );
+    expect(unpaid.status).toBe(403);
+  });
   it.each([2026,2027,2028])("returns to the selected company calendar/ICS year %i",async year => {
     for(const returnTo of ["company-calendar","company-ics"]) {
       const p=provider(null),path=returnTo==="company-ics"?"/yrityskalenteri/ics":"/yrityskalenteri";

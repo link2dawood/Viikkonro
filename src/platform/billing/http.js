@@ -9,6 +9,7 @@ import { buildCalendarModel } from "../calendar/model.js";
 import { renderCalendarPdf } from "../render/pdf.js";
 import { calendarToCsv, calendarToXlsx, XLSX_MIME } from "../export/calendar.js";
 import { companyCalendarToIcs, isCalendarIdentity } from "../export/companyIcs.js";
+import { validEmail } from "./purchaseRecord.js";
 
 const privateHeaders = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" };
 const json = (data, status = 200, extra = {}) => new Response(JSON.stringify(data), { status, headers: { ...privateHeaders, "Content-Type": "application/json", ...extra } });
@@ -51,7 +52,7 @@ function pngLogo(logo) {
   return logo.dataUri;
 }
 /** Inject provider/limiter for meaningful HTTP and security tests. */
-export async function handleCommerce(request, { provider, secret, origin, webhookSecret, consume, onPurchaseNotification, now = () => new Date().toISOString() }) {
+export async function handleCommerce(request, { provider, secret, origin, webhookSecret, consume, onPurchaseNotification, mailer, now = () => new Date().toISOString() }) {
   try {
     const url = new URL(request.url), action = url.pathname.split("/").at(-1);
     if (action === "webhook") {
@@ -60,7 +61,7 @@ export async function handleCommerce(request, { provider, secret, origin, webhoo
       if (event.type !== "ignored" && onPurchaseNotification) await onPurchaseNotification(event);
       return json({ received: true });
     }
-    if (!["catalog","checkout","status","export","restore"].includes(action)) return json({ error: "not_found" },404);
+    if (!["catalog","checkout","status","export","restore","email"].includes(action)) return json({ error: "not_found" },404);
     if (request.method !== (action === "catalog" ? "GET" : "POST")) return json({ error: "method_not_allowed" },405);
     if (action !== "catalog" && (request.headers.get("origin") !== origin || !/^application\/json(?:;|$)/i.test(request.headers.get("content-type") ?? ""))) return json({ error: "invalid_origin" },403);
     if (!await consume(action)) return json({ error: "rate_limited" },429,{ "Retry-After": "60" });
@@ -92,7 +93,9 @@ export async function handleCommerce(request, { provider, secret, origin, webhoo
       // A failed or abandoned checkout does not grant anything. Create a fresh
       // session on retry; only a provider-confirmed payment can authorize export.
       const contractId = randomUUID();
-      const checkout = await provider.startCheckout({ year,contractId,catalog,marketingConsent:body.marketingConsent === true,consentAt:at,...returnUrls });
+      const customerEmail = body.email ? (validEmail(body.email) ? body.email.trim().toLowerCase() : fail("invalid_email")) : undefined;
+      const companyName = typeof body.companyName === "string" ? body.companyName.trim().slice(0, 100) : undefined;
+      const checkout = await provider.startCheckout({ year,contractId,catalog,marketingConsent:body.marketingConsent === true,consentAt:at,...(customerEmail ? { customerEmail } : {}),...(companyName ? { companyName } : {}),...returnUrls });
       session = { version:1,productId:"company-calendar",year,contractId,checkoutId:checkout.checkoutId,providerProductId:catalog.providerProductId,priceId:catalog.priceId,organizationId:catalog.organizationId,environment:provider.environment,amountCents:catalog.amountCents,createdAt:at };
       return json({ url:checkout.url },200,{ "Set-Cookie":purchaseCookie(session,secret,at) });
     }
@@ -101,6 +104,26 @@ export async function handleCommerce(request, { provider, secret, origin, webhoo
     if (action === "status" || action === "restore") {
       if (action === "restore" && !entitlement.allowed) return json({ error:"payment_required" },403);
       return json({ paid:entitlement.allowed,year,expiresAt:calendarLicenseEnd(year),...(entitlement.allowed ? { restoreCode:signPurchase(session,secret) } : {}) },200,action === "restore" ? { "Set-Cookie":purchaseCookie(session,secret,at) } : {});
+    }
+    if (action === "email") {
+      const email = body?.email;
+      if (!validEmail(email)) fail("invalid_email");
+      if (!entitlement.allowed) return json({ error:"payment_required" },403);
+      if (!body.config || Number(body.config.year) !== year || !Array.isArray(body.config.events ?? []) || !Array.isArray(body.config.periods ?? []) || !Array.isArray(body.config.paydayDates ?? [])) fail("invalid_config");
+      const logo = pngLogo(body.config.branding?.logo);
+      const result = validateCalendarConfig({ ...body.config,product:"company-calendar",include:{ ...body.config.include,weekNumbers:true } });
+      if (!result.config || result.issues.length) fail("invalid_config");
+      if (!isCalendarIdentity(body.calendarId)) fail("invalid_calendar_id");
+      if (body.paydayRows != null && (!Array.isArray(body.paydayRows) || body.paydayRows.length > 60 || body.paydayRows.some(row => !row || !/^\d{4}-\d\d-\d\d$/.test(row.date) || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(row.id)))) fail("invalid_payday_rows");
+      const model = buildCalendarModel(result.config);
+      const icsContent = companyCalendarToIcs(model,{ calendarId:body.calendarId,paydayRows:body.paydayRows ?? [] });
+      let pdfBytes = null;
+      if (body.includePdf) {
+        pdfBytes = (await renderCalendarPdf(model,{ PDFDocument,logo,generatedOn:new Date(at) })).bytes;
+      }
+      if (!mailer) fail("email_unavailable");
+      await mailer.sendCalendarEmail({ email, year, icsContent, pdfBytes, companyName: body.config.branding?.companyName });
+      return json({ sent:true, email }, 200);
     }
     const format = body.format;
     if (!["pdf","xlsx","csv","ics"].includes(format)) fail("invalid_format");
@@ -122,7 +145,7 @@ export async function handleCommerce(request, { provider, secret, origin, webhoo
     return new Response(content,{ headers:{ ...privateHeaders,"Content-Type":mime,"Content-Disposition":`attachment; filename="yrityskalenteri-${year}.${format}"` } });
   } catch (error) {
     const code = error instanceof BillingError ? error.code : "payment_unavailable";
-    const unavailable = ["payment_unavailable","polar_unavailable","purchase_secret_required","payment_not_configured","receipt_pending"].includes(code);
+    const unavailable = ["payment_unavailable","polar_unavailable","purchase_secret_required","payment_not_configured","receipt_pending","email_unavailable"].includes(code);
     return json({ error:unavailable ? "payment_unavailable" : "invalid_request" },unavailable ? 503 : 400);
   }
 }
