@@ -12,14 +12,16 @@ The shared checkout panel on `/yrityskalenteri` and `/yrityskalenteri/ics`
 explains these steps in Finnish:
 
 1. Select a year, create a local calendar draft and check the free preview.
-2. Choose the one-time purchase for that calendar year. Promotional consent is
-   optional and unchecked. Enter billing details and pay in Polar's hosted checkout.
+2. Enter email and company name in the checkout form. Choose the one-time purchase
+   for that calendar year. Promotional consent is optional and unchecked. Enter
+   billing details and pay in Polar's hosted checkout (pre-filled with buyer email).
 3. Return to the builder. The server verifies payment with Polar before enabling
    PDF, XLSX, CSV and ICS downloads. A redirect alone never grants access.
 4. Save the private restore code and the calendar draft separately. The code
    restores export entitlement, not the draft, until the selected year's end.
-5. Obtain the official invoice through Polar's purchase confirmation. The
-   additional Mailjet buyer/BCC email requires an active sender; see operations below.
+5. Obtain the official invoice and `.ics` calendar file directly in your inbox.
+   The post-purchase view also offers an on-page button to email customized
+   calendar files (`.ics` and `.pdf`) to any address.
 
 No account or recurring subscription is required for this product. Other planning
 products are not automatically unlocked by a Company Calendar purchase.
@@ -44,7 +46,7 @@ products are not automatically unlocked by a Company Calendar purchase.
    retries resume processing. Downloads are bounded to 5 MiB and restricted to
    HTTPS provider/storage hosts, without forwarding authorization or following
    redirects.
-5. Mailjet sends the official PDF to the purchaser and BCCs `BILLING_OWNER_EMAIL`.
+5. Mailjet sends the official Polar invoice PDF along with the `yrityskalenteri-${year}.ics` calendar file attachment to the purchaser and BCCs `BILLING_OWNER_EMAIL`.
    The owner address is not a CC recipient. No restore code or other entitlement
    bearer credential is shared in the message. Open/click tracking is disabled.
    An order-specific campaign with `DeduplicateCampaign` prevents recipient

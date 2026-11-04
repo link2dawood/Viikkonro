@@ -569,6 +569,57 @@
   background: #e0e7ff;
   color: #3730a3;
 }
+.cc-purchase-fields {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+.cc-purchase-fields label {
+  font-weight: 600;
+  font-size: 14px;
+}
+.cc-purchase-fields label span {
+  font-weight: 400;
+  color: #56655f;
+}
+.cc-purchase-fields input[type="email"],
+.cc-purchase-fields input[type="text"] {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 15px;
+  box-sizing: border-box;
+}
+.cc-field-error {
+  color: #c92a2a;
+  font-size: 14px;
+  margin: -2px 0 4px;
+}
+.cc-email-delivery {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.cc-email-delivery h3 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+.cc-delivery-status {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.cc-delivery-status--success {
+  color: #1f7a5c;
+}
+.cc-delivery-status--error {
+  color: #c92a2a;
+}
 @media print {
   .cc-editor,
   .cc-exports,

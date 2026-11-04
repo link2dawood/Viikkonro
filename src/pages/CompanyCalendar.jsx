@@ -205,14 +205,14 @@ const CompanyCalendar = ({ icsOnly = false }) => {
     }
   }
 
-  async function handleUnlock({ marketingConsent = false } = {}) {
+  async function handleUnlock({ marketingConsent = false, email, companyName } = {}) {
     trackPlatformEvent("company_calendar_cta_click", { source: "unlock" });
     if (!devUnlock) {
       setBusy("checkout");setMessage("");
       try {
         // Draft persistence is optional; blocked/full storage must not block pay.
         setDraftSaved(persistDraft(browserStorage(), form));
-        const outcome = await commerce("checkout",{ year:form.year,marketingConsent,returnTo:icsOnly ? "company-ics" : "company-calendar" });
+        const outcome = await commerce("checkout",{ year:form.year,marketingConsent,email,companyName,returnTo:icsOnly ? "company-ics" : "company-calendar" });
         if (outcome.paid) receivePurchase(await commerce("status",{ year:form.year }));
         else { trackPlatformEvent("checkout_start",{ product:COMPANY_CALENDAR_PRODUCT,year:form.year }); window.location.assign(outcome.url); }
       } catch { setMessage("Maksusivua ei voitu avata. Yritä uudelleen. Voit tallentaa luonnoksen tiedostona ennen maksamista."); }
@@ -225,6 +225,35 @@ const CompanyCalendar = ({ icsOnly = false }) => {
       setUnlockOpen(false);
     } else if (outcome.status === "redirect") window.location.assign(outcome.url);
   }
+
+  const handleSendEmail = useCallback(async ({ email }) => {
+    if (!config || notes.length || logoError) {
+      throw new Error("Tarkista merkityt kohdat ennen lähettämistä.");
+    }
+    const serialized = configToJson(config);
+    if (serialized.branding.logo?.dataUri.startsWith("data:image/svg+xml")) {
+      serialized.branding.logo = { dataUri: await rasterizeSvgToPng(serialized.branding.logo.dataUri) };
+    }
+    const response = await fetch("/api/billing/email", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        year: form.year,
+        email,
+        config: serialized,
+        calendarId: form.calendarId,
+        paydayRows: form.paydayDates,
+        includePdf: !icsOnly,
+      }),
+    });
+    if (!response.ok) {
+      if (response.status === 403) setPurchase(null);
+      throw new Error("Sähköpostin lähetys epäonnistui. Yritä hetken kuluttua uudelleen.");
+    }
+    return response.json();
+  }, [config, notes.length, logoError, form.year, form.calendarId, form.paydayDates, icsOnly]);
 
   const relock = () => {
     const storage = browserStorage();
@@ -317,10 +346,10 @@ const CompanyCalendar = ({ icsOnly = false }) => {
               ) : null
             }
             onExport={handleExport}
-            onContactClick={() => trackPlatformEvent("company_calendar_cta_click", { source: "contact" })}
+            onContactClick={() => { trackPlatformEvent("company_calendar_cta_click", { source: "contact" }); }}
           />
-          {!devUnlock && <Purchase year={form.year} status={purchase?.year === form.year ? purchase : null} onStatus={receivePurchase} onCheckout={handleUnlock} busy={busy} />}
-          {!icsOnly && <p><Link to={COMPANY_ICS_PATH} onClick={() => trackPlatformEvent("company_ics_cta", { source: "builder" })}>Yrityksen ICS-kalenteri ja tuontiohjeet</Link></p>}
+          {!devUnlock && <Purchase year={form.year} status={purchase?.year === form.year ? purchase : null} onStatus={receivePurchase} onCheckout={handleUnlock} onSendEmail={handleSendEmail} defaultCompanyName={form.companyName} busy={busy} />}
+          {!icsOnly && <p><Link to={COMPANY_ICS_PATH} onClick={() => { trackPlatformEvent("company_ics_cta", { source: "builder" }); }}>Yrityksen ICS-kalenteri ja tuontiohjeet</Link></p>}
         </aside>
       </div>
 

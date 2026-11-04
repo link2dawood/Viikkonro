@@ -33,8 +33,10 @@ export default { async fetch(request) {
     onPurchaseNotification:event => processPurchaseNotification(event, {
       provider,store:createPurchaseStore(env),mailer:createInvoiceMailer(env),
     }),
-    origin,consume,
+    mailer:createInvoiceMailer(env),
+    origin,
+    consume:act => consume(act === "email" ? "export" : act),
   });
-  if (["catalog","checkout","status","export","restore","webhook"].includes(action)) console.info(JSON.stringify({ event:"commerce_request",action,status:response.status }));
+  if (["catalog","checkout","status","export","restore","email","webhook"].includes(action)) console.info(JSON.stringify({ event:"commerce_request",action,status:response.status }));
   return response;
 } };

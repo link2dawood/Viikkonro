@@ -35,8 +35,27 @@ export function createPolarProvider(config, { fetchImpl = fetch } = {}) {
       if (product.organization_id !== config.organizationId || product.is_archived || product.is_recurring || product.visibility === "draft" || product.prices.filter(row => !row.is_archived && row.price_currency === "eur").length !== 1 || !price || price.amount_type !== "fixed" || price.price_currency !== "eur" || !Number.isSafeInteger(price.price_amount) || price.price_amount < 1 || price.tax_behavior !== "inclusive") fail("invalid_polar_product");
       return { enabled: true, productId: "company-calendar", providerProductId: product.id, priceId: price.id, organizationId: config.organizationId, amountCents: price.price_amount, currency: "EUR", term: "calendar-year" };
     },
-    async startCheckout({ year, contractId, successUrl, returnUrl, catalog, marketingConsent = false, consentAt }) {
-      const checkout = await api("/checkouts/", "POST", { products: [catalog.providerProductId], currency: "eur", allow_discount_codes: false, allow_trial: false, require_billing_address: true, is_business_customer: true, metadata: { viikkonro_product: "company-calendar", viikkonro_contract: contractId, calendar_year: year, ...(marketingConsent ? { marketing_consent: true, marketing_consent_version: PURCHASE_MARKETING_VERSION, marketing_consent_at: consentAt } : {}) }, success_url: successUrl, return_url: returnUrl, locale: "fi" });
+    async startCheckout({ year, contractId, successUrl, returnUrl, catalog, marketingConsent = false, consentAt, customerEmail, companyName }) {
+      const metadata = {
+        viikkonro_product: "company-calendar",
+        viikkonro_contract: contractId,
+        calendar_year: year,
+        ...(companyName ? { company_name: companyName.slice(0, 100) } : {}),
+        ...(marketingConsent ? { marketing_consent: true, marketing_consent_version: PURCHASE_MARKETING_VERSION, marketing_consent_at: consentAt } : {}),
+      };
+      const checkout = await api("/checkouts/", "POST", {
+        products: [catalog.providerProductId],
+        currency: "eur",
+        allow_discount_codes: false,
+        allow_trial: false,
+        require_billing_address: true,
+        is_business_customer: true,
+        ...(customerEmail ? { customer_email: customerEmail } : {}),
+        metadata,
+        success_url: successUrl,
+        return_url: returnUrl,
+        locale: "fi",
+      });
       if (!identifier(checkout.id) || checkout.organization_id !== catalog.organizationId || checkout.product_id !== catalog.providerProductId || checkout.currency !== "eur") fail("invalid_checkout");
       return { checkoutId: checkout.id, url: validatePolarCheckoutUrl(checkout.url, config.environment) };
     },
