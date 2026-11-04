@@ -483,6 +483,92 @@
 .cc-unlock p {
   margin: 0 0 10px;
 }
+/* ICS preview tabs and event table */
+.cc-view-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.cc-view-toggle .btn {
+  padding: 6px 14px;
+  font-size: 13.5px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.cc-view-toggle .btn-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.cc-ics-table-wrap {
+  max-height: 36rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  margin-top: 10px;
+}
+.cc-ics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  text-align: left;
+}
+.cc-ics-table th {
+  position: sticky;
+  top: 0;
+  background: var(--card, #f5f8f7);
+  padding: 8px 10px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--line);
+  z-index: 1;
+}
+.cc-ics-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.cc-ics-table tr:hover {
+  background: rgba(31, 122, 92, 0.04);
+}
+.cc-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(31, 122, 92, 0.1);
+  color: var(--accent-deep);
+}
+.cc-tag--holiday {
+  background: #e6f4ea;
+  color: #137333;
+}
+.cc-tag--closure {
+  background: #fce8e6;
+  color: #c5221f;
+}
+.cc-tag--payday {
+  background: #fef7e0;
+  color: #b06000;
+}
+.cc-tag--company {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+.cc-tag--season {
+  background: #f3e8fd;
+  color: #7627bb;
+}
+.cc-tag--school {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+.cc-tag--flag-day {
+  background: #e0e7ff;
+  color: #3730a3;
+}
 @media print {
   .cc-editor,
   .cc-exports,

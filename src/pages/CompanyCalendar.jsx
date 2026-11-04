@@ -278,12 +278,12 @@ const CompanyCalendar = ({ icsOnly = false }) => {
         </span>
       </p>
 
-      {!devUnlock && <p className="cc-buttons"><a className="btn" href="#cc-purchase">Hinta ja ostaminen</a><a className="btn btn-ghost" href="#cc-editor">Tee maksuton esikatselu</a></p>}
+      {!devUnlock && <p className="cc-buttons"><a className="btn" href="#cc-purchase">Hinta ja ostaminen</a><a className="btn btn-ghost" href="#cc-preview">Tee maksuton esikatselu</a></p>}
       {!draftSaved && <p className="cc-banner" role="status">Selaimen tallennustila ei ole käytettävissä. Tallenna luonnos JSON-tiedostona ennen maksua ja avaa se palattuasi. Muuten uudelleenlataus voi tyhjentää kalenterin.</p>}
 
       <div className="cc-layout" data-clarity-mask="True">
         <Editor icsOnly={icsOnly} form={form} setForm={change} years={years} logoError={logoError} setLogoError={setLogoError} notes={notes} onClearDraft={clearDraft} onSaveDraft={saveDraftFile} onRestoreDraft={restoreDraftFile} />
-        <aside className="cc-side" aria-label="Esikatselu">
+        <aside id="cc-preview" className="cc-side" aria-label="Esikatselu">
           <h2>Esikatselu</h2>
           {!unlocked && (
             <p className="cc-banner">
