@@ -7,8 +7,13 @@ import { paydaysInYear } from "../../data/paydayPages.js";
 export const COMPANY_ICS_MIME = "text/calendar;charset=utf-8";
 export const isCalendarIdentity = (value) => typeof value === "string" && /^[a-f0-9]{32}$/.test(value);
 export function newCalendarIdentity() {
-  if (!globalThis.crypto?.randomUUID) throw new Error("Secure random identifiers are unavailable.");
-  return globalThis.crypto.randomUUID().replace(/-/g, "");
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID().replace(/-/g, "");
+  if (globalThis.crypto?.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    globalThis.crypto.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }
 export const utcIcsStamp = (date = new Date()) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
