@@ -80,9 +80,10 @@ export async function handleCommerce(request, { provider, secret, origin, webhoo
     }
     if (action === "checkout") {
       const returnTo = body.returnTo === undefined ? "company-calendar" : body.returnTo;
-      if (!["company-calendar","company-ics"].includes(returnTo)) fail("invalid_return_to");
-      const returnPath = returnTo === "company-ics" ? "/yrityskalenteri/ics" : "/yrityskalenteri";
-      const returnUrls = { successUrl:`${origin}${returnPath}?payment=return&year=${year}`,returnUrl:`${origin}${returnPath}?payment=return&year=${year}` };
+      if (!["company-calendar","company-ics","vacation-planner"].includes(returnTo)) fail("invalid_return_to");
+      const returnPath = returnTo === "company-ics" ? "/yrityskalenteri/ics" : returnTo === "vacation-planner" ? "/lomasuunnittelija" : "/yrityskalenteri";
+      const hash = returnTo === "vacation-planner" ? "#vuosisuunnitelma" : "";
+      const returnUrls = { successUrl:`${origin}${returnPath}?payment=return&year=${year}${hash}`,returnUrl:`${origin}${returnPath}?payment=return&year=${year}${hash}` };
       const catalog = await provider.catalog();
       if (!catalog.enabled) return json({ error:"payment_unavailable" },503);
       if (session && guestEntitlement(session,await provider.payment(session),at).allowed) return json({ paid:true });

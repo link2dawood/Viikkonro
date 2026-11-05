@@ -9,13 +9,31 @@ const FORMATS = [
 
 // `devPanel` and `devNote` are passed only by a development build (the page builds
 // them behind import.meta.env.DEV), so production code contains no unlock path.
-export default function Exports({ unlocked, busy, message, warnings, unlockOpen, devPanel, devNote, onExport, onContactClick, paymentAvailable = false, unavailableMessage = "Tämän tuotteen maksullisia latauksia ei vielä myydä. Esikatselu on käytettävissä.", icsOnly = false, formats = ["pdf", "xlsx", "csv", "ics"] }) {
+export default function Exports({
+  unlocked,
+  busy,
+  message,
+  warnings,
+  unlockOpen,
+  devPanel,
+  devNote,
+  onExport,
+  onContactClick,
+  paymentAvailable = false,
+  unavailableMessage = "Tämän tuotteen maksullisia latauksia ei vielä myydä. Esikatselu on käytettävissä.",
+  icsOnly = false,
+  formats = ["pdf", "xlsx", "csv", "ics"],
+  title = "Lataa kalenteri",
+}) {
+  const formatsText = formats.includes("csv")
+    ? "valitun vuoden PDF-, Excel-, CSV- ja ICS-lataukset."
+    : "valitun vuoden PDF-, Excel- ja ICS-lataukset.";
   return (
     <div className="cc-exports">
-      <h2>Lataa kalenteri</h2>
+      <h2>{title}</h2>
       {!unlocked && (
         <p className="note-soft">
-          {paymentAvailable ? "Esikatselu on ilmainen. Osto avaa valitun vuoden PDF-, Excel-, CSV- ja ICS-lataukset." : unavailableMessage}
+          {paymentAvailable ? `Esikatselu on ilmainen. Osto avaa ${formatsText}` : unavailableMessage}
         </p>
       )}
       <div className="cc-buttons">

@@ -113,12 +113,14 @@ describe("commerce HTTP authorization and artifacts",() => {
     );
     expect(unpaid.status).toBe(403);
   });
-  it.each([2026,2027,2028])("returns to the selected company calendar/ICS year %i",async year => {
-    for(const returnTo of ["company-calendar","company-ics"]) {
-      const p=provider(null),path=returnTo==="company-ics"?"/yrityskalenteri/ics":"/yrityskalenteri";
+  it.each([2026,2027,2028])("returns to the selected company calendar/ICS/vacation planner year %i",async year => {
+    for(const returnTo of ["company-calendar","company-ics","vacation-planner"]) {
+      const p=provider(null);
+      const path=returnTo==="company-ics"?"/yrityskalenteri/ics":returnTo==="vacation-planner"?"/lomasuunnittelija":"/yrityskalenteri";
+      const hash=returnTo==="vacation-planner"?"#vuosisuunnitelma":"";
       const r=await handleCommerce(request("checkout",{year,returnTo},{cookie:""}),deps(p));
       expect(r.status).toBe(200);
-      expect(p.startCheckout.mock.calls[0][0]).toMatchObject({successUrl:`${origin}${path}?payment=return&year=${year}`,returnUrl:`${origin}${path}?payment=return&year=${year}`});
+      expect(p.startCheckout.mock.calls[0][0]).toMatchObject({successUrl:`${origin}${path}?payment=return&year=${year}${hash}`,returnUrl:`${origin}${path}?payment=return&year=${year}${hash}`});
     }
   });
   it.each(["https://evil.test","//evil.test","__proto__",null,0,{},[]].map(value => [value]))("rejects an untrusted checkout return target %j",async returnTo => {

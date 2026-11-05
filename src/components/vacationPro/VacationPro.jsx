@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { trackPlatformEvent } from "../../analytics";
 import Button from "../Button";
 import Preview from "../companyCalendar/Preview";
 import Exports from "../companyCalendar/Exports";
+import Purchase from "../companyCalendar/Purchase";
+import { commerce } from "../../platform/business/commerceClient";
 import "../planning/plannerControls.css";
 import calendarCss from "../companyCalendar/companyCalendar.css?raw";
 import proCss from "./vacationPro.css?raw";
@@ -21,17 +23,48 @@ const rowId = () => `r${newCalendarIdentity()}`;
 export default function VacationPro({ today }) {
   const [draft, setDraft] = useState(() => newVacationDraft(today.getFullYear()));
   const [license, setLicense] = useState(null), [ready, setReady] = useState(false);
+  const [purchase, setPurchase] = useState(null);
   const [busy, setBusy] = useState(null), [message, setMessage] = useState(""), [unlockOpen, setUnlockOpen] = useState(false);
   const [warnings, setWarnings] = useState([]);
   const started = useRef(false), previewSeen = useRef(new Set());
-  const provider = useMemo(() => import.meta.env.DEV ? resolvePaymentProvider(import.meta.env, { storage: storage(), hostname: globalThis.location?.hostname }) : unavailableProvider, []);
+  const paidYears = useRef(new Set());
+
+  const provider = useMemo(
+    () => (import.meta.env.DEV ? resolvePaymentProvider(import.meta.env, { storage: storage(), hostname: globalThis.location?.hostname }) : unavailableProvider),
+    [],
+  );
+  const devUnlock = import.meta.env.DEV && provider.id === "dev-unlock";
+
+  const receivePurchase = useCallback((result) => {
+    setPurchase(result);
+    if (result?.paid && new URLSearchParams(globalThis.location?.search).get("payment") === "return" && !paidYears.current.has(result.year)) {
+      paidYears.current.add(result.year);
+      trackPlatformEvent("purchase", { product: VACATION_PRODUCT, year: result.year });
+    }
+  }, []);
+
   useEffect(() => {
     let restored;
-    try { restored = vacationConfigFromJson(storage()?.getItem(VACATION_DRAFT_KEY)).config; } catch { /* Blocked storage keeps plans session-local. */ }
+    try {
+      restored = vacationConfigFromJson(storage()?.getItem(VACATION_DRAFT_KEY)).config;
+    } catch {
+      /* Blocked storage keeps plans session-local. */
+    }
+    const params = new URLSearchParams(globalThis.location?.search);
+    const returnYear = Number(params.get("year"));
+    const isPaymentReturn = params.get("payment") === "return";
+    if (isPaymentReturn && returnYear) {
+      if (restored) restored.year = returnYear;
+      setTimeout(() => {
+        document.getElementById("vuosisuunnitelma")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
     setDraft({ ...(restored ?? newVacationDraft(today.getFullYear())), calendarId: restored?.calendarId ?? newCalendarIdentity() });
-    setLicense(provider.restoreLicense()); setReady(true);
+    setLicense(provider.restoreLicense());
+    setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const change = (update) => {
     setDraft((previous) => typeof update === "function" ? update(previous) : { ...previous, ...update });
     if (!started.current) { started.current = true; trackPlatformEvent("vacation_planner_started", { source: "annual-editor" }); }
@@ -43,7 +76,10 @@ export default function VacationPro({ today }) {
     const timer = setTimeout(() => { previewSeen.current.add(draft.year); trackPlatformEvent("vacation_planner_preview", { year: draft.year, source: "annual-editor" }); }, 600);
     return () => clearTimeout(timer);
   }, [ready, model, draft.year]);
-  const unlocked = hasFeature(VACATION_PRODUCT, "pdf-export", license, today);
+
+  const serverPaid = purchase?.paid === true && purchase.year === Number(draft.year);
+  const unlocked = serverPaid || hasFeature(VACATION_PRODUCT, "pdf-export", license, today);
+
   const setRow = (key, id, patch) => change((previous) => ({ ...previous, [key]: previous[key].map((row) => row.id === id ? { ...row, ...patch } : row) }));
   const removeRow = (key, id) => change((previous) => ({ ...previous, [key]: previous[key].filter((row) => row.id !== id) }));
   const addPeriod = (closure = false) => change((previous) => ({ ...previous, [closure ? "closures" : "periods"]: [...previous[closure ? "closures" : "periods"],
@@ -61,9 +97,14 @@ export default function VacationPro({ today }) {
     change({ ...newVacationDraft(today.getFullYear()), calendarId: newCalendarIdentity() });
     setMessage("Luonnos tyhjennettiin.");
   };
+
   async function exportFile(kind) {
     if (!model || !ready) { setMessage("Korjaa merkityt kohdat ennen lataamista."); return; }
-    if (!hasFeature(VACATION_PRODUCT, `${kind}-export`, license, today)) { setUnlockOpen(true); return; }
+    if (!serverPaid && !hasFeature(VACATION_PRODUCT, `${kind}-export`, license, today)) {
+      setUnlockOpen(true);
+      document.getElementById("vp-purchase")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     setBusy(kind); setMessage(""); setWarnings([]);
     try {
       const filename = `lomasuunnitelma-${model.config.year}.${kind}`;
@@ -80,16 +121,49 @@ export default function VacationPro({ today }) {
     } catch { setMessage("Tiedoston luominen epäonnistui. Yritä uudelleen."); }
     finally { setBusy(null); }
   }
-  async function unlock() {
+
+  async function handleUnlock({ marketingConsent = false, email, companyName } = {}) {
+    trackPlatformEvent("vacation_planner_cta_click", { source: "unlock" });
+    if (!devUnlock) {
+      setBusy("checkout");
+      setMessage("");
+      try {
+        const year = Number(draft.year);
+        const outcome = await commerce("checkout", {
+          year,
+          marketingConsent,
+          email,
+          companyName,
+          returnTo: "vacation-planner",
+        });
+        if (outcome.paid) {
+          receivePurchase(await commerce("status", { year }));
+        } else {
+          trackPlatformEvent("checkout_start", { product: VACATION_PRODUCT, year });
+          window.location.assign(outcome.url);
+        }
+      } catch {
+        setMessage("Maksusivua ei voitu avata. Yritä uudelleen.");
+      } finally {
+        setBusy(null);
+      }
+      return;
+    }
     const result = await provider.startCheckout({ productId: VACATION_PRODUCT, tier: "paid", today });
-    if (result.status === "granted") { setLicense(result.license); setUnlockOpen(false); }
-    else if (result.status === "redirect") window.location.assign(result.url);
+    if (result.status === "granted") {
+      setLicense(result.license);
+      setUnlockOpen(false);
+    } else if (result.status === "redirect") {
+      window.location.assign(result.url);
+    }
   }
+
   return <section id="vuosisuunnitelma" className="vp-pro">
     <style dangerouslySetInnerHTML={{ __html: calendarCss + proCss }} />
     <h2>Lomasuunnittelija Pro: vuoden lomasuunnitelma</h2>
     <p>Suunnittele lomat, muut poissaolot ja yrityksen sulkupäivät samaan kalenteriin. Henkilöiden nimet voivat olla omia tunnisteita. Yhteinen näkymä toimii tässä selaimessa ilman tilejä.</p>
-    <p>Esikatselu on ilmainen. PDF-, Excel- ja ICS-lataukset kuuluvat Pro-vientiin. Maksaminen ei ole vielä käytössä.</p>
+    <p>Esikatselu on ilmainen. Osto avaa valitun kalenterivuoden PDF-, Excel- ja ICS-lataukset.</p>
+    {!devUnlock && <p className="cc-buttons"><a className="btn" href="#vp-purchase">Hinta ja ostaminen</a></p>}
     <div className="cc-layout" data-clarity-mask="True">
       <div className="cc-editor">
         <fieldset className="lookup" disabled={!ready}>
@@ -141,9 +215,33 @@ export default function VacationPro({ today }) {
           <Preview model={model.calendar} locked={!unlocked} hasLogo={false} logo={null} />
           <p className="note-soft">Kalenterin työpäivät koskevat suunnitteluviikkoa. Vuosiyhteenveto huomioi sulut ja poissaolot. Lomasuunnitelma ei ole lomapäätös eikä palkkalaskelma.</p>
         </> : <p>Korjaa merkityt kohdat, niin esikatselu näkyy.</p>}
-        <Exports unavailableMessage="Lomasuunnittelija Pron maksullisia latauksia ei vielä myydä. Maksuton lomasuunnittelija toimii normaalisti. Yrityskalenterin osto avaa vain yrityskalenterin lataukset." formats={["pdf", "xlsx", "ics"]} unlocked={unlocked} busy={busy} message={message} warnings={warnings} unlockOpen={unlockOpen} onExport={exportFile}
-          devPanel={import.meta.env.DEV && provider.id === "dev-unlock" ? <><p>Kehitystila: lataukset avataan vain paikallista testausta varten.</p><button type="button" className="btn" onClick={unlock}>Avaa Pro-lataukset (testi)</button></> : null}
-          devNote={import.meta.env.DEV && provider.id === "dev-unlock" ? <button type="button" className="btn-link" onClick={() => { if (storage()) clearDevLicense(storage()); setLicense(null); }}>Lukitse Pro-lataukset</button> : null} />
+        <Exports
+          title="Lataa lomasuunnitelma"
+          paymentAvailable={!devUnlock}
+          formats={["pdf", "xlsx", "ics"]}
+          unlocked={unlocked}
+          busy={busy}
+          message={message}
+          warnings={warnings}
+          unlockOpen={unlockOpen}
+          onExport={exportFile}
+          devPanel={import.meta.env.DEV && provider.id === "dev-unlock" ? <><p>Kehitystila: lataukset avataan vain paikallista testausta varten.</p><button type="button" className="btn" onClick={handleUnlock}>Avaa Pro-lataukset (testi)</button></> : null}
+          devNote={import.meta.env.DEV && provider.id === "dev-unlock" ? <button type="button" className="btn-link" onClick={() => { if (storage()) clearDevLicense(storage()); setLicense(null); }}>Lukitse Pro-lataukset</button> : null}
+        />
+        {!devUnlock && (
+          <Purchase
+            id="vp-purchase"
+            year={Number(draft.year)}
+            status={purchase?.year === Number(draft.year) ? purchase : null}
+            onStatus={receivePurchase}
+            onCheckout={handleUnlock}
+            productName="lomasuunnitelman"
+            stepsTitle="Näin ostat lomasuunnitelman lataukset"
+            formats="PDF-, Excel- ja ICS-tiedostot"
+            ariaLabel="Lomasuunnitelman osto"
+            busy={busy}
+          />
+        )}
         <p><Link to="/yrityskalenteri/ics">ICS-tiedoston tuontiohjeet</Link>. Tuo yksityinen suunnitelma erilliseen kalenteriin. Tiedostotuonti ei päivity automaattisesti.</p>
       </aside>
     </div>
