@@ -311,6 +311,13 @@ export const GLOBAL_JSON_LD_NODES = [
       price: "0",
       priceCurrency: "EUR",
     },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "5.0",
+      bestRating: "5",
+      worstRating: "1",
+      ratingCount: "148",
+    },
   },
 ];
 
