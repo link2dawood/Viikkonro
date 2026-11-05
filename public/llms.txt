@@ -15,6 +15,21 @@ Keskeiset faktat viikkonumeroista Suomessa:
 - [Mikä on viikkonumero?](https://viikkonro.fi/mika-on-viikkonumero): viikkonumeron ja ISO 8601 -standardin selitys
 - [Miksi viikko alkaa maanantaista?](https://viikkonro.fi/viikko-alkaa-maanantaista): viikon alku, torstaisääntö ja vuodenvaihteen ISO-viikot
 - [Kuinka monta viikkoa vuodessa on?](https://viikkonro.fi/kuinka-monta-viikkoa-vuodessa): 52 vai 53 viikkoa ja miksi
+- [Kuinka monta viikkoa kuukaudessa on?](https://viikkonro.fi/kuinka-monta-viikkoa-kuukaudessa): keskimäärin 4,33 viikkoa, kuukausikohtaiset viikot ja muunnin
+- [Miksi vuodessa on 53 viikkoa?](https://viikkonro.fi/miksi-vuodessa-on-53-viikkoa): ISO 8601 -torstaisääntö ja 53 viikon vuodet
+- [Kuinka monta päivää vuodessa on?](https://viikkonro.fi/kuinka-monta-paivaa-vuodessa): 365 tai 366 päivää, karkausvuodet ja tunnit
+- [Kuinka monta työpäivää vuodessa on?](https://viikkonro.fi/kuinka-monta-tyopaivaa-vuodessa): 251-254 työpäivää, arkipyhät ja vuosityötunnit
+- [Kuinka monta työpäivää kuukaudessa on?](https://viikkonro.fi/kuinka-monta-tyopaivaa-kuukaudessa): keskimäärin 21 työpäivää (19-23 pv) ja kuukausipalkka
+- [Kuinka monta työtuntia vuodessa on?](https://viikkonro.fi/kuinka-monta-tyotuntia-vuodessa): noin 1 890 h (7,5 h/pv) tai 2 016 h (8 h/pv) ja TES-vertailu
+- [Kuinka monta työtuntia kuukaudessa on?](https://viikkonro.fi/kuinka-monta-tyotuntia-kuukaudessa): keskimäärin 158 h tai 168 h ja kuukausipalkan jakaja
+- [Kuinka monta arkipäivää kuukaudessa on?](https://viikkonro.fi/kuinka-monta-arkipaivaa-kuukaudessa): keskimäärin 25 arkipäivää (6 pv/vko, Kela/loma) vs. 21 työpäivää
+- [Kuinka monta viikkoa vuosiloma on?](https://viikkonro.fi/kuinka-monta-viikkoa-vuosiloma-on): täysi loma 5 viikkoa (30 pv), alle 1 v 4 viikkoa ja lauantaisääntö
+- [Kuinka monta viikkoa lukuvuodessa on?](https://viikkonro.fi/kuinka-monta-viikkoa-lukuvuodessa): noin 38-39 kouluviikkoa (190 pv) ja koulujen lomat
+- [Kuinka monta viikkoa kvartaalissa on?](https://viikkonro.fi/kuinka-monta-viikkoa-kvartaalissa): tasan 13 viikkoa (91 pv), Q1-Q4 ja taloushallinnon 4-4-5-malli
+- [Kuinka monta viikkoa vuodesta on jäljellä?](https://viikkonro.fi/kuinka-monta-viikkoa-jaljella): reaaliaikainen laskuri, jäljellä olevat viikot, päivät ja prosentit
+- [Kuinka monta viikonloppua vuodessa on?](https://viikkonro.fi/kuinka-monta-viikonloppua-vuodessa): 52 viikonloppua (104-106 pv), lauantait, sunnuntait ja vaihtelu
+- [Kuinka monta viikkoa on 100 päivää?](https://viikkonro.fi/kuinka-monta-viikkoa-on-100-paivaa): 14 viikkoa ja 2 päivää (14,29 vk), interaktiivinen muunnin ja vertailu
+- [Kuinka monta tuntia vuodessa on?](https://viikkonro.fi/kuinka-monta-tuntia-vuodessa): 8 760 tuntia (karkausvuonna 8 784 h), minuutit, sekunnit ja ajanjako
 - [Suomi vs. USA: miksi viikkonumero eroaa?](https://viikkonro.fi/suomi-vs-usa-viikkonumerot): ISO 8601 vs. sunnuntaista alkava viikko, oikeilla päivämäärillä laskettuna
 - [Mikä kuukausi nyt on?](https://viikkonro.fi/mika-kuukausi-nyt): nykyinen kuukausi, kuukauden numero, päivien määrä ja viikot
 - [Mikä vuosi nyt on?](https://viikkonro.fi/mika-vuosi-nyt): nykyinen vuosi, päivien ja ISO-viikkojen määrä sekä vuoden eteneminen

@@ -114,6 +114,29 @@ import { HR_PATH, hrMeta } from "./hrCalendar.js";
 import { TEAM_PATH, teamMeta } from "./teamLeave.js";
 import { PARITY_PATH, parityMeta } from "./weekParity.js";
 import { weeksInYearMeta } from "./weeksInYearContent.js";
+import { weeksInMonthMeta } from "./weeksInMonthContent.js";
+import { fiftyThreeWeeksMeta } from "./fiftyThreeWeeksContent.js";
+import { daysInYearMeta } from "./daysInYearContent.js";
+import {
+  workdaysInYearMeta,
+  workdaysInMonthMeta,
+  workhoursInYearMeta,
+  workhoursInMonthMeta,
+} from "./laborHoursContent.js";
+import {
+  weekdaysInMonthMeta,
+  vacationWeeksMeta,
+  schoolWeeksMeta,
+} from "./vacationSchoolContent.js";
+import {
+  weeksInQuarterMeta,
+  weeksRemainingMeta,
+  weekendsInYearMeta,
+} from "./businessProgressContent.js";
+import {
+  hundredDaysWeeksMeta,
+  hoursInYearMeta,
+} from "./unitMathContent.js";
 
 // Fixed date the FAQ/explainer/calculator page COPY (not just computed data)
 // was last substantively edited. Bump both by hand when that prose actually
@@ -916,6 +939,66 @@ export const routeMeta = {
     ...weeksInYearMeta(new Date()),
     breadcrumb: "Viikkoja vuodessa",
   },
+  "/kuinka-monta-viikkoa-kuukaudessa": {
+    ...weeksInMonthMeta(new Date()),
+    breadcrumb: "Viikkoja kuukaudessa",
+  },
+  "/miksi-vuodessa-on-53-viikkoa": {
+    ...fiftyThreeWeeksMeta(new Date()),
+    breadcrumb: "53 viikkoa vuodessa",
+  },
+  "/kuinka-monta-paivaa-vuodessa": {
+    ...daysInYearMeta(new Date()),
+    breadcrumb: "Päiviä vuodessa",
+  },
+  "/kuinka-monta-tyopaivaa-vuodessa": {
+    ...workdaysInYearMeta(new Date()),
+    breadcrumb: "Työpäivät vuodessa",
+  },
+  "/kuinka-monta-tyopaivaa-kuukaudessa": {
+    ...workdaysInMonthMeta(new Date()),
+    breadcrumb: "Työpäivät kuukaudessa",
+  },
+  "/kuinka-monta-tyotuntia-vuodessa": {
+    ...workhoursInYearMeta(new Date()),
+    breadcrumb: "Työtunnit vuodessa",
+  },
+  "/kuinka-monta-tyotuntia-kuukaudessa": {
+    ...workhoursInMonthMeta(new Date()),
+    breadcrumb: "Työtunnit kuukaudessa",
+  },
+  "/kuinka-monta-arkipaivaa-kuukaudessa": {
+    ...weekdaysInMonthMeta(new Date()),
+    breadcrumb: "Arkipäivät kuukaudessa",
+  },
+  "/kuinka-monta-viikkoa-vuosiloma-on": {
+    ...vacationWeeksMeta(),
+    breadcrumb: "Vuosiloman viikot",
+  },
+  "/kuinka-monta-viikkoa-lukuvuodessa": {
+    ...schoolWeeksMeta(new Date()),
+    breadcrumb: "Lukuvuoden viikot",
+  },
+  "/kuinka-monta-viikkoa-kvartaalissa": {
+    ...weeksInQuarterMeta(),
+    breadcrumb: "Viikkoja kvartaalissa",
+  },
+  "/kuinka-monta-viikkoa-jaljella": {
+    ...weeksRemainingMeta(new Date()),
+    breadcrumb: "Viikkoja jäljellä",
+  },
+  "/kuinka-monta-viikonloppua-vuodessa": {
+    ...weekendsInYearMeta(new Date()),
+    breadcrumb: "Viikonloppuja vuodessa",
+  },
+  "/kuinka-monta-viikkoa-on-100-paivaa": {
+    ...hundredDaysWeeksMeta(),
+    breadcrumb: "100 päivää viikkoina",
+  },
+  "/kuinka-monta-tuntia-vuodessa": {
+    ...hoursInYearMeta(),
+    breadcrumb: "Tunteja vuodessa",
+  },
   "/suomi-vs-usa-viikkonumerot": {
     title: "Suomi vs. USA: miksi viikkonumero eroaa? | Viikko Nro",
     description:
@@ -1191,6 +1274,21 @@ export function sitemapEntries(year) {
     { path: PARITY_PATH, changefreq: "weekly", priority: "0.8" },
     { path: "/viikko-alkaa-maanantaista", changefreq: "monthly", priority: "0.7" },
     { path: "/kuinka-monta-viikkoa-vuodessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-viikkoa-kuukaudessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/miksi-vuodessa-on-53-viikkoa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-paivaa-vuodessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-tyopaivaa-vuodessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-tyopaivaa-kuukaudessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-tyotuntia-vuodessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-tyotuntia-kuukaudessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-arkipaivaa-kuukaudessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-viikkoa-vuosiloma-on", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-viikkoa-lukuvuodessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-viikkoa-kvartaalissa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-viikkoa-jaljella", changefreq: "daily", priority: "0.8" },
+    { path: "/kuinka-monta-viikonloppua-vuodessa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-viikkoa-on-100-paivaa", changefreq: "monthly", priority: "0.8" },
+    { path: "/kuinka-monta-tuntia-vuodessa", changefreq: "monthly", priority: "0.8" },
     { path: "/suomi-vs-usa-viikkonumerot", changefreq: "monthly", priority: "0.7" },
     { path: "/mika-kuukausi-nyt", changefreq: "daily", priority: "0.8" },
     { path: "/mika-vuosi-nyt", changefreq: "daily", priority: "0.8" },
@@ -1404,6 +1502,36 @@ export function metaFor(url) {
   if (url === PARITY_PATH) return { ...routeMeta[url], ...parityMeta(new Date()) };
   if (url === "/kuinka-monta-viikkoa-vuodessa")
     return { ...routeMeta[url], ...weeksInYearMeta(new Date()) };
+  if (url === "/kuinka-monta-viikkoa-kuukaudessa")
+    return { ...routeMeta[url], ...weeksInMonthMeta(new Date()) };
+  if (url === "/miksi-vuodessa-on-53-viikkoa")
+    return { ...routeMeta[url], ...fiftyThreeWeeksMeta(new Date()) };
+  if (url === "/kuinka-monta-paivaa-vuodessa")
+    return { ...routeMeta[url], ...daysInYearMeta(new Date()) };
+  if (url === "/kuinka-monta-tyopaivaa-vuodessa")
+    return { ...routeMeta[url], ...workdaysInYearMeta(new Date()) };
+  if (url === "/kuinka-monta-tyopaivaa-kuukaudessa")
+    return { ...routeMeta[url], ...workdaysInMonthMeta(new Date()) };
+  if (url === "/kuinka-monta-tyotuntia-vuodessa")
+    return { ...routeMeta[url], ...workhoursInYearMeta(new Date()) };
+  if (url === "/kuinka-monta-tyotuntia-kuukaudessa")
+    return { ...routeMeta[url], ...workhoursInMonthMeta(new Date()) };
+  if (url === "/kuinka-monta-arkipaivaa-kuukaudessa")
+    return { ...routeMeta[url], ...weekdaysInMonthMeta(new Date()) };
+  if (url === "/kuinka-monta-viikkoa-vuosiloma-on")
+    return { ...routeMeta[url], ...vacationWeeksMeta() };
+  if (url === "/kuinka-monta-viikkoa-lukuvuodessa")
+    return { ...routeMeta[url], ...schoolWeeksMeta(new Date()) };
+  if (url === "/kuinka-monta-viikkoa-kvartaalissa")
+    return { ...routeMeta[url], ...weeksInQuarterMeta() };
+  if (url === "/kuinka-monta-viikkoa-jaljella")
+    return { ...routeMeta[url], ...weeksRemainingMeta(new Date()) };
+  if (url === "/kuinka-monta-viikonloppua-vuodessa")
+    return { ...routeMeta[url], ...weekendsInYearMeta(new Date()) };
+  if (url === "/kuinka-monta-viikkoa-on-100-paivaa")
+    return { ...routeMeta[url], ...hundredDaysWeeksMeta() };
+  if (url === "/kuinka-monta-tuntia-vuodessa")
+    return { ...routeMeta[url], ...hoursInYearMeta() };
   if (url === "/mika-kuukausi-nyt") return { ...routeMeta[url], ...currentMonthMeta() };
   if (url === "/mika-vuosi-nyt") return { ...routeMeta[url], ...currentYearMeta() };
   if (routeMeta[url]) return routeMeta[url];

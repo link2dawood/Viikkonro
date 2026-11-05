@@ -117,6 +117,29 @@ import {
 } from "./src/data/nameDayPages.js";
 import { nameDayDateKeys, nameDayNames } from "./src/data/nameDays.js";
 import { weeksInYearFaqs } from "./src/data/weeksInYearContent.js";
+import { weeksInMonthFaqs } from "./src/data/weeksInMonthContent.js";
+import { fiftyThreeWeeksFaqs } from "./src/data/fiftyThreeWeeksContent.js";
+import { daysInYearFaqs } from "./src/data/daysInYearContent.js";
+import {
+  workdaysInYearFaqs,
+  workdaysInMonthFaqs,
+  workhoursInYearFaqs,
+  workhoursInMonthFaqs,
+} from "./src/data/laborHoursContent.js";
+import {
+  weekdaysInMonthFaqs,
+  vacationWeeksFaqs,
+  schoolWeeksFaqs,
+} from "./src/data/vacationSchoolContent.js";
+import {
+  weeksInQuarterFaqs,
+  weeksRemainingFaqs,
+  weekendsInYearFaqs,
+} from "./src/data/businessProgressContent.js";
+import {
+  hundredDaysWeeksFaqs,
+  hoursInYearFaqs,
+} from "./src/data/unitMathContent.js";
 import {
   whatWeekFaqs,
   weekStartsMondayFaqs,
@@ -371,7 +394,7 @@ const escapeAttr = (s) =>
 // Whitespace-tolerant so it works whether Vite keeps the tags multi-line or not.
 // Article-like content pages get og:type=article for richer social previews;
 // tool/homepage/data pages keep the template default (website).
-const ARTICLE_URL_RE = /^\/(viikko-\d+-\d+|kuukausi-\d+-\d+|vuosi-\d+|q[1-4]-\d+|pyhat-\d+|pyhapaivat-\d+|koululomat-\d+|nimipaiva|mika-kuukausi-nyt|mika-vuosi-nyt|viikonpaiva|mika-on-viikkonumero|parillinen-pariton-viikko|viikko-alkaa-maanantaista|kuinka-monta-viikkoa-vuodessa|suomi-vs-usa-viikkonumerot|menetelma|ukk)(\/|$)/;
+const ARTICLE_URL_RE = /^\/(viikko-\d+-\d+|kuukausi-\d+-\d+|vuosi-\d+|q[1-4]-\d+|pyhat-\d+|pyhapaivat-\d+|koululomat-\d+|nimipaiva|mika-kuukausi-nyt|mika-vuosi-nyt|viikonpaiva|mika-on-viikkonumero|parillinen-pariton-viikko|viikko-alkaa-maanantaista|kuinka-monta-viikkoa-vuodessa|kuinka-monta-viikkoa-kuukaudessa|miksi-vuodessa-on-53-viikkoa|kuinka-monta-paivaa-vuodessa|kuinka-monta-tyopaivaa-vuodessa|kuinka-monta-tyopaivaa-kuukaudessa|kuinka-monta-tyotuntia-vuodessa|kuinka-monta-tyotuntia-kuukaudessa|kuinka-monta-arkipaivaa-kuukaudessa|kuinka-monta-viikkoa-vuosiloma-on|kuinka-monta-viikkoa-lukuvuodessa|kuinka-monta-viikkoa-kvartaalissa|kuinka-monta-viikkoa-jaljella|kuinka-monta-viikonloppua-vuodessa|kuinka-monta-viikkoa-on-100-paivaa|kuinka-monta-tuntia-vuodessa|suomi-vs-usa-viikkonumerot|menetelma|ukk)(\/|$)/;
 function ogTypeFor(url) {
   return ARTICLE_URL_RE.test(url) ? "article" : "website";
 }
@@ -2227,6 +2250,649 @@ function weeksInYearNodes() {
     ];
 }
 
+function weeksInMonthNodes() {
+  const url = canonicalFor("/kuinka-monta-viikkoa-kuukaudessa");
+  const meta = metaFor("/kuinka-monta-viikkoa-kuukaudessa");
+  const faq = weeksInMonthFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta viikkoa kuukaudessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Kuukausi" },
+        { "@type": "Thing", name: "Viikko" },
+        { "@type": "Thing", name: "ISO 8601" },
+      ],
+    },
+    pageNode("/kuinka-monta-viikkoa-kuukaudessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function fiftyThreeWeeksNodes() {
+  const url = canonicalFor("/miksi-vuodessa-on-53-viikkoa");
+  const meta = metaFor("/miksi-vuodessa-on-53-viikkoa");
+  const faq = fiftyThreeWeeksFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Miksi vuodessa on 53 viikkoa?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Viikko 53" },
+        { "@type": "Thing", name: "ISO 8601" },
+        { "@type": "Thing", name: "Karkausvuosi" },
+      ],
+    },
+    pageNode("/miksi-vuodessa-on-53-viikkoa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function daysInYearNodes() {
+  const url = canonicalFor("/kuinka-monta-paivaa-vuodessa");
+  const meta = metaFor("/kuinka-monta-paivaa-vuodessa");
+  const faq = daysInYearFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta päivää vuodessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Vuosi" },
+        { "@type": "Thing", name: "Karkausvuosi" },
+        { "@type": "Thing", name: "Päivä" },
+      ],
+    },
+    pageNode("/kuinka-monta-paivaa-vuodessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function workdaysInYearNodes() {
+  const url = canonicalFor("/kuinka-monta-tyopaivaa-vuodessa");
+  const meta = metaFor("/kuinka-monta-tyopaivaa-vuodessa");
+  const faq = workdaysInYearFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta työpäivää vuodessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Työpäivä" },
+        { "@type": "Thing", name: "Työaika" },
+        { "@type": "Thing", name: "Arkipyhä" },
+      ],
+    },
+    pageNode("/kuinka-monta-tyopaivaa-vuodessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function workdaysInMonthNodes() {
+  const url = canonicalFor("/kuinka-monta-tyopaivaa-kuukaudessa");
+  const meta = metaFor("/kuinka-monta-tyopaivaa-kuukaudessa");
+  const faq = workdaysInMonthFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta työpäivää kuukaudessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Työpäivä" },
+        { "@type": "Thing", name: "Kuukausi" },
+      ],
+    },
+    pageNode("/kuinka-monta-tyopaivaa-kuukaudessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function workhoursInYearNodes() {
+  const url = canonicalFor("/kuinka-monta-tyotuntia-vuodessa");
+  const meta = metaFor("/kuinka-monta-tyotuntia-vuodessa");
+  const faq = workhoursInYearFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta työtuntia vuodessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Työtunnit" },
+        { "@type": "Thing", name: "Vuosityöaika" },
+        { "@type": "Thing", name: "TES" },
+      ],
+    },
+    pageNode("/kuinka-monta-tyotuntia-vuodessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function workhoursInMonthNodes() {
+  const url = canonicalFor("/kuinka-monta-tyotuntia-kuukaudessa");
+  const meta = metaFor("/kuinka-monta-tyotuntia-kuukaudessa");
+  const faq = workhoursInMonthFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta työtuntia kuukaudessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Työtunnit" },
+        { "@type": "Thing", name: "Kuukausipalkka" },
+      ],
+    },
+    pageNode("/kuinka-monta-tyotuntia-kuukaudessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function weekdaysInMonthNodes() {
+  const url = canonicalFor("/kuinka-monta-arkipaivaa-kuukaudessa");
+  const meta = metaFor("/kuinka-monta-arkipaivaa-kuukaudessa");
+  const faq = weekdaysInMonthFaqs();
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta arkipäivää kuukaudessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Arkipäivä" },
+        { "@type": "Thing", name: "Lauantai" },
+        { "@type": "Thing", name: "Kela" },
+      ],
+    },
+    pageNode("/kuinka-monta-arkipaivaa-kuukaudessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function vacationWeeksNodes() {
+  const url = canonicalFor("/kuinka-monta-viikkoa-vuosiloma-on");
+  const meta = metaFor("/kuinka-monta-viikkoa-vuosiloma-on");
+  const faq = vacationWeeksFaqs();
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta viikkoa vuosiloma on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Vuosiloma" },
+        { "@type": "Thing", name: "Vuosilomalaki" },
+        { "@type": "Thing", name: "Lauantaisääntö" },
+      ],
+    },
+    pageNode("/kuinka-monta-viikkoa-vuosiloma-on", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function schoolWeeksNodes() {
+  const url = canonicalFor("/kuinka-monta-viikkoa-lukuvuodessa");
+  const meta = metaFor("/kuinka-monta-viikkoa-lukuvuodessa");
+  const faq = schoolWeeksFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta viikkoa lukuvuodessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Lukuvuosi" },
+        { "@type": "Thing", name: "Koululomat" },
+        { "@type": "Thing", name: "Perusopetus" },
+      ],
+    },
+    pageNode("/kuinka-monta-viikkoa-lukuvuodessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function weeksInQuarterNodes() {
+  const url = canonicalFor("/kuinka-monta-viikkoa-kvartaalissa");
+  const meta = metaFor("/kuinka-monta-viikkoa-kvartaalissa");
+  const faq = weeksInQuarterFaqs();
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta viikkoa kvartaalissa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Kvartaali" },
+        { "@type": "Thing", name: "Vuosineljännes" },
+        { "@type": "Thing", name: "Viikko" },
+      ],
+    },
+    pageNode("/kuinka-monta-viikkoa-kvartaalissa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function weeksRemainingNodes() {
+  const url = canonicalFor("/kuinka-monta-viikkoa-jaljella");
+  const meta = metaFor("/kuinka-monta-viikkoa-jaljella");
+  const faq = weeksRemainingFaqs(new Date());
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta viikkoa vuodesta on jäljellä?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Vuosi" },
+        { "@type": "Thing", name: "Viikko" },
+        { "@type": "Thing", name: "Ajanhallinta" },
+      ],
+    },
+    pageNode("/kuinka-monta-viikkoa-jaljella", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function weekendsInYearNodes() {
+  const url = canonicalFor("/kuinka-monta-viikonloppua-vuodessa");
+  const meta = metaFor("/kuinka-monta-viikonloppua-vuodessa");
+  const faq = weekendsInYearFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta viikonloppua vuodessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Viikonloppu" },
+        { "@type": "Thing", name: "Lauantai" },
+        { "@type": "Thing", name: "Sunnuntai" },
+      ],
+    },
+    pageNode("/kuinka-monta-viikonloppua-vuodessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function hundredDaysWeeksNodes() {
+  const url = canonicalFor("/kuinka-monta-viikkoa-on-100-paivaa");
+  const meta = metaFor("/kuinka-monta-viikkoa-on-100-paivaa");
+  const faq = hundredDaysWeeksFaqs();
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta viikkoa on 100 päivää?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Päivä" },
+        { "@type": "Thing", name: "Viikko" },
+        { "@type": "Thing", name: "Aikalaskenta" },
+      ],
+    },
+    pageNode("/kuinka-monta-viikkoa-on-100-paivaa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
+function hoursInYearNodes() {
+  const url = canonicalFor("/kuinka-monta-tuntia-vuodessa");
+  const meta = metaFor("/kuinka-monta-tuntia-vuodessa");
+  const faq = hoursInYearFaqs(currentYear);
+  return [
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: "Kuinka monta tuntia vuodessa on?",
+      description: meta.description,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      about: [
+        { "@type": "Thing", name: "Vuosi" },
+        { "@type": "Thing", name: "Tunti" },
+        { "@type": "Thing", name: "Karkausvuosi" },
+      ],
+    },
+    pageNode("/kuinka-monta-tuntia-vuodessa", "WebPage", {
+      description: meta.description,
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#article` },
+    }),
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      datePublished: "2026-01-01",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
 function addDays(date, n) {
   const d = new Date(date);
   d.setDate(d.getDate() + n);
@@ -3362,6 +4028,51 @@ for (const url of routes) {
       }
       if (url === "/kuinka-monta-viikkoa-vuodessa") {
         nodes.push(...weeksInYearNodes());
+      }
+      if (url === "/kuinka-monta-viikkoa-kuukaudessa") {
+        nodes.push(...weeksInMonthNodes());
+      }
+      if (url === "/miksi-vuodessa-on-53-viikkoa") {
+        nodes.push(...fiftyThreeWeeksNodes());
+      }
+      if (url === "/kuinka-monta-paivaa-vuodessa") {
+        nodes.push(...daysInYearNodes());
+      }
+      if (url === "/kuinka-monta-tyopaivaa-vuodessa") {
+        nodes.push(...workdaysInYearNodes());
+      }
+      if (url === "/kuinka-monta-tyopaivaa-kuukaudessa") {
+        nodes.push(...workdaysInMonthNodes());
+      }
+      if (url === "/kuinka-monta-tyotuntia-vuodessa") {
+        nodes.push(...workhoursInYearNodes());
+      }
+      if (url === "/kuinka-monta-tyotuntia-kuukaudessa") {
+        nodes.push(...workhoursInMonthNodes());
+      }
+      if (url === "/kuinka-monta-arkipaivaa-kuukaudessa") {
+        nodes.push(...weekdaysInMonthNodes());
+      }
+      if (url === "/kuinka-monta-viikkoa-vuosiloma-on") {
+        nodes.push(...vacationWeeksNodes());
+      }
+      if (url === "/kuinka-monta-viikkoa-lukuvuodessa") {
+        nodes.push(...schoolWeeksNodes());
+      }
+      if (url === "/kuinka-monta-viikkoa-kvartaalissa") {
+        nodes.push(...weeksInQuarterNodes());
+      }
+      if (url === "/kuinka-monta-viikkoa-jaljella") {
+        nodes.push(...weeksRemainingNodes());
+      }
+      if (url === "/kuinka-monta-viikonloppua-vuodessa") {
+        nodes.push(...weekendsInYearNodes());
+      }
+      if (url === "/kuinka-monta-viikkoa-on-100-paivaa") {
+        nodes.push(...hundredDaysWeeksNodes());
+      }
+      if (url === "/kuinka-monta-tuntia-vuodessa") {
+        nodes.push(...hoursInYearNodes());
       }
 
       const holidaysMatch = url.match(/^\/pyhapaivat-(\d+)$/);
@@ -4810,7 +5521,7 @@ const llmsFull =
     "  /viikonpaiva  — look up the weekday of any date (shareable result)",
     "",
     "Explainer / evergreen articles",
-    "  /mika-on-viikkonumero, /viikko-alkaa-maanantaista, /kuinka-monta-viikkoa-vuodessa, /suomi-vs-usa-viikkonumerot, /mika-kuukausi-nyt, /mika-vuosi-nyt",
+    "  /mika-on-viikkonumero, /viikko-alkaa-maanantaista, /kuinka-monta-viikkoa-vuodessa, /kuinka-monta-viikkoa-kuukaudessa, /miksi-vuodessa-on-53-viikkoa, /kuinka-monta-paivaa-vuodessa, /kuinka-monta-tyopaivaa-vuodessa, /kuinka-monta-tyopaivaa-kuukaudessa, /kuinka-monta-tyotuntia-vuodessa, /kuinka-monta-tyotuntia-kuukaudessa, /kuinka-monta-arkipaivaa-kuukaudessa, /kuinka-monta-viikkoa-vuosiloma-on, /kuinka-monta-viikkoa-lukuvuodessa, /kuinka-monta-viikkoa-kvartaalissa, /kuinka-monta-viikkoa-jaljella, /kuinka-monta-viikonloppua-vuodessa, /kuinka-monta-viikkoa-on-100-paivaa, /kuinka-monta-tuntia-vuodessa, /suomi-vs-usa-viikkonumerot, /mika-kuukausi-nyt, /mika-vuosi-nyt",
     "",
     "Reference / meta pages",
     "  /  — homepage: current ISO week number and a date-to-week lookup",
@@ -4970,7 +5681,7 @@ const llmsGlossary =
     "- Week 1 of an ISO year is the week containing that year's first Thursday — equivalently, the week containing 4 January.",
     "- Consequence: the last days of December can belong to week 1 of the following ISO year, and the first days of January can belong to the final week (52 or 53) of the previous ISO year — a date's \"ISO week-year\" can differ from its calendar year near the year boundary.",
     "- A regular ISO year has 52 weeks; roughly once every 5-6 years a \"long year\" has 53 weeks instead (when 1 January falls on a Thursday, or on a Wednesday in a leap year). 2020, 2026 and 2032 are 53-week years.",
-    "- Further reading on the site itself: /mika-on-viikkonumero (what a week number is), /viikko-alkaa-maanantaista (why the week starts on Monday, incl. the Thursday rule), /kuinka-monta-viikkoa-vuodessa (52 vs. 53 weeks), /suomi-vs-usa-viikkonumerot (Finland/ISO vs. US Sunday-start convention, with real computed example dates).",
+    "- Further reading on the site itself: /mika-on-viikkonumero (what a week number is), /viikko-alkaa-maanantaista (why the week starts on Monday, incl. the Thursday rule), /kuinka-monta-viikkoa-vuodessa (52 vs. 53 weeks), /kuinka-monta-viikkoa-kuukaudessa (weeks in a month), /miksi-vuodessa-on-53-viikkoa (why 53 weeks), /kuinka-monta-paivaa-vuodessa (days in a year), /kuinka-monta-tyopaivaa-vuodessa (working days in a year), /kuinka-monta-tyopaivaa-kuukaudessa (working days in a month), /kuinka-monta-tyotuntia-vuodessa (working hours in a year), /kuinka-monta-tyotuntia-kuukaudessa (working hours in a month), /kuinka-monta-arkipaivaa-kuukaudessa (weekdays in a month), /kuinka-monta-viikkoa-vuosiloma-on (annual leave in weeks), /kuinka-monta-viikkoa-lukuvuodessa (school weeks in a year), /kuinka-monta-viikkoa-kvartaalissa (weeks in a quarter), /kuinka-monta-viikkoa-jaljella (weeks remaining in the year), /kuinka-monta-viikonloppua-vuodessa (weekends in a year), /kuinka-monta-viikkoa-on-100-paivaa (100 days in weeks), /kuinka-monta-tuntia-vuodessa (hours in a year), /suomi-vs-usa-viikkonumerot (Finland/ISO vs. US Sunday-start convention, with real computed example dates).",
     "",
     "## Finland-specific calendar rules",
     "",

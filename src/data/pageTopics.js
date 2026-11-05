@@ -59,12 +59,12 @@ export function pageTopic(pathname, today) {
     links=[calendar(),weekGuide,holidays()];
   } else if (/^\/(?:kalenteri|tulostettava-kalenteri|tulosta)-/.test(pathname) || pathname==="/") {
     id="calendar";links=[link(`/tulostettava-kalenteri-${year}`,`Tulostettava kalenteri ${year}`,"Lataa maksuton kalenteri paperille."),link(`/tulosta-${year}`,`Viikkolista ${year}`,"Katso viikot ja niiden alku- sekä loppupäivät."),link("/yrityskalenteri","Yrityksen oma kalenteri","Lisää logo ja yrityksen omat merkinnät.")];
-  } else if (/^\/(?:pyhapaivat|pyhat|liputuspaivat|koululomat|isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|adventti)-/.test(pathname)) {
+  } else if (/^\/(?:pyhapaivat|pyhat|liputuspaivat|koululomat|isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|adventti)-/.test(pathname) || pathname === "/kuinka-monta-viikkoa-lukuvuodessa") {
     id="holidays";links=[holidays(),link(`/liputuspaivat-${year}`,`Liputuspäivät ${year}`,"Tarkista viralliset ja vakiintuneet liputuspäivät."),workGuide];
-    if (pathname.startsWith("/koululomat-")) detail="Koululoma voi vaihdella kunnittain ja kouluittain. Tarkista valitun alueen lähde ja tiedon varmuustaso sivun taulukosta.";
-  } else if (pathname.startsWith("/tyopaivat-") || pathname==="/tyopaivalaskuri") {
+    if (pathname.startsWith("/koululomat-") || pathname === "/kuinka-monta-viikkoa-lukuvuodessa") detail="Koululoma voi vaihdella kunnittain ja kouluittain. Tarkista valitun alueen lähde ja tiedon varmuustaso sivun taulukosta.";
+  } else if (pathname.startsWith("/tyopaivat-") || pathname==="/tyopaivalaskuri" || ["/kuinka-monta-tyopaivaa-vuodessa","/kuinka-monta-tyopaivaa-kuukaudessa","/kuinka-monta-tyotuntia-vuodessa","/kuinka-monta-tyotuntia-kuukaudessa","/kuinka-monta-arkipaivaa-kuukaudessa"].includes(pathname)) {
     id="work";links=[workGuide,holidays(),link("/vuosilomalaskuri","Vuosiloman laskentasäännöt","Tarkista lomapäivien kuluminen erillisessä laskurissa.")];
-  } else if (["/lomasuunnittelija","/vuosilomalaskuri"].includes(pathname)) {
+  } else if (["/lomasuunnittelija","/vuosilomalaskuri","/kuinka-monta-viikkoa-vuosiloma-on"].includes(pathname)) {
     id="leave";links=[link("/vuosilomalaskuri","Vuosilomapäivien laskenta","Laske lomapäivien kuluminen ja kertyminen."),link("/lomasuunnittelija","Loman sijoittaminen kalenteriin","Vertaa lomajaksoja viisipäiväisen työviikon mukaan."),link("/tiimin-lomat","Tiimin yhteinen lomakalenteri","Tutustu saatavuuden ja päällekkäisyyksien suunnitteluun.")];
   } else if (/^\/(?:palkkapaivat|kelan-maksupaivat|elakkeen-maksupaivat)-/.test(pathname)) {
     id="pay";links=[link(`/palkkapaivat-${year}`,`Palkkapäivät ${year}`,"Tarkista valitun palkkapäivän pankkipäivä."),link("/hr-kalenteri","HR-kalenteri ja vuosikello","Lisää yrityksen omat palkanlaskennan määräpäivät."),holidays()];
@@ -91,7 +91,7 @@ export function pageTopic(pathname, today) {
     id="names";links=[link("/nimipaivat/tanaan","Päivän nimipäivät","Katso saatavilla olevat nimipäivät."),calendar(),link("/tietolahteet","Nimipäiväaineiston lähteet","Tarkista aineiston kattavuus.")];
   } else if (["/raskauslaskuri","/kuukautislaskuri"].includes(pathname)) {
     id="health";links=[link("/menetelma","Laskentamenetelmät","Tarkista oletukset ja laskureiden rajaukset."),link("/tietolahteet","Tietolähteet","Tutustu laskurien lähteisiin."),link("/paivien-erotus","Päivien erotus","Tarkista kahden päivämäärän aikaväli.")];
-  } else if (["/mika-on-viikkonumero","/viikko-alkaa-maanantaista","/kuinka-monta-viikkoa-vuodessa","/suomi-vs-usa-viikkonumerot","/parillinen-pariton-viikko"].includes(pathname)) {
+  } else if (["/mika-on-viikkonumero","/viikko-alkaa-maanantaista","/kuinka-monta-viikkoa-vuodessa","/kuinka-monta-viikkoa-kuukaudessa","/miksi-vuodessa-on-53-viikkoa","/kuinka-monta-paivaa-vuodessa","/suomi-vs-usa-viikkonumerot","/parillinen-pariton-viikko","/kuinka-monta-viikkoa-kvartaalissa","/kuinka-monta-viikkoa-jaljella","/kuinka-monta-viikonloppua-vuodessa","/kuinka-monta-viikkoa-on-100-paivaa","/kuinka-monta-tuntia-vuodessa"].includes(pathname)) {
     id="weeks";links=[weekGuide,link("/viikko-paivamaaraksi","Viikkonumerosta päivämääriksi","Hae kokonaisen viikon päivät."),link("/paivamaara-viikoksi","Päivämäärästä viikkonumeroon","Tarkista yksittäisen päivän viikkovuosi.")];
   } else if (["/tietolahteet","/menetelma","/toimitusperiaatteet","/tietoa-meista","/ota-yhteytta","/tietosuoja","/kayttoehdot","/palautusehdot","/ukk"].includes(pathname)) {
     id="trust";links=[link("/tietolahteet","Kalenteritietojen lähteet","Katso aineistojen alkuperä ja kattavuus."),link("/menetelma","Laskentamenetelmät","Lue päivämäärien ja työpäivien laskennasta."),link("/toimitusperiaatteet","Toimitusperiaatteet","Tutustu sisällön tarkistamiseen."),link("/ota-yhteytta","Ilmoita kalenteritiedon virheestä","Lähetä korjauspyyntö toimitukselle.")];
