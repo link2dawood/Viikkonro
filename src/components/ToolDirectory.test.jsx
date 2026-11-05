@@ -20,7 +20,7 @@ describe("shared homepage tool directory", () => {
     expect(pro.tools.map(tool => tool.to)).toEqual(["/yrityskalenteri", "/yrityskalenteri/ics", "/lomasuunnittelija#vuosisuunnitelma"]);
     expect(free.tools.map(tool => tool.to)).toContain("/lomasuunnittelija");
     expect(free.tools.map(tool => tool.to)).not.toContain("/yrityskalenteri");
-    expect(pro.tools.find(tool => tool.name === "Lomasuunnittelija Pro").badge).toContain("ei vielä myynnissä");
+    expect(pro.tools.find(tool => tool.name === "Lomasuunnittelija Pro").badge).toContain("maksulliset viennit");
     const html = renderToStaticMarkup(<MemoryRouter><ToolDirectory /></MemoryRouter>);
     expect(html).toContain('id="tools-pro"');
     expect(html).toContain('href="#tools-pro"');

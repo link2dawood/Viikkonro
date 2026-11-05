@@ -61,4 +61,14 @@ describe("existing free vacation page with local annual Pro planner", () => {
       expect(platformEventCommands(name, { year: 2028, personLabel: "Salainen", notes: "Sisäinen", date: "2028-02-29" })).toEqual([["set", "pf_year", "2028"], ["event", name]]);
     }
   });
+  it("provides public purchase capability for Vacation Pro annual downloads", () => {
+    const html = render();
+    expect(html).toContain('href="#vp-purchase"');
+    expect(html).toContain('id="vp-purchase"');
+    expect(html).toContain("Näin ostat lomasuunnitelman lataukset");
+    expect(html).toContain("Osto avaa valitun kalenterivuoden PDF-, Excel- ja ICS-lataukset.");
+    expect(html).toContain("/kayttoehdot");
+    expect(html).toContain("/palautusehdot");
+    expect(html).toContain("Palauta aiempi osto");
+  });
 });

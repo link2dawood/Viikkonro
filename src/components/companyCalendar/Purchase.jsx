@@ -3,7 +3,20 @@ import { commerce } from "../../platform/business/commerceClient.js";
 import { PURCHASE_MARKETING_TEXT, validEmail } from "../../platform/billing/purchaseRecord.js";
 import PurchaseSteps from "./PurchaseSteps.jsx";
 
-export default function Purchase({ year, status, onStatus, onCheckout, onSendEmail, busy, defaultCompanyName = "" }) {
+export default function Purchase({
+  year,
+  status,
+  onStatus,
+  onCheckout,
+  onSendEmail,
+  busy,
+  defaultCompanyName = "",
+  productName = "kalenterin",
+  stepsTitle,
+  formats,
+  ariaLabel = "Yrityskalenterin osto",
+  id = "cc-purchase",
+}) {
   const [catalog, setCatalog] = useState(null);
   const [message, setMessage] = useState("");
   const [code, setCode] = useState("");
@@ -102,53 +115,55 @@ export default function Purchase({ year, status, onStatus, onCheckout, onSendEma
   }
 
   const price = catalog?.enabled ? new Intl.NumberFormat("fi-FI",{ style:"currency",currency:catalog.currency }).format(catalog.amountCents/100) : null;
-  return <section id="cc-purchase" className="cc-purchase" aria-label="Yrityskalenterin osto" data-clarity-mask="True">
-    <PurchaseSteps year={year} />
+  return <section id={id} className="cc-purchase" aria-label={ariaLabel} data-clarity-mask="True">
+    <PurchaseSteps year={year} title={stepsTitle} formats={formats} />
     <p className="note-soft">Tutustu ennen ostamista <a href="/kayttoehdot">käyttö- ja ostoehtoihin</a> sekä <a href="/palautusehdot">palautus- ja peruutusehtoihin</a>. <a href="/palautusehdot#peruuttaminen">Ilmoita ostoksen peruuttamisesta</a>.</p>
     {status?.paid ? <>
-      <p><strong>Kalenterin {year} lataukset on avattu.</strong> Voimassa vuoden {year} loppuun.</p>
+      <p><strong>{productName === "kalenterin" ? `Kalenterin ${year}` : `Lomasuunnitelman ${year}`} lataukset on avattu.</strong> Voimassa vuoden {year} loppuun.</p>
       <p>Tallenna ostotunnus turvalliseen paikkaan. Sillä palautat latausoikeuden toisessa selaimessa. Älä jaa tunnusta.</p>
       <button type="button" className="btn" onClick={() => {
         const url = URL.createObjectURL(new Blob([status.restoreCode],{ type:"text/plain;charset=utf-8" }));
         const a = document.createElement("a"); a.href=url;a.download=`viikkonro-ostotunnus-${year}.txt`;a.click();setTimeout(() => URL.revokeObjectURL(url),1000);
       }}>Tallenna ostotunnus</button>
 
-      <div className="cc-email-delivery">
-        <h3>Lähetä kalenteritiedosto sähköpostiin</h3>
-        <p className="note-soft">Voit lähettää valmiin kalenterisi (.ics-kalenteritiedosto ja PDF) suoraan omaan tai kollegan sähköpostiin.</p>
-        <div className="cc-purchase-fields">
-          <label htmlFor="cc-deliver-email">Vastaanottajan sähköpostiosoite</label>
-          <input
-            id="cc-deliver-email"
-            type="email"
-            autoComplete="email"
-            placeholder="etunimi@yritys.fi"
-            value={sendEmail}
-            onChange={e => { setSendEmail(e.target.value); setDeliveryMessage(""); }}
-            disabled={deliveryBusy}
-          />
+      {onSendEmail && (
+        <div className="cc-email-delivery">
+          <h3>Lähetä kalenteritiedosto sähköpostiin</h3>
+          <p className="note-soft">Voit lähettää valmiin kalenterisi (.ics-kalenteritiedosto ja PDF) suoraan omaan tai kollegan sähköpostiin.</p>
+          <div className="cc-purchase-fields">
+            <label htmlFor="cc-deliver-email">Vastaanottajan sähköpostiosoite</label>
+            <input
+              id="cc-deliver-email"
+              type="email"
+              autoComplete="email"
+              placeholder="etunimi@yritys.fi"
+              value={sendEmail}
+              onChange={e => { setSendEmail(e.target.value); setDeliveryMessage(""); }}
+              disabled={deliveryBusy}
+            />
+          </div>
+          <button
+            type="button"
+            className="btn"
+            disabled={deliveryBusy || !sendEmail}
+            onClick={handleSendEmailDelivery}
+          >
+            {deliveryBusy ? "Lähetetään..." : "Lähetä kalenteri sähköpostiin"}
+          </button>
+          {deliveryMessage && (
+            <p className={`cc-delivery-status ${deliverySuccess ? "cc-delivery-status--success" : "cc-delivery-status--error"}`} aria-live="polite">
+              {deliveryMessage}
+            </p>
+          )}
         </div>
-        <button
-          type="button"
-          className="btn"
-          disabled={deliveryBusy || !sendEmail}
-          onClick={handleSendEmailDelivery}
-        >
-          {deliveryBusy ? "Lähetetään..." : "Lähetä kalenteri sähköpostiin"}
-        </button>
-        {deliveryMessage && (
-          <p className={`cc-delivery-status ${deliverySuccess ? "cc-delivery-status--success" : "cc-delivery-status--error"}`} aria-live="polite">
-            {deliveryMessage}
-          </p>
-        )}
-      </div>
+      )}
     </> : <>
       {catalog?.enabled === false && <p>Maksaminen ei ole vielä käytössä. Voit tehdä esikatselun ja säilyttää luonnoksen.</p>}
       {price && <>
         <p><strong>{price} / valittu kalenterivuosi {year}.</strong> Kertamaksu, ei tilausta. Lataukset ovat käytettävissä vuoden {year} loppuun. Polar näyttää verot ja lopullisen hinnan ennen maksua.</p>
 
         <div className="cc-purchase-fields">
-          <label htmlFor="cc-buyer-email">Sähköpostiosoite <span>(laskua ja kalenteritiedostoa varten)</span></label>
+          <label htmlFor="cc-buyer-email">Sähköpostiosoite <span>(laskua ja {onSendEmail ? "kalenteritiedostoa" : "tilausvahvistusta"} varten)</span></label>
           <input
             id="cc-buyer-email"
             type="email"
@@ -177,7 +192,7 @@ export default function Purchase({ year, status, onStatus, onCheckout, onSendEma
 
         <label className="cc-check"><input type="checkbox" checked={marketingConsent} onChange={e => setMarketingConsent(e.target.checked)} /> {PURCHASE_MARKETING_TEXT}</label>
         <p className="note-soft">Valinta on vapaaehtoinen eikä vaikuta ostoon. <a href="/tietosuoja">Tietosuojaseloste</a></p>
-        <button type="button" className="btn" disabled={Boolean(busy)} onClick={handleCheckoutClick}>Osta kalenterin {year} lataukset</button>
+        <button type="button" className="btn" disabled={Boolean(busy)} onClick={handleCheckoutClick}>Osta {productName === "kalenterin" ? `kalenterin ${year}` : `${productName} ${year}`} lataukset</button>
       </>}
       <button type="button" className="btn-link" onClick={() => refresh()}>Tarkista maksu</button>
       <details className="cc-restore"><summary>Palauta aiempi osto</summary>

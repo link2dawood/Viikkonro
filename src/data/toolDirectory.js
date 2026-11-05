@@ -123,10 +123,10 @@ export function toolGroups(today) {
       item("/kalenteripohjat", "Kalenteri- ja suunnittelupohjat", "Ladattavat Excel-, CSV- ja PDF-pohjat."),
       { ...item("/tiimin-lomat/suunnittelu", "Tiimin lomat, työvuorot ja asiakasyritykset", "Avaa yksityinen suunnittelutyötila. Vaatii kirjautumisen ja asianmukaiset käyttöoikeudet."), documentNavigation: true },
     ] },
-    { id: "pro", name: "Pro-työkalut", description: "Yrityksen omat kalenterit ja laajemmat suunnitelmat. Kokeile esikatselua maksutta. Maksulliset lataukset ovat tuotekohtaisia; kaikki Pro-tuotteet eivät vielä ole myynnissä.", tools: [
+    { id: "pro", name: "Pro-työkalut", description: "Yrityksen omat kalenterit ja laajemmat suunnitelmat. Kokeile esikatselua maksutta. Maksulliset lataukset ovat tuotekohtaisia.", tools: [
       { ...CALCULATORS.find(tool => tool.to === "/yrityskalenteri"), badge: "Maksuton esikatselu · maksulliset viennit" },
       { ...item("/yrityskalenteri/ics", "Yrityksen ICS-kalenteri", "Yrityksen päivät kalenterisovellukseen. Sisältyy Yrityskalenterin latausoikeuteen."), badge: "Maksuton esikatselu · maksullinen vienti" },
-      { ...item("/lomasuunnittelija#vuosisuunnitelma", "Lomasuunnittelija Pro", "Henkilökohtaiset lomajaksot, sulkupäivät ja yhteinen vuosinäkymä. Maksuton lomasuunnittelija säilyy käytössä."), badge: "Esikatselu · ei vielä myynnissä" },
+      { ...item("/lomasuunnittelija#vuosisuunnitelma", "Lomasuunnittelija Pro", "Henkilökohtaiset lomajaksot, sulkupäivät ja yhteinen vuosinäkymä. Maksuton lomasuunnittelija säilyy käytössä."), badge: "Maksuton esikatselu · maksulliset viennit" },
     ] },
     { id: "maksupaivat", name: "Palkka- ja maksupäivät", tools: [
       item(`/palkkapaivat-${year}`, "Palkkapäivät", "Tarkista palkkapäivän siirtyminen viikonlopun tai arkipyhän vuoksi."),
