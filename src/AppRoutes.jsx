@@ -40,6 +40,21 @@ const WeekToDate = routePage("WeekToDate");
 const WorkingDaysBetween = routePage("WorkingDaysBetween");
 const DaysBetween = routePage("DaysBetween");
 const WeeksInYear = routePage("WeeksInYear");
+const WeeksInMonth = routePage("WeeksInMonth");
+const FiftyThreeWeeks = routePage("FiftyThreeWeeks");
+const DaysInYear = routePage("DaysInYear");
+const WorkdaysInYear = routePage("WorkdaysInYear");
+const WorkdaysInMonth = routePage("WorkdaysInMonth");
+const WorkhoursInYear = routePage("WorkhoursInYear");
+const WorkhoursInMonth = routePage("WorkhoursInMonth");
+const WeekdaysInMonth = routePage("WeekdaysInMonth");
+const VacationWeeks = routePage("VacationWeeks");
+const SchoolWeeks = routePage("SchoolWeeks");
+const WeeksInQuarter = routePage("WeeksInQuarter");
+const WeeksRemaining = routePage("WeeksRemaining");
+const WeekendsInYear = routePage("WeekendsInYear");
+const HundredDaysWeeks = routePage("HundredDaysWeeks");
+const HoursInYear = routePage("HoursInYear");
 const FinlandVsUsa = routePage("FinlandVsUsa");
 const AboutUs = routePage("AboutUs");
 const ContactUs = routePage("ContactUs");
@@ -162,6 +177,21 @@ const routeElements = <>
         <Route path="/parillinen-pariton-viikko" element={<WeekParityPage />} />
         <Route path="/viikko-alkaa-maanantaista" element={<WeekStartsMonday />} />
         <Route path="/kuinka-monta-viikkoa-vuodessa" element={<WeeksInYear />} />
+        <Route path="/kuinka-monta-viikkoa-kuukaudessa" element={<WeeksInMonth />} />
+        <Route path="/miksi-vuodessa-on-53-viikkoa" element={<FiftyThreeWeeks />} />
+        <Route path="/kuinka-monta-paivaa-vuodessa" element={<DaysInYear />} />
+        <Route path="/kuinka-monta-tyopaivaa-vuodessa" element={<WorkdaysInYear />} />
+        <Route path="/kuinka-monta-tyopaivaa-kuukaudessa" element={<WorkdaysInMonth />} />
+        <Route path="/kuinka-monta-tyotuntia-vuodessa" element={<WorkhoursInYear />} />
+        <Route path="/kuinka-monta-tyotuntia-kuukaudessa" element={<WorkhoursInMonth />} />
+        <Route path="/kuinka-monta-arkipaivaa-kuukaudessa" element={<WeekdaysInMonth />} />
+        <Route path="/kuinka-monta-viikkoa-vuosiloma-on" element={<VacationWeeks />} />
+        <Route path="/kuinka-monta-viikkoa-lukuvuodessa" element={<SchoolWeeks />} />
+        <Route path="/kuinka-monta-viikkoa-kvartaalissa" element={<WeeksInQuarter />} />
+        <Route path="/kuinka-monta-viikkoa-jaljella" element={<WeeksRemaining />} />
+        <Route path="/kuinka-monta-viikonloppua-vuodessa" element={<WeekendsInYear />} />
+        <Route path="/kuinka-monta-viikkoa-on-100-paivaa" element={<HundredDaysWeeks />} />
+        <Route path="/kuinka-monta-tuntia-vuodessa" element={<HoursInYear />} />
         <Route path="/suomi-vs-usa-viikkonumerot" element={<FinlandVsUsa />} />
         <Route path="/mika-kuukausi-nyt" element={<CurrentMonth />} />
         <Route path="/mika-vuosi-nyt" element={<CurrentYear />} />
