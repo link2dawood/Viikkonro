@@ -137,6 +137,23 @@ export function toolGroups(today) {
       item(SUN_HUB_PATH, "Aurinkoajat Suomessa", "Valitse paikkakunta ja tarkista päivän aurinkoajat."),
       ...SUN_CITIES.map(city => item(sunCityPath(city.slug), `Aurinkoajat: ${city.name}`, "Auringonnousu, auringonlasku ja päivän pituus.")),
     ] },
+    { id: "kyselyt", name: "Usein kysytyt kalenteri- ja aikalaskelmat", tools: [
+      item("/kuinka-monta-viikkoa-kuukaudessa", "Kuinka monta viikkoa kuukaudessa on?", "Kuukauden viikkojen määrä ja osittaiset viikot."),
+      item("/miksi-vuodessa-on-53-viikkoa", "Miksi vuodessa on 53 viikkoa?", "53-viikkoiset vuodet ja ISO 8601 -säännöt."),
+      item("/kuinka-monta-paivaa-vuodessa", "Kuinka monta päivää vuodessa on?", "Karkausvuodet ja tavalliset vuodet päivinä."),
+      item("/kuinka-monta-tyopaivaa-vuodessa", "Kuinka monta työpäivää vuodessa on?", "Työpäivät, viikonloput ja arkipyhät vuodessa."),
+      item("/kuinka-monta-tyopaivaa-kuukaudessa", "Kuinka monta työpäivää kuukaudessa on?", "Työpäivien määrä kuukausittain."),
+      item("/kuinka-monta-tyotuntia-vuodessa", "Kuinka monta työtuntia vuodessa on?", "Vuosittaiset työtunnit 7,5 h ja 8 h työpäivillä."),
+      item("/kuinka-monta-tyotuntia-kuukaudessa", "Kuinka monta työtuntia kuukaudessa on?", "Kuukausittaiset työtunnit eri työajoilla."),
+      item("/kuinka-monta-arkipaivaa-kuukaudessa", "Kuinka monta arkipäivää kuukaudessa on?", "Arkipäivät (ma–la) ja työpäivät kuukausittain."),
+      item("/kuinka-monta-viikkoa-vuosiloma-on", "Kuinka monta viikkoa vuosiloma on?", "Vuosiloman pituus, lauantaisääntö ja lomaviikot."),
+      item("/kuinka-monta-viikkoa-lukuvuodessa", "Kuinka monta viikkoa lukuvuodessa on?", "Koulujen 190 työpäivää ja opiskeluviikot."),
+      item("/kuinka-monta-viikkoa-kvartaalissa", "Kuinka monta viikkoa kvartaalissa on?", "Vuosineljännesten (Q1–Q4) viikot ja päivät."),
+      item("/kuinka-monta-viikkoa-jaljella", "Kuinka monta viikkoa vuotta on jäljellä?", "Jäljellä olevat viikot, päivät ja prosenttiosuus."),
+      item("/kuinka-monta-viikonloppua-vuodessa", "Kuinka monta viikonloppua vuodessa on?", "Lauantai–sunnuntai-viikonloput ja vapaapäivät."),
+      item("/kuinka-monta-viikkoa-on-100-paivaa", "Kuinka monta viikkoa on 100 päivää?", "Päivät muutettuna viikoiksi ja päiviksi."),
+      item("/kuinka-monta-tuntia-vuodessa", "Kuinka monta tuntia vuodessa on?", "Vuoden kokonaistunnit, minuutit ja sekunnit."),
+    ] },
     { id: "integraatiot", name: "Kalenteritilaukset, sovellukset ja integraatiot", tools: [
       item("/kalenteritilaus", "Kalenteritilaus", "Tilaa Viikkonron kalenterit omaan kalenterisovellukseesi."),
       item("/upota-viikkonumero", "Kalenteri- ja viikkonumerowidget", "Lisää widget omalle verkkosivulle."),
@@ -167,6 +184,7 @@ export function relatedTools(pathname, today) {
     maksupaivat: ["/hr-kalenteri", `/pyhapaivat-${year}`, "/yrityskalenteri", "/tyopaivalaskuri"],
     aurinko: [SUN_HUB_PATH, "/paivamaaralaskuri"],
     integraatiot: ["/kalenteritilaus", "/upota-viikkonumero", "/api-playground", "/avoin-data"],
+    kyselyt: ["/kuinka-monta-viikkoa-vuodessa", "/kuinka-monta-paivaa-vuodessa", "/miksi-vuodessa-on-53-viikkoa", "/kuinka-monta-tyopaivaa-vuodessa"],
   };
   const specific = {
     "/projektiaikataulu": ["/sprinttisuunnittelija", "/rakennuskalenteri", "/tyopaivalaskuri", `/kalenteri-${year}`],
@@ -179,6 +197,6 @@ export function relatedTools(pathname, today) {
     "/yrityskalenteri": ["/yrityskalenteri/ics", "/kalenteripohjat", "/hr-kalenteri", `/palkkapaivat-${year}`],
     "/yrityskalenteri/ics": ["/yrityskalenteri", "/kalenteritilaus", "/hr-kalenteri", "/kalenteripohjat"],
   };
-  const candidates = [...(specific[pathname] ?? preferred[group.id]).map(path => byPath.get(path)), ...group.tools];
+  const candidates = [...((specific[pathname] ?? preferred[group.id] ?? []).map(path => byPath.get(path))), ...group.tools];
   return [...new Map(candidates.filter(tool => tool && tool.to !== pathname && !tool.documentNavigation).map(tool => [tool.to, tool])).values()].slice(0,4);
 }

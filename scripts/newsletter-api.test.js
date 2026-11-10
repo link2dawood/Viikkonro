@@ -80,3 +80,40 @@ describe("Brevo newsletter endpoint", () => {
     expect(await result.text()).not.toContain(env.BREVO_API_KEY);
   });
 });
+
+describe("Mailjet newsletter endpoint", () => {
+  const mailjetEnv = {
+    SITE_ORIGIN: "https://viikkonro.fi",
+    MAILJET_API_KEY: "mj-test-key",
+    MAILJET_SECRET_KEY: "mj-secret-key",
+    MAILJET_NEWSLETTER_LIST_ID: "10712227",
+    MAILJET_FROM_EMAIL: "hi@viikkonro.fi",
+  };
+
+  it("subscribes contact to Mailjet list and sends welcome email", async () => {
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ Count: 1 }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ Messages: [{ Status: "success" }] }), { status: 200 }));
+
+    const res = await handleSignup(request({ email: "newuser@example.com", consent: true, consentVersion: "weekly-fi-v1", topic: "weekly-week-and-finnish-holidays", language: "fi" }), mailjetEnv, fetcher);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ status: "subscribed", email: "newuser@example.com" });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+
+    const [addCallUrl, addCallOptions] = fetcher.mock.calls[0];
+    expect(addCallUrl).toContain("/v3/REST/contactslist/10712227/managecontact");
+    expect(JSON.parse(addCallOptions.body)).toEqual({ Action: "addnoforce", Email: "newuser@example.com" });
+
+    const [sendCallUrl, sendCallOptions] = fetcher.mock.calls[1];
+    expect(sendCallUrl).toBe("https://api.mailjet.com/v3.1/send");
+    const sendBody = JSON.parse(sendCallOptions.body);
+    expect(sendBody.Messages[0].To[0].Email).toBe("newuser@example.com");
+    expect(sendBody.Messages[0].Subject).toContain("Tervetuloa Viikkonron viikkokirjeen tilaajaksi");
+  });
+
+  it("returns 502 when Mailjet list addition fails", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ ErrorMessage: "Service error" }), { status: 500 }));
+    const res = await handleSignup(request({ email: "error@example.com", consent: true, consentVersion: "weekly-fi-v1", topic: "weekly-week-and-finnish-holidays", language: "fi" }), mailjetEnv, fetcher);
+    expect(res.status).toBe(502);
+  });
+});
