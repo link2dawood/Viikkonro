@@ -1,19 +1,33 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { NEWSLETTER_DELAY, isSnoozed, newsletterEndpoint, requestSubscription, snooze } from "../newsletter";
+import {
+  NEWSLETTER_DELAY,
+  isSnoozed,
+  isSubscribed,
+  markSubscribed,
+  newsletterEndpoint,
+  requestSubscription,
+  snooze,
+} from "../newsletter";
 import "./NewsletterSignup.css";
 import NewsletterChallenge from "./NewsletterChallenge";
 
 const TEXT = {
   fi: {
-    title: "Viikon numero sähköpostiisi",
-    body: "Viikon numero ja tulevat Suomen pyhäpäivät kerran viikossa.",
-    open: "Tilaa muistutukset", close: "Sulje muistutusten tilaus", email: "Sähköpostiosoite",
-    consent: "Haluan Viikkonron viikoittaiset muistutukset sähköpostiini. Voin perua tilauksen jokaisen viestin linkistä.",
-    submit: "Tilaa maksutta", sending: "Lähetetään…", privacy: "Tietosuoja",
-    note: "Vahvista tilaus sähköpostiisi tulevasta linkistä.",
-    success: "Tarkista sähköpostisi ja vahvista tilaus viestin linkistä.",
-    error: "Tilauspyyntö ei onnistunut. Yritä uudelleen hetken kuluttua.",
+    badge: "Viikkomuistutus",
+    title: "Viikon numero ja ajankohtaiset vinkit sähköpostiisi",
+    body: "Saat tiedon aina kun viikkonumero vaihtuu (maanantaisin) sekä ajankohtaiset kalenterivinkit ja tarjoukset.",
+    email: "Sähköpostiosoite",
+    placeholder: "Syötä sähköpostiosoite...",
+    submit: "Tilaa maksutta",
+    sending: "Lähetetään…",
+    privacy: "Tietosuoja",
+    disclaimer: "Ei roskapostia. Voit perua tilauksen milloin tahansa.",
+    successTitle: "Kiitos tilauksesta!",
+    success: "Ensimmäinen viesti on lähetetty sähköpostiisi.",
+    error: "Tilaus ei onnistunut. Tarkista sähköpostiosoite ja yritä uudelleen.",
+    close: "Sulje muistutusten tilaus",
+    dismiss: "Ei kiitos, ehkä myöhemmin",
   },
 };
 
@@ -25,7 +39,6 @@ export default function NewsletterSignup() {
   const { pathname } = useLocation();
   const endpoint = newsletterEndpoint();
   const [ready, setReady] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [status, setStatus] = useState("idle");
   const [token, setToken] = useState("");
@@ -34,14 +47,14 @@ export default function NewsletterSignup() {
   const card = useRef(null);
   const emailInput = useRef(null);
   const t = TEXT.fi;
-  const excluded = ["/tietosuoja", "/kayttoehdot", "/ota-yhteytta"].includes(pathname);
+  const excluded = ["/tietosuoja", "/kayttoehdot", "/ota-yhteytta"].includes(pathname) || pathname.startsWith("/tiimi");
+  const hasTurnstile = Boolean(import.meta.env.VITE_TURNSTILE_SITE_KEY);
 
   useEffect(() => {
-    if (!endpoint || excluded || dismissed || isSnoozed(storage())) return;
+    if (!endpoint || excluded || dismissed || isSnoozed(storage()) || isSubscribed(storage())) return;
     let timer;
     const schedule = () => {
       clearTimeout(timer);
-      // Observe actual visibility, including when storage is blocked or settings reopen.
       if (document.querySelector(".consent") || document.hidden) {
         setReady(false);
         return;
@@ -66,8 +79,10 @@ export default function NewsletterSignup() {
   }, [endpoint, excluded, dismissed]);
 
   useEffect(() => {
-    if (expanded) emailInput.current?.focus();
-  }, [expanded]);
+    if (ready && status === "idle") {
+      emailInput.current?.focus();
+    }
+  }, [ready, status]);
 
   function dismiss() {
     if (card.current?.contains(document.activeElement)) {
@@ -79,16 +94,26 @@ export default function NewsletterSignup() {
 
   async function submit(event) {
     event.preventDefault();
-    if (busy.current || !token) return;
+    if (busy.current || (hasTurnstile && !token)) return;
     const data = new FormData(event.currentTarget);
-    if (data.get("website")) return;
+    const email = data.get("email");
+    if (data.get("website") || !email) return;
     busy.current = true;
     setStatus("sending");
     try {
-      await requestSubscription(endpoint, data.get("email"), data.get("consent") === "yes", undefined, { token, website: data.get("website") || "" });
-      // This is only a pending confirmation, not proof of subscription.
-      snooze(storage());
+      await requestSubscription(
+        endpoint,
+        email,
+        true,
+        undefined,
+        { token, website: data.get("website") || "" }
+      );
+      markSubscribed(storage());
+      snooze(storage(), 365);
       setStatus("success");
+      setTimeout(() => {
+        setDismissed(true);
+      }, 4000);
     } catch {
       setStatus("error");
       setToken("");
@@ -98,30 +123,100 @@ export default function NewsletterSignup() {
     }
   }
 
-  if (!endpoint || !import.meta.env.VITE_TURNSTILE_SITE_KEY || excluded || !ready || dismissed) return null;
+  if (!endpoint || excluded || !ready || dismissed) return null;
 
   return (
-    <aside ref={card} className="newsletter noprint" aria-labelledby="newsletter-title" lang="fi"
-      onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); dismiss(); } }}>
-      <button className="newsletter-close" type="button" aria-label={t.close} onClick={dismiss}>×</button>
+    <aside
+      ref={card}
+      className="newsletter noprint"
+      aria-labelledby="newsletter-title"
+      lang="fi"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.stopPropagation();
+          dismiss();
+        }
+      }}
+    >
+      <button
+        className="newsletter-close"
+        type="button"
+        aria-label={t.close}
+        onClick={dismiss}
+      >
+        ×
+      </button>
+
+      <div className="newsletter-badge">{t.badge}</div>
       <h2 id="newsletter-title">{t.title}</h2>
-      <p>{t.body}</p>
-      {!expanded ? <button className="btn newsletter-primary" type="button" aria-expanded="false" aria-controls="newsletter-form" onClick={() => setExpanded(true)}>{t.open}</button> : (
-        <form id="newsletter-form" onSubmit={submit} aria-busy={status === "sending"} data-clarity-mask="true">
-          {status !== "success" && <>
-            <label htmlFor="newsletter-email">{t.email}</label>
-            <input ref={emailInput} id="newsletter-email" name="email" type="email" autoComplete="email" maxLength={254} required disabled={status === "sending"} />
-            <div className="newsletter-trap" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
-            <label className="newsletter-consent"><input type="checkbox" name="consent" value="yes" required disabled={status === "sending"} /><span>{t.consent}</span></label>
-            <NewsletterChallenge onToken={setToken} attempt={attempt} />
-            <button className="btn newsletter-primary" type="submit" disabled={status === "sending" || !token}>{status === "sending" ? t.sending : t.submit}</button>
-            <p className="newsletter-note">{t.note}</p>
-          </>}
-          <p role="status" aria-live="polite">{status === "success" ? t.success : ""}</p>
-          {status === "error" && <p role="alert">{t.error}</p>}
+      <p className="newsletter-desc">{t.body}</p>
+
+      {status !== "success" ? (
+        <form
+          id="newsletter-form"
+          onSubmit={submit}
+          aria-busy={status === "sending"}
+          data-clarity-mask="true"
+        >
+          <div className="newsletter-input-wrap">
+            <input
+              ref={emailInput}
+              id="newsletter-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              maxLength={254}
+              placeholder={t.placeholder}
+              aria-label={t.email}
+              required
+              disabled={status === "sending"}
+            />
+            <div className="newsletter-trap" aria-hidden="true">
+              <label>
+                Website
+                <input name="website" tabIndex={-1} autoComplete="off" />
+              </label>
+            </div>
+            {hasTurnstile && (
+              <NewsletterChallenge onToken={setToken} attempt={attempt} />
+            )}
+            <button
+              className="btn newsletter-primary"
+              type="submit"
+              disabled={status === "sending" || (hasTurnstile && !token)}
+            >
+              {status === "sending" ? t.sending : t.submit}
+            </button>
+          </div>
+          <p className="newsletter-note">{t.disclaimer}</p>
+          {status === "error" && (
+            <p className="newsletter-error" role="alert">
+              {t.error}
+            </p>
+          )}
         </form>
+      ) : (
+        <div className="newsletter-success-box" role="status" aria-live="polite">
+          <span className="newsletter-success-icon" aria-hidden="true">✓</span>
+          <div>
+            <strong>{t.successTitle}</strong>
+            <p>{t.success}</p>
+          </div>
+        </div>
       )}
-      <Link className="newsletter-privacy" to="/tietosuoja">{t.privacy}</Link>
+
+      <div className="newsletter-foot">
+        <Link className="newsletter-privacy" to="/tietosuoja">
+          {t.privacy}
+        </Link>
+        <button
+          type="button"
+          className="newsletter-dismiss-link"
+          onClick={dismiss}
+        >
+          {t.dismiss}
+        </button>
+      </div>
     </aside>
   );
 }

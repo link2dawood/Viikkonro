@@ -146,9 +146,13 @@ export default function FiftyThreeWeeks() {
               {all53Years.map((row) => (
                 <tr key={row.year} className={row.year === currentYear ? "highlight" : ""}>
                   <td>
-                    <Link to={`/vuosi-${row.year}`}>
+                    {row.year >= 2020 && row.year <= 2035 ? (
+                      <Link to={`/vuosi-${row.year}`}>
+                        <strong>{row.year}</strong>
+                      </Link>
+                    ) : (
                       <strong>{row.year}</strong>
-                    </Link>
+                    )}
                     {row.year === currentYear ? " (nykyinen vuosi)" : ""}
                   </td>
                   <td>{row.startsOn}</td>
