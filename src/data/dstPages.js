@@ -44,22 +44,29 @@ export function dstChanges(year) {
   };
 }
 
+export function dstSeason(year, now = new Date()) {
+  const { start } = dstChanges(year);
+  const buildDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return year === now.getFullYear() && buildDate > start.date ? "autumn" : "spring";
+}
+
 export function dstMeta(year, now = new Date()) {
   const { start, end } = dstChanges(year);
   const buildDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const autumnFocusEnds = new Date(end.date);
-  autumnFocusEnds.setDate(autumnFocusEnds.getDate() + 30);
-  const autumnFirst =
-    year === now.getFullYear() &&
-    buildDate > start.date &&
-    buildDate <= autumnFocusEnds;
-  if (autumnFirst) {
+  const dm = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
+
+  if (dstSeason(year, now) === "autumn") {
     const changePassed = buildDate >= end.date;
-    const endShort = `${end.date.getDate()}.${end.date.getMonth() + 1}.`;
-    const startShort = `${start.date.getDate()}.${start.date.getMonth() + 1}.`;
+    const next = dstChanges(year + 1).start.date;
+    const title = changePassed
+      ? `Kellojen siirto ${year}: ${dm(end.date)}, seuraava ${dm(next)} | Viikko Nro`
+      : `Kellojen siirto ${year}: talviaika ${dm(end.date)} | Viikko Nro`;
+    const tail = changePassed
+      ? `Kesäaika alkaa ${dm(next)}${next.getFullYear()}.`
+      : `Kesäaika alkoi ${dm(start.date)}`;
     return {
-      title: `Talviaika ${year}: kellojen siirto ${end.date.getDate()}.${end.date.getMonth() + 1}. | Viikkonro`,
-      description: `Milloin kelloja siirretään? Talviaika ${year} ${changePassed ? "alkoi" : "alkaa"} ${WD_ESSIVE[end.date.getDay()]} ${endShort} klo 4.00. Kelloja ${changePassed ? "siirrettiin" : "siirretään"} tunti taaksepäin klo 3.00:een, kesäaika alkoi ${startShort}`,
+      title,
+      description: `Milloin kelloja siirretään? Talviaika ${year} ${changePassed ? "alkoi" : "alkaa"} ${WD_ESSIVE[end.date.getDay()]} ${dm(end.date)} klo 4.00. Kelloja ${changePassed ? "siirrettiin" : "siirretään"} tunti taaksepäin klo 3.00:een. ${tail}`,
     };
   }
   return {

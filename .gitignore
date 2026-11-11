@@ -36,3 +36,4 @@ dist-server
 # Supabase CLI local project linkage and cached connection metadata.
 supabase/.temp/
 .vercel
+outputs/

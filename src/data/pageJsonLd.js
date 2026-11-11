@@ -1236,9 +1236,9 @@ export function currentDateIntentNodes(url) {
       meta: weekdayMeta,
       faq: weekdayFaqs,
       steps: [
-        "Valitse päivämäärä kentästä.",
+        "Valitse päivämäärä valitsimesta tai kirjoita se muodossa YYYY-MM-DD.",
         "Lue tuloksesta viikonpäivä suomeksi.",
-        "Tarkista samalla päivän ISO-viikkonumero ja viikkovuosi.",
+        "Näet samalla päivän virallisen ISO 8601 -viikkonumeron ja viikkovuoden.",
       ],
     },
   };

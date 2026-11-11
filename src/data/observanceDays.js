@@ -302,7 +302,9 @@ export function observanceMeta(slug, year) {
   const description =
     page.slug === "isanpaiva"
       ? `Milloin on isänpäivä ${page.year}? ${whenFi(page.date)}. Se kuuluu viikkoon ${page.week} ja on virallinen liputuspäivä.`
-      : `${lead} Katso päivän määräytyminen, liputus ja päivämäärät tuleville vuosille.`;
+      : page.slug === "adventti"
+        ? `Milloin on ensimmäinen adventti ${page.year}? 1. adventtisunnuntai on ${whenFi(page.date)} (viikko ${page.week}). Katso kaikki adventit ja joulun odotus.`
+        : `${lead} Katso päivän määräytyminen, liputus ja päivämäärät tuleville vuosille.`;
   return {
     title,
     description,

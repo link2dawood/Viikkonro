@@ -32,7 +32,10 @@ describe("current month and year content", () => {
     }
     expect(currentMonthFaqs(new Date(2026, 7, 4))).toHaveLength(5);
     expect(currentYearFaqs(new Date(2026, 7, 4))).toHaveLength(5);
-    expect(weekdayFaqs).toHaveLength(5);
+    expect(weekdayFaqs).toHaveLength(10);
+    expect(weekdayFaqs.map((f) => f.q)).toContain("Miten viikonpäivä lasketaan?");
+    expect(weekdayFaqs.map((f) => f.q)).toContain("Miksi viikonpäivä vaihtuu joka vuosi?");
+    expect(weekdayFaqs.map((f) => f.q)).toContain("Mitä kalenterijärjestelmää Suomessa käytetään?");
   });
 });
 

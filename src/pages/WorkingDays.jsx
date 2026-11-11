@@ -104,7 +104,8 @@ const WorkingDays = ({ year: pYear } = {}) => {
           Vuonna {year} on <strong>{totalWorking} työpäivää</strong>.
         </span>{" "}
         Työpäivä tarkoittaa maanantaista perjantaihin osuvaa päivää, joka ei
-        ole virallinen arkipyhä.
+        ole virallinen arkipyhä. Laskenta vastaa palkanlaskennassa ja
+        suunnittelussa yleisesti käytettyä työpäiväkalenteria (mm. Edenred-työpäiväkalenteri).
       </p>
 
       <QuickFacts

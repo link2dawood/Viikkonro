@@ -78,9 +78,11 @@ const PensionPayments = ({ year }) => {
         <h2>Kuka maksaa minkäkin eläkkeen?</h2>
         <p>
           <strong>Työeläkkeen</strong> maksaa se työeläkelaitos, jossa eläkkeesi
-          on vakuutettu, esimerkiksi Keva, Varma, Ilmarinen tai Elo. Maksupäivä
-          vaihtelee laitoksittain, mutta useimmilla se on kuun ensimmäinen
-          pankkipäivä.
+          on vakuutettu. Useimmilla yksityisen sektorin eläkelaitoksilla (kuten
+          Varma, Ilmarinen ja Elo) maksupäivä on kuun ensimmäinen pankkipäivä.
+          <strong>Keva</strong> maksaa kunta-alan, valtion, kirkon ja
+          hyvinvointialueiden työeläkkeet kuukauden 3. päivänä (tai sitä edeltävänä
+          pankkipäivänä, jos 3. päivä on viikonloppu tai pyhä).
         </p>
         <p>
           <strong>Kela</strong> maksaa kansaneläkkeen, takuueläkkeen,
