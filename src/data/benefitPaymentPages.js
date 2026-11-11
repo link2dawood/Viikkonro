@@ -315,6 +315,10 @@ export function pensionPaymentFaqs(year) {
       : "";
   return tidy([
     {
+      q: `Milloin Kevan eläkkeet maksetaan vuonna ${year}?`,
+      a: `Keva maksaa kunta-alan, valtion, kirkon ja hyvinvointialueiden eläkkeet kuukauden 3. päivänä. Jos 3. päivä osuu viikonlopulle tai arkipyhälle, Kevan eläke maksetaan sitä edeltävänä pankkipäivänä.`,
+    },
+    {
       q: `Milloin työeläke maksetaan vuonna ${year}?`,
       a: `Useimmat työeläkelaitokset maksavat työeläkkeen kuun ensimmäisenä pankkipäivänä. Vuonna ${year} se tarkoittaa päiviä ${dateList(tyoelake)}. Maksupäivä vaihtelee eläkelaitoksittain, joten tarkista oma päiväsi eläkepäätöksestä tai eläkelaitoksesi verkkopalvelusta.`,
     },

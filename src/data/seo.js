@@ -144,8 +144,8 @@ import {
 // "Päivitetty" line on each page and its dateModified in structured data
 // always agree, and so a date claiming freshness doesn't roll every day just
 // because the site auto-rebuilds while the words on the page haven't changed.
-export const CONTENT_UPDATED = "2026-10-24";
-export const CONTENT_UPDATED_FI = fmtFullFi(new Date(2026, 9, 24));
+export const CONTENT_UPDATED = "2026-11-11";
+export const CONTENT_UPDATED_FI = fmtFullFi(new Date(2026, 10, 11));
 
 // The /data/* JSON feeds' schemaVersion field and the real schema.org
 // Dataset.version property (see prerender.js's datasetSchema()) — bumped only
@@ -561,6 +561,11 @@ export function yearFaqs(year) {
   const jan1IsoYear = isoYear(jan1);
   const dec31Week = isoWeek(dec31);
   const dec31IsoYear = isoYear(dec31);
+  const stats = yearStats(year);
+  const mo1 = mondayOf(1, year);
+  const moLast = mondayOf(total, year);
+  const suLast = new Date(moLast);
+  suLast.setDate(suLast.getDate() + 6);
 
   const startNote =
     jan1IsoYear !== year
@@ -571,26 +576,44 @@ export function yearFaqs(year) {
       ? ` Päivä kuuluu jo seuraavan vuoden viikkoon 1.`
       : "";
 
-  return [
+  const faqs = [
     {
       q: `Kuinka monta viikkoa vuodessa ${year} on?`,
-      a: `Vuodessa ${year} on ${total} viikkoa.`,
+      a: `Vuonna ${year} on ${total} ISO-viikkoa. Viikko 1 alkaa maanantaina ${fmtShortFi(mo1)} ja vuoden viimeinen viikko ${total} päättyy sunnuntaina ${fmtShortFi(suLast)}.`,
     },
     {
       q: `Millä viikolla vuosi ${year} alkaa?`,
-      a: `Tammikuun 1. päivä ${year} kuuluu viikkoon ${jan1Week} vuonna ${jan1IsoYear}.${startNote}`,
+      a: `Tammikuun 1. päivä ${year} kuuluu vuoden ${jan1IsoYear} viikkoon ${jan1Week}.${startNote} Vuoden ${year} ensimmäinen ISO-viikko alkaa maanantaina ${fmtShortFi(mo1)}.`,
     },
     {
       q: `Millä viikolla vuosi ${year} päättyy?`,
-      a: `Joulukuun 31. päivä ${year} kuuluu viikkoon ${dec31Week} vuonna ${dec31IsoYear}.${endNote}`,
+      a: `Vuoden ${year} viimeinen päivä, 31. joulukuuta, kuuluu vuoden ${dec31IsoYear} viikkoon ${dec31Week}.${endNote}`,
     },
     {
-      q: `Onko ${year} karkausvuosi?`,
+      q: `Onko vuosi ${year} karkausvuosi?`,
       a: isLeapYear(year)
-        ? `Kyllä. Vuosi ${year} on karkausvuosi ja siinä on ${daysInYear(year)} päivää (helmikuussa 29).`
-        : `Ei. Vuodessa ${year} on ${daysInYear(year)} päivää (helmikuussa 28).`,
+        ? `Kyllä. Vuosi ${year} on karkausvuosi, joten siinä on ${daysInYear(year)} päivää ja helmikuussa 29 päivää.`
+        : `Ei. Vuosi ${year} ei ole karkausvuosi, joten siinä on ${daysInYear(year)} päivää ja helmikuussa 28 päivää.`,
+    },
+    {
+      q: `Kuinka monta työpäivää vuonna ${year} on?`,
+      a: `Vuonna ${year} on ${stats.working} työpäivää, kun työpäivällä tarkoitetaan maanantaista perjantaihin osuvaa päivää, josta on vähennetty arkipäiville osuvat viralliset pyhäpäivät. Työpaikkakohtaiset vapaat voivat muuttaa todellista työpäivien määrää.`,
     },
   ];
+
+  if (jan1IsoYear !== year) {
+    faqs.push({
+      q: `Miksi 1. tammikuuta ${year} kuuluu vuoden ${jan1IsoYear} viikkoon?`,
+      a: `ISO 8601 -standardin mukaan viikon vuosi määräytyy viikon torstain perusteella. Koska 1. tammikuuta ${year} on perjantai, se kuuluu vielä vuoden ${jan1IsoYear} viimeiseen ISO-viikkoon eli viikkoon ${jan1Week}.`,
+    });
+  }
+
+  faqs.push({
+    q: `Mistä voin ladata vuoden ${year} kalenterin?`,
+    a: `Voit ladata vuoden ${year} tulostettavan PDF-kalenterin tältä sivulta. Kalenterin avulla voit tarkistaa päivämäärät, viikonpäivät ja viikkonumerot.`,
+  });
+
+  return faqs;
 }
 
 // Shared by YearCalendar.jsx's visible Quick Facts block — reuses
@@ -708,6 +731,10 @@ export function workingDaysFaqs(y) {
     {
       q: "Vaikuttaako työehtosopimus työpäivien määrään?",
       a: "Kyllä, käytännön työvuorot ja palkalliset vapaat voivat määräytyä työehtosopimuksen, työsopimuksen ja työnantajan käytännön mukaan. Sivun yleinen työpäivälaskenta ei tunne sopimusalaa tai henkilökohtaista työvuorolistaa.",
+    },
+    {
+      q: `Vastaako laskenta Edenred-työpäiväkalenteria vuonna ${y}?`,
+      a: `Kyllä. Laskenta noudattaa samaa yleistä standardia kuin Edenred-työpäiväkalenteri: 5-päiväisen työviikon arkipäivistä (ma-pe) vähennetään viralliset arkipyhät, jolloin työpäiviä on ${working}.`,
     },
   ];
 }
