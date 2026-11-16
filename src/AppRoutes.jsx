@@ -100,6 +100,9 @@ import { SUN_CITIES, SUN_HUB_PATH, sunCityPath } from "./data/sunCities";
 import { CALCULATOR_PATH, OFFSETS, offsetPath } from "./data/dateCalculator";
 import { OBSERVANCE_SLUG_RE } from "./data/observanceDays";
 const DaylightSaving = routePage("DaylightSaving");
+const IndependenceDay = routePage("IndependenceDay");
+const ChristmasHoliday = routePage("ChristmasHoliday");
+const ChristmasBreak = routePage("ChristmasBreak");
 const Countdown = routePage("Countdown");
 const CalendarSubscription = routePage("CalendarSubscription");
 const WidgetEmbed = routePage("WidgetEmbed");
@@ -154,6 +157,12 @@ const dynamicElement = (slug) => {
     return validateYear(+m[2]) ? <ObservanceDay slug={m[1]} year={+m[2]} /> : <NotFound />;
   if ((m = slug.match(/^kesaaika-(\d{4})$/)))
     return validateYear(+m[1]) ? <DaylightSaving year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^itsenaisyyspaiva-(\d{4})$/)))
+    return validateYear(+m[1]) ? <IndependenceDay year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^joulu-(\d{4})$/)))
+    return validateYear(+m[1]) ? <ChristmasHoliday year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^joululoma-(\d{4})$/)))
+    return validateYear(+m[1]) ? <ChristmasBreak year={+m[1]} /> : <NotFound />;
   return <NotFound />;
 };
 

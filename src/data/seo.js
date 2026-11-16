@@ -104,6 +104,11 @@ import {
   observancePath,
 } from "./observanceDays.js";
 import { dstMeta } from "./dstPages.js";
+import {
+  itsenaisyyspaivaMeta,
+  christmasMeta,
+  christmasBreakMeta,
+} from "./seasonalPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
 import { WIDGET_EMBED_PAGE_PATH, widgetEmbedMeta } from "./weekWidget.js";
@@ -1499,6 +1504,23 @@ export function sitemapEntries(year) {
         priority: current ? "0.7" : "0.5",
       });
     }
+    entries.push({
+      path: `/itsenaisyyspaiva-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.8" : "0.5",
+    });
+    entries.push({
+      path: `/joulu-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.8" : "0.5",
+    });
+    if (pageConfidenceTier(y) === CONFIDENCE.CONFIRMED) {
+      entries.push({
+        path: `/joululoma-${y}`,
+        changefreq: current ? "monthly" : "yearly",
+        priority: current ? "0.8" : "0.5",
+      });
+    }
   }
   // Full-year calendar pages: 2020 .. year+9 (rolling) × {full, half 1, half 2,
   // print}. Auto-advances every rebuild so the indexed set never freezes.
@@ -1589,6 +1611,9 @@ export function metaFor(url) {
   if ((m = url.slice(1).match(OBSERVANCE_SLUG_RE))) return observanceMeta(m[1], +m[2]);
   if ((m = url.match(/^\/kuun-vaiheet-(\d{4})$/))) return moonMeta(+m[1]);
   if ((m = url.match(/^\/kesaaika-(\d{4})$/))) return dstMeta(+m[1]);
+  if ((m = url.match(/^\/itsenaisyyspaiva-(\d{4})$/))) return itsenaisyyspaivaMeta(+m[1]);
+  if ((m = url.match(/^\/joulu-(\d{4})$/))) return christmasMeta(+m[1]);
+  if ((m = url.match(/^\/joululoma-(\d{4})$/))) return christmasBreakMeta(+m[1]);
   if ((m = url.match(/^\/kalenteri-(\d+)-(alkuvuosi|loppuvuosi)$/)))
     return calendarMeta(+m[1], m[2] === "alkuvuosi" ? 1 : 2, false);
   if ((m = url.match(/^\/kalenteri-(\d+)$/))) return calendarMeta(+m[1], null, false);
@@ -1742,6 +1767,27 @@ export function breadcrumbTrail(url) {
       home,
       { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
       { name: `Kesäaika ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/itsenaisyyspaiva-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Itsenäisyyspäivä ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/joulu-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Joulu ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/joululoma-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Koululomat ${m[1]}`, path: `/koululomat-${m[1]}` },
+      { name: `Joululoma ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/koululomat-(\d+)$/))) {
