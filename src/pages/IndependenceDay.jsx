@@ -8,6 +8,7 @@ import {
   itsenaisyyspaivaFaqs,
   itsenaisyyspaivaMeta,
 } from "../data/seasonalPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
 
 const IndependenceDay = ({ year: pYear } = {}) => {
@@ -124,6 +125,13 @@ const IndependenceDay = ({ year: pYear } = {}) => {
         Katso myös <Link to={`/vuosi-${year}`}>viikkokalenteri {year}</Link>,{" "}
         <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}
         <Link to={`/liputuspaivat-${year}`}>liputuspäivät {year}</Link>,{" "}
+        {pageConfidenceTier(year) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${year}`}>
+              {year === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${year}`}
+            </Link>,{" "}
+          </>
+        )}
         <Link to={`/adventti-${year}`}>adventti {year}</Link> ja{" "}
         <Link to={`/joulu-${year}`}>joulu {year}</Link>.
       </p>

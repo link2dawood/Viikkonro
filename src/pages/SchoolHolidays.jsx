@@ -167,6 +167,57 @@ const SchoolHolidays = ({ year }) => {
 
         <AdSlot placement="school-holidays-after-summary" />
 
+        {selectedYear === 2027 && (
+          <div className="table-wrap">
+            <h2>Talvilomaviikot 2027 alueittain (alue 1, alue 2 ja alue 3)</h2>
+            <p>
+              Suomessa koulujen talviloma (hiihtoloma) on jaettu kolmeen alueeseen porrastetusti helmikuun lopulta maaliskuun puoliväliin:
+            </p>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Alue</th>
+                  <th>Viikko</th>
+                  <th>Ajankohta 2027</th>
+                  <th>Maakunnat ja esimerkkikaupungit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Alue 1</strong></td>
+                  <td>
+                    <Link to="/viikko-8-2027"><strong>Viikko 8</strong></Link>
+                  </td>
+                  <td>22.2.-26.2.2027</td>
+                  <td>
+                    <strong>Etelä-Suomi ja rannikko:</strong> Helsinki, Espoo, Vantaa, Kauniainen, Turku, Pori, Rauma, Salo, Porvoo, Lohja, Hyvinkää (Uusimaa, Varsinais-Suomi, Satakunta, Ahvenanmaa)
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Alue 2</strong></td>
+                  <td>
+                    <Link to="/viikko-9-2027"><strong>Viikko 9</strong></Link>
+                  </td>
+                  <td>1.3.-5.3.2027</td>
+                  <td>
+                    <strong>Sisä- ja Länsi-Suomi:</strong> Tampere, Hämeenlinna, Lahti, Jyväskylä, Seinäjoki, Vaasa, Kokkola, Kouvola, Kotka, Lappeenranta, Mikkeli (Pirkanmaa, Keski-Suomi, Kanta-Häme, Päijät-Häme, Kymenlaakso, Etelä-Karjala, Etelä-Savo, Pohjanmaa, Etelä-Pohjanmaa, Keski-Pohjanmaa)
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Alue 3</strong></td>
+                  <td>
+                    <Link to="/viikko-10-2027"><strong>Viikko 10</strong></Link>
+                  </td>
+                  <td>8.3.-12.3.2027</td>
+                  <td>
+                    <strong>Itä- ja Pohjois-Suomi:</strong> Oulu, Rovaniemi, Kuopio, Joensuu, Kajaani, Iisalmi, Kemi, Tornio, Kuusamo (Pohjois-Savo, Pohjois-Karjala, Kainuu, Pohjois-Pohjanmaa, Lappi)
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+
         <h2>Milloin hiihtoloma {selectedYear} on?</h2>
         <p>
           Talviloma porrastetaan kolmen viikon jaksolle. Jokainen taulukon rivi

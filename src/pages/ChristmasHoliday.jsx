@@ -11,6 +11,7 @@ import {
   christmasFaqs,
   christmasMeta,
 } from "../data/seasonalPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
 
 const ChristmasHoliday = ({ year: pYear } = {}) => {
@@ -144,6 +145,13 @@ const ChristmasHoliday = ({ year: pYear } = {}) => {
         <Link to={`/vuosi-${year}`}>viikkokalenteri {year}</Link>,{" "}
         <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}
         <Link to={`/joululoma-${year}`}>koulujen joululoma {year}</Link>,{" "}
+        {pageConfidenceTier(year) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${year}`}>
+              {year === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${year}`}
+            </Link>,{" "}
+          </>
+        )}
         <Link to={`/itsenaisyyspaiva-${year}`}>itsenäisyyspäivä {year}</Link> ja{" "}
         <Link to={`/adventti-${year}`}>adventti {year}</Link>.
       </p>

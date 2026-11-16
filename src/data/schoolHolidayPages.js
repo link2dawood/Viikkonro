@@ -303,12 +303,18 @@ export function schoolHolidayMeta(year) {
     year === 2027 && helsinkiWinter
       ? `Hiihtoloma ${year} Helsingissä on viikolla ${helsinkiWinter.week}.`
       : `Hiihtoloma ${year} on viikoilla 8-10.`;
-  // Leads with "Syysloma <year>", the page's largest query, and states the
-  // real autumn weeks and dates from page.autumn instead of generic copy.
-  const base = {
-    title: `Syysloma ${year} ja hiihtoloma ${year}: koululomat | Viikko Nro`,
-    description: `${autumnSummary(page)} ${winterSummary} Katso koululomat alueittain.`,
-  };
+  // Leads with "Syysloma <year>" (or "Talviloma 2027" for the high-impression query)
+  const base =
+    year === 2027
+      ? {
+          title: "Talviloma 2027: hiihtoloma ja koululomat | Viikko Nro",
+          description:
+            "Talviloma 2027 viikoilla 8, 9 ja 10 alueittain (Helsinki, Tampere, Oulu). Syysloma 2027: Helsinki viikolla 42 (18.-22.10.). Katso kaikki koululomat 2027.",
+        }
+      : {
+          title: `Syysloma ${year} ja hiihtoloma ${year}: koululomat | Viikko Nro`,
+          description: `${autumnSummary(page)} ${winterSummary} Katso koululomat alueittain.`,
+        };
   // STEP 4: Tier B pages must noindex,follow and their description must
   // carry the exact required disclaimer — not a paraphrase, so it reads
   // identically everywhere it appears (meta description, visible banner).
@@ -343,8 +349,8 @@ export function schoolHolidayFaqs(year) {
   ))].join(", ");
   return [
     {
-      q: `Milloin hiihtoloma ${year} on?`,
-      a: `Hiihtoloma ${year} pidetään alueittain viikoilla 8-10. Kaupunkivertailu: ${winter}.`,
+      q: year === 2027 ? "Milloin on talviloma 2027 (hiihtoloma)?" : `Milloin hiihtoloma ${year} on?`,
+      a: `Talvi- ja hiihtoloma ${year} pidetään alueittain viikoilla 8-10. Kaupunkivertailu: ${winter}.`,
     },
     {
       q: `Milloin syysloma ${year} on?`,

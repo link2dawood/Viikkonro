@@ -11,6 +11,7 @@ import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
 import { flagDayFaqs, flagDaysInYear, flagDaysMeta } from "../data/flagDayPages";
 import { holidayLinkPath } from "../data/holidayPages";
 import { observancePathForFlagDay } from "../data/observanceDays";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
 // Finland's flag-day (liputuspäivät) hub for a year (/liputuspaivat-2026).
 // Distinct from /pyhapaivat-<year> (public holidays) — a flag day is not
@@ -133,6 +134,11 @@ const FlagDays = ({ year: pYear } = {}) => {
         Katso myös <Link to={`/isanpaiva-${year}`}>isänpäivä {year}</Link>,{" "}
         <Link to={`/aitienpaiva-${year}`}>äitienpäivä {year}</Link>,{" "}
         <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${year}`}>koululomat {year}</Link>,{" "}
+          </>
+        )}
         <Link to={`/vuosi-${year}`}>vuoden {year} viikkonumerot</Link>,{" "}
         <Link to={`/kalenteri-${year}`}>vuoden {year} kalenteri</Link> ja{" "}
         <Link to={`/tyopaivat-${year}`}>työpäivät {year}</Link>.

@@ -221,6 +221,15 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
           <Link to={`/vuosi-${y + 1}`}>viikot {y + 1}</Link>.
         </p>
       )}
+      {!half && y === 2027 && (
+        <p className="year-top-links noprint">
+          Siirtymä vuodesta 2026:{" "}
+          <Link to="/kuukausi-12-2026">Joulukuu 2026</Link> ·{" "}
+          <Link to="/kalenteri-2026-loppuvuosi">Kalenteri 2026 loppuvuosi</Link> ·{" "}
+          <Link to="/joulu-2026">Joulu 2026</Link> ·{" "}
+          <Link to="/koululomat-2027"><strong>Talviloma ja koululomat 2027</strong></Link>
+        </p>
+      )}
 
       {print && (
         <section className="print-support">
@@ -232,6 +241,11 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
               <li><strong>Merkinnät:</strong> Suomen juhla- ja liputuspäivät.</li>
               <li><strong>Tallennus:</strong> PDF tai Excel-yhteensopiva CSV.</li>
             </ul>
+            {y === 2027 && (
+              <p className="note-soft noprint" style={{ marginTop: "8px" }}>
+                Katso myös edellisen vuoden loppu: <Link to="/kalenteri-2026-loppuvuosi">kalenteri 2026 loppuvuosi</Link>, <Link to="/kuukausi-12-2026">joulukuu 2026</Link> sekä <Link to="/koululomat-2027">talviloma ja koululomat 2027</Link>.
+              </p>
+            )}
           </div>
           <p className="print-actions">
             <button className="btn" onClick={() => window.print()}>
@@ -473,6 +487,16 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
             <li>
               <Link to={`/koululomat-${y}`}>Koululomat {y} alueittain</Link>
             </li>
+          )}
+          {y === 2027 && (
+            <>
+              <li>
+                <Link to="/kalenteri-2026-loppuvuosi">Loppuvuoden 2026 kalenteri</Link>
+              </li>
+              <li>
+                <Link to="/kuukausi-12-2026">Joulukuu 2026 viikot</Link>
+              </li>
+            </>
           )}
           <li>
             <Link to={`/tulosta-${y}`}>Tulostettava viikkolista {y}</Link>

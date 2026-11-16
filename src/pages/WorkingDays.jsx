@@ -17,6 +17,7 @@ import {
   KELA_WORKDAY_SOURCE,
   WORKING_DAYS_UPDATED,
 } from "../data/workingDaysContent.js";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
 const M_FULL = [
   "Tammikuu",
@@ -227,6 +228,11 @@ const WorkingDays = ({ year: pYear } = {}) => {
 
       <p>
         Katso myös <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${year}`}>koululomat {year}</Link>,{" "}
+          </>
+        )}
         <Link to={`/vuosi-${year}`}>vuoden {year} viikkonumerot</Link>,{" "}
         <Link to={`/kalenteri-${year}`}>vuoden {year} kalenteri</Link> ja{" "}
         <Link to={`/tulosta-${year}`}>tulostettava viikkolista</Link>.

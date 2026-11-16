@@ -11,6 +11,7 @@ import {
   newYearFaqs,
   newYearMeta,
 } from "../data/seasonalPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
 
 const NewYearHoliday = ({ year: pYear } = {}) => {
@@ -169,6 +170,13 @@ const NewYearHoliday = ({ year: pYear } = {}) => {
         ) : (
           <Link to={`/joulu-${year}`}>joulu {year}</Link>
         )},{" "}
+        {pageConfidenceTier(year) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${year}`}>
+              {year === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${year}`}
+            </Link>,{" "}
+          </>
+        )}
         <Link to={`/vuosi-${year}`}>viikkokalenteri {year}</Link>,{" "}
         <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link> ja{" "}
         <Link to={`/tyopaivat-${year}`}>työpäivät {year}</Link>.

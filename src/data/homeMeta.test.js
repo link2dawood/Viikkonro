@@ -4,7 +4,7 @@ import { homeMeta } from "./seo.js";
 describe("homepage short-query metadata", () => {
   it("leads with the current-week query and calendar intent", () => {
     const meta = homeMeta(new Date(2026, 7, 3));
-    expect(meta.title).toBe("Viikkonumero 32 (3.8.): Mikä viikko nyt on? | Viikko Nro");
+    expect(meta.title).toBe("Viikko 32 / Mikä viikko nyt on | Viikko Nro");
     expect(meta.description).toContain("Nyt on viikko 32 vuonna 2026.");
     expect(meta.description).toContain("parillinen tai pariton viikko");
   });

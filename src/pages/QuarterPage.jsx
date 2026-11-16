@@ -19,6 +19,7 @@ import {
   quarterStats,
 } from "../data/seo";
 import { holidayLinkPath } from "../data/holidayPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
 
 // Fiscal-quarter hub (/q1-2026 .. /q4-2026) — targets "Q1 2026 viikot",
@@ -195,6 +196,13 @@ const QuarterPage = ({ quarter: pQuarter, year: pYear } = {}) => {
               Pyhäpäivät ja liputuspäivät {y}
             </Link>
           </li>
+          {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+            <li>
+              <Link to={`/koululomat-${y}`} onClick={() => window.scrollTo(0, 0)}>
+                {y === 2027 ? "Talviloma ja koululomat 2027" : `Koululomat ${y} alueittain`}
+              </Link>
+            </li>
+          )}
           <li>
             <Link to={`/kalenteri-${y}`} onClick={() => window.scrollTo(0, 0)}>
               Vuoden {y} kalenteri
