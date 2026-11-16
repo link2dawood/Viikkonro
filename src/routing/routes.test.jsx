@@ -16,6 +16,8 @@ describe("route splitting", () => {
     ["/itsenaisyyspaiva-2026", "IndependenceDay"],
     ["/joulu-2026", "ChristmasHoliday"],
     ["/joululoma-2026", "ChristmasBreak"],
+    ["/uusi-vuosi-2027", "NewYearHoliday"],
+    ["/loppiainen-2027", "EpiphanyHoliday"],
     ["/kalenteripohjat/hr-ja-palkkapaivien-vuosikello", "Templates"],
     ["/tyopaivat-unknown-2027", "NotFound"], ["/palkkapaivat-9999", "NotFound"],
     ["/missing-route", "NotFound"], ["/missing/route/segments", "NotFound"],

@@ -103,6 +103,8 @@ const DaylightSaving = routePage("DaylightSaving");
 const IndependenceDay = routePage("IndependenceDay");
 const ChristmasHoliday = routePage("ChristmasHoliday");
 const ChristmasBreak = routePage("ChristmasBreak");
+const NewYearHoliday = routePage("NewYearHoliday");
+const EpiphanyHoliday = routePage("EpiphanyHoliday");
 const Countdown = routePage("Countdown");
 const CalendarSubscription = routePage("CalendarSubscription");
 const WidgetEmbed = routePage("WidgetEmbed");
@@ -163,6 +165,10 @@ const dynamicElement = (slug) => {
     return validateYear(+m[1]) ? <ChristmasHoliday year={+m[1]} /> : <NotFound />;
   if ((m = slug.match(/^joululoma-(\d{4})$/)))
     return validateYear(+m[1]) ? <ChristmasBreak year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^uusi-vuosi-(\d{4})$/)))
+    return validateYear(+m[1]) ? <NewYearHoliday year={+m[1]} /> : <NotFound />;
+  if ((m = slug.match(/^loppiainen-(\d{4})$/)))
+    return validateYear(+m[1]) ? <EpiphanyHoliday year={+m[1]} /> : <NotFound />;
   return <NotFound />;
 };
 

@@ -242,6 +242,12 @@ export function kelaPaymentMeta(year) {
 }
 
 export function pensionPaymentMeta(year) {
+  if (year === 2026) {
+    return {
+      title: "Eläkkeen maksupäivä joulukuu 2026: maksupäivät | Viikko Nro",
+      description: "Milloin eläke maksetaan joulukuussa 2026? Työeläke ti 1.12., Keva to 3.12., kansaneläke pe 4.12. ja takuueläke ti 22.12. Katso koko vuoden 2026 maksupäivät.",
+    };
+  }
   return {
     title: `Eläkkeen maksupäivät ${year}, työ- ja kansaneläke | Viikko Nro`,
     description: `Milloin eläke tulee tilille ${year}? Työeläke tulee yleensä kuun 1. pankkipäivänä, kansaneläke 7. ja takuueläke 22. päivä. Kaikki päivät kuukausittain.`,
@@ -339,8 +345,10 @@ export function pensionPaymentFaqs(year) {
       a: "Työeläkkeen maksaa oma työeläkelaitoksesi, ja useimmilla laitoksilla maksupäivä on kuun ensimmäinen pankkipäivä. Kansaneläkkeen ja takuueläkkeen maksaa Kela omina maksupäivinään, 7. ja 22. päivä. Jos saat sekä työeläkettä että Kelan eläkettä, rahaa tulee siis kuukaudessa kahtena eri päivänä.",
     },
     {
-      q: `Milloin eläkkeet maksetaan joulukuussa ${year}?`,
-      a: `Joulukuun ${year} maksupäivät: ${decemberSentence(year, PENSION_BENEFITS)}.`,
+      q: `Milloin on eläkkeen maksupäivä joulukuussa ${year}?`,
+      a: year === 2026
+        ? `Joulukuussa 2026 työeläkkeet maksetaan tiistaina 1.12., Kevan eläkkeet torstaina 3.12. ja Kelan eläkkeet ryhmittäin: 1. ryhmä (A-K) pe 4.12., 2. ryhmä (L-R) ma 14.12. sekä 3. ryhmä (S-Ö) ja takuueläke tiistaina 22.12. hyvissä ajoin ennen joulupyhiä.`
+        : `Joulukuun ${year} maksupäivät: ${decemberSentence(year, PENSION_BENEFITS)}. Joulun pyhinä pankit ovat kiinni, joten pyhille osuvat maksut aikaistuvat.`,
     },
     {
       q: "Milloin Kelan perhe-eläke maksetaan?",
