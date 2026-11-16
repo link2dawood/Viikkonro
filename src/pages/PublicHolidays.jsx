@@ -13,6 +13,7 @@ import AdSlot from "../components/AdSlot";
 import { canonicalFor, holidaysMeta } from "../data/seo";
 import { holidayDateRuleKey, holidaysInYear } from "../data/holidays";
 import { holidaySlugForName } from "../data/holidayPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
 // Finnish public-holidays hub for a year (/pyhapaivat-2026). Content-rich page
 // targeting "pyhäpäivät <vuosi>" searches — a higher-volume query cluster than
@@ -114,6 +115,11 @@ const PublicHolidays = ({ year: pYear } = {}) => {
         <Link to={`/isanpaiva-${year}`}>isänpäivä {year}</Link> ja{" "}
         <Link to={`/adventti-${year}`}>adventti {year}</Link>.{" "}
         Katso myös <Link to="/vuosilomalaskuri">vuosilomalaskuri</Link>,{" "}
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${year}`}>koululomat {year}</Link>,{" "}
+          </>
+        )}
         <Link to={`/liputuspaivat-${year}`}>liputuspäivät {year}</Link>,{" "}
         <Link to={`/tyopaivat-${year}`}>työpäivät vuonna {year}</Link>,{" "}
         <Link to={`/vuosi-${year}`}>vuoden {year} viikkonumerot</Link>,{" "}

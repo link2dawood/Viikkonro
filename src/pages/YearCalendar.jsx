@@ -493,12 +493,29 @@ const YearCalendar = ({ year: pYear } = {}) => {
           <Link to={`/loppiainen-${selectedYear}`}><strong>Loppiainen {selectedYear}</strong></Link>
           {pageConfidenceTier(selectedYear) === CONFIDENCE.CONFIRMED && (
             <>
-              {" sekä "}
-              <Link to={`/joululoma-${selectedYear}`}><strong>koulujen joululoma {selectedYear}</strong></Link>
+              {", "}
+              <Link to={`/koululomat-${selectedYear}`}>
+                <strong>{selectedYear === 2027 ? "Talviloma ja koululomat 2027" : `koululomat ${selectedYear}`}</strong>
+              </Link>
             </>
           )}
           .
         </p>
+        {selectedYear === 2027 && (
+          <div className="panel" style={{ marginTop: "1rem" }}>
+            <div className="now-label">Siirtymä vuodesta 2026 vuoteen 2027</div>
+            <p>
+              Vuosi 2027 alkaa perjantaina 1.1.2027, joka kuuluu vielä edellisen vuoden viikkoon 53. Suunnitteletko vuodenvaihdetta?
+            </p>
+            <p>
+              Katso myös edellisen vuoden loppu:{" "}
+              <Link to="/kuukausi-12-2026"><strong>Joulukuu 2026 viikot</strong></Link> ·{" "}
+              <Link to="/kalenteri-2026-loppuvuosi"><strong>Kalenteri 2026 loppuvuosi</strong></Link> ·{" "}
+              <Link to="/joulu-2026"><strong>Joulu 2026 vapaat</strong></Link> sekä{" "}
+              <Link to="/koululomat-2027"><strong>Talviloma 2027 alueittain</strong></Link>.
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="prose">
@@ -658,7 +675,9 @@ const YearCalendar = ({ year: pYear } = {}) => {
         {pageConfidenceTier(selectedYear) === CONFIDENCE.CONFIRMED && (
           <>
             ,{" "}
-            <Link to={`/koululomat-${year}`}>koululomat {year}</Link>,{" "}
+            <Link to={`/koululomat-${year}`}>
+              {selectedYear === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${year}`}
+            </Link>,{" "}
             <Link to={`/joululoma-${year}`}>joululoma {year}</Link>
           </>
         )}{" "}

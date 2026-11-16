@@ -334,7 +334,7 @@ test("PD-12 publishes substantive template pages and all 54 downloadable artifac
 
 test("PD-01 generates every critical SEO landing page with indexable self-canonicals", () => {
   const cases = [
-    ["/", /^Viikkonumero \d+ /],
+    ["/", /^(?:Viikko|Viikkonumero) \d+ /],
     ["/parillinen-pariton-viikko", /^Parillinen vai pariton viikko/],
     ["/koululomat-2028", /^Syysloma 2028/],
     ["/mika-on-viikkonumero", /^Viikkonumero:/],

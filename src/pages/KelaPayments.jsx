@@ -20,6 +20,7 @@ import {
   pensionPath,
   weekdayBankHolidays,
 } from "../data/benefitPaymentPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
 const kerta = (n) => (n === 0 ? "ei kertaakaan" : n === 1 ? "kerran" : `${n} kertaa`);
 
@@ -131,6 +132,11 @@ const KelaPayments = ({ year }) => {
         Katso myös <Link to={pensionPath(y)}>eläkkeen maksupäivät {y}</Link>,{" "}
         <Link to={`/palkkapaivat-${y}`}>palkkapäivät {y}</Link>,{" "}
         <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link>,{" "}
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${y}`}>koululomat {y}</Link>,{" "}
+          </>
+        )}
         <Link to={`/tyopaivat-${y}`}>työpäivät {y}</Link> ja{" "}
         <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>. Odottaville:{" "}
         <Link to="/raskauslaskuri">raskauslaskuri</Link> näyttää raskausvapaan

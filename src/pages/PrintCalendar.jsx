@@ -17,6 +17,7 @@ import {
   downloadCalendarCsv,
   printListFaqs,
 } from "../data/printCalendarContent";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
 const PrintCalendar = ({ year: pYear } = {}) => {
   const params = useParams();
@@ -147,6 +148,14 @@ const PrintCalendar = ({ year: pYear } = {}) => {
           <Link to={"/kalenteri-" + selectedYear}>
             viikkokalenteri {selectedYear}
           </Link>
+          {pageConfidenceTier(selectedYear) === CONFIDENCE.CONFIRMED && (
+            <>
+              {" sekä "}
+              <Link to={`/koululomat-${selectedYear}`}>
+                {selectedYear === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${selectedYear}`}
+              </Link>
+            </>
+          )}
           .
         </p>
 

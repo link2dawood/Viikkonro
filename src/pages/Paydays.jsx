@@ -17,6 +17,7 @@ import {
   paydayMeta,
   paydaysInYear,
 } from "../data/paydayPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
 const DAY_OPTIONS = Array.from({ length: 28 }, (_, i) => i + 1);
 
@@ -161,7 +162,13 @@ const Paydays = ({ year }) => {
         Katso myös <Link to={`/tyopaivat-${y}`}>työpäivät {y}</Link>,{" "}
         <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link>,{" "}
         <Link to={`/kelan-maksupaivat-${y}`}>Kelan maksupäivät {y}</Link>,{" "}
-        <Link to={`/elakkeen-maksupaivat-${y}`}>eläkkeen maksupäivät {y}</Link> ja{" "}
+        <Link to={`/elakkeen-maksupaivat-${y}`}>eläkkeen maksupäivät {y}</Link>
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            , <Link to={`/koululomat-${y}`}>koululomat {y}</Link>
+          </>
+        )}
+        {" ja "}
         <Link to="/tyopaivalaskuri">työpäivälaskuri</Link>. Työtunnit lasket{" "}
         <Link to="/tuntilaskuri">tuntilaskurilla</Link>.
       </p>

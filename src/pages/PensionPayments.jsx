@@ -20,6 +20,7 @@ import {
   pensionPaymentMeta,
   pensionStats,
 } from "../data/benefitPaymentPages";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
 const kerta = (n) => (n === 0 ? "ei kertaakaan" : n === 1 ? "kerran" : `${n} kertaa`);
 
@@ -181,8 +182,13 @@ const PensionPayments = ({ year }) => {
       <p className="hub-links">
         Katso myös <Link to={kelaPath(y)}>Kelan maksupäivät {y}</Link>,{" "}
         <Link to={`/palkkapaivat-${y}`}>palkkapäivät {y}</Link>,{" "}
-        <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link> ja{" "}
-        <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>.
+        <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link>,{" "}
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${y}`}>koululomat {y}</Link>,{" "}
+          </>
+        )}
+        ja <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>.
       </p>
 
       <div className="prevnext">

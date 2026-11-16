@@ -538,15 +538,9 @@ export function yearMeta(y) {
   // the same time (it now leads with "Kalenteri <year>"), which is why the two
   // changes have to ship together. "viikot" and "viikkonumerot" stay in the
   // title for the shorter query forms. See docs/seo-2027-growth-plan.md.
-  //
-  // The brief also wanted "hiihtolomaviikot" here, but school-holiday data
-  // only covers 2026 to 2028, and metaPromises.test.js exists precisely to
-  // stop a year description promising content that year does not render. The
-  // ski weeks stay on the page body, not in metadata. What the brief really
-  // adds is the concrete week 1 start date, which every year does have.
   return {
-    title: `Viikkokalenteri ${y}: viikkonumerot ja viikot | Viikko Nro`,
-    description: `Viikkokalenteri ${y}: kaikki ${total} viikkoa päivämäärineen. Viikko 1 alkaa ${fmtShortFi(mondayOf(1, y))}. Selaa työpäiviä ja arkipyhiä tai lataa viikkokalenteri PDF-muodossa.`,
+    title: `Viikkokalenteri ${y}: vuoden ${y} viikot | Viikko Nro`,
+    description: `Vuoden ${y} viikot ja viikkokalenteri: kaikki ${total} viikkoa päivämäärineen. Katso työpäiviä ja arkipyhiä tai lataa viikkokalenteri kätevästi PDF-muodossa.`,
   };
 }
 
@@ -941,9 +935,8 @@ export function homeMeta(now) {
   // paragraph (Weekcounter.jsx). The meta description below targets the exact
   // head query while drawing its dates from these same computed values.
   const lead = `Juuri nyt on viikko ${week} (viikkonumero ${week}) vuonna ${year}. Viikko alkaa ${WD_ESSIVE[mo.getDay()]} ${fmtShortFi(mo)} ja päättyy ${WD_ESSIVE[su.getDay()]} ${fmtShortFi(su)}.`;
-  const startDate = `${mo.getDate()}.${mo.getMonth() + 1}.`;
   return {
-    title: `Viikkonumero ${week} (${startDate}): Mikä viikko nyt on? | Viikko Nro`,
+    title: `Viikko ${week} / Mikä viikko nyt on | Viikko Nro`,
     // Keep the requested main query first and include the live answer. The
     // current week, calendar dates and parity also appear in visible page copy.
     description: `Mikä viikko on nyt? Nyt on viikko ${week} vuonna ${year}. Tarkista ajankohtainen viikkonumero, viikon päivämäärät sekä parillinen tai pariton viikko helposti.`,

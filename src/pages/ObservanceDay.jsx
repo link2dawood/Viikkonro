@@ -22,6 +22,7 @@ import {
   siblingObservances,
   upcomingYears,
 } from "../data/observanceDays";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
 
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
@@ -235,7 +236,15 @@ const ObservanceDay = ({ slug, year }) => {
             {i < arr.length - 1 ? ", " : "."}
           </span>
         ))}{" "}
-        Katso myös <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link> ja{" "}
+        Katso myös <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>,{" "}
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            <Link to={`/koululomat-${y}`}>
+              {y === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${y}`}
+            </Link>{" "}
+            ja{" "}
+          </>
+        )}
         <Link to={`/vuosi-${y}`}>vuoden {y} viikkonumerot</Link>.
       </p>
 

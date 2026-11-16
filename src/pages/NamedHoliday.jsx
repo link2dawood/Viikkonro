@@ -21,6 +21,7 @@ import {
 } from "../data/holidayPages";
 import { HOLIDAY_LEGAL_BASIS } from "../data/holidays";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
+import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 import NotFound from "./NotFound";
 
 const NamedHoliday = () => {
@@ -295,6 +296,13 @@ const NamedHoliday = () => {
           Katso myös <Link to={`/kalenteri-${page.year}`}>kalenteri {page.year}</Link>,{" "}
           <Link to={`/pyhapaivat-${page.year}`}>kaikki pyhäpäivät {page.year}</Link>,{" "}
           <Link to={`/liputuspaivat-${page.year}`}>liputuspäivät {page.year}</Link>,{" "}
+          {pageConfidenceTier(page.year) === CONFIDENCE.CONFIRMED && (
+            <>
+              <Link to={`/koululomat-${page.year}`}>
+                {page.year === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${page.year}`}
+              </Link>,{" "}
+            </>
+          )}
           <Link to={links.month.path}>{links.month.label}</Link>,{" "}
           <Link to={links.year.path}>{links.year.label}</Link>{" "}
           ja <Link to="/mika-on-viikkonumero">mikä on viikkonumero</Link>.
