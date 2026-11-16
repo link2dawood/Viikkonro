@@ -86,6 +86,7 @@ const ALT_NAME = {
   "Eino Leinon päivä": "runon ja suven päivä",
   "Miina Sillanpään päivä": "kansalaisvaikuttamisen päivä",
   "Aleksis Kiven päivä": "suomalaisen kirjallisuuden päivä",
+  "Lapsen oikeuksien päivä": "Lasten oikeuksien päivä",
   "Jean Sibeliuksen päivä": "suomalaisen musiikin päivä",
 };
 

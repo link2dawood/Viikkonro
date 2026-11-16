@@ -183,6 +183,11 @@ import {
   upcomingYears,
 } from "./src/data/observanceDays.js";
 import {
+  itsenaisyyspaivaFaqs,
+  christmasFaqs,
+  christmasBreakFaqs,
+} from "./src/data/seasonalPages.js";
+import {
   CALCULATOR_PATH as DATE_CALCULATOR_PATH,
   DATE_CALCULATOR_STEPS,
   OFFSETS,
@@ -796,6 +801,14 @@ function entityParentExtra(url) {
       isPartOf: [
         { "@id": `${SITE_URL}/#website` },
         { "@id": `${canonicalFor(`/vuosi-${m[2]}`)}#webpage` },
+      ],
+    };
+  }
+  if ((m = url.slice(1).match(/^(?:itsenaisyyspaiva|joulu|joululoma)-(\d{4})$/))) {
+    return {
+      isPartOf: [
+        { "@id": `${SITE_URL}/#website` },
+        { "@id": `${canonicalFor(`/vuosi-${m[1]}`)}#webpage` },
       ],
     };
   }
@@ -4131,6 +4144,18 @@ for (const url of routes) {
       }
       const dstMatch = url.match(/^\/kesaaika-(\d{4})$/);
       if (dstMatch) nodes.push(...dstNodes(+dstMatch[1]));
+      const independenceMatch = url.match(/^\/itsenaisyyspaiva-(\d{4})$/);
+      if (independenceMatch) {
+        nodes.push(faqPageNode(url, itsenaisyyspaivaFaqs(+independenceMatch[1])));
+      }
+      const christmasMatch = url.match(/^\/joulu-(\d{4})$/);
+      if (christmasMatch) {
+        nodes.push(faqPageNode(url, christmasFaqs(+christmasMatch[1])));
+      }
+      const christmasBreakMatch = url.match(/^\/joululoma-(\d{4})$/);
+      if (christmasBreakMatch) {
+        nodes.push(faqPageNode(url, christmasBreakFaqs(+christmasBreakMatch[1])));
+      }
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
       if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());
       if (url === AGE_PATH) nodes.push(...ageCalculatorNodes());

@@ -36,6 +36,7 @@ const ObservanceDay = ({ slug, year }) => {
   const y = page.year;
   const lower = lowerFirst(page.name);
   const day = page.dayLabel ?? page.name;
+  const isAdventti = page.slug === "adventti";
   const faqs = observanceFaqs(page);
   const highlights = observanceHighlights(page);
   const upcoming = upcomingYears(slug, y);
@@ -46,40 +47,68 @@ const ObservanceDay = ({ slug, year }) => {
       <SEO {...observanceMeta(slug, y)} canonical={canonicalFor(page.path)} />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/vuosi-${y}`}>Viikot {y}</Link> / {page.name} {y}
+        <Link to={`/vuosi-${y}`}>Viikot {y}</Link> / {isAdventti ? `Adventti ${y}` : `${page.name} ${y}`}
       </div>
 
       <h1>
-        {page.name} {y}
+        {isAdventti ? `Adventti ${y}: adventtisunnuntait ja viikot` : `${page.name} ${y}`}
       </h1>
 
-      <p className="lead">
-        <span className="answer-sentence">
-          <strong>
-            {day} {y} on {page.weekdayEssive} {fmtFullFi(page.date)}
-          </strong>{" "}
-          ja kuuluu viikkoon {page.week}.
-        </span>{" "}
-        {page.extras.length === 1 &&
-          `${page.extras[0].label} on ${fmtFullFi(page.extras[0].date)}.`}
-      </p>
+      {isAdventti ? (
+        <p className="lead">
+          <span className="answer-sentence">
+            <strong>
+              Vuonna {y} adventtisunnuntait ovat 1. adventti {fmtFullFi(page.date)} (viikko {page.week}), 2. adventti {fmtFullFi(page.extras[0].date)} (viikko {isoWeek(page.extras[0].date)}), 3. adventti {fmtFullFi(page.extras[1].date)} (viikko {isoWeek(page.extras[1].date)}) ja 4. adventti {fmtFullFi(page.extras[2].date)} (viikko {isoWeek(page.extras[2].date)}).
+            </strong>
+          </span>{" "}
+          Ensimmäinen adventti aloittaa kirkkovuoden ja joulun odotuksen.
+        </p>
+      ) : (
+        <p className="lead">
+          <span className="answer-sentence">
+            <strong>
+              {day} {y} on {page.weekdayEssive} {fmtFullFi(page.date)}
+            </strong>{" "}
+            ja kuuluu viikkoon {page.week}.
+          </span>{" "}
+          {page.extras.length === 1 &&
+            `${page.extras[0].label} on ${fmtFullFi(page.extras[0].date)}.`}
+        </p>
+      )}
 
       <QuickFacts
-        title={`${page.name} ${y} lyhyesti`}
+        title={isAdventti ? `Adventti ${y} lyhyesti` : `${page.name} ${y} lyhyesti`}
         facts={[
-          { label: "Päivämäärä", value: fmtFullFi(page.date) },
-          { label: "Viikonpäivä", value: page.weekday },
-          {
-            label: "Viikkonumero",
-            value: <Link to={page.weekPath}>viikko {page.week}</Link>,
-          },
-          {
-            label: "Kuukausi",
-            value: <Link to={page.monthPath}>{page.monthLabel}</Link>,
-          },
+          { label: isAdventti ? "1. adventti" : "Päivämäärä", value: fmtFullFi(page.date) },
+          ...(isAdventti
+            ? [
+                {
+                  label: "2. adventti",
+                  value: `${fmtFullFi(page.extras[0].date)} (viikko ${isoWeek(page.extras[0].date)})`,
+                },
+                {
+                  label: "3. adventti",
+                  value: `${fmtFullFi(page.extras[1].date)} (viikko ${isoWeek(page.extras[1].date)})`,
+                },
+                {
+                  label: "4. adventti",
+                  value: `${fmtFullFi(page.extras[2].date)} (viikko ${isoWeek(page.extras[2].date)})`,
+                },
+              ]
+            : [
+                { label: "Viikonpäivä", value: page.weekday },
+                {
+                  label: "Viikkonumero",
+                  value: <Link to={page.weekPath}>viikko {page.week}</Link>,
+                },
+                {
+                  label: "Kuukausi",
+                  value: <Link to={page.monthPath}>{page.monthLabel}</Link>,
+                },
+              ]),
           {
             label: "Liputuspäivä",
-            value: page.isFlagDay ? "Kyllä, virallinen" : "Ei",
+            value: isAdventti && y === 2026 ? "6.12. (itsenäisyyspäivä)" : (page.isFlagDay ? "Kyllä, virallinen" : "Ei"),
           },
         ]}
       />

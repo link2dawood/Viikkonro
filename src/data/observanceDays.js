@@ -130,6 +130,7 @@ const inRange = (y) => y >= PRERENDER_MIN_YEAR && y <= PRERENDER_MAX_YEAR;
 
 // Link target for a flag-day name that has its own observance page, or null.
 export function observancePathForFlagDay(name, year) {
+  if (name === "Itsenäisyyspäivä" && inRange(year)) return `/itsenaisyyspaiva-${year}`;
   const slug = { Isänpäivä: "isanpaiva", Äitienpäivä: "aitienpaiva" }[name];
   return slug && inRange(year) ? observancePath(slug, year) : null;
 }
@@ -208,6 +209,13 @@ export function observanceHighlights(page) {
   if (page.slug === "adventti") {
     const christmasEve = new Date(y, 11, 24);
     const fourth = page.extras[2].date;
+    const second = page.extras[0].date;
+    if (second.getDate() === 6 && second.getMonth() === 11) {
+      out.push({
+        text: `Vuonna ${y} toinen adventti osuu samalle päivälle itsenäisyyspäivän kanssa, sunnuntaina 6.12.`,
+        link: { to: `/itsenaisyyspaiva-${y}`, label: `Itsenäisyyspäivä ${y}` },
+      });
+    }
     out.push({
       text: `Ensimmäisestä adventista on ${daysBetween(page.date, christmasEve)} päivää jouluaattoon. Neljäs adventti on ${whenFi(fourth)}, ${daysBetween(fourth, christmasEve) === 0 ? "samana päivänä kuin jouluaatto" : `${daysBetween(fourth, christmasEve)} päivää ennen jouluaattoa`}.`,
       link: { to: "/kuinka-monta-paivaa-jouluun", label: "Kuinka monta päivää jouluun" },
@@ -290,20 +298,23 @@ export function observanceMeta(slug, year) {
   const withHook = `${page.name} ${page.year}: ${wdm(page.date)}, perinteet ja liputus | Viikko Nro`;
   const plain = `${page.name} ${page.year}: ${wdm(page.date)}, viikko ${page.week} | Viikko Nro`;
   const title =
-    page.slug === "laskiainen"
-      ? `Laskiainen ${page.year}: ${wdm(page.date)} ja ${wdm(extra.date)} | Viikko Nro`
-      : page.isFlagDay && withHook.length <= 60
-        ? withHook
-        : plain;
+    page.slug === "adventti"
+      ? `Adventti ${page.year}: adventtisunnuntait ja viikot | Viikko Nro`
+      : page.slug === "laskiainen"
+        ? `Laskiainen ${page.year}: ${wdm(page.date)} ja ${wdm(extra.date)} | Viikko Nro`
+        : page.isFlagDay && withHook.length <= 60
+          ? withHook
+          : plain;
   const lead =
     page.slug === "laskiainen"
       ? `Laskiaissunnuntai ${page.year} on ${wdm(page.date)} ja laskiaistiistai ${wdm(extra.date)}`
       : `${page.name} ${page.year} on ${whenFi(page.date)}, viikolla ${page.week}.`;
+  const fmtMd = (d) => `${d.getDate()}.${d.getMonth() + 1}.`;
   const description =
     page.slug === "isanpaiva"
       ? `Milloin on isänpäivä ${page.year}? ${whenFi(page.date)}. Se kuuluu viikkoon ${page.week} ja on virallinen liputuspäivä.`
       : page.slug === "adventti"
-        ? `Milloin on ensimmäinen adventti ${page.year}? 1. adventtisunnuntai on ${whenFi(page.date)} (viikko ${page.week}). Katso kaikki adventit ja joulun odotus.`
+        ? `Milloin on adventti ${page.year}? Katso kaikki adventtisunnuntait: 1. adventti ${fmtMd(page.date)}, 2. adventti ${fmtMd(page.extras[0].date)}, 3. adventti ${fmtMd(page.extras[1].date)} ja 4. adventti ${fmtMd(page.extras[2].date)}${page.year}.`
         : `${lead} Katso päivän määräytyminen, liputus ja päivämäärät tuleville vuosille.`;
   return {
     title,
@@ -342,6 +353,24 @@ export function observanceFaqs(page) {
       q: `Onko isäinpäivä ${y} sama asia kuin isänpäivä?`,
       a: `Kyllä. Isäinpäivä on vanhahtava nimitys isänpäivälle. Vuonna ${y} Isänpäivää vietetään ${whenFi(page.date)}.`,
     });
+  }
+  if (page.slug === "adventti") {
+    faqs.push(
+      {
+        q: `Milloin ovat kaikki adventtisunnuntait ${y}?`,
+        a: `Vuoden ${y} adventtisunnuntait ovat: 1. adventti on ${fmtFullFi(page.date)} (viikko ${page.week}), 2. adventti on ${fmtFullFi(page.extras[0].date)} (viikko ${isoWeek(page.extras[0].date)}), 3. adventti on ${fmtFullFi(page.extras[1].date)} (viikko ${isoWeek(page.extras[1].date)}) ja 4. adventti on ${fmtFullFi(page.extras[2].date)} (viikko ${isoWeek(page.extras[2].date)}).`,
+      },
+      {
+        q: `Kuinka monta adventtisunnuntaita on ennen joulua?`,
+        a: `Adventtisunnuntaita on aina neljä ennen jouluaattoa. Ensimmäinen adventti aloittaa kirkkovuoden ja neljäs adventti on viimeinen sunnuntai ennen jouluaattoa tai osuu samalle päivälle kuin jouluaatto.`,
+      },
+    );
+    if (page.extras[0].date.getDate() === 6 && page.extras[0].date.getMonth() === 11) {
+      faqs.push({
+        q: `Osuuko 2. adventti ${y} samalle päivälle itsenäisyyspäivän kanssa?`,
+        a: `Kyllä. Sunnuntai 6.12.${y} on sekä toinen adventtisunnuntai että Suomen itsenäisyyspäivä. Päivänä liputetaan itsenäisyyspäivän vuoksi klo 8.00-20.00.`,
+      });
+    }
   }
   if (next) {
     faqs.push({

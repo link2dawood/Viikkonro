@@ -56,6 +56,14 @@ const QuickLinks = () => {
           )}
           <Link
             className="ql"
+            to={`/adventti-${currentYear}`}
+            onClick={() => window.scrollTo(0, 0)}
+          >
+            <b>Adventti {currentYear}</b>
+            <span>Adventtisunnuntait ja joulun odotus</span>
+          </Link>
+          <Link
+            className="ql"
             to={`/tyopaivat-${currentYear}`}
             onClick={() => window.scrollTo(0, 0)}
           >
