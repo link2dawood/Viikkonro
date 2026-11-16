@@ -186,6 +186,8 @@ import {
   itsenaisyyspaivaFaqs,
   christmasFaqs,
   christmasBreakFaqs,
+  newYearFaqs,
+  epiphanyFaqs,
 } from "./src/data/seasonalPages.js";
 import {
   CALCULATOR_PATH as DATE_CALCULATOR_PATH,
@@ -804,7 +806,7 @@ function entityParentExtra(url) {
       ],
     };
   }
-  if ((m = url.slice(1).match(/^(?:itsenaisyyspaiva|joulu|joululoma)-(\d{4})$/))) {
+  if ((m = url.slice(1).match(/^(?:itsenaisyyspaiva|joulu|joululoma|uusi-vuosi|loppiainen)-(\d{4})$/))) {
     return {
       isPartOf: [
         { "@id": `${SITE_URL}/#website` },
@@ -4155,6 +4157,14 @@ for (const url of routes) {
       const christmasBreakMatch = url.match(/^\/joululoma-(\d{4})$/);
       if (christmasBreakMatch) {
         nodes.push(faqPageNode(url, christmasBreakFaqs(+christmasBreakMatch[1])));
+      }
+      const newYearMatch = url.match(/^\/uusi-vuosi-(\d{4})$/);
+      if (newYearMatch) {
+        nodes.push(faqPageNode(url, newYearFaqs(+newYearMatch[1])));
+      }
+      const epiphanyMatch = url.match(/^\/loppiainen-(\d{4})$/);
+      if (epiphanyMatch) {
+        nodes.push(faqPageNode(url, epiphanyFaqs(+epiphanyMatch[1])));
       }
       if (COUNTDOWN_BY_PATH[url]) nodes.push(...countdownNodes(url));
       if (url === DATE_CALCULATOR_PATH) nodes.push(...dateCalculatorNodes());

@@ -1,7 +1,10 @@
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
-import { validateYear } from "../components/dateUtils";
+import {
+  PRERENDER_MAX_YEAR as YEAR_MAX,
+  validateYear,
+} from "../components/dateUtils";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
 import {
   christmasBreakData,
@@ -126,7 +129,14 @@ const ChristmasBreak = ({ year: pYear } = {}) => {
       </section>
 
       <p className="hub-links">
-        Katso myös <Link to={`/koululomat-${year}`}>koululomat {year}</Link>,{" "}
+        Katso myös{" "}
+        {year + 1 <= YEAR_MAX && (
+          <>
+            <Link to={`/uusi-vuosi-${year + 1}`}>uusi vuosi {year + 1}</Link>,{" "}
+            <Link to={`/loppiainen-${year + 1}`}>loppiainen {year + 1}</Link>,{" "}
+          </>
+        )}
+        <Link to={`/koululomat-${year}`}>koululomat {year}</Link>,{" "}
         <Link to={`/joulu-${year}`}>joulu {year}</Link>,{" "}
         <Link to={`/vuosi-${year}`}>viikkokalenteri {year}</Link>,{" "}
         <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link> ja{" "}

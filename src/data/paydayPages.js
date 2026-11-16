@@ -105,5 +105,11 @@ export function paydayFaqs(year) {
         ? `Joulukuun 15. päivä ${year} on ${december.reason.toLowerCase()}, joten palkka maksetaan ${WD_ESSIVE[december.actual.getDay()]} ${fmtShortFi(december.actual)}.`
         : `Joulukuun 15. päivä ${year} on pankkipäivä (${december.weekday.toLowerCase()}), joten palkka maksetaan normaalisti ${fmtShortFi(december.actual)}.`,
     },
+    {
+      q: `Milloin palkka maksetaan ennen joulua ${year}?`,
+      a: year === 2026
+        ? `Jos sovittu palkkapäiväsi osuu joulun pyhille (24.-27.12.2026), palkka maksetaan työsopimuslain 2 luvun 13 §:n mukaisesti edeltävänä pankkipäivänä eli keskiviikkona 23.12.2026. Kuukauden 15. päivän palkka maksetaan tiistaina 15.12.2026 ja kuun viimeisen päivän palkka torstaina 31.12.2026.`
+        : `Jos palkkapäivä osuu jouluaatolle tai joulupyhille, palkka maksetaan työsopimuslain mukaan sitä edeltävänä pankkipäivänä.`,
+    },
   ];
 }

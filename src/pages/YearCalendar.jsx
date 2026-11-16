@@ -488,7 +488,9 @@ const YearCalendar = ({ year: pYear } = {}) => {
           Katso myös suosittuja juhlapyhien ja lomien erikoissivuja:{" "}
           <Link to={`/adventti-${selectedYear}`}><strong>Adventti {selectedYear}</strong> (adventtisunnuntait)</Link>,{" "}
           <Link to={`/itsenaisyyspaiva-${selectedYear}`}><strong>Itsenäisyyspäivä {selectedYear}</strong></Link>,{" "}
-          <Link to={`/joulu-${selectedYear}`}><strong>Joulu {selectedYear}</strong> (joulun vapaat ja aukioloajat)</Link>
+          <Link to={`/joulu-${selectedYear}`}><strong>Joulu {selectedYear}</strong> (joulun vapaat ja aukioloajat)</Link>,{" "}
+          <Link to={`/uusi-vuosi-${selectedYear}`}><strong>Uusi vuosi {selectedYear}</strong></Link>,{" "}
+          <Link to={`/loppiainen-${selectedYear}`}><strong>Loppiainen {selectedYear}</strong></Link>
           {pageConfidenceTier(selectedYear) === CONFIDENCE.CONFIRMED && (
             <>
               {" sekä "}
@@ -649,6 +651,8 @@ const YearCalendar = ({ year: pYear } = {}) => {
         <Link to={`/adventti-${year}`}>adventti {year}</Link>,{" "}
         <Link to={`/itsenaisyyspaiva-${year}`}>itsenäisyyspäivä {year}</Link>,{" "}
         <Link to={`/joulu-${year}`}>joulu {year}</Link>,{" "}
+        <Link to={`/uusi-vuosi-${year}`}>uusi vuosi {year}</Link>,{" "}
+        <Link to={`/loppiainen-${year}`}>loppiainen {year}</Link>,{" "}
         <Link to={`/kuun-vaiheet-${year}`}>kuun vaiheet {year}</Link>,{" "}
         <Link to={`/kesaaika-${year}`}>kesäaika {year}</Link>
         {pageConfidenceTier(selectedYear) === CONFIDENCE.CONFIRMED && (

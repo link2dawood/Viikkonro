@@ -190,6 +190,32 @@ const WorkingDays = ({ year: pYear } = {}) => {
           työ- tai Kela-päivät voit laskea <Link to="/tyopaivalaskuri">työpäivälaskurilla</Link>.
         </p>
 
+        <h2>Joulukuun {year} työpäivät ja loman optimointi</h2>
+        <p>
+          Joulukuussa {year} on <strong>{months[11].working} työpäivää</strong>, {months[11].weekend} viikonloppupäivää ja {months[11].holiday} virallinen arkipyhä (joulupäivä 25.12.). Lisäksi jouluaatto (24.12.) on useimmissa suomalaisissa työehtosopimuksissa sovittu koko päivän palkalliseksi vapaaksi. Tarkemmat tiedot löydät sivulta <Link to={`/tyopaivat-joulukuu-${year}`}>työpäivät joulukuussa {year}</Link>.
+        </p>
+        {y === 2026 && (
+          <>
+            <p>
+              Vuonna 2026 joulun pyhät mahdollistavat poikkeuksellisen pitkät vapaat pienellä vuosilomapäivien määrällä:
+            </p>
+            <ul>
+              <li>
+                <strong>9 päivää vapaata 3 lomapäivällä:</strong> Ottamalla lomaa ma–ke 21.–23.12. saat yhtäjaksoisen vapaan lauantain 19.12. ja sunnuntain 27.12. välille.
+              </li>
+              <li>
+                <strong>16 päivää vapaata 7 lomapäivällä:</strong> Ottamalla lisäksi välipäivät (ma–to 28.–31.12.) loma jatkuu uudenvuodenpäivän (pe 1.1.2027) yli aina sunnuntaihin 3.1.2027 asti.
+              </li>
+              <li>
+                <strong>19 päivää vapaata 9 lomapäivällä:</strong> Ottamalla vielä 4.–5.1.2027 vapaaksi loma ulottuu loppiaiseen (ke 6.1.2027) ja koko loppiaisen viikkoon saakka.
+              </li>
+            </ul>
+            <p>
+              Suunnittele lomasi ja tarkista lomapäivien kulutus suoraan <Link to="/vuosilomalaskuri">vuosilomalaskurilla</Link>. Katso myös tarkemmat tiedot sivulta <Link to="/joulu-2026">joulu 2026</Link>.
+            </p>
+          </>
+        )}
+
         <h2>Usein kysytyt kysymykset</h2>
         {faqs.map((item, index) => (
           <details key={item.q} open={index === 0}>

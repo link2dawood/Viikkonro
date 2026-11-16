@@ -75,6 +75,54 @@ const PensionPayments = ({ year }) => {
       </p>
 
       <section className="prose">
+        <h2>Eläkkeen maksupäivä joulukuussa {y}</h2>
+        <p>
+          Joulukuussa eläkkeet maksetaan hyvissä ajoin ennen joulupyhiä, koska jouluaatto (24.12.), joulupäivä (25.12.) ja tapaninpäivä (26.12.) eivät ole pankkipäiviä. Jos eläkkeen säännöllinen maksupäivä osuu viikonlopulle tai arkipyhälle, raha maksetaan tilille sitä edeltävänä pankkipäivänä.
+        </p>
+        {y === 2026 && (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Eläke / maksaja</th>
+                  <th>Maksupäivä joulukuussa 2026</th>
+                  <th>Huomio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Työeläke</strong> (Varma, Ilmarinen, Elo, Veritas)</td>
+                  <td>Tiistai 1.12.2026</td>
+                  <td>Kuukauden 1. pankkipäivä</td>
+                </tr>
+                <tr>
+                  <td><strong>Keva</strong> (kunta, valtio, kirkko, hyvinvointialueet)</td>
+                  <td>Torstai 3.12.2026</td>
+                  <td>Kuukauden 3. päivä</td>
+                </tr>
+                <tr>
+                  <td><strong>Kelan eläkkeet</strong> (1. ryhmä, sukunimet A-K)</td>
+                  <td>Perjantai 4.12.2026</td>
+                  <td>Eläkkeensaajan asumistuki ja kansaneläke</td>
+                </tr>
+                <tr>
+                  <td><strong>Kelan perhe-eläke</strong> (2. ryhmä, sukunimet L-R)</td>
+                  <td>Maanantai 14.12.2026</td>
+                  <td>Kuukauden 14. päivä</td>
+                </tr>
+                <tr>
+                  <td><strong>Kelan takuueläke</strong> ja 3. ryhmä (sukunimet S-Ö)</td>
+                  <td>Tiistai 22.12.2026</td>
+                  <td>Maksetaan etukäteen ennen jouluaattoa</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p>
+          Katso myös joulun vapaapäivät ja kauppojen aukioloajat sivulta <Link to={`/joulu-${y}`}>joulu {y}</Link>.
+        </p>
+
         <h2>Kuka maksaa minkäkin eläkkeen?</h2>
         <p>
           <strong>Työeläkkeen</strong> maksaa se työeläkelaitos, jossa eläkkeesi

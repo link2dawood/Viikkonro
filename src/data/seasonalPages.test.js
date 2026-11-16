@@ -9,6 +9,12 @@ import {
   christmasBreakData,
   christmasBreakMeta,
   christmasBreakFaqs,
+  newYearData,
+  newYearMeta,
+  newYearFaqs,
+  epiphanyData,
+  epiphanyMeta,
+  epiphanyFaqs,
 } from "./seasonalPages.js";
 import { observanceMeta, observancePage, observanceFaqs, observancePathForFlagDay } from "./observanceDays.js";
 import { flagDaysInYear } from "./flagDayPages.js";
@@ -183,5 +189,87 @@ describe("Adventti 2026 & Liputuspäivät", () => {
     expect(sibelius.weekday).toBe("Tiistai");
     expect(sibelius.date.getDate()).toBe(8);
     expect(sibelius.date.getMonth()).toBe(11); // December 8
+  });
+});
+
+describe("Uusi vuosi (/uusi-vuosi-2027)", () => {
+  it("computes accurate dates for eve and day, ISO week 53 of 2026", () => {
+    const data = newYearData(2027);
+    expect(data.year).toBe(2027);
+    expect(data.previousYear).toBe(2026);
+    expect(data.eve.weekday).toBe("Torstai");
+    expect(data.eve.date.getDate()).toBe(31);
+    expect(data.eve.date.getMonth()).toBe(11); // December 31
+    expect(data.eve.week).toBe(53);
+    expect(data.eve.weekYear).toBe(2026);
+
+    expect(data.day.weekday).toBe("Perjantai");
+    expect(data.day.date.getDate()).toBe(1);
+    expect(data.day.date.getMonth()).toBe(0); // January 1
+    expect(data.day.week).toBe(53);
+    expect(data.day.weekYear).toBe(2026);
+    expect(data.day.isWeekend).toBe(false);
+  });
+
+  it("produces valid SEO title and description without en dashes", () => {
+    const meta = newYearMeta(2027);
+    expect(meta.title.length).toBeLessThanOrEqual(60);
+    expect(meta.title).toContain("Uusi vuosi 2027");
+    expect(meta.title).toContain("| Viikko Nro");
+    expect(meta.title).not.toMatch(/–/);
+    expect(meta.description.length).toBeGreaterThanOrEqual(140);
+    expect(meta.description.length).toBeLessThanOrEqual(160);
+    expect(meta.description).not.toMatch(/–/);
+  });
+
+  it("provides comprehensive FAQs covering fireworks, shop hours, and ISO week", () => {
+    const faqs = newYearFaqs(2027);
+    expect(faqs.length).toBeGreaterThanOrEqual(5);
+    const questions = faqs.map((f) => f.q).join(" ");
+    expect(questions).toContain("ilotulitteita");
+    expect(questions).toContain("vapaapäivä");
+    expect(questions).toContain("kaupat");
+    expect(questions).toContain("edellisen vuoden viikkoon");
+    for (const { q, a } of faqs) {
+      expect(q + a).not.toMatch(/–/);
+    }
+  });
+});
+
+describe("Loppiainen (/loppiainen-2027)", () => {
+  it("computes accurate date, week 1 and Wednesday weekday in 2027", () => {
+    const data = epiphanyData(2027);
+    expect(data.year).toBe(2027);
+    expect(data.date.getDate()).toBe(6);
+    expect(data.date.getMonth()).toBe(0); // January 6
+    expect(data.weekday).toBe("Keskiviikko");
+    expect(data.week).toBe(1);
+    expect(data.weekYear).toBe(2027);
+    expect(data.isWeekend).toBe(false);
+    expect(data.answerLead).toContain("Loppiainen 2027 on keskiviikko 6.1.2027 (viikko 1), palkallinen arkipyhä.");
+  });
+
+  it("produces valid SEO title and description without en dashes", () => {
+    const meta = epiphanyMeta(2027);
+    expect(meta.title.length).toBeLessThanOrEqual(60);
+    expect(meta.title).toContain("Loppiainen 2027");
+    expect(meta.title).toContain("| Viikko Nro");
+    expect(meta.title).not.toMatch(/–/);
+    expect(meta.description.length).toBeGreaterThanOrEqual(140);
+    expect(meta.description.length).toBeLessThanOrEqual(160);
+    expect(meta.description).not.toMatch(/–/);
+  });
+
+  it("provides FAQs covering vacation optimization, traditions and shop hours", () => {
+    const faqs = epiphanyFaqs(2027);
+    expect(faqs.length).toBeGreaterThanOrEqual(5);
+    const questions = faqs.map((f) => f.q).join(" ");
+    expect(questions).toContain("vapaapäivä");
+    expect(questions).toContain("lomaa");
+    expect(questions).toContain("kaupat");
+    expect(questions).toContain("joulukuusi");
+    for (const { q, a } of faqs) {
+      expect(q + a).not.toMatch(/–/);
+    }
   });
 });

@@ -126,6 +126,28 @@ const Paydays = ({ year }) => {
       </p>
 
       <section className="prose">
+        <h2>Palkkapäivä ennen joulua {y}</h2>
+        <p>
+          Työsopimuslain (2 luku 13 §) mukaan palkan erääntyessä pyhäpäivänä, itsenäisyyspäivänä, vapunpäivänä, joulu- tai juhannusaattona taikka arkilauantaina pidetään erääntymispäivänä <strong>sitä edeltävää arkipäivää</strong>. Palkka on oltava työntekijän käytettävissä sen erääntymispäivänä.
+        </p>
+        <p>
+          Jouluna pankit ovat kiinni jouluaattona, joulupäivänä ja tapaninpäivänä.
+          {y === 2026 && (
+            <>
+              {" "}Vuonna 2026 jouluaatto on torstai 24.12., joulupäivä perjantai 25.12., tapaninpäivä lauantai 26.12. ja sunnuntai 27.12.
+              Tämän vuoksi kaikille, joiden säännöllinen palkkapäivä on <strong>24.–27. joulukuuta</strong>, palkka maksetaan edeltävänä pankkipäivänä eli <strong>keskiviikkona 23.12.2026</strong>.
+            </>
+          )}
+        </p>
+        <ul>
+          <li><strong>Palkkapäivä 15.12.:</strong> {y === 2026 ? "Tiistai 15.12.2026 on normaali pankkipäivä, joten palkka maksetaan ajallaan." : "Maksetaan pankkipäivänä."}</li>
+          <li><strong>Palkkapäivä 24.–27.12.:</strong> {y === 2026 ? "Kaikki nämä päivät siirtyvät maksettavaksi keskiviikkona 23.12.2026 ennen joulua." : "Maksetaan joulua edeltävänä pankkipäivänä."}</li>
+          <li><strong>Palkkapäivä kuun viimeinen päivä (31.12.):</strong> {y === 2026 ? "Torstai 31.12.2026 (uudenvuodenaatto) on virallinen pankkipäivä, joten palkka maksetaan normaalisti 31.12.2026." : "Maksetaan kuun viimeisenä pankkipäivänä."}</li>
+        </ul>
+        <p>
+          Katso myös <Link to={`/joulu-${y}`}>joulu {y}</Link> pyhät ja vapaat sekä <Link to={`/tyopaivat-${y}`}>työpäivät {y}</Link>.
+        </p>
+
         <h2>Usein kysytyt kysymykset</h2>
         {faqs.map((item, index) => (
           <details key={item.q} open={index === 0}>

@@ -267,3 +267,177 @@ export function christmasBreakFaqs(year) {
     },
   ];
 }
+
+// ---------------------------------------------------------------------------
+// 4. Uusi vuosi (/uusi-vuosi-{year})
+// ---------------------------------------------------------------------------
+
+export function newYearData(year) {
+  const y = Number(year);
+  const eveDate = new Date(y - 1, 11, 31);
+  const dayDate = new Date(y, 0, 1);
+
+  const eveWd = WD[eveDate.getDay()];
+  const dayWd = WD[dayDate.getDay()];
+  const eveWeek = isoWeek(eveDate);
+  const eveWeekYear = isoYear(eveDate);
+  const dayWeek = isoWeek(dayDate);
+  const dayWeekYear = isoYear(dayDate);
+
+  const dayIsWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
+
+  return {
+    year: y,
+    previousYear: y - 1,
+    eve: {
+      date: eveDate,
+      weekday: eveWd,
+      weekdayEssive: WD_ESSIVE[eveDate.getDay()],
+      week: eveWeek,
+      weekYear: eveWeekYear,
+    },
+    day: {
+      date: dayDate,
+      weekday: dayWd,
+      weekdayEssive: WD_ESSIVE[dayDate.getDay()],
+      week: dayWeek,
+      weekYear: dayWeekYear,
+      isWeekend: dayIsWeekend,
+    },
+    fireworksTime: "klo 18.00-02.00",
+  };
+}
+
+export function newYearMeta(year) {
+  const data = newYearData(year);
+  const y = data.year;
+  const prevY = data.previousYear;
+  const eveWdShort = data.eve.weekday.slice(0, 2).toLowerCase();
+  const dayWdShort = data.day.weekday.slice(0, 2).toLowerCase();
+
+  const title = `Uusi vuosi ${y}: päivät, vapaat ja aukioloajat | Viikko Nro`;
+
+  const description =
+    `Milloin on uusi vuosi ${y}? Uudenvuodenaatto ${eveWdShort} 31.12.${prevY}, uudenvuodenpäivä ${dayWdShort} 1.1.${y}. Katso vapaat, ilotulitteiden sallitut ajat ja aukioloajat.`;
+
+  return {
+    title: title.length <= 60 ? title : `Uusi vuosi ${y}: vapaat ja aukioloajat | Viikko Nro`,
+    description,
+  };
+}
+
+export function newYearFaqs(year) {
+  const data = newYearData(year);
+  const y = data.year;
+  const prevY = data.previousYear;
+
+  return [
+    {
+      q: `Mille päiville uusi vuosi ${y} osuu?`,
+      a: `Uudenvuodenaattoa vietetään ${data.eve.weekday.toLowerCase()}na 31.12.${prevY} ja uudenvuodenpäivä on ${data.day.weekday.toLowerCase()}na 1.1.${y}. Uudenvuodenpäivä 1.1.${y} kuuluu ISO-viikkoon ${data.day.week}.`,
+    },
+    {
+      q: `Onko uudenvuodenpäivä ${y} vapaapäivä?`,
+      a: data.day.isWeekend
+        ? `Uudenvuodenpäivä 1.1.${y} on virallinen pyhäpäivä, mutta se osuu viikonlopulle (${data.day.weekday.toLowerCase()}), joten se ei tuo ylimääräistä arkivapaata.`
+        : `Kyllä. Uudenvuodenpäivä 1.1.${y} on lakisääteinen kirkollinen juhlapyhä ja virallinen palkallinen arkivapaa.`,
+    },
+    {
+      q: `Moneltako ilotulitteita saa ampua uutenavuotena?`,
+      a: `Suomessa ilotulitteita saa käyttää ilman pelastusviranomaisen erillistä lupaa uudenvuodenaattona klo 18.00 alkaen uudenvuodenpäivän aamuyöhön klo 02.00 saakka. Suojalasien käyttö on lain mukaan pakollista ilotulitteiden ampujalle ja vahvasti suositeltavaa katsojille.`,
+    },
+    {
+      q: `Ovatko kaupat auki uutenavuotena ${y}?`,
+      a: `Uudenvuodenaattona 31.12. useimmat ruokakaupat ja kauppakeskukset ovat auki tavallista lyhyemmin (usein klo 18.00-21.00 asti). Uudenvuodenpäivänä 1.1. suuret marketit ovat pääosin suljettuina, mutta pienet lähikaupat ja liikenneasemat palvelevat.`,
+    },
+    {
+      q: `Onko uudenvuodenaatto vapaapäivä Suomessa?`,
+      a: `Uudenvuodenaatto 31.12. ei ole lakisääteinen pyhäpäivä, mutta monissa työehtosopimuksissa se on sovittu lyhennetyksi työpäiväksi tai kokonaan vapaaksi. Pankit sulkeutuvat uudenvuodenaattona klo 13.00.`,
+    },
+    {
+      q: `Miksi 1. tammikuuta ${y} voi kuulua edellisen vuoden viikkoon?`,
+      a: `ISO 8601 -standardin mukaan viikko kuuluu sille kalenterivuodelle, jolle sen torstai osuu. Jos tammikuun 1. päivä osuu perjantaille, lauantaille tai sunnuntaille (kuten vuonna 2027), se kuuluu vielä edellisen vuoden viikkoon 52 tai 53.`,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// 5. Loppiainen (/loppiainen-{year})
+// ---------------------------------------------------------------------------
+
+export function epiphanyData(year) {
+  const y = Number(year);
+  const date = new Date(y, 0, 6);
+  const dayOfWeek = date.getDay();
+  const weekday = WD[dayOfWeek];
+  const weekdayEssive = WD_ESSIVE[dayOfWeek];
+  const week = isoWeek(date);
+  const weekYear = isoYear(date);
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+  return {
+    year: y,
+    date,
+    dayOfWeek,
+    weekday,
+    weekdayEssive,
+    week,
+    weekYear,
+    isWeekend,
+    answerLead: isWeekend
+      ? `Loppiainen ${y} on ${weekday.toLowerCase()} 6.1.${y} (viikko ${week}), ei ylimääräistä vapaapäivää.`
+      : `Loppiainen ${y} on ${weekday.toLowerCase()} 6.1.${y} (viikko ${week}), palkallinen arkipyhä.`,
+  };
+}
+
+export function epiphanyMeta(year) {
+  const data = epiphanyData(year);
+  const y = data.year;
+  const shortDate = `${data.weekday.slice(0, 2).toLowerCase()} 6.1.`;
+  const title = `Loppiainen ${y}: ${shortDate}, viikko ja vapaapäivät | Viikko Nro`;
+
+  const description = data.isWeekend
+    ? `Loppiainen ${y} on ${data.weekday.toLowerCase()} 6.1.${y} (viikko ${data.week}). Katso miksi loppiaista vietetään, vapaat ja kauppojen aukioloajat.`
+    : `Loppiainen ${y} on ${data.weekday.toLowerCase()} 6.1.${y} (viikko ${data.week}). Onko loppiainen vapaapäivä, miten sijoittaa lomat ja miten kaupat ovat auki? Katso tiedot.`;
+
+  return {
+    title: title.length <= 60 ? title : `Loppiainen ${y}: 6.1., viikko ${data.week} | Viikko Nro`,
+    description,
+  };
+}
+
+export function epiphanyFaqs(year) {
+  const data = epiphanyData(year);
+  const y = data.year;
+
+  return [
+    {
+      q: `Onko loppiainen ${y} vapaapäivä?`,
+      a: data.isWeekend
+        ? `Loppiainen 6.1.${y} on kirkollinen pyhäpäivä, mutta se osuu viikonlopulle (${data.weekday.toLowerCase()}), joten se ei tuo ylimääräistä vapaapäivää maanantaista perjantaihin työskenteleville.`
+        : `Kyllä. Loppiainen 6.1.${y} on lakisääteinen kirkollinen juhlapyhä ja useimmilla aloilla palkallinen vapaapäivä.`,
+    },
+    {
+      q: `Millä viikolla loppiainen ${y} on?`,
+      a: `Loppiainen 6.1.${y} kuuluu ISO-viikkoon ${data.week}.`,
+    },
+    {
+      q: `Miten ottaa lomaa loppiaisena ${y}?`,
+      a: y === 2027
+        ? `Vuonna 2027 loppiainen on keskiviikkona. Ottamalla 2 lomapäivää (maanantai ja tiistai 4.-5.1. tai torstai ja perjantai 7.-8.1.) saat 5 päivän yhtenäisen vapaaputken viikonlopun kera. Ottamalla 4 lomapäivää saat peräti 9 päivän loman (2.-10.1.2027).`
+        : `Jos loppiainen osuu arkipäivälle, yhdistämällä pari lomapäivää viereiseen viikonloppuun saat pitkän yhtenäisen loman vähällä vuosiloman kulutuksella.`,
+    },
+    {
+      q: `Ovatko kaupat auki loppiaisena ${y}?`,
+      a: `Kauppojen aukioloajat ovat vapautetut. Useimmat ruokakaupat ja kauppakeskukset ovat avoinna sunnuntaiaukioloaikojen mukaisesti. Virastot, pankit ja postit ovat kiinni.`,
+    },
+    {
+      q: `Mitä loppiainen tarkoittaa ja miksi sitä vietetään?`,
+      a: `Loppiainen on kristillinen juhla, jota vietetään 6. tammikuuta kolmentoista päivän kuluttua joulusta. Se päättää joulunpyhät. Kirkollisessa perinteessä loppiaista vietetään itämaan tietäjien saapumisen ja Jeesuksen kasteen muistoksi.`,
+    },
+    {
+      q: `Milloin joulukuusi viedään pois?`,
+      a: `Suomalaisen perinteen mukaan joulukuusi ja joulukoristeet viedään usein pois loppiaisena 6. tammikuuta tai Nuutin päivänä 13. tammikuuta vanhan sanonnan mukaan: "Hyvä Tuomas joulun tuopi, paha Nuutti pois sen viepi".`,
+    },
+  ];
+}

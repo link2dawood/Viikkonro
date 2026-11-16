@@ -108,6 +108,8 @@ import {
   itsenaisyyspaivaMeta,
   christmasMeta,
   christmasBreakMeta,
+  newYearMeta,
+  epiphanyMeta,
 } from "./seasonalPages.js";
 import { COUNTDOWNS, countdownMeta } from "./countdownPages.js";
 import { CALENDAR_SUBSCRIPTION_PATH, calendarSubscriptionMeta } from "./icsFeeds.js";
@@ -740,6 +742,12 @@ export function workingDaysFaqs(y) {
     {
       q: `Vastaako laskenta Edenred-työpäiväkalenteria vuonna ${y}?`,
       a: `Kyllä. Laskenta noudattaa samaa yleistä standardia kuin Edenred-työpäiväkalenteri: 5-päiväisen työviikon arkipäivistä (ma-pe) vähennetään viralliset arkipyhät, jolloin työpäiviä on ${working}.`,
+    },
+    {
+      q: `Miten joulun ${y} vapaat ja lomat kannattaa sijoittaa?`,
+      a: y === 2026
+        ? "Vuonna 2026 joulupäivä 25.12. on perjantai. Ottamalla 3 lomapäivää (21.-23.12.) saat 9 päivän vapaaputken (19.-27.12.). Ottamalla 7 lomapäivää (21.-23.12. ja 28.-31.12.) vapaa pitenee 16 päivään aina 3.1.2027 saakka. Laske tarkat lomat vuosilomalaskurilla."
+        : "Sijoittamalla vuosilomapäiviä arkipyhien yhteyteen saat pidennettyä vapaajaksoja huomattavasti vähemmillä lomapäivillä. Voit kokeilla eri vaihtoehtoja vuosilomalaskurilla.",
     },
   ];
 }
@@ -1514,6 +1522,16 @@ export function sitemapEntries(year) {
       changefreq: current ? "monthly" : "yearly",
       priority: current ? "0.8" : "0.5",
     });
+    entries.push({
+      path: `/uusi-vuosi-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.8" : "0.5",
+    });
+    entries.push({
+      path: `/loppiainen-${y}`,
+      changefreq: current ? "monthly" : "yearly",
+      priority: current ? "0.8" : "0.5",
+    });
     if (pageConfidenceTier(y) === CONFIDENCE.CONFIRMED) {
       entries.push({
         path: `/joululoma-${y}`,
@@ -1614,6 +1632,8 @@ export function metaFor(url) {
   if ((m = url.match(/^\/itsenaisyyspaiva-(\d{4})$/))) return itsenaisyyspaivaMeta(+m[1]);
   if ((m = url.match(/^\/joulu-(\d{4})$/))) return christmasMeta(+m[1]);
   if ((m = url.match(/^\/joululoma-(\d{4})$/))) return christmasBreakMeta(+m[1]);
+  if ((m = url.match(/^\/uusi-vuosi-(\d{4})$/))) return newYearMeta(+m[1]);
+  if ((m = url.match(/^\/loppiainen-(\d{4})$/))) return epiphanyMeta(+m[1]);
   if ((m = url.match(/^\/kalenteri-(\d+)-(alkuvuosi|loppuvuosi)$/)))
     return calendarMeta(+m[1], m[2] === "alkuvuosi" ? 1 : 2, false);
   if ((m = url.match(/^\/kalenteri-(\d+)$/))) return calendarMeta(+m[1], null, false);
@@ -1788,6 +1808,20 @@ export function breadcrumbTrail(url) {
       home,
       { name: `Koululomat ${m[1]}`, path: `/koululomat-${m[1]}` },
       { name: `Joululoma ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/uusi-vuosi-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Uusi vuosi ${m[1]}`, path: url },
+    ];
+  }
+  if ((m = url.match(/^\/loppiainen-(\d{4})$/))) {
+    return [
+      home,
+      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: `Loppiainen ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/koululomat-(\d+)$/))) {
