@@ -14,29 +14,45 @@ export const DEFAULT_ROBOTS =
   "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
 export const NOINDEX_ROBOTS = "noindex, follow";
 
-export function isIndexable(p, currentYear = new Date().getFullYear()) {
-  const week = p.match(/^\/viikko-\d+-(\d{4})$/);
-  if (week) {
-    const year = Number(week[1]);
-    return year >= PRERENDER_MIN_YEAR && year <= PRERENDER_MAX_YEAR;
-  }
-  // Named-holiday pages are the deliberately expanded content cluster: all
-  // 15 holidays across the complete 2020..current+9 publishing horizon are
-  // indexable and included in the sitemap.
-  if (/^\/pyhat-\d{4}\/[a-z0-9-]+$/.test(p)) return true;
-  if (/^\/widget\b/.test(p) || p === "/404") return false;
-  const m = p.match(/-(\d{4})(?:-(?:alkuvuosi|loppuvuosi))?$/);
-  if (!m) return true; // static pages have no year -> always indexable
-  const y = Number(m[1]);
-  const indexMinYear = currentYear - 2;
-  const indexMaxYear = currentYear + 4;
-  return y >= indexMinYear && y <= indexMaxYear;
+// Extract a 4-digit calendar year from programmatic routes.
+// Returns number (e.g. 2026) or null if route is non-year.
+export function extractYearFromPath(pathname) {
+  if (!pathname || typeof pathname !== "string") return null;
+  const p = pathname.split("?")[0].replace(/\/+$/, "");
+  // e.g. /pyhat-2026/juhannus or /pyhat-2026
+  const pyhatMatch = p.match(/^\/pyhat-(\d{4})(?:\/.*)?$/);
+  if (pyhatMatch) return Number(pyhatMatch[1]);
+
+  // e.g. /viikko-5-2026, /kalenteri-2026, /kalenteri-2026-alkuvuosi, /tyopaivat-tammikuu-2026, etc.
+  const endYearMatch = p.match(/-(\d{4})(?:-(?:alkuvuosi|loppuvuosi))?$/);
+  if (endYearMatch) return Number(endYearMatch[1]);
+
+  return null;
 }
 
-export function robotsFor(url, metaRobots, currentYear) {
+// Check whether a route is indexable under the rolling Europe/Helsinki year window.
+// Programmatic routes with a year:
+//   - year inside window (currentYear - 1 through currentYear + 2) -> index, follow
+//   - year outside window -> noindex, follow
+// Non-year pages (homepage, /viikonpaiva, /tuntilaskuri, /ikalaskuri, /vuosilomalaskuri,
+// /kuinka-monta-viikkoa-vuodessa, /mika-vuosi-nyt, /ukk, etc.) are always indexable.
+export function isIndexable(p, instantOrYear = new Date()) {
+  if (!p || typeof p !== "string") return false;
+  if (/^\/widget\b/.test(p) || p === "/404") return false;
+
+  const year = extractYearFromPath(p);
+  if (year !== null) {
+    return isIndexableYear(year, instantOrYear);
+  }
+
+  // Non-year routes are always indexable exceptions
+  return true;
+}
+
+export function robotsFor(url, metaRobots, instantOrYear) {
   if (metaRobots) return metaRobots;
   const path = url ? url.split("?")[0].replace(/^https?:\/\/[^/]+/, "") || "/" : "/";
-  return isIndexable(path, currentYear) ? DEFAULT_ROBOTS : NOINDEX_ROBOTS;
+  return isIndexable(path, instantOrYear) ? DEFAULT_ROBOTS : NOINDEX_ROBOTS;
 }
 
 // Finnish date formatters live in one place (dateUtils.js). Imported with an

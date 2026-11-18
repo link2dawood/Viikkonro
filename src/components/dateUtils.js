@@ -30,7 +30,7 @@ export function helsinkiYear(instant = new Date()) {
 export function isIndexableYear(year, instant = new Date()) {
   const y = Number(year);
   if (!Number.isInteger(y)) return false;
-  const currentYear = helsinkiYear(instant);
+  const currentYear = typeof instant === "number" ? instant : helsinkiYear(instant);
   const minYear = currentYear - 1;
   const maxYear = currentYear + 2;
   return y >= minYear && y <= maxYear;

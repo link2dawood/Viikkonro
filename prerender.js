@@ -35,6 +35,8 @@ import {
   calendarFaqs,
   calendarMeta,
   calendarPdfPath,
+  isIndexable,
+  isIndexableYear,
   CONTENT_UPDATED,
   FEED_SCHEMA_VERSION,
   mondayOf,
@@ -290,25 +292,12 @@ const routes = routeCandidates;
 // with a bare X-Robots-Tag: noindex, so a PDF path never reaches this function.
 // A PDF window here would have been meaningless anyway, since the canonical it
 // used to advertise pointed at a noindex page for most of the horizon.
-const INDEX_MIN_YEAR = currentYear - 2;
-const INDEX_MAX_YEAR = currentYear + 4;
-const WEEK_INDEX_MIN_YEAR = PRERENDER_MIN_YEAR;
-const WEEK_INDEX_MAX_YEAR = PRERENDER_MAX_YEAR;
-const isIndexable = (p) => {
-  const week = p.match(/^\/viikko-\d+-(\d{4})$/);
-  if (week) {
-    const year = Number(week[1]);
-    return year >= WEEK_INDEX_MIN_YEAR && year <= WEEK_INDEX_MAX_YEAR;
-  }
-  // Named-holiday pages are the deliberately expanded content cluster: all
-  // 15 holidays across the complete 2020..current+9 publishing horizon are
-  // indexable and included in the sitemap.
-  if (/^\/pyhat-\d{4}\/[a-z0-9-]+$/.test(p)) return true;
-  const m = p.match(/-(\d{4})(?:-(?:alkuvuosi|loppuvuosi))?$/);
-  if (!m) return true; // static pages have no year → always indexable
-  const y = Number(m[1]);
-  return y >= INDEX_MIN_YEAR && y <= INDEX_MAX_YEAR;
-};
+// Rolling indexable year window: (currentYear - 1) through (currentYear + 2),
+// computed from Europe/Helsinki time via isIndexable(url).
+// Out-of-window programmatic pages stay online and prerendered with noindex, follow
+// and are excluded from the sitemap. All years remain reachable by direct URL.
+const INDEX_MIN_YEAR = currentYear - 1;
+const INDEX_MAX_YEAR = currentYear + 2;
 
 let template = fs.readFileSync(path.join(distDir, "index.html"), "utf-8");
 
