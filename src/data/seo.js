@@ -57,7 +57,11 @@ import {
   dateFromDayKey,
   fmtDayRangeFi,
   helsinkiDayKey,
+  helsinkiYear,
+  isIndexableYear,
 } from "../components/dateUtils.js";
+
+export { helsinkiYear, isIndexableYear };
 import { CALCULATOR_PATH, OFFSETS, offsetMeta, offsetPath } from "./dateCalculator.js";
 import { moonMeta, moonPath } from "./moonPhases.js";
 import { SUN_CITIES, SUN_HUB_PATH, sunCityMeta, sunCityPath, sunHubMeta } from "./sunCities.js";

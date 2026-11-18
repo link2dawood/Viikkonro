@@ -18,6 +18,24 @@ export function helsinkiDayKey(instant = new Date()) {
   }).format(instant);
 }
 
+// Full civil year in Europe/Helsinki for `instant`.
+export function helsinkiYear(instant = new Date()) {
+  const d = instant instanceof Date ? instant : new Date(instant);
+  const dayKey = helsinkiDayKey(d);
+  return Number(dayKey.slice(0, 4));
+}
+
+// Rolling indexable year window: (currentYear - 1) through (currentYear + 2),
+// computed from Europe/Helsinki time. Automatically rolls forward on 1 January.
+export function isIndexableYear(year, instant = new Date()) {
+  const y = Number(year);
+  if (!Number.isInteger(y)) return false;
+  const currentYear = helsinkiYear(instant);
+  const minYear = currentYear - 1;
+  const maxYear = currentYear + 2;
+  return y >= minYear && y <= maxYear;
+}
+
 // Construct a local Date instance without JavaScript's 0-99 year remapping into 1900-1999.
 export function createLocalDate(year, monthIndex, day = 1) {
   const d = new Date(year, monthIndex, 1);
