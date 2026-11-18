@@ -49,6 +49,45 @@ export function isIndexable(p, instantOrYear = new Date()) {
   return true;
 }
 
+// Categorize an indexable pathname into one of the 4 sitemap groups:
+// 'calendars' (year, kalenteri, tulostettava, vuosi, kuukausi, tyopaivat, q[n] pages)
+// 'weeks' (week pages: /viikko-[n]-[year])
+// 'holidays' (pyhat, pyhapaivat, liputuspaivat, event/observance/seasonal pages)
+// 'tools' (calculators, non-year pages, hubs)
+export function sitemapCategory(pathname) {
+  if (!pathname || typeof pathname !== "string") return "tools";
+  const clean = pathname.split("?")[0].replace(/\/+$/, "") || "/";
+  if (clean.startsWith("/viikko-")) {
+    return "weeks";
+  }
+  if (
+    clean.startsWith("/kalenteri-") ||
+    clean.startsWith("/vuosi-") ||
+    clean.startsWith("/tulostettava-kalenteri-") ||
+    clean.startsWith("/tulosta-") ||
+    clean.startsWith("/kuukausi-") ||
+    clean.startsWith("/tyopaivat-") ||
+    /^\/q[1-4]-/.test(clean)
+  ) {
+    return "calendars";
+  }
+  if (
+    clean.startsWith("/pyhat-") ||
+    clean.startsWith("/pyhapaivat-") ||
+    clean.startsWith("/liputuspaivat-") ||
+    clean.startsWith("/koululomat-") ||
+    clean.startsWith("/kuun-vaiheet-") ||
+    clean.startsWith("/kesaaika-") ||
+    clean.startsWith("/palkkapaivat-") ||
+    clean.startsWith("/kelan-maksupaivat-") ||
+    clean.startsWith("/elakkeen-maksupaivat-") ||
+    /^\/(itsenaisyyspaiva|joulu|uusi-vuosi|loppiainen|joululoma|isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|adventti)-/.test(clean)
+  ) {
+    return "holidays";
+  }
+  return "tools";
+}
+
 export function robotsFor(url, metaRobots, instantOrYear) {
   if (metaRobots) return metaRobots;
   const path = url ? url.split("?")[0].replace(/^https?:\/\/[^/]+/, "") || "/" : "/";

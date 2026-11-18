@@ -4,8 +4,22 @@ import test from "node:test";
 import { LEGAL_PATHS, LEGAL_UPDATED, refundFaqs } from "../src/data/legalPolicies.js";
 import { routeMeta } from "../src/data/seo.js";
 
+function readCombinedSitemaps() {
+  const content = readFileSync("dist/sitemap.xml", "utf8");
+  if (content.includes("<sitemapindex")) {
+    const childSitemaps = [...content.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    let combined = content;
+    for (const childUrl of childSitemaps) {
+      const filename = childUrl.split("/").pop();
+      combined += "\n" + readFileSync(`dist/${filename}`, "utf8");
+    }
+    return combined;
+  }
+  return content;
+}
+
 test("policy pages are prerendered with canonical URLs, contact and unchanged WebPage identifiers",()=>{
-  const sitemap=readFileSync("dist/sitemap.xml","utf8");
+  const sitemap=readCombinedSitemaps();
   for(const path of LEGAL_PATHS) {
     const html=readFileSync(`dist${path}.html`,"utf8");
     assert.equal((html.replace(/<!--[\s\S]*?-->/g,"").match(/<h1>/g)||[]).length,1,path);

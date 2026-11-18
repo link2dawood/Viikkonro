@@ -128,7 +128,16 @@ while (queue.length) {
   }
 }
 
-const sitemap = fs.readFileSync(path.join(root, "dist/sitemap.xml"), "utf-8");
+const sitemapRaw = fs.readFileSync(path.join(root, "dist/sitemap.xml"), "utf-8");
+let sitemap = sitemapRaw;
+if (sitemapRaw.includes("<sitemapindex")) {
+  const childSitemaps = [...sitemapRaw.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  sitemap = "";
+  for (const childUrl of childSitemaps) {
+    const filename = childUrl.split("/").pop();
+    sitemap += "\n" + fs.readFileSync(path.join(root, "dist", filename), "utf-8");
+  }
+}
 const allSitemapPaths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => {
   const u = new URL(m[1]);
   return u.pathname === "/" ? "/" : u.pathname;

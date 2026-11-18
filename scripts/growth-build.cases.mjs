@@ -6,9 +6,23 @@ import { toolGroups, relatedTools } from "../src/data/toolDirectory.js";
 import { dateFromDayKey } from "../src/components/dateUtils.js";
 import { pageTopic, PAGE_TOPICS, TOPIC_CONTENT_UPDATED } from "../src/data/pageTopics.js";
 
+function readAllSitemapUrls() {
+  const sitemap = readFileSync("dist/sitemap.xml", "utf8");
+  if (sitemap.includes("<sitemapindex")) {
+    const childSitemaps = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    const urls = [];
+    for (const childUrl of childSitemaps) {
+      const filename = childUrl.split("/").pop();
+      const childContent = readFileSync(`dist/${filename}`, "utf8");
+      urls.push(...[...childContent.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1])));
+    }
+    return urls;
+  }
+  return [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]));
+}
+
 test("every sitemap page has visible topic guides and matching semantic relationships", () => {
-  const sitemap=readFileSync("dist/sitemap.xml","utf8");
-  const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>new URL(m[1]));
+  const urls = readAllSitemapUrls();
   for (const url of urls) {
     const path=url.pathname;
     const file=path==="/" ? "dist/index.html" : `dist${path}.html`;
@@ -44,10 +58,9 @@ test("semantic topic registry points to existing guides and stays out of private
 });
 
 test("indexed page titles and descriptions are distinct, excluding redirect documents", () => {
-  const sitemap=readFileSync("dist/sitemap.xml","utf8");
   const titles=new Map(),descriptions=new Map();
-  for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
-    const path=new URL(match[1]).pathname;
+  for (const url of readAllSitemapUrls()) {
+    const path=url.pathname;
     const html=readFileSync(path==="/" ? "dist/index.html" : `dist${path}.html`,"utf8");
     const title=html.match(/<title>([^<]*)<\/title>/)?.[1];
     const description=html.match(/<meta name="description" content="([^"]*)"/)?.[1];

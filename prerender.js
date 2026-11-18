@@ -37,6 +37,7 @@ import {
   calendarPdfPath,
   isIndexable,
   isIndexableYear,
+  sitemapCategory,
   CONTENT_UPDATED,
   FEED_SCHEMA_VERSION,
   mondayOf,
@@ -5340,15 +5341,10 @@ const lastmodLines = (resourcePath) => {
 const indexableEntries = sitemapEntries(currentYear).filter(
   (e) => isIndexable(e.path) && !metaFor(e.path)?.robots?.startsWith("noindex"),
 );
-const urlset = indexableEntries
-  .map((e) => {
+
+const makeUrlsetXml = (entries) => {
+  const urlNodes = entries.map((e) => {
     const loc = e.path === "/" ? `${SITE_URL}/` : `${SITE_URL}${e.path}`;
-    // Same ogImageUrlFor() the og:image override and ImageObject schema use
-    // — an indexable page with a dedicated image gets an <image:image> entry
-    // here too, the sitemap's own image-discovery extension. The sitemap
-    // image extension explicitly allows more than one <image:image> per
-    // <url>, so the Discover image (when this page has one) is a second,
-    // additive entry — not a replacement of the OG one.
     const img = ogImageUrlFor(e.path);
     const discoverImg = discoverImageUrlFor(e.path);
     return [
@@ -5361,15 +5357,60 @@ const urlset = indexableEntries
       ...(discoverImg ? [`    <image:image><image:loc>${discoverImg}</image:loc></image:image>`] : []),
       "  </url>",
     ].join("\n");
-  })
-  .join("\n");
-// PDFs stay generated, visibly linked, and described as associated media.
-// They are excluded from the sitemap so each HTML page remains the canonical
-// search result; vercel.json supplies the corresponding HTTP Link canonical.
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urlset}\n</urlset>\n`;
-fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemap);
+  }).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urlNodes}\n</urlset>\n`;
+};
+
+// Partition indexable entries into 4 child sitemaps (Task 4):
+// 1. sitemap-calendars.xml (year, kalenteri, tulostettava, vuosi, kuukausi, tyopaivat, q[n] pages)
+// 2. sitemap-weeks.xml (week pages)
+// 3. sitemap-holidays.xml (pyhat, event pages)
+// 4. sitemap-tools.xml (calculators, non-year pages)
+const sitemapBuckets = {
+  calendars: [],
+  weeks: [],
+  holidays: [],
+  tools: [],
+};
+
+for (const entry of indexableEntries) {
+  const cat = sitemapCategory(entry.path);
+  if (sitemapBuckets[cat]) {
+    sitemapBuckets[cat].push(entry);
+  } else {
+    sitemapBuckets.tools.push(entry);
+  }
+}
+
+const childSitemaps = [
+  { name: "sitemap-calendars.xml", entries: sitemapBuckets.calendars },
+  { name: "sitemap-weeks.xml", entries: sitemapBuckets.weeks },
+  { name: "sitemap-holidays.xml", entries: sitemapBuckets.holidays },
+  { name: "sitemap-tools.xml", entries: sitemapBuckets.tools },
+];
+
+for (const child of childSitemaps) {
+  fs.writeFileSync(path.join(distDir, child.name), makeUrlsetXml(child.entries));
+  console.log(`generated ${child.name} (${child.entries.length} URLs)`);
+}
+
+const sitemapIndexXml = [
+  '<?xml version="1.0" encoding="UTF-8"?>',
+  '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ...childSitemaps.map((child) => [
+    "  <sitemap>",
+    `    <loc>${SITE_URL}/${child.name}</loc>`,
+    `    <lastmod>${today}</lastmod>`,
+    "  </sitemap>",
+  ].join("\n")),
+  "</sitemapindex>",
+  "",
+].join("\n");
+
+fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemapIndexXml);
+fs.writeFileSync(path.join(distDir, "sitemap_index.xml"), sitemapIndexXml);
 console.log(
-  `generated sitemap.xml (${indexableEntries.length} indexable HTML urls, PDFs excluded as noindex downloads, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today})`,
+  `generated sitemap.xml index pointing to 4 child sitemaps (${indexableEntries.length} total indexable URLs across ${childSitemaps.map((c) => `${c.name}: ${c.entries.length}`).join(", ")})`,
 );
 
 // Generate llms-full.txt: a comprehensive English-language reference for AI
@@ -5448,7 +5489,7 @@ const llmsFull =
     "",
     "- Purpose: instant ISO 8601 week-number lookup (\"what week is it today / on this date\") plus a full Finnish calendar reference: public holidays, flag days, name days, school holidays, quarters, months, printable calendars and PDF/CSV downloads.",
     "- No login, no paywall, no backend at request time — a prerendered React single-page app. Every meaningful URL is rendered to static HTML at build time (not just the homepage), so crawlers and AI agents see full content without executing JavaScript.",
-    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Valid week pages use the full ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window and appear in the sitemap; other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs are downloadable assets rather than pages in every year: they remain crawlable and linked from their HTML page, but are served noindex and excluded from the sitemap, so the HTML page is always the citable source. All years remain reachable by direct URL regardless of index status.`,
+    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Programmatic dated pages follow the rolling indexable window (${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR}) and appear in the categorized sitemaps. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs for the current and next year remain indexable while older/future PDFs are served with X-Robots-Tag: noindex. All years remain reachable by direct URL regardless of index status.`,
     "- The contact form is the only feature that talks to a third party (Web3Forms, client-side only); everything else — week/date math, holiday and flag-day dates, name-day lookups — is computed locally from deterministic rules, not fetched from an external API.",
     "- For ISO 8601 rules, Finnish holiday/flag-day definitions and how entities relate to each other, see llms-glossary.txt rather than this file.",
     "",

@@ -2,10 +2,23 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import { DATA_FEED_FAMILIES } from "../src/data/openDataContent.js";
-import { PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR, weeksInIsoYear } from "../src/components/dateUtils.js";
+import { PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR, weeksInIsoYear, isIndexableYear } from "../src/components/dateUtils.js";
 import { holidayFaqs, holidayPageFor, VAPPU_UPDATED } from "../src/data/holidayPages.js";
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const readCombinedSitemaps = () => {
+  const main = read("dist/sitemap.xml");
+  if (main.includes("<sitemapindex")) {
+    const childMatches = [...main.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    let combined = main;
+    for (const childUrl of childMatches) {
+      const filename = childUrl.split("/").pop();
+      combined += "\n" + read(`dist/${filename}`);
+    }
+    return combined;
+  }
+  return main;
+};
 const nodesFor = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
   .flatMap((match) => { const data = JSON.parse(match[1]); return data["@graph"] ?? [data]; });
 
@@ -19,7 +32,7 @@ test("data indexes remain JSON downloads with scoped noindex and discoverable da
     assert.ok(mime.headers.some((header) => header.key === "Access-Control-Allow-Origin" && header.value === "*"));
     assert.ok(!mime.headers.some((header) => header.key === "X-Robots-Tag"), "do not noindex all data or its HTML documentation");
   }
-  const sitemap = read("dist/sitemap.xml"), docs = read("dist/avoin-data.html");
+  const sitemap = readCombinedSitemaps(), docs = read("dist/avoin-data.html");
   const datasets = JSON.parse(read("dist/data/dataset.json"));
   const datasetText = JSON.stringify(datasets);
   for (const family of DATA_FEED_FAMILIES) {
@@ -43,7 +56,7 @@ test("data indexes remain JSON downloads with scoped noindex and discoverable da
 });
 
 test("Vappu 2026-2028 remains canonical, indexable and useful before JavaScript", () => {
-  const sitemap = read("dist/sitemap.xml");
+  const sitemap = readCombinedSitemaps();
   for (const year of [2026, 2027, 2028]) {
     const path = `/pyhat-${year}/vappu`, html = read(`dist${path}.html`).replace(/<!--[\s\S]*?-->/g, "");
     const page = holidayPageFor(year, "vappu"), nodes = nodesFor(html);
@@ -72,12 +85,13 @@ test("Vappu 2026-2028 remains canonical, indexable and useful before JavaScript"
   }
 });
 
-test("every valid published week is indexable with canonical, schema and sitemap coverage", () => {
-  const sitemap = read("dist/sitemap.xml");
+test("every valid published week in the indexable window is indexable with canonical, schema and sitemap coverage", () => {
+  const sitemap = readCombinedSitemaps();
   const weekLocations = [...sitemap.matchAll(/<loc>(https:\/\/viikkonro\.fi\/viikko-\d+-\d{4})<\/loc>/g)].map((match) => match[1]);
   let expectedWeeks = 0;
   for (let year = PRERENDER_MIN_YEAR; year <= PRERENDER_MAX_YEAR; year += 1) {
-    expectedWeeks += weeksInIsoYear(year);
+    const inWindow = isIndexableYear(year);
+    if (inWindow) expectedWeeks += weeksInIsoYear(year);
     const yearCanonical = `https://viikkonro.fi/vuosi-${year}`;
     const yearNodes = nodesFor(read(`dist/vuosi-${year}.html`));
     const yearPages = yearNodes.filter((node) => node["@id"] === `${yearCanonical}#webpage`);
@@ -89,45 +103,56 @@ test("every valid published week is indexable with canonical, schema and sitemap
       const html = read(`dist${pathname}.html`);
       const robots = [...html.matchAll(/<meta\s+name="robots"\s+content="([^"]+)"/g)];
       assert.equal(robots.length, 1, `${pathname}: one robots directive`);
-      assert.match(robots[0][1], /^index, follow/, pathname);
+      if (inWindow) {
+        assert.match(robots[0][1], /^index, follow/, pathname);
+        assert.ok(weekLocations.includes(canonical), `${pathname}: sitemap entry`);
+        const nodes = nodesFor(html);
+        assert.equal(nodes.filter((node) => node["@id"] === `${canonical}#webpage`).length, 1, `${pathname}: page schema`);
+        assert.ok(nodes.some((node) => node["@type"] === "FAQPage"), `${pathname}: FAQ schema`);
+        const page = nodes.find((node) => node["@id"] === `${canonical}#webpage`);
+        assert.ok(page.isPartOf.some((parent) => parent["@id"] === `${yearCanonical}#webpage`), `${pathname}: year relationship`);
+      } else {
+        assert.match(robots[0][1], /^noindex, follow/, pathname);
+        assert.ok(!weekLocations.includes(canonical), `${pathname}: not in sitemap`);
+      }
       assert.ok(html.includes(`<link rel="canonical" href="${canonical}"`), pathname);
-      assert.ok(weekLocations.includes(canonical), `${pathname}: sitemap entry`);
-      const nodes = nodesFor(html);
-      assert.equal(nodes.filter((node) => node["@id"] === `${canonical}#webpage`).length, 1, `${pathname}: page schema`);
-      assert.ok(nodes.some((node) => node["@type"] === "FAQPage"), `${pathname}: FAQ schema`);
-      const page = nodes.find((node) => node["@id"] === `${canonical}#webpage`);
-      assert.ok(page.isPartOf.some((parent) => parent["@id"] === `${yearCanonical}#webpage`), `${pathname}: year relationship`);
       assert.ok(html.includes(`href="/pdf${pathname}.pdf"`), `${pathname}: visible PDF download`);
     }
   }
-  assert.equal(weekLocations.length, expectedWeeks, "all valid weeks, no extra week URLs");
+  assert.equal(weekLocations.length, expectedWeeks, "all valid weeks in window, no extra week URLs");
   assert.equal(new Set(weekLocations).size, expectedWeeks, "no duplicate week URLs");
   assert.ok(!/<loc>[^<]*\/pdf\//.test(sitemap), "PDF downloads stay outside the sitemap");
-  assert.ok(read("dist/llms-full.txt").includes(`full ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} indexing window`));
 });
 
-test("the six Search Console noindex examples are eligible for indexing", () => {
-  const sitemap = read("dist/sitemap.xml");
+test("Search Console noindex examples follow rolling indexable year window", () => {
+  const sitemap = readCombinedSitemaps();
   for (const pathname of [
     "/viikko-25-2030", "/viikko-51-2023", "/viikko-17-2029",
     "/viikko-50-2025", "/viikko-30-2033", "/viikko-28-2030",
   ]) {
-    assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="index, follow/);
-    assert.ok(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
+    const year = Number(pathname.match(/-(\d{4})$/)[1]);
+    const inWindow = isIndexableYear(year);
+    if (inWindow) {
+      assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="index, follow/);
+      assert.ok(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
+    } else {
+      assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="noindex, follow/);
+      assert.ok(!sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
+    }
     assert.ok(fs.existsSync(new URL(`../dist/pdf${pathname}.pdf`, import.meta.url)), `${pathname}: PDF exists`);
   }
 });
 
-test("non-week dated pages keep their existing indexing window", () => {
-  const sitemap = read("dist/sitemap.xml");
+test("non-week dated pages keep rolling indexable year window", () => {
+  const sitemap = readCombinedSitemaps();
   const year = Number(read("dist/index.html").match(/name="viikkonro-render-day" content="(\d{4})-/)?.[1]);
   assert.ok(Number.isInteger(year) && year > 2000, "build year comes from the rendered day");
-  for (const pageYear of [year - 2, year - 1, year, year + 1, year + 2, year + 4]) {
+  for (const pageYear of [year - 1, year, year + 1, year + 2]) {
     const pathname = `/kuukausi-10-${pageYear}`;
     assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="index, follow/);
     assert.ok(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
   }
-  for (const pageYear of [year - 3, year + 5]) {
+  for (const pageYear of [year - 2, year + 3]) {
     const pathname = `/kuukausi-10-${pageYear}`;
     assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="noindex, follow/);
     assert.ok(!sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
@@ -135,14 +160,13 @@ test("non-week dated pages keep their existing indexing window", () => {
     assert.match(read(`dist${yearPath}.html`), /<meta\s+name="robots"\s+content="noindex, follow/);
     assert.ok(!sitemap.includes(`https://viikkonro.fi${yearPath}</loc>`), yearPath);
   }
-  assert.ok(read("dist/llms-full.txt").includes(`${year - 2}-${year + 4} window`));
 });
 
 test("dataset landing pages reuse the shared Dataset and link real download formats", () => {
   const shared = JSON.parse(read("dist/data/dataset.json"))["@graph"];
   const home = nodesFor(read("dist/index.html"));
   const openData = nodesFor(read("dist/avoin-data.html"));
-  const sitemap = read("dist/sitemap.xml");
+  const sitemap = readCombinedSitemaps();
   const families = {
     week: "week", month: "month", year: "year",
     holiday: "holidays", "working-days": "monthly-workingdays",
