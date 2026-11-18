@@ -2,6 +2,37 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { helsinkiYear } from "./src/components/dateUtils.js";
+
+function pdfHeadersPlugin() {
+  const middleware = (req, res, next) => {
+    const url = req.url ? req.url.split("?")[0] : "";
+    if (url.startsWith("/pdf/")) {
+      const match = url.match(/-(\d{4})\.pdf$/);
+      if (match) {
+        const year = Number(match[1]);
+        const currentYear = helsinkiYear();
+        const inWindow = year === currentYear || year === currentYear + 1;
+        if (!inWindow) {
+          res.setHeader("X-Robots-Tag", "noindex");
+        }
+      } else {
+        res.setHeader("X-Robots-Tag", "noindex");
+      }
+    }
+    next();
+  };
+
+  return {
+    name: "pdf-robots-tag-middleware",
+    configureServer(server) {
+      server.middlewares.use(middleware);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(middleware);
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig(({ mode, isSsrBuild }) => {
@@ -24,6 +55,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   return {
     plugins: [
       react(),
+      pdfHeadersPlugin(),
       ...(sentryUploadEnabled
         ? [sentryVitePlugin({
             org: process.env.SENTRY_ORG || env.SENTRY_ORG,

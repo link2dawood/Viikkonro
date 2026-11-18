@@ -15,15 +15,18 @@ describe("PDF indexing response headers", () => {
   // "Alternate page with proper canonical tag" and never resolves on
   // revalidation. A single noindex expresses the same intent (the HTML page
   // ranks, never the PDF) for every PDF, with no rolling-year logic to drift.
-  it("declares noindex and no canonical for every PDF", () => {
+  it("declares noindex for out-of-window PDFs and no canonical for any PDF", () => {
     const canonicalRules = pdfRules.filter((rule) =>
       rule.headers.some((header) => header.key === "Link" && header.value.includes('rel="canonical"')),
     );
     expect(canonicalRules).toEqual([]);
 
-    const pdfRule = pdfRules.find((rule) => rule.source === "/pdf/(.*)");
-    expect(pdfRule.headers).toContainEqual({ key: "Content-Type", value: "application/pdf" });
-    expect(pdfRule.headers).toContainEqual({ key: "X-Robots-Tag", value: "noindex" });
+    const pdfBaseRule = pdfRules.find((rule) => rule.source === "/pdf/(.*)");
+    expect(pdfBaseRule.headers).toContainEqual({ key: "Content-Type", value: "application/pdf" });
+
+    const pdfNoindexRule = pdfRules.find((rule) => rule.headers.some((h) => h.key === "X-Robots-Tag"));
+    expect(pdfNoindexRule).toBeDefined();
+    expect(pdfNoindexRule.headers).toContainEqual({ key: "X-Robots-Tag", value: "noindex" });
   });
 
   // Rule 5 of the SEO constitution still requires PDFs to be reachable: the
@@ -31,8 +34,8 @@ describe("PDF indexing response headers", () => {
   // <link rel="alternate"> pointer are unchanged, so noindex must stay bare.
   // "noindex, nofollow" or a 404 would break that discoverability contract.
   it("keeps PDFs crawlable and directly downloadable", () => {
-    const pdfRule = pdfRules.find((rule) => rule.source === "/pdf/(.*)");
-    const robots = pdfRule.headers.find((header) => header.key === "X-Robots-Tag").value;
+    const pdfNoindexRule = pdfRules.find((rule) => rule.headers.some((h) => h.key === "X-Robots-Tag"));
+    const robots = pdfNoindexRule.headers.find((header) => header.key === "X-Robots-Tag").value;
     expect(robots).not.toContain("nofollow");
     expect(robots).not.toContain("noarchive");
     expect(config.redirects.some((redirect) => redirect.source.startsWith("/pdf/"))).toBe(false);
@@ -45,7 +48,7 @@ describe("PDF indexing response headers", () => {
   // /pohjat/ replaced a per-PDF canonical to /kalenteripohjat/:slug; that
   // target is always indexable so it was never the out-of-window conflict, but
   // noindex plus canonical on one response is a conflict of its own.
-  it.each(["/pdf/(.*)", "/ics/(.*)", "/pohjat/(.*)"])(
+  it.each(["/ics/(.*)", "/pohjat/(.*)"])(
     "serves %s as a crawlable noindex download",
     (source) => {
       const rule = config.headers.find((candidate) => candidate.source === source);
@@ -76,5 +79,16 @@ describe("PDF indexing response headers", () => {
       expect(rule, `${source} header rule is missing`).toBeTruthy();
       expect(rule.headers).toContainEqual({ key: "X-Robots-Tag", value: "noindex, follow" });
     }
+  });
+
+  it("targets only out-of-window PDFs with X-Robots-Tag: noindex, leaving current and next year indexable", () => {
+    const noindexRule = pdfRules.find((rule) => rule.headers.some((h) => h.key === "X-Robots-Tag"));
+    expect(noindexRule).toBeDefined();
+    const regex = new RegExp(`^${noindexRule.source.replace(/\\/g, "")}$`);
+    expect(regex.test("/pdf/kalenteri-2026.pdf")).toBe(false);
+    expect(regex.test("/pdf/kalenteri-2027.pdf")).toBe(false);
+    expect(regex.test("/pdf/kalenteri-2024.pdf")).toBe(true);
+    expect(regex.test("/pdf/kalenteri-2025.pdf")).toBe(true);
+    expect(regex.test("/pdf/kalenteri-2028.pdf")).toBe(true);
   });
 });

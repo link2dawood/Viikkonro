@@ -486,16 +486,21 @@
           "value": "application/pdf"
         },
         {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
-        },
-        {
           "key": "Cache-Control",
           "value": "public, max-age=3600"
         },
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/pdf/((?!.*-(2026|2027)\\.pdf$).*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
         }
       ]
     },

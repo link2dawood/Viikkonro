@@ -447,11 +447,11 @@ test("PD-06 keeps every generated PDF downloadable as a noindex asset", () => {
     .filter((rule) => rule.headers.some((header) => header.key === "Link" && header.value.includes('rel="canonical"')));
   assert.deepEqual(canonicalRules, [], "no PDF family may canonicalize to an HTML page");
 
-  const pdfRule = config.headers.find((rule) => rule.source === "/pdf/(.*)");
+  const pdfNoindexRule = config.headers.find((rule) => rule.source.startsWith("/pdf/") && rule.headers.some((h) => h.key === "X-Robots-Tag"));
   assert.deepEqual(
-    pdfRule.headers.find((header) => header.key === "X-Robots-Tag"),
+    pdfNoindexRule.headers.find((header) => header.key === "X-Robots-Tag"),
     { key: "X-Robots-Tag", value: "noindex" },
-    "every PDF response is a bare-noindex download",
+    "out-of-window PDF responses are bare-noindex downloads",
   );
 });
 
