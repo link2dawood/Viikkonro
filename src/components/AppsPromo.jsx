@@ -24,7 +24,7 @@ const AppsPromo = () => (
             target="_blank"
             rel="noopener noreferrer external"
           >
-            Lisää Chromeen – ilmainen <span aria-hidden="true">↗</span>
+            Lisää Chromeen (ilmainen) <span aria-hidden="true">↗</span>
           </a>
           <Link className="ext-link" to={CHROME_EXTENSION_PATH}>
             Lue lisää →
@@ -58,7 +58,7 @@ const AppsPromo = () => (
             href={ANDROID_APP_FACTS.storeUrl}
             target="_blank"
             rel="noopener noreferrer external"
-            aria-label="Saatavilla Google Playsta – avautuu uuteen välilehteen"
+            aria-label="Saatavilla Google Playsta (avautuu uuteen välilehteen)"
           >
             <img
               src="/mobile/android/google-play-logo.webp"

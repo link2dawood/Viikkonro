@@ -1017,6 +1017,7 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
   margin: 16px 0;
+  contain: layout style;
 }
 .cal-preview-month {
   border-radius: var(--radius);
@@ -1314,6 +1315,7 @@ input[type="date"]:focus-visible {
 }
 .ptable {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   margin-top: 8px;
   font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
