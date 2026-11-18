@@ -1,17 +1,15 @@
 import { Link } from "react-router-dom";
 import { useToday } from "./useToday";
-import { helsinkiDayKey, homepageSeasonYear } from "./dateUtils";
+import { helsinkiYear } from "./dateUtils";
 import { calendarPdfPath, yearStats } from "../data/seo";
 import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
 
-// Homepage season block, placed right under the hero: the featured year's
-// calendar, PDF and most-visited pages. From September it features next year
-// (see homepageSeasonYear), when searches for next year's calendar start
-// climbing towards their Nov–Jan peak; Jan–Aug it features the current year.
+// Homepage season block, placed right under the hero: dynamic next year
+// calendar, PDF and most-visited pages.
 const SeasonYear = () => {
   const today = useToday();
-  const y = homepageSeasonYear(today);
-  const isNextYear = y > Number(helsinkiDayKey(today).slice(0, 4));
+  const y = helsinkiYear(today) + 1;
+  const isNextYear = true;
   const stats = yearStats(y);
 
   const tiles = [
@@ -19,7 +17,7 @@ const SeasonYear = () => {
     { to: `/pyhapaivat-${y}`, name: `Pyhäpäivät ${y}`, desc: `${stats.officialHolidayCount} arkipyhää` },
     { to: `/tyopaivat-${y}`, name: `Työpäivät ${y}`, desc: `${stats.working} työpäivää` },
     ...(pageConfidenceTier(y) === CONFIDENCE.CONFIRMED
-      ? [{ to: `/koululomat-${y}`, name: `Koululomat ${y}`, desc: "Syys-, joulu- ja hiihtolomat" }]
+      ? [{ to: `/koululomat-${y}`, name: `Koululomat ${y}`, desc: "Syyslomat, joululomat ja hiihtolomat" }]
       : []),
     { to: `/palkkapaivat-${y}`, name: `Palkkapäivät ${y}`, desc: "Milloin palkka tulee" },
     { to: `/tulostettava-kalenteri-${y}`, name: "Tulostettava A4", desc: "Koko vuosi yhdellä sivulla" },

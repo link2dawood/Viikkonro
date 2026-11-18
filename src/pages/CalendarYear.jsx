@@ -169,10 +169,10 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
       <SEO {...calendarMeta(y, half, print)} canonical={canonicalFor(canonicalPath)} />
 
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> /{" "}
+        <Link to="/">Etusivu</Link> ›{" "}
         {half || print ? (
           <>
-            <Link to={`/kalenteri-${y}`}>Kalenteri {y}</Link> /{" "}
+            <Link to={`/kalenteri-${y}`}>Kalenteri {y}</Link> ›{" "}
             {print
               ? `Tulostettava kalenteri ${y}`
               : `${half === 1 ? "1. vuosipuolisko" : "2. vuosipuolisko"} ${y}`}

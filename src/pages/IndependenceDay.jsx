@@ -28,8 +28,8 @@ const IndependenceDay = ({ year: pYear } = {}) => {
       <SEO {...meta} canonical={canonicalFor(path)} />
 
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/vuosi-${year}`}>Viikot {year}</Link> / Itsenäisyyspäivä {year}
+        <Link to="/">Etusivu</Link> ›{" "}
+        <Link to={`/vuosi-${year}`}>{year}</Link> › Itsenäisyyspäivä {year}
       </div>
 
       <h1>Itsenäisyyspäivä {year}</h1>

@@ -44,8 +44,8 @@ const FlagDays = ({ year: pYear } = {}) => {
     <section className="app">
       <SEO {...flagDaysMeta(y)} canonical={canonicalFor(`/liputuspaivat-${year}`)} />
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/vuosi-${year}`}>Viikot {year}</Link> / Liputuspäivät {year}
+        <Link to="/">Etusivu</Link> ›{" "}
+        <Link to={`/vuosi-${year}`}>{year}</Link> › Liputuspäivät {year}
       </div>
 
       <h1>Suomen liputuspäivät {year}</h1>

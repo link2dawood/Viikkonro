@@ -30,8 +30,8 @@ const ChristmasBreak = ({ year: pYear } = {}) => {
       <SEO {...meta} canonical={canonicalFor(path)} />
 
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/koululomat-${year}`}>Koululomat {year}</Link> / Joululoma {year}
+        <Link to="/">Etusivu</Link> ›{" "}
+        <Link to={`/koululomat-${year}`}>Koululomat {year}</Link> › Joululoma {year}
       </div>
 
       <h1>Koulujen joululoma {year}</h1>

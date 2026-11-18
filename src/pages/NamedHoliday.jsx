@@ -50,8 +50,8 @@ const NamedHoliday = () => {
     <section className="app">
       <SEO {...meta} canonical={canonicalFor(page.path)} />
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/pyhapaivat-${page.year}`}>Pyhäpäivät {page.year}</Link> /{" "}
+        <Link to="/">Etusivu</Link> ›{" "}
+        <Link to={`/pyhapaivat-${page.year}`}>Pyhäpäivät {page.year}</Link> ›{" "}
         {page.displayName}
       </div>
 

@@ -264,8 +264,8 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
         canonical={canonicalFor(`/viikko-${week}-${year}`)}
       />
       <div className="breadcrumb">
-        <Link to={"/"}>Etusivu </Link> /{" "}
-        <Link to={`/vuosi-${year}`}>Viikot {year}</Link> / Viikko {week}
+        <Link to="/">Etusivu</Link> ›{" "}
+        <Link to={`/vuosi-${year}`}>{year}</Link> › Viikko {week}
       </div>
       <h1>
         Viikko {week} vuonna {year}
@@ -274,7 +274,7 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
       {w === 53 && (
         <div className="notice">
           <strong>Harvinainen viikko 53.</strong> Vuonna {y} on poikkeuksellisesti
-          53 viikkoa — useimmissa vuosissa niitä on vain 52. Viikko 53 on vuoden{" "}
+          53 viikkoa (useimmissa vuosissa niitä on vain 52). Viikko 53 on vuoden{" "}
           {y} viimeinen viikko ennen seuraavan vuoden viikkoa 1.
         </div>
       )}
@@ -460,8 +460,11 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
             <span className="lbl">Edellinen</span>Viikko {prevW}, {prevY}
           </Link>
         )}
+        <Link to={`/kalenteri-${y}`} style={{ textAlign: "center" }}>
+          <span className="lbl">Kalenteri</span>Vuoden {y} kalenteri
+        </Link>
         {nextY <= YEAR_MAX && (
-          <Link to={`/viikko-${nextW}-${nextY}`}>
+          <Link to={`/viikko-${nextW}-${nextY}`} className="nx">
             <span className="lbl">Seuraava</span>Viikko {nextW}, {nextY}
           </Link>
         )}
@@ -504,7 +507,12 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
             </summary>
             <p>
               Viikolla {w} vuonna {y} vietetään:{" "}
-              {officialHolidays.map((h) => h.name).join(", ")}.
+              {officialHolidays.map((h, idx) => (
+                <span key={h.name}>
+                  {idx > 0 && ", "}
+                  {holidayLink(h)}
+                </span>
+              ))}.
             </p>
           </details>
         )}
@@ -512,6 +520,19 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
 
       <section className="related">
         <h2>Katso myös</h2>
+
+        {weekHolidays.length > 0 && (
+          <>
+            <h3>Viikon juhlapäivät ja merkkipäivät</h3>
+            <ul className="links">
+              {weekHolidays.map((h) => (
+                <li key={h.name}>
+                  {holidayLink(h)}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         {monthWeeks.length > 0 && (
           <>

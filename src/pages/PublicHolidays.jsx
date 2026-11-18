@@ -40,8 +40,8 @@ const PublicHolidays = ({ year: pYear } = {}) => {
     <section className="app">
       <SEO {...holidaysMeta(y)} canonical={canonicalFor(`/pyhapaivat-${year}`)} />
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/vuosi-${year}`}>Viikot {year}</Link> / Pyhäpäivät {year}
+        <Link to="/">Etusivu</Link> ›{" "}
+        <Link to={`/vuosi-${year}`}>{year}</Link> › Pyhäpäivät {year}
       </div>
 
       <h1>Suomen pyhäpäivät {year}</h1>

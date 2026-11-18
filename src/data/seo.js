@@ -1728,26 +1728,26 @@ export function breadcrumbTrail(url) {
     return [home, { name: "Nimipäivät", path: "/nimipaivat/tanaan" }, { name: fmtFullFi(page.date), path: url }];
   }
   if ((m = url.match(/^\/vuosi-(\d+)$/))) {
-    return [home, { name: `Viikot ${m[1]}`, path: url }];
+    return [home, { name: m[1], path: url }];
   }
   if ((m = url.match(/^\/viikko-(\d+)-(\d+)$/))) {
     return [
       home,
-      { name: `Viikot ${m[2]}`, path: `/vuosi-${m[2]}` },
+      { name: m[2], path: `/vuosi-${m[2]}` },
       { name: `Viikko ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/kuukausi-(\d+)-(\d+)$/))) {
     return [
       home,
-      { name: `Viikot ${m[2]}`, path: `/vuosi-${m[2]}` },
+      { name: m[2], path: `/vuosi-${m[2]}` },
       { name: M_FULL[+m[1] - 1], path: url },
     ];
   }
   if ((m = url.match(/^\/q([1-4])-(\d+)$/))) {
     return [
       home,
-      { name: `Viikot ${m[2]}`, path: `/vuosi-${m[2]}` },
+      { name: m[2], path: `/vuosi-${m[2]}` },
       { name: `Q${m[1]} ${m[2]}`, path: url },
     ];
   }
@@ -1761,14 +1761,14 @@ export function breadcrumbTrail(url) {
   if ((m = url.match(/^\/pyhapaivat-(\d+)$/))) {
     return [
       home,
-      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: m[1], path: `/vuosi-${m[1]}` },
       { name: `Pyhäpäivät ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/liputuspaivat-(\d+)$/))) {
     return [
       home,
-      { name: `Viikot ${m[1]}`, path: `/vuosi-${m[1]}` },
+      { name: m[1], path: `/vuosi-${m[1]}` },
       { name: `Liputuspäivät ${m[1]}`, path: url },
     ];
   }

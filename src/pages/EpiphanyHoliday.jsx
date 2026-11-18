@@ -31,8 +31,8 @@ const EpiphanyHoliday = ({ year: pYear } = {}) => {
       <SEO {...meta} canonical={canonicalFor(path)} />
 
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> /{" "}
-        <Link to={`/vuosi-${year}`}>Viikot {year}</Link> / Loppiainen {year}
+        <Link to="/">Etusivu</Link> ›{" "}
+        <Link to={`/vuosi-${year}`}>{year}</Link> › Loppiainen {year}
       </div>
 
       <h1>Loppiainen {year}</h1>

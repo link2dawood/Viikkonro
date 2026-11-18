@@ -186,7 +186,7 @@ const YearCalendar = ({ year: pYear } = {}) => {
         canonical={canonicalFor(`/vuosi-${year}`)}
       />
       <div className="breadcrumb">
-        <Link to="/">Etusivu</Link> / Viikot {year}
+        <Link to="/">Etusivu</Link> › {year}
       </div>
 
       <h1>Viikkokalenteri {year}: viikkonumerot ja viikot</h1>
