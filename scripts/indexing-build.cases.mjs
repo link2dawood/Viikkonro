@@ -4,8 +4,10 @@ import test from "node:test";
 import { DATA_FEED_FAMILIES } from "../src/data/openDataContent.js";
 import { PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR, weeksInIsoYear } from "../src/components/dateUtils.js";
 import { holidayFaqs, holidayPageFor, VAPPU_UPDATED } from "../src/data/holidayPages.js";
+import { readSitemapSet } from "./sitemap-set.mjs";
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const readSitemap = readSitemapSet;
 const nodesFor = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
   .flatMap((match) => { const data = JSON.parse(match[1]); return data["@graph"] ?? [data]; });
 
@@ -19,7 +21,7 @@ test("data indexes remain JSON downloads with scoped noindex and discoverable da
     assert.ok(mime.headers.some((header) => header.key === "Access-Control-Allow-Origin" && header.value === "*"));
     assert.ok(!mime.headers.some((header) => header.key === "X-Robots-Tag"), "do not noindex all data or its HTML documentation");
   }
-  const sitemap = read("dist/sitemap.xml"), docs = read("dist/avoin-data.html");
+  const sitemap = readSitemap(), docs = read("dist/avoin-data.html");
   const datasets = JSON.parse(read("dist/data/dataset.json"));
   const datasetText = JSON.stringify(datasets);
   for (const family of DATA_FEED_FAMILIES) {
@@ -43,7 +45,7 @@ test("data indexes remain JSON downloads with scoped noindex and discoverable da
 });
 
 test("Vappu 2026-2028 remains canonical, indexable and useful before JavaScript", () => {
-  const sitemap = read("dist/sitemap.xml");
+  const sitemap = readSitemap();
   for (const year of [2026, 2027, 2028]) {
     const path = `/pyhat-${year}/vappu`, html = read(`dist${path}.html`).replace(/<!--[\s\S]*?-->/g, "");
     const page = holidayPageFor(year, "vappu"), nodes = nodesFor(html);
@@ -73,7 +75,7 @@ test("Vappu 2026-2028 remains canonical, indexable and useful before JavaScript"
 });
 
 test("every valid published week is indexable with canonical, schema and sitemap coverage", () => {
-  const sitemap = read("dist/sitemap.xml");
+  const sitemap = readSitemap();
   const weekLocations = [...sitemap.matchAll(/<loc>(https:\/\/viikkonro\.fi\/viikko-\d+-\d{4})<\/loc>/g)].map((match) => match[1]);
   let expectedWeeks = 0;
   for (let year = PRERENDER_MIN_YEAR; year <= PRERENDER_MAX_YEAR; year += 1) {
@@ -107,7 +109,7 @@ test("every valid published week is indexable with canonical, schema and sitemap
 });
 
 test("the six Search Console noindex examples are eligible for indexing", () => {
-  const sitemap = read("dist/sitemap.xml");
+  const sitemap = readSitemap();
   for (const pathname of [
     "/viikko-25-2030", "/viikko-51-2023", "/viikko-17-2029",
     "/viikko-50-2025", "/viikko-30-2033", "/viikko-28-2030",
@@ -118,31 +120,86 @@ test("the six Search Console noindex examples are eligible for indexing", () => 
   }
 });
 
-test("non-week dated pages keep their existing indexing window", () => {
-  const sitemap = read("dist/sitemap.xml");
+// Narrowed on 2026-11-21 from currentYear-2..currentYear+4 to
+// currentYear-1..currentYear+2 (user-approved thin-URL pruning). The years
+// just outside each edge are asserted as noindex here, so a silent widening
+// back to the old window fails. Weeks and named holidays are deliberately
+// exempt and keep their own full-horizon coverage, asserted above.
+test("non-week dated pages keep the narrowed indexing window", () => {
+  const sitemap = readSitemap();
   const year = Number(read("dist/index.html").match(/name="viikkonro-render-day" content="(\d{4})-/)?.[1]);
   assert.ok(Number.isInteger(year) && year > 2000, "build year comes from the rendered day");
-  for (const pageYear of [year - 2, year - 1, year, year + 1, year + 2, year + 4]) {
+  for (const pageYear of [year - 1, year, year + 1, year + 2]) {
     const pathname = `/kuukausi-10-${pageYear}`;
     assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="index, follow/);
     assert.ok(sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
   }
-  for (const pageYear of [year - 3, year + 5]) {
+  for (const pageYear of [year - 3, year - 2, year + 3, year + 5]) {
     const pathname = `/kuukausi-10-${pageYear}`;
     assert.match(read(`dist${pathname}.html`), /<meta\s+name="robots"\s+content="noindex, follow/);
     assert.ok(!sitemap.includes(`https://viikkonro.fi${pathname}</loc>`), pathname);
     const yearPath = `/vuosi-${pageYear}`;
     assert.match(read(`dist${yearPath}.html`), /<meta\s+name="robots"\s+content="noindex, follow/);
     assert.ok(!sitemap.includes(`https://viikkonro.fi${yearPath}</loc>`), yearPath);
+    // Pruned years stay live and crawlable, and keep their one entry point.
+    assert.ok(read("dist/kaikki-vuodet.html").includes(`href="${yearPath}"`), `${yearPath}: linked from the year index`);
   }
-  assert.ok(read("dist/llms-full.txt").includes(`${year - 2}-${year + 4} window`));
+  assert.ok(read("dist/llms-full.txt").includes(`${year - 1}-${year + 2} window`));
+});
+
+// The year index is the single crawl path to every pruned year, so it has to
+// stay indexable, reachable and complete.
+test("the year index links every published year and stays indexable", () => {
+  const html = read("dist/kaikki-vuodet.html");
+  const sitemap = readSitemap();
+  assert.match(html, /<meta\s+name="robots"\s+content="index, follow/);
+  assert.ok(html.includes('rel="canonical" href="https://viikkonro.fi/kaikki-vuodet"'));
+  assert.ok(sitemap.includes("https://viikkonro.fi/kaikki-vuodet</loc>"));
+  for (let year = PRERENDER_MIN_YEAR; year <= PRERENDER_MAX_YEAR; year += 1) {
+    assert.ok(html.includes(`href="/vuosi-${year}"`), `/vuosi-${year}: visible link`);
+  }
+  // CollectionPage + an ItemList covering the full horizon (invariant 11).
+  const nodes = nodesFor(html);
+  const page = nodes.find((node) => node["@id"] === "https://viikkonro.fi/kaikki-vuodet#webpage");
+  assert.equal(page["@type"], "CollectionPage");
+  const list = nodes.find((node) => node["@id"] === "https://viikkonro.fi/kaikki-vuodet#years");
+  assert.equal(list.itemListElement.length, PRERENDER_MAX_YEAR - PRERENDER_MIN_YEAR + 1);
+  // The homepage keeps the hub one click away.
+  assert.ok(read("dist/index.html").includes('href="/kaikki-vuodet"'));
+});
+
+// The split is a packaging change: the union of the children must still be
+// every indexable page, each page in exactly one child, and the index must
+// reference only children that exist.
+test("sitemap.xml is an index whose children partition the indexable set", () => {
+  const index = read("dist/sitemap.xml");
+  assert.match(index, /<sitemapindex/);
+  const files = [...index.matchAll(/<loc>[^<]*\/(sitemap-[^/<]+\.xml)<\/loc>/g)].map((match) => match[1]);
+  assert.deepEqual(files, ["sitemap-weeks.xml", "sitemap-holidays.xml", "sitemap-calendars.xml", "sitemap-pages.xml"]);
+  const seen = new Map();
+  for (const file of files) {
+    const child = read(`dist/${file}`);
+    assert.match(child, /<urlset/);
+    const locs = [...child.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+    assert.ok(locs.length > 0, `${file}: not empty`);
+    for (const loc of locs) {
+      assert.ok(!seen.has(loc), `${loc} appears in both ${seen.get(loc)} and ${file}`);
+      seen.set(loc, file);
+    }
+  }
+  // Every week page in the sitemap set lands in the weeks child, and nothing else does.
+  for (const [loc, file] of seen) {
+    const isWeek = /\/viikko-\d+-\d{4}$/.test(new URL(loc).pathname);
+    assert.equal(isWeek, file === "sitemap-weeks.xml", `${loc} -> ${file}`);
+  }
+  assert.equal(seen.size, [...readSitemap().matchAll(/<loc>/g)].length);
 });
 
 test("dataset landing pages reuse the shared Dataset and link real download formats", () => {
   const shared = JSON.parse(read("dist/data/dataset.json"))["@graph"];
   const home = nodesFor(read("dist/index.html"));
   const openData = nodesFor(read("dist/avoin-data.html"));
-  const sitemap = read("dist/sitemap.xml");
+  const sitemap = readSitemap();
   const families = {
     week: "week", month: "month", year: "year",
     holiday: "holidays", "working-days": "monthly-workingdays",

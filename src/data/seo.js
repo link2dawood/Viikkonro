@@ -28,8 +28,16 @@ export function isIndexable(p, currentYear = new Date().getFullYear()) {
   const m = p.match(/-(\d{4})(?:-(?:alkuvuosi|loppuvuosi))?$/);
   if (!m) return true; // static pages have no year -> always indexable
   const y = Number(m[1]);
-  const indexMinYear = currentYear - 2;
-  const indexMaxYear = currentYear + 4;
+  // Narrowed from currentYear-2..currentYear+4 on 2026-11-21 (user-approved
+  // thin-URL pruning). Other dated families are hub/aggregate pages whose
+  // archive and far-future years earned impressions at position 8-30 and no
+  // clicks, so the wide window diluted the strong years rather than adding
+  // reach. Weeks and named holidays keep their own full-horizon windows
+  // above: those are the two clusters prior amendments deliberately expanded.
+  // Out-of-window years stay prerendered and live with noindex, follow, and
+  // the 2029+ ones are reachable through YEAR_INDEX_PATH below.
+  const indexMinYear = currentYear - 1;
+  const indexMaxYear = currentYear + 2;
   return y >= indexMinYear && y <= indexMaxYear;
 }
 
@@ -120,6 +128,7 @@ import { CONSTRUCTION_PATH, constructionMeta } from "./constructionCalendar.js";
 import { HR_PATH, hrMeta } from "./hrCalendar.js";
 import { TEAM_PATH, teamMeta } from "./teamLeave.js";
 import { PARITY_PATH, parityMeta } from "./weekParity.js";
+import { YEAR_INDEX_PATH, yearIndexMeta } from "./yearIndexPages.js";
 import { weeksInYearMeta } from "./weeksInYearContent.js";
 import { weeksInMonthMeta } from "./weeksInMonthContent.js";
 import { fiftyThreeWeeksMeta } from "./fiftyThreeWeeksContent.js";
@@ -962,6 +971,10 @@ export const routeMeta = {
     ...parityMeta(new Date()),
     breadcrumb: "Parillinen vai pariton viikko",
   },
+  [YEAR_INDEX_PATH]: {
+    ...yearIndexMeta(new Date()),
+    breadcrumb: "Kaikki vuodet",
+  },
   "/viikko-alkaa-maanantaista": {
     title: "Viikko alkaa maanantaista – ISO 8601 -sääntö | Viikko Nro",
     description:
@@ -1305,6 +1318,9 @@ export function sitemapEntries(year) {
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/mika-on-viikkonumero", changefreq: "monthly", priority: "0.8" },
     { path: PARITY_PATH, changefreq: "weekly", priority: "0.8" },
+    // Year index hub: the crawl path to every year outside the indexable
+    // window (see yearIndexPages.js). Indexable itself - no year in the slug.
+    { path: YEAR_INDEX_PATH, changefreq: "monthly", priority: "0.7" },
     { path: "/viikko-alkaa-maanantaista", changefreq: "monthly", priority: "0.7" },
     { path: "/kuinka-monta-viikkoa-vuodessa", changefreq: "monthly", priority: "0.8" },
     { path: "/kuinka-monta-viikkoa-kuukaudessa", changefreq: "monthly", priority: "0.8" },

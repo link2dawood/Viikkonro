@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { weeksInIsoYear } from "../src/components/dateUtils.js";
+import { readSitemapSet } from "./sitemap-set.mjs";
 import { TEMPLATE_PATH, TEMPLATES, templatePath } from "../src/platform/templates/catalog.js";
 import { COMPANY_ICS_PATH, companyIcsFaqs } from "../src/data/companyIcs.js";
 import { PLANNER_PATH, PLANNER_UPDATED, plannerFaqs } from "../src/data/vacationPlanner.js";
@@ -79,7 +80,7 @@ test("business widget v1 is small, isolated, embeddable and absent from sitemap"
   assert.match(html, /\/widget\/calendar\/v1.js/);
   assert.ok(Buffer.byteLength(script) < 25000, "widget must stay below 25 KB raw");
   assert.doesNotMatch(script, /supabase|clarity|gtag|localStorage|sessionStorage|XMLHttpRequest/);
-  assert.doesNotMatch(read("dist/sitemap.xml"), /\/widget\//);
+  assert.doesNotMatch(readSitemapSet(), /\/widget\//);
   assert.match(pageHtml("/upota-viikkonumero"), /yrityskalenteri-widget/);
   const headers = JSON.parse(read("vercel.json")).headers.find((rule) => rule.source === "/widget/calendar/(.*)").headers;
   assert.ok(headers.some((header) => header.key === "Content-Security-Policy" && header.value.includes("connect-src 'none'") && header.value.includes("frame-ancestors *")));
@@ -191,7 +192,7 @@ function schemaTypes(documents) {
 }
 
 function sitemapLocations() {
-  const xml = read("dist/sitemap.xml");
+  const xml = readSitemapSet();
   return [...xml.matchAll(/<url>[\s\S]*?<loc>([^<]+)<\/loc>[\s\S]*?<\/url>/g)]
     .map((match) => match[1]);
 }

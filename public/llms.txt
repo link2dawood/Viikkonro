@@ -98,7 +98,8 @@ Jokaiselle viikolle, kuukaudelle, vuodelle, vuosineljännekselle, pyhäpäivävu
 - [Käyttöehdot](https://viikkonro.fi/kayttoehdot)
 - [Tietosuojaseloste](https://viikkonro.fi/tietosuoja)
 - [Palautus- ja peruutusehdot](https://viikkonro.fi/palautusehdot): yrityskalenterin palautusohjeet ja peruuttamistoiminto
-- [Sivukartta (XML)](https://viikkonro.fi/sitemap.xml)
+- [Sivukartta (XML)](https://viikkonro.fi/sitemap.xml): sivukarttahakemisto, jonka alla ovat sivutyypeittäiset sivukartat /sitemap-weeks.xml, /sitemap-holidays.xml, /sitemap-calendars.xml ja /sitemap-pages.xml
+- [Vuosihakemisto](https://viikkonro.fi/kaikki-vuodet): kaikki julkaistut vuodet ja niiden ISO-viikkomäärät yhdellä sivulla
 
 ## Downloadable planning templates
 https://viikkonro.fi/kalenteripohjat - Six free Finnish planning templates: company calendar, vacation, projects, shifts, construction and HR/payroll. Substantive landing pages at /kalenteripohjat/{slug}. XLSX, CSV and printable PDF for 2026, 2027 and 2028, without an account. Downloads: /pohjat/{slug}/{year}.{xlsx|csv|pdf}. Editable blank planning fields; no automatic payroll or legal deadline calculations.

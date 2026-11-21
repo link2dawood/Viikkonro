@@ -74,6 +74,11 @@ import {
   parityMeta,
   parityPageFaqs,
 } from "./src/data/weekParity.js";
+import {
+  YEAR_INDEX_PATH,
+  yearIndexFaqs,
+  yearIndexStats,
+} from "./src/data/yearIndexPages.js";
 import { CALENDAR_CONTENT_UPDATED, sitemapLastmod } from "./src/data/sitemapMetadata.js";
 import { PAGE_TOPICS, pageTopic, topicSchema } from "./src/data/pageTopics.js";
 import { REFUND_PATH, LEGAL_UPDATED, refundFaqs } from "./src/data/legalPolicies.js";
@@ -282,16 +287,18 @@ if (forbiddenGeneratedRoutes.length) {
 const routes = routeCandidates;
 
 // Valid week pages are indexable across the full publishing horizon so
-// historical and future dates remain searchable. Other dated pages retain
-// currentYear-2..currentYear+4.
+// historical and future dates remain searchable. Other dated pages use
+// currentYear-1..currentYear+2 (narrowed from currentYear-2..currentYear+4 on
+// 2026-11-21; see isIndexable() in src/data/seo.js for the rationale and keep
+// the two windows identical).
 // Out-of-window pages remain prerendered with noindex and leave the sitemap.
 // This governs HTML routes only. PDFs are never sitemap entries and no longer
 // carry a per-family canonical header: vercel.json serves every /pdf/ response
 // with a bare X-Robots-Tag: noindex, so a PDF path never reaches this function.
 // A PDF window here would have been meaningless anyway, since the canonical it
 // used to advertise pointed at a noindex page for most of the horizon.
-const INDEX_MIN_YEAR = currentYear - 2;
-const INDEX_MAX_YEAR = currentYear + 4;
+const INDEX_MIN_YEAR = currentYear - 1;
+const INDEX_MAX_YEAR = currentYear + 2;
 const WEEK_INDEX_MIN_YEAR = PRERENDER_MIN_YEAR;
 const WEEK_INDEX_MAX_YEAR = PRERENDER_MAX_YEAR;
 const isIndexable = (p) => {
@@ -2693,6 +2700,54 @@ function schoolWeeksNodes() {
   ];
 }
 
+// CollectionPage + ItemList + FAQPage for /kaikki-vuodet. CollectionPage, not
+// WebPage: this page's mainEntity is a structured list of the year hubs
+// (invariant 11), the same reason weekCollectionNodes()/calendarPageNodes()
+// use it. The ItemList is the crawlable edge to every year outside the
+// indexable window, so each entry must reference a real, live page - all
+// /vuosi-{year} pages are prerendered across the full horizon.
+// FAQ content comes from yearIndexFaqs(), the same function YearIndex.jsx
+// renders as visible <details>, so the two cannot drift.
+function yearIndexNodes() {
+  const url = canonicalFor(YEAR_INDEX_PATH);
+  const meta = metaFor(YEAR_INDEX_PATH);
+  const faq = yearIndexFaqs();
+  const { first, last, count } = yearIndexStats();
+  const years = [];
+  for (let year = first; year <= last; year += 1) years.push(year);
+  return [
+    pageNode(YEAR_INDEX_PATH, "CollectionPage", {
+      description: meta.description,
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#years` },
+    }),
+    {
+      "@type": "ItemList",
+      "@id": `${url}#years`,
+      name: `Julkaistut vuodet ${first}-${last}`,
+      numberOfItems: count,
+      itemListOrder: "https://schema.org/ItemListOrderAscending",
+      itemListElement: years.map((year, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: `Viikkonumerot ${year}`,
+        url: canonicalFor(`/vuosi-${year}`),
+      })),
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
 function weeksInQuarterNodes() {
   const url = canonicalFor("/kuinka-monta-viikkoa-kvartaalissa");
   const meta = metaFor("/kuinka-monta-viikkoa-kvartaalissa");
@@ -4077,6 +4132,9 @@ for (const url of routes) {
       if (url === "/kuinka-monta-viikkoa-kvartaalissa") {
         nodes.push(...weeksInQuarterNodes());
       }
+      if (url === YEAR_INDEX_PATH) {
+        nodes.push(...yearIndexNodes());
+      }
       if (url === "/kuinka-monta-viikkoa-jaljella") {
         nodes.push(...weeksRemainingNodes());
       }
@@ -5351,7 +5409,39 @@ const lastmodLines = (resourcePath) => {
 const indexableEntries = sitemapEntries(currentYear).filter(
   (e) => isIndexable(e.path) && !metaFor(e.path)?.robots?.startsWith("noindex"),
 );
-const urlset = indexableEntries
+// Sitemaps are split by page type so Search Console reports indexing per
+// group instead of one 1,400-URL bucket: a drop in week coverage is then
+// visible without exporting and diffing the whole list. sitemap.xml stays the
+// one submitted URL and becomes the <sitemapindex> over the children, so
+// robots.txt, src/cli.js submit-sitemap and the deploy workflow are unchanged.
+//
+// Invariant 4 still holds across the set: every indexable HTML page lands in
+// exactly one child sitemap. SITEMAP_GROUPS is ordered and the last entry is
+// the catch-all, so a future page family cannot silently fall out of the
+// sitemap by not matching a pattern - it lands in sitemap-pages.xml.
+const SITEMAP_GROUPS = [
+  { file: "sitemap-weeks.xml", match: (p) => /^\/viikko-\d+-\d{4}$/.test(p) },
+  {
+    file: "sitemap-holidays.xml",
+    match: (p) =>
+      /^\/pyhat-\d{4}\/[a-z0-9-]+$/.test(p) ||
+      /^\/(pyhapaivat|liputuspaivat|koululomat)-\d{4}$/.test(p) ||
+      /^\/(itsenaisyyspaiva|joulu|joululoma|adventti|isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|uusivuosi|loppiainen)-\d{4}$/.test(p),
+  },
+  {
+    file: "sitemap-calendars.xml",
+    match: (p) =>
+      /^\/(kalenteri|tulostettava-kalenteri|tulosta|vuosi)-\d{4}(?:-(?:alkuvuosi|loppuvuosi))?$/.test(p) ||
+      /^\/kuukausi-\d+-\d{4}$/.test(p) ||
+      /^\/q[1-4]-\d{4}$/.test(p),
+  },
+  { file: "sitemap-pages.xml", match: () => true },
+];
+
+const sitemapGroupFor = (pathname) =>
+  SITEMAP_GROUPS.find((group) => group.match(pathname)).file;
+
+const urlXml = indexableEntries
   .map((e) => {
     const loc = e.path === "/" ? `${SITE_URL}/` : `${SITE_URL}${e.path}`;
     // Same ogImageUrlFor() the og:image override and ImageObject schema use
@@ -5362,25 +5452,48 @@ const urlset = indexableEntries
     // additive entry — not a replacement of the OG one.
     const img = ogImageUrlFor(e.path);
     const discoverImg = discoverImageUrlFor(e.path);
-    return [
-      "  <url>",
-      `    <loc>${loc}</loc>`,
-      ...lastmodLines(e.path),
-      `    <changefreq>${e.changefreq}</changefreq>`,
-      `    <priority>${e.priority}</priority>`,
-      ...(img ? [`    <image:image><image:loc>${img}</image:loc></image:image>`] : []),
-      ...(discoverImg ? [`    <image:image><image:loc>${discoverImg}</image:loc></image:image>`] : []),
-      "  </url>",
-    ].join("\n");
-  })
-  .join("\n");
+    return {
+      group: sitemapGroupFor(e.path),
+      xml: [
+        "  <url>",
+        `    <loc>${loc}</loc>`,
+        ...lastmodLines(e.path),
+        `    <changefreq>${e.changefreq}</changefreq>`,
+        `    <priority>${e.priority}</priority>`,
+        ...(img ? [`    <image:image><image:loc>${img}</image:loc></image:image>`] : []),
+        ...(discoverImg ? [`    <image:image><image:loc>${discoverImg}</image:loc></image:image>`] : []),
+        "  </url>",
+      ].join("\n"),
+    };
+  });
 // PDFs stay generated, visibly linked, and described as associated media.
 // They are excluded from the sitemap so each HTML page remains the canonical
 // search result; vercel.json supplies the corresponding HTTP Link canonical.
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urlset}\n</urlset>\n`;
-fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemap);
+const sitemapCounts = [];
+for (const { file } of SITEMAP_GROUPS) {
+  const urls = urlXml.filter((entry) => entry.group === file);
+  // An empty child sitemap is invalid, so an unused group is simply not
+  // written and not referenced from the index.
+  if (!urls.length) continue;
+  fs.writeFileSync(
+    path.join(distDir, file),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls
+      .map((entry) => entry.xml)
+      .join("\n")}\n</urlset>\n`,
+  );
+  sitemapCounts.push({ file, count: urls.length });
+}
+const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapCounts
+  .map(
+    ({ file }) =>
+      `  <sitemap>\n    <loc>${SITE_URL}/${file}</loc>\n    <lastmod>${today}</lastmod>\n  </sitemap>`,
+  )
+  .join("\n")}\n</sitemapindex>\n`;
+fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemapIndex);
 console.log(
-  `generated sitemap.xml (${indexableEntries.length} indexable HTML urls, PDFs excluded as noindex downloads, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today})`,
+  `generated sitemap.xml index -> ${sitemapCounts
+    .map(({ file, count }) => `${file} (${count})`)
+    .join(", ")}; ${indexableEntries.length} indexable HTML urls total, PDFs excluded as noindex downloads, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today}`,
 );
 
 // Generate llms-full.txt: a comprehensive English-language reference for AI
@@ -5560,7 +5673,7 @@ const llmsFull =
     "",
     "Reference / meta pages",
     "  /  — homepage: current ISO week number and a date-to-week lookup",
-    "  /en  — the one English-language page (mirrors the homepage's current-week facts)",
+    `  ${YEAR_INDEX_PATH}  — year index: every published year ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} with its ISO week count, and the crawl path to the year pages outside the indexable window`,
     "  /ukk  — full FAQ page (Finnish; same content as the FAQ section of this document)",
     "  /avoin-data  — documentation for the /data/ JSON feeds and the /api/ alias",
     `  ${CHROME_EXTENSION_PATH}  — landing page for the free "${EXTENSION_FACTS.name}" Chrome extension (current ISO week number in the browser toolbar, week dates, flag days, school holidays, "vk 42" address-bar search): ${EXTENSION_FACTS.storeUrl}`,
@@ -5598,7 +5711,10 @@ const llmsFull =
     `  ${SITE_URL}/llms-glossary.txt — ISO 8601 rules, holiday/flag-day definitions, entity relationships`,
     `  ${SITE_URL}/ai.txt            — AI crawler policy and machine-readable resource pointers`,
     `  ${SITE_URL}/ai-manifest.txt   — priority-ordered "fetch these first" manifest`,
-    `  ${SITE_URL}/sitemap.xml       — full XML sitemap of every indexable HTML page`,
+    `  ${SITE_URL}/sitemap.xml       — XML sitemap index over the per-type sitemaps below`,
+    ...sitemapCounts.map(
+      ({ file, count }) => `  ${SITE_URL}/${file.padEnd(23)} — ${count} indexable HTML urls`,
+    ),
     `  ${SITE_URL}/robots.txt        — crawler access rules`,
     "  Every prerendered HTML page additionally carries schema.org JSON-LD (WebSite/Organization/WebApplication graph on every page, plus FAQPage/BreadcrumbList/Article/Dataset/ImageObject nodes on relevant pages) — prefer the JSON-LD or the /data/ JSON feeds over parsing HTML for structured facts.",
     "",
@@ -5898,7 +6014,7 @@ const aiManifest =
     `   ${SITE_URL}/llms.txt        — concise curated index`,
     `   ${SITE_URL}/llms-full.txt   — full site-structure reference`,
     `   ${SITE_URL}/ai.txt          — AI crawler policy and resource pointers`,
-    `   ${SITE_URL}/sitemap.xml     — full XML sitemap`,
+    `   ${SITE_URL}/sitemap.xml     — XML sitemap index (per-type children: ${sitemapCounts.map(({ file }) => file).join(", ")})`,
     `   ${SITE_URL}/robots.txt      — crawler access rules`,
     `   ${SITE_URL}/avoin-data      — human-readable docs for every /data/ feed`,
     ...ICS_FEEDS.map((f) => `   ${SITE_URL}${f.path}  — iCalendar feed: ${f.calName}`),

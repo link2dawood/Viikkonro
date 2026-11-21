@@ -144,20 +144,30 @@ never an inline stub object, and (b) updating the `relationshipMap`/
 
 ### 4. Preserve sitemap generation
 
-**Rule**: `sitemap.xml` must keep listing every indexable HTML page, plus
-one `<image:image>` entry per page that has an OG or Discover image. Calendar,
+**Rule**: the sitemap set must keep listing every indexable HTML page, plus
+one `<image:image>` entry per page that has an OG or Discover image.
+`sitemap.xml` is a `<sitemapindex>`; the page entries live in four per-type
+children (`sitemap-weeks.xml`, `sitemap-holidays.xml`,
+`sitemap-calendars.xml`, `sitemap-pages.xml`). Every indexable page must land
+in exactly one child, and `sitemap-pages.xml` is the ordered catch-all so a
+new family cannot fall out of the set by matching no pattern. Calendar,
 week, and month PDFs are deliberately excluded from the sitemap as of the
 user-approved 2026-10-06 consolidation, and are served `noindex` as of the
 2026-10-22 amendment.
 
-**Lives in**: `sitemapEntries()` in `src/data/seo.js` (the page list) and
-the `urlset` template assembly plus the `<image:image>` block in
-`prerender.js`'s sitemap
-section. Indexability is governed by `isIndexable()`, which applies to HTML
+**Lives in**: `sitemapEntries()` in `src/data/seo.js` (the page list), and
+`SITEMAP_GROUPS`/`sitemapGroupFor()` plus the `urlXml` assembly and the
+`<image:image>` block in `prerender.js`'s sitemap section.
+`scripts/sitemap-set.mjs` is the single reader that rejoins the children, used
+by `check-crawl.js` and the generated-artifact cases, so a check can never
+narrow to the index's four `<loc>`s by accident.
+Indexability is governed by `isIndexable()`, which applies to HTML
 routes only: valid week pages use
 `PRERENDER_MIN_YEAR`..`PRERENDER_MAX_YEAR`; other dated pages
-keep `currentYear-2`..`currentYear+4`, with named-holiday pages retaining
-their full-horizon exception. PDFs never reach `isIndexable()` — they are
+keep `currentYear-1`..`currentYear+2`, with named-holiday pages retaining
+their full-horizon exception. Dated pages outside that window stay live and
+prerendered with `noindex, follow`, and `/kaikki-vuodet` is the one crawlable
+entry point to their year hubs (`src/data/yearIndexPages.js`). PDFs never reach `isIndexable()` — they are
 uniformly `noindex` by response header (see rule 5). Pages outside their
 applicable window are correctly
 *excluded* from the sitemap (this is intentional, not a bug — don't "fix"
@@ -198,7 +208,7 @@ rule in `vercel.json`. Asserted by `src/data/pdfCanonical.test.js`.
 **Never**: canonicalize a PDF to its HTML page. PDFs are generated across
 the full `PRERENDER_MIN_YEAR`..`PRERENDER_MAX_YEAR` horizon while
 `isIndexable()` includes week pages across the full publishing horizon and
-narrows other dated pages to `currentYear-2`..`currentYear+4`, so such a canonical
+narrows other dated pages to `currentYear-1`..`currentYear+2`, so such a canonical
 can point at a `noindex` month or calendar page. See the 2026-10-22
 amendment.
 
@@ -384,7 +394,8 @@ type, page type).
 
 **Lives in**: `public/ai.txt` and `public/llms.txt` (static, hand-edited)
 plus the generators in `prerender.js` for the six dynamic files. See also
-#14 and #15.
+#14 and #15. The per-type sitemap children are listed from `sitemapCounts`,
+so `llms-full.txt` and `ai-manifest.txt` cannot drift from what was written.
 
 **Never**: add a new discoverable resource (a dataset, an API alias, a
 PDF family, a page type) without a corresponding line in **every relevant
@@ -508,6 +519,31 @@ Before considering an SEO/routing/schema-touching task done:
       state exactly what's confirmed, state nothing for what isn't).
 
 ## Amendments
+
+- 2026-11-21: the user explicitly approved narrowing the non-week indexing
+  window from `currentYear-2`..`currentYear+4` to
+  `currentYear-1`..`currentYear+2` as thin-URL pruning ahead of a core update,
+  and explicitly declined extending it to week or named-holiday pages, so the
+  2026-10-29 week amendment and the full-horizon named-holiday exception both
+  stand unchanged. Measured effect at `currentYear` 2026: 1,542 indexable HTML
+  URLs become 1,390. The 152 pruned URLs are month, quarter, year-hub,
+  calendar, print, working-day, flag-day, payday and school-holiday pages for
+  2024 and 2029-2030; every one stays live and prerendered with
+  `noindex, follow`. The homepage year pills previously linked all 16
+  published years, i.e. mostly `noindex` pages; they now link the four
+  in-window years plus the new `/kaikki-vuodet` index, which links every
+  published year and is the single crawl path to the pruned ones. Week pages
+  for 2029-2035 are therefore three clicks from the homepage rather than two,
+  still inside `check-crawl.js`'s `MAX_DEPTH`, verified at 0 unreachable and 0
+  beyond three clicks. `sitemap.xml` became a `<sitemapindex>` over four
+  per-type children in the same change, so Search Console reports index
+  coverage per page type; the submitted URL, `robots.txt` and
+  `src/cli.js submit-sitemap` are unchanged. Two items from the same plan were
+  deliberately not implemented: `Event` schema on holiday pages (Google's
+  Event guidance excludes national holidays, and the nodes were removed for
+  that reason, see `holidaysEventNodes()`), and a narrower PDF `noindex`
+  window (every PDF already carries a bare `X-Robots-Tag: noindex`, per the
+  2026-10-22 amendment, which is stricter than the plan asked for).
 
 - 2026-10-29: in response to the requested fix for six week URLs excluded by
   `noindex` (2023, 2025, 2029, 2030 and 2033), valid week pages are eligible

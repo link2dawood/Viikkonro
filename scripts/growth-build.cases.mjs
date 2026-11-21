@@ -5,9 +5,10 @@ import { growthIntent } from "../src/platform/growth.js";
 import { toolGroups, relatedTools } from "../src/data/toolDirectory.js";
 import { dateFromDayKey } from "../src/components/dateUtils.js";
 import { pageTopic, PAGE_TOPICS, TOPIC_CONTENT_UPDATED } from "../src/data/pageTopics.js";
+import { readSitemapSet } from "./sitemap-set.mjs";
 
 test("every sitemap page has visible topic guides and matching semantic relationships", () => {
-  const sitemap=readFileSync("dist/sitemap.xml","utf8");
+  const sitemap=readSitemapSet();
   const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>new URL(m[1]));
   for (const url of urls) {
     const path=url.pathname;
@@ -44,7 +45,7 @@ test("semantic topic registry points to existing guides and stays out of private
 });
 
 test("indexed page titles and descriptions are distinct, excluding redirect documents", () => {
-  const sitemap=readFileSync("dist/sitemap.xml","utf8");
+  const sitemap=readSitemapSet();
   const titles=new Map(),descriptions=new Map();
   for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
     const path=new URL(match[1]).pathname;
