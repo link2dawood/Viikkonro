@@ -36,9 +36,14 @@ try {
       const file=await download.path(),draft=JSON.parse(fs.readFileSync(file,"utf8"));
       assert.equal(draft.form.year,year);assert.ok(!JSON.stringify(draft).includes("restoreCode"));
       await page.getByRole("link",{name:"Hinta ja ostaminen",exact:true}).click();
-      await page.getByRole("button",{name:`Osta kalenterin ${year} lataukset`,exact:true}).click();
+      const buy=page.getByRole("button",{name:`Osta kalenterin ${year} lataukset`,exact:true});
+      await buy.click();
+      await page.getByText("Syötä kelvollinen sähköpostiosoite laskua ja toimitusta varten.").waitFor();
+      assert.equal(payload,undefined,"checkout must not start without a buyer email");
+      await page.locator("#cc-buyer-email").fill("Buyer@Example.fi");
+      await buy.click();
       await page.waitForURL("https://polar.sh/checkout/fixture");
-      assert.deepEqual(payload,{year,marketingConsent:false,returnTo:path.endsWith("/ics")?"company-ics":"company-calendar"});
+      assert.deepEqual(payload,{year,marketingConsent:false,email:"buyer@example.fi",companyName:"",returnTo:path.endsWith("/ics")?"company-ics":"company-calendar"});
       await page.goto(`${origin}${path}?payment=return&year=${year}`);
       await page.waitForFunction(y=>document.querySelector("#cc-year")?.value===String(y),year);
       assert.equal(await page.getByText(`Kalenterin ${year} lataukset on avattu.`,{exact:true}).count(),0,"return URL cannot unlock payment");
