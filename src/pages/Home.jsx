@@ -10,6 +10,7 @@ import QuickLinks from "../components/QuickLinks";
 import Information from "../components/Information";
 import AppsPromo from "../components/AppsPromo";
 import SeasonYear from "../components/SeasonYear";
+import UpcomingEvents from "../components/UpcomingEvents";
 import WeekParity from "../components/WeekParity";
 import ToolDirectory from "../components/ToolDirectory";
 import AdSlot from "../components/AdSlot";
@@ -30,6 +31,7 @@ const Home = () => {
       <div className="app">
         <Weekcounter lead={meta.lead} />
         <SeasonYear />
+        <UpcomingEvents />
         <WeekParity />
         {/* Top slot sits after the live week answer and the parity answer, not
             above them: the week number is what the page exists to answer and

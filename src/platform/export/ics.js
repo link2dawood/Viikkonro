@@ -46,7 +46,8 @@ export function foldIcsLine(line) {
 // Property values that are not TEXT (UID, URL) cannot be escaped, so line
 // breaks and other control characters are removed: a CR or LF there would end
 // the property and let the caller start a new one.
-const plainValue = (value) => String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, "");
+const plainValue = (value) =>
+  [...String(value ?? "")].filter((ch) => ch.charCodeAt(0) > 31 && ch.charCodeAt(0) !== 127).join("");
 
 export function allDayEvent({ uid, date, endDate, summary, description, url }, stamp) {
   const next = new Date(endDate ?? date);
