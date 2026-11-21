@@ -43,6 +43,26 @@ export function readableTextColor(background, dark = "#15211f", light = "#ffffff
   return contrastRatio(background, dark) >= contrastRatio(background, light) ? dark : light;
 }
 
+// The argument of every CSS url(...) in `text`, found in one linear pass. A
+// regex like /url\(([^)]*)\)/ rescans to the end for each unmatched "url(",
+// which is quadratic: a 240 KB file of them took longer than 5 seconds. An
+// unterminated url( is returned as an unsafe reference instead of skipped.
+function cssUrlArguments(text) {
+  const lower = text.toLowerCase();
+  const found = [];
+  let at = lower.indexOf("url(");
+  while (at !== -1) {
+    const close = lower.indexOf(")", at + 4);
+    if (close === -1) {
+      found.push("unterminated");
+      break;
+    }
+    found.push(text.slice(at + 4, close).trim().replace(/^["']|["']$/g, "").trim());
+    at = lower.indexOf("url(", close + 1);
+  }
+  return found;
+}
+
 function validateLogo(logo, issues) {
   if (logo == null) return null;
   const match = /^data:([a-z]+\/[a-z+.-]+);base64,([A-Za-z0-9+/=]+)$/.exec(logo.dataUri ?? "");
@@ -69,7 +89,7 @@ function validateLogo(logo, issues) {
     // A logo must be self-contained: drawing it must never fetch company data
     // or external fonts/images. Local fragment references remain supported.
     const references = [...svg.matchAll(/(?:href|src)\s*=\s*["']([^"']*)["']/gi)].map((m) => m[1].trim());
-    const cssUrls = [...svg.matchAll(/url\(([^)]*)\)/gi)].map((m) => m[1].trim().replace(/^["']|["']$/g, "").trim());
+    const cssUrls = cssUrlArguments(svg);
     if (!/<svg(?:\s|\/?>)/i.test(svg) || /<!DOCTYPE|<!ENTITY|@import/i.test(svg) ||
       [...references, ...cssUrls].some((ref) => !ref.startsWith("#"))) {
       issues.push("SVG logo must be self-contained without external resources.");

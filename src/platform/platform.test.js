@@ -53,6 +53,17 @@ describe("branding", () => {
       expect(validateBranding({ logo: { dataUri: svg(bad) } }).issues[0]).toMatch(/scripts, event handlers/);
     }
   });
+  it("checks CSS url() references in linear time", () => {
+    const external = '<rect style="fill:url(https://x.test/a)"/>';
+    expect(validateBranding({ logo: { dataUri: svg(external) } }).issues[0]).toMatch(/self-contained/);
+    expect(validateBranding({ logo: { dataUri: svg('<rect fill="url(#g)"/>') } }).issues).toEqual([]);
+    // 60,000 unterminated url( tokens: the old regex needed more than 5 seconds.
+    const hostile = `<rect style="${"url(".repeat(60000)}"/>`;
+    const started = Date.now();
+    const { issues } = validateBranding({ logo: { dataUri: svg(hostile) } });
+    expect(issues[0]).toMatch(/self-contained/);
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
   it("picks readable text and computes WCAG contrast", () => {
     expect(contrastRatio("#000000", "#ffffff")).toBeCloseTo(21, 0);
     expect(contrastRatio("#777777", "#777777")).toBe(1);
