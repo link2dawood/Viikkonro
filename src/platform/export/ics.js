@@ -43,18 +43,23 @@ export function foldIcsLine(line) {
 
 // One all-day VEVENT. `endDate` is the LAST day of a multi-day event
 // (inclusive); iCalendar's DTEND is exclusive, so one day is added here.
+// Property values that are not TEXT (UID, URL) cannot be escaped, so line
+// breaks and other control characters are removed: a CR or LF there would end
+// the property and let the caller start a new one.
+const plainValue = (value) => String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, "");
+
 export function allDayEvent({ uid, date, endDate, summary, description, url }, stamp) {
   const next = new Date(endDate ?? date);
   next.setDate(next.getDate() + 1);
   return [
     "BEGIN:VEVENT",
-    `UID:${uid}`,
+    `UID:${plainValue(uid)}`,
     `DTSTAMP:${stamp}`,
     `DTSTART;VALUE=DATE:${icsDate(date)}`,
     `DTEND;VALUE=DATE:${icsDate(next)}`,
     `SUMMARY:${escapeIcsText(summary)}`,
     ...(description ? [`DESCRIPTION:${escapeIcsText(description)}`] : []),
-    ...(url ? [`URL:${url}`] : []),
+    ...(url ? [`URL:${plainValue(url)}`] : []),
     "TRANSP:TRANSPARENT",
     "END:VEVENT",
   ];
@@ -66,7 +71,7 @@ export function timedEvent({ uid, startsAt, endsAt, summary, description }, stam
   const start = new Date(startsAt), end = new Date(endsAt);
   if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) throw new Error("Invalid timed event.");
   const utc = (date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-  return ["BEGIN:VEVENT", `UID:${uid}`, `DTSTAMP:${stamp}`, `DTSTART:${utc(start)}`, `DTEND:${utc(end)}`, `SUMMARY:${escapeIcsText(summary)}`, ...(description ? [`DESCRIPTION:${escapeIcsText(description)}`] : []), "TRANSP:OPAQUE", "END:VEVENT"];
+  return ["BEGIN:VEVENT", `UID:${plainValue(uid)}`, `DTSTAMP:${stamp}`, `DTSTART:${utc(start)}`, `DTEND:${utc(end)}`, `SUMMARY:${escapeIcsText(summary)}`, ...(description ? [`DESCRIPTION:${escapeIcsText(description)}`] : []), "TRANSP:OPAQUE", "END:VEVENT"];
 }
 
 export function buildIcs({ calName, calDesc, events, stamp, prodId = DEFAULT_PRODID, refresh = true }) {
