@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { buildIcs, escapeIcsText, foldIcsLine } from "./ics.js";
+import { allDayEvent, buildIcs, escapeIcsText, foldIcsLine } from "./ics.js";
 import { csvCell, toCsv } from "./csv.js";
 import { buildXlsx, columnLetter, crc32, excelSerial, sheetName, zipStore } from "./xlsx.js";
 import { calendarTable, calendarToCsv, calendarToIcs, calendarToXlsx, TABLE_HEADER } from "./calendar.js";
@@ -101,9 +101,18 @@ describe("CSV serializer", () => {
     expect(csvCell("one\r\ntwo")).toBe('"one\r\ntwo"');
     expect(csvCell(null)).toBe("");
   });
+  it("keeps CR and LF out of unescaped ICS properties", () => {
+    const lines = allDayEvent(
+      { uid: "u\r\nBEGIN:VEVENT", date: new Date(2027, 0, 1), summary: "s", url: "https://x.fi/\r\nBEGIN:VEVENT" },
+      "20270101T000000Z",
+    );
+    expect(lines.filter((l) => l.startsWith("BEGIN:VEVENT"))).toHaveLength(1);
+    expect(lines.some((l) => /[\r\n]/.test(l))).toBe(false);
+    expect(lines).toContain("URL:https://x.fi/BEGIN:VEVENT");
+  });
   it("neutralises spreadsheet formulas only when asked", () => {
     expect(csvCell("=SUM(A1)")).toBe("=SUM(A1)");
-    for (const bad of ["=1+1", "+1", "-1", "@cmd", "\tx"]) {
+    for (const bad of ["=1+1", "+1", "-1", "@cmd", "\tx", "\n=1+1", "\r=1+1"]) {
       expect(csvCell(bad, { escapeFormulas: true }).replace(/^"|"$/g, "")).toBe(`'${bad}`);
     }
     expect(csvCell(-5, { escapeFormulas: true })).toBe("-5"); // numbers are untouched

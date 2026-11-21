@@ -429,6 +429,15 @@
       ]
     },
     {
+      "source": "/data/(week|month|year|holiday|working-days)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
       "source": "/data/(.*).csv",
       "headers": [
         {

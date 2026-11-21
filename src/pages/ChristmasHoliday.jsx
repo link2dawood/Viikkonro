@@ -144,9 +144,9 @@ const ChristmasHoliday = ({ year: pYear } = {}) => {
         )}
         <Link to={`/vuosi-${year}`}>viikkokalenteri {year}</Link>,{" "}
         <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}
-        <Link to={`/joululoma-${year}`}>koulujen joululoma {year}</Link>,{" "}
         {pageConfidenceTier(year) === CONFIDENCE.CONFIRMED && (
           <>
+            <Link to={`/joululoma-${year}`}>koulujen joululoma {year}</Link>,{" "}
             <Link to={`/koululomat-${year}`}>
               {year === 2027 ? "talviloma ja koululomat 2027" : `koululomat ${year}`}
             </Link>,{" "}

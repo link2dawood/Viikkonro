@@ -47,7 +47,13 @@ test("dataset MIME rules distinguish documentation HTML from downloadable data",
   const config = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
   const rules = config.headers.filter(rule => rule.source.startsWith("/data/"));
   const mimeRules = rules.filter(rule => rule.headers.some(header => header.key.toLowerCase() === "content-type"));
-  assert.deepEqual(mimeRules.map(rule => rule.source).sort(), ["/data/(.*).csv", "/data/(.*).json", "/data/(.*).xml"]);
+  const docsSource = "/data/(week|month|year|holiday|working-days)";
+  assert.deepEqual(mimeRules.map(rule => rule.source).sort(), ["/data/(.*).csv", "/data/(.*).json", "/data/(.*).xml", docsSource]);
+  // Later header rules win, so the documentation pages must come after the JSON rule.
+  const order = rules.map(rule => rule.source);
+  assert.ok(order.indexOf(docsSource) > order.indexOf("/data/(.*).json"));
+  const docs = mimeRules.find(rule => rule.source === docsSource);
+  assert.deepEqual(docs.headers, [{ key: "Content-Type", value: "text/html; charset=utf-8" }]);
   for (const family of ["week", "month", "year", "holiday", "working-days"]) {
     const html = fs.readFileSync(path.join(dist, `data/${family}.html`), "utf8");
     assert.match(html, /<main/);

@@ -1737,6 +1737,9 @@ ins.adsbygoogle,
 }
 
 /* ---- Data tables + stat boxes (holiday / working-day hub pages) ---- */
+.dataset-columns {
+  overflow-wrap: anywhere;
+}
 .table-wrap {
   overflow-x: auto;
   border-radius: var(--radius);

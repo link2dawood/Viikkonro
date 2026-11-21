@@ -178,3 +178,54 @@ test("dataset landing pages reuse the shared Dataset and link real download form
     }
   }
 });
+
+const walkHtml = (dir, out = []) => {
+  for (const entry of fs.readdirSync(new URL(`../${dir}/`, import.meta.url), { withFileTypes: true })) {
+    const path = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) walkHtml(path, out);
+    else if (entry.name.endsWith(".html")) out.push(path);
+  }
+  return out;
+};
+const routeOf = (file) => file.replace(/^dist/, "").replace(/\.html$/, "").replace(/\/index$/, "") || "/";
+const robotsOf = (html) => html.match(/name="robots"\s+content="([^"]*)"/)?.[1] ?? "";
+
+test("no prerendered page links to a page that does not exist", () => {
+  const files = walkHtml("dist");
+  const routes = new Set(files.map(routeOf));
+  const redirects = new Set(JSON.parse(read("vercel.json")).redirects.map((item) => item.source));
+  const assets = /\.(?:pdf|csv|xml|json|ics|png|webp|jpe?g|xlsx|txt|svg|zip|js|css)$|^\/(?:data|api|pdf|ics|og|discover|pohjat|widget|assets|mobile)(?:\/|$)/;
+  const broken = [];
+  for (const file of files) {
+    const html = read(file);
+    for (const [, href] of html.matchAll(/<a [^>]*href="(\/[^"#?]*)"/g)) {
+      const target = href.replace(/\/$/, "") || "/";
+      if (routes.has(target) || redirects.has(target) || assets.test(target)) continue;
+      broken.push(`${routeOf(file)} -> ${target}`);
+    }
+  }
+  assert.deepEqual(broken.slice(0, 20), []);
+});
+
+test("the sitemap lists only indexable pages and every indexable page except redirects", () => {
+  const listed = new Set([...read("dist/sitemap.xml").matchAll(/<loc>https:\/\/viikkonro\.fi([^<]*)<\/loc>/g)].map((m) => m[1] || "/"));
+  const noindexListed = [];
+  for (const file of walkHtml("dist")) {
+    const route = routeOf(file), robots = robotsOf(read(file));
+    if (listed.has(route) && robots.includes("noindex")) noindexListed.push(route);
+  }
+  assert.deepEqual(noindexListed, []);
+  assert.ok(listed.size > 1000);
+});
+
+test("the homepage links the next holidays and events", () => {
+  const html = read("dist/index.html").replace(/<!--[\s\S]*?-->/g, "");
+  assert.ok(html.includes("Tulevat juhlapäivät ja pyhät"));
+  const list = html.match(/<ul class="upcoming-events">([\s\S]*?)<\/ul>/)?.[1] ?? "";
+  const links = [...list.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  assert.equal(links.length, 8);
+  for (const link of links) {
+    assert.ok(fs.existsSync(new URL(`../dist${link}.html`, import.meta.url)), link);
+    assert.match(robotsOf(read(`dist${link}.html`)), /^index/, link);
+  }
+});
