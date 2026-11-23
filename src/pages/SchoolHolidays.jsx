@@ -110,7 +110,7 @@ const SchoolHolidays = ({ year }) => {
 
       <div className="prose">
         {/* STEP 4: Tier B pages must show this exact sentence, visibly, not
-            just in the (noindexed) meta description. */}
+            just in the meta description. */}
         {tier !== CONFIDENCE.CONFIRMED && (
           <div className="notice">
             <strong>

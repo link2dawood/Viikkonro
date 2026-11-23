@@ -37,3 +37,7 @@ dist-server
 supabase/.temp/
 .vercel
 outputs/
+
+# Local service-account keys. Never commit; never place in public/ (it is web-served).
+.secrets/
+public/*.json

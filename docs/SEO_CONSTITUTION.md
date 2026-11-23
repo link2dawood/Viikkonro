@@ -58,8 +58,9 @@ same content shape. Routes are single-segment Finnish keyword slugs
 Non-HTML resources outside the route table: `/ics/*.ics` calendar feeds
 (generated from `src/data/icsFeeds.js`) and the `/widget/viikko` iframe
 document (`src/data/weekWidget.js`) and versioned `/widget/calendar/v1`
-business calendar embed (`src/platform/widget/`) are deliberately
-`noindex` and absent from `sitemapEntries()`. The `/widget/` namespace is
+business calendar embed (`src/platform/widget/`) are absent from
+`sitemapEntries()`. They no longer declare a robots directive (2026-11-23
+amendment); the sitemap exclusion is what keeps them out of the index. The `/widget/` namespace is
 exempt from `X-Frame-Options` in `vercel.json` so these documents can be embedded.
 
 **Lives in**: `src/AppRoutes.jsx`'s `DynamicSlug` regex dispatcher (the
@@ -145,10 +146,12 @@ never an inline stub object, and (b) updating the `relationshipMap`/
 ### 4. Preserve sitemap generation
 
 **Rule**: `sitemap.xml` must keep listing every indexable HTML page, plus
-one `<image:image>` entry per page that has an OG or Discover image. Calendar,
-week, and month PDFs are deliberately excluded from the sitemap as of the
-user-approved 2026-10-06 consolidation, and are served `noindex` as of the
-2026-10-22 amendment.
+one `<image:image>` entry per page that has an OG or Discover image, plus
+every generated calendar, week, and month PDF in `sitemap-pdfs.xml`, plus
+every free template export in `sitemap-templates.xml`. The
+2026-10-06 exclusion and the 2026-10-22 `noindex` were both superseded on
+2026-11-23: PDFs are now ordinary indexable downloads, submitted with no
+`<lastmod>` because a PDF's content date is unknown.
 
 **Lives in**: `sitemapEntries()` in `src/data/seo.js` (the page list) and
 the `urlset` template assembly plus the `<image:image>` block in
@@ -157,11 +160,13 @@ section. Indexability is governed by `isIndexable()`, which applies to HTML
 routes only: valid week pages use
 `PRERENDER_MIN_YEAR`..`PRERENDER_MAX_YEAR`; other dated pages
 keep `currentYear-2`..`currentYear+4`, with named-holiday pages retaining
-their full-horizon exception. PDFs never reach `isIndexable()` — they are
-uniformly `noindex` by response header (see rule 5). Pages outside their
-applicable window are correctly
-*excluded* from the sitemap (this is intentional, not a bug — don't "fix"
-it by including them).
+their full-horizon exception. PDFs never reach `isIndexable()`: their
+sitemap entries are built from the same horizon loops and path builders that
+generate the files (see rule 5). Pages outside their applicable window
+are correctly *excluded* from the sitemap (this is intentional, not a bug,
+so don't "fix" it by including them). Since the 2026-11-23 amendment,
+`isIndexable()` governs sitemap membership and page-level schema only. It no
+longer sets robots: every prerendered page is served `index, follow`.
 
 **Never**: add a new page family to `AppRoutes.jsx`/`prerender.js`
 without adding it to `sitemapEntries()` — an unlisted-but-prerendered page
@@ -179,14 +184,14 @@ rules above remain unchanged.
 **Rule**: every calendar/week/month PDF must remain linked from (a) its
 HTML page as a visible download link, (b) an `associatedMedia`/
 `MediaObject` + `potentialAction`/`DownloadAction` schema pair, and (c) a
-`<link rel="alternate">` pointer. Each PDF response must also carry a bare
-`X-Robots-Tag: noindex` and must **not** carry a `rel="canonical"` Link
-header. PDFs are downloadable assets, never indexable pages, in every year
-of the horizon; the HTML page is always the citable source.
+`<link rel="alternate">` pointer, and (d) a `sitemap-pdfs.xml` entry. A PDF
+response must **not** carry a `rel="canonical"` Link header, and as of the
+2026-11-23 amendment must not carry an `X-Robots-Tag` either. The HTML page
+remains the preferred citable source through (a)-(c), not through exclusion.
 
-The `noindex` must stay bare. Adding `nofollow`, `noarchive`, or a redirect
-or 404 for a PDF path breaks the discoverability contract in (a)-(c): the
-file must remain crawlable and directly downloadable.
+Adding `nofollow`, `noarchive`, or a redirect or 404 for a PDF path breaks
+the discoverability contract in (a)-(c): the file must remain crawlable and
+directly downloadable.
 
 **Lives in**: `calendarPdfPath()`/`weekPdfPath()`/`monthPdfPath()` in
 `seo.js` (the single-source-of-truth path builders — every consumer reads
@@ -199,12 +204,15 @@ rule in `vercel.json`. Asserted by `src/data/pdfCanonical.test.js`.
 the full `PRERENDER_MIN_YEAR`..`PRERENDER_MAX_YEAR` horizon while
 `isIndexable()` includes week pages across the full publishing horizon and
 narrows other dated pages to `currentYear-2`..`currentYear+4`, so such a canonical
-can point at a `noindex` month or calendar page. See the 2026-10-22
-amendment.
+can point at a pruned month or calendar page. See the 2026-10-22 amendment.
 
-**Downloadable assets are never indexable pages.** One policy covers every
-asset family: crawlable, bare `X-Robots-Tag: noindex`, no canonical, out of
-the sitemap. Three `vercel.json` rules implement it, one per family:
+**Downloadable assets are crawlable and indexable.** One policy covers every
+asset family: no robots directive and no canonical. The `/pdf/(.*)` and
+`/ics/(.*)` rules in `vercel.json` now carry only content and caching
+headers, and `/pohjat/(.*)` needs no rule of its own at all. PDFs are
+submitted in `sitemap-pdfs.xml` and the 54 template exports in
+`sitemap-templates.xml`. The three ICS feeds are the one family still
+unsubmitted:
 
 | Family | Rule | Citable surface |
 | --- | --- | --- |
@@ -212,16 +220,15 @@ the sitemap. Three `vercel.json` rules implement it, one per family:
 | Calendar subscriptions | `/ics/(.*)` | `/kalenteritilaus` |
 | Template exports (pdf/csv/xlsx) | `/pohjat/(.*)` | `/kalenteripohjat/:slug` |
 
-`/pohjat/` previously carried a `rel="canonical"` to `/kalenteripohjat/:slug`.
-That target is always indexable, so it was never the out-of-window conflict
-above, but `noindex` and `canonical` on one response conflict regardless, so
-the canonical was removed with the 2026-10-22 asset sweep.
+`/pohjat/` previously carried a `rel="canonical"` to `/kalenteripohjat/:slug`,
+removed in the 2026-10-22 asset sweep, and then an `X-Robots-Tag: noindex`,
+removed on 2026-11-23. Do not reintroduce either.
 
-The machine-readable `/data/` directory listings are `noindex, follow` via
-two rules: `/data/(.*)/index.json` does **not** match the top-level
-`/data/index.json`, which needs its own. The data feeds themselves
-(`.json`, `.csv`, `.xml`) stay indexable on purpose — they are the open-data
-product that `/avoin-data` documents. Do not blanket-`noindex` `/data/`.
+The machine-readable `/data/` directory listings were `noindex, follow` via
+two rules until the 2026-11-23 amendment removed both. Every `/data/`
+response is now indexable: the feeds (`.json`, `.csv`, `.xml`) always were,
+because they are the open-data product that `/avoin-data` documents, and the
+directory listings joined them.
 
 **Never**: add a new PDF-generating page type using a hand-built path
 string instead of a new `*PdfPath()` function in `seo.js` — this is the
@@ -267,11 +274,9 @@ being violated; find the standalone-node alternative instead (see how
 ### 8. Preserve Dataset schema
 
 Data-family manifests at `/data/{family}/index.json` are machine-readable
-file lists, including nested year manifests, served as JSON with
-`X-Robots-Tag: noindex, follow`. They remain
-crawlable and downloadable at their existing URLs. This scoped rule does not
-apply to HTML documentation, per-year data, `dataset.json` or the knowledge
-graph. Keep the indexable `/avoin-data` and dataset documentation pages,
+file lists, including nested year manifests, served as JSON with no robots
+directive since the 2026-11-23 amendment. They remain crawlable and
+downloadable at their existing URLs. Keep the indexable `/avoin-data` and dataset documentation pages,
 Dataset schema/distributions and AI discovery links intact. The five HTML
 pages at `/data/{week,month,year,holiday,working-days}` also embed their
 matching shared Dataset node with JSON, CSV and XML DataDownload entries.
@@ -483,9 +488,11 @@ from it, not maintained separately — see #13).
 4. **Preserve existing rankings** — concretely: any URL change ships
    with a 301 in `vercel.json`; any content narrowing (fewer words, fewer
    facts, removed FAQ items) on an already-indexed page requires an
-   explicit reason, not just refactor convenience; `noindex`/sitemap
-   removal only ever follows the existing `isIndexable()` year-window
-   logic, never an ad hoc decision on a single page.
+   explicit reason, not just refactor convenience; sitemap removal only ever
+   follows the existing `isIndexable()` year-window logic, never an ad hoc
+   decision on a single page. Robots directives are governed separately by
+   [`noindex.md`](noindex.md): adding or removing a `noindex` anywhere
+   requires an approval row in that registry.
 
 ## Pre-merge checklist
 
@@ -509,6 +516,46 @@ Before considering an SEO/routing/schema-touching task done:
 
 ## Amendments
 
+- 2026-11-23: the user explicitly approved submitting every generated PDF in
+  the sitemap, superseding the 2026-10-06 exclusion. A new `sitemap-pdfs.xml`
+  child lists all 1,043 files, built from the same horizon loops and
+  `*PdfPath()` builders that generate them, with no `<lastmod>` since a PDF's
+  content date is unknown. `scripts/check-crawl.js` inverted with the policy:
+  it now fails when a generated PDF is **missing** from the sitemap, and still
+  fails when a submitted PDF has no file or no visible HTML download link.
+  Accepted tradeoff: a PDF can now rank for a query its HTML page also
+  targets. The same decision submitted the 54 free template exports
+  (`/pohjat/{slug}/{year}.{xlsx|csv|pdf}`) in `sitemap-templates.xml`, built
+  from each template's own `downloadableAssets` records and repeating
+  `build-templates.mjs`'s fail-closed price check, so a future paid template
+  is never advertised while its files stay out of `dist`. `check-crawl.js`
+  fails when a generated export is missing from the sitemap. The same decision
+  added a `rel="canonical"` to
+  `/widget/calendar/v1` pointing at `/upota-viikkonumero`, so the indexable
+  embed target consolidates into its documentation page instead of competing
+  as a thin duplicate; `/widget/viikko` has always had the equivalent
+  canonical to the homepage.
+- 2026-11-23: the user explicitly approved removing `noindex` from the whole
+  site, overriding the 2026-10-22 asset policy and the robots half of the
+  index-window pruning. Removed: the out-of-window robots flip and the 404
+  flip in `prerender.js`, the `NOINDEX_ROBOTS` fallback in `robotsFor()`,
+  Tier B school-holiday and unseeded name-day robots values, the week and
+  business-calendar widget meta tags, the private planner meta tag, and the
+  `X-Robots-Tag` rules for `/widget/`, `/ics/`, `/pdf/`, `/pohjat/` and the
+  two `/data/` listings. Every public page, prerendered document and
+  downloadable asset is now served `index, follow`. Kept, after the owner
+  reviewed the mandatory set the same day: `/tiimin-lomat/suunnittelu`, whose
+  auth-gated shell has no indexable content, plus the JSON API and billing
+  responses, which are POST or authenticated responses rather than pages. `isIndexable()` still governs sitemap membership and
+  page-level schema, so out-of-window pages remain sitemap-excluded without
+  page schema while being crawlable and indexable. Accepted tradeoffs: thin
+  out-of-window pages, PDFs, ICS feeds, template exports, widget iframes and
+  the 404 document can now compete for index slots. The 619 prerendered pages
+  outside the sitemap (out-of-window dated years) are the largest share of
+  that and were reviewed explicitly on 2026-11-23: the owner accepted the
+  index-bloat risk rather than keep them noindexed.
+  Future changes in either direction go through
+  [`noindex.md`](noindex.md), which is the registry of record.
 - 2026-10-29: in response to the requested fix for six week URLs excluded by
   `noindex` (2023, 2025, 2029, 2030 and 2033), valid week pages are eligible
   for indexing across the full publishing horizon again. The old

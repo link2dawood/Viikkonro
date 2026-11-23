@@ -2,11 +2,17 @@ import { useToday } from "./useToday";
 import { Link } from "react-router-dom";
 import { navigationYearTargets } from "./dateUtils";
 import { schoolHolidayPage } from "../data/schoolHolidayPages";
+import { upcomingEventPages } from "../data/upcomingEvents";
 const QuickLinks = () => {
   const NOW = useToday();
   const { currentYear, promotedYear } = navigationYearTargets(NOW);
   // Only years with a sourced school-holiday page get a link (no 404s).
   const schoolYear = schoolHolidayPage(currentYear) ? currentYear : null;
+  // The next seasonal events, by date. This replaced a single hardcoded
+  // /adventti-{year} tile: advent was the only seasonal page with a sitewide
+  // link and consequently the only one Google indexed, so the slot now
+  // rotates through whichever events are actually approaching.
+  const upcoming = upcomingEventPages(NOW, 3);
   return (
     <>
       <section>
@@ -54,14 +60,17 @@ const QuickLinks = () => {
               <span>Syys- ja hiihtolomaviikot alueittain</span>
             </Link>
           )}
-          <Link
-            className="ql"
-            to={`/adventti-${currentYear}`}
-            onClick={() => window.scrollTo(0, 0)}
-          >
-            <b>Adventti {currentYear}</b>
-            <span>Adventtisunnuntait ja joulun odotus</span>
-          </Link>
+          {upcoming.map((event) => (
+            <Link
+              key={event.path}
+              className="ql"
+              to={event.path}
+              onClick={() => window.scrollTo(0, 0)}
+            >
+              <b>{event.name}</b>
+              <span>{event.desc}</span>
+            </Link>
+          ))}
           <Link
             className="ql"
             to={`/tyopaivat-${currentYear}`}

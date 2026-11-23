@@ -1,12 +1,22 @@
 import { build } from "vite";
 import fs from "node:fs";
+
+// The embed target is indexable (2026-11-23 no-noindex decision, see
+// docs/noindex.md) but it is a thin iframe document showing the same calendar
+// as its documentation page, so it declares that page as canonical. Search
+// then consolidates the widget URL into /upota-viikkonumero instead of
+// treating it as a competing duplicate. /widget/viikko has had the equivalent
+// canonical to the homepage since it was introduced.
+const WIDGET_ORIGIN = process.env.SITE_ORIGIN ?? "https://viikkonro.fi";
+const WIDGET_CANONICAL = `${WIDGET_ORIGIN}/upota-viikkonumero`;
 await build({ configFile: false, publicDir: false, build: {
   target: "es2020", outDir: "dist/widget/calendar", emptyOutDir: false,
   lib: { entry: "src/platform/widget/runtime.js", name: "ViikkonroCalendarV1", formats: ["iife"], fileName: () => "v1.js" },
   reportCompressedSize: true,
 } });
 fs.writeFileSync("dist/widget/calendar/v1.html", `<!doctype html>
-<html lang="fi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, follow"><meta name="referrer" content="no-referrer"><title>Viikkonro yrityskalenteri</title>
+<html lang="fi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><title>Viikkonro yrityskalenteri</title>
+<link rel="canonical" href="${WIDGET_CANONICAL}">
 <style>
 :root{--bg:#fff;--ink:#15211f;--line:#b9c4bf;--accent:#1f7a5c;color-scheme:light}
 :root[data-theme=dark]{--bg:#15211f;--ink:#f3f7f5;--line:#82978c;color-scheme:dark}

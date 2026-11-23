@@ -22,6 +22,8 @@ import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
 import AdSlot from "../components/AdSlot";
 import { canonicalFor, weekMeta, weekPdfPath } from "../data/seo";
+import { eventReviewedFi, eventReviewedFor } from "../data/eventTemplate";
+import { useTodayKey } from "../components/useToday";
 import NotFound from "./NotFound";
 import { holidaysInWeek } from "../data/holidays";
 import { holidayLinkPath } from "../data/holidayPages";
@@ -78,6 +80,7 @@ function seasonNominative(monthIndex) {
 // useParams fallback keeps the component usable under a plain param route too.
 const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
   const params = useParams();
+  const todayKey = useTodayKey();
   const week = pWeek ?? params.week;
   const year = pYear ?? params.year;
   const w = Number(week);
@@ -105,6 +108,17 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
   thursday.setDate(mo.getDate() + 3);
   const season = seasonIllative(thursday.getMonth());
   const weeksLeft = total - w;
+  // A 53-week year's last week runs into the next calendar year, which is the
+  // single fact "viikko 53" searches actually need: how many January days
+  // still belong to the old week-year, and when week 1 starts.
+  const crossesYear = su.getFullYear() !== y;
+  const janDays = crossesYear ? su.getDate() : 0;
+  // Week pages carry no site-wide editorial date, so only a week whose copy
+  // was actually reviewed (EVENT_REVIEWS) shows a "Sisältö päivitetty" line.
+  // The other 834 are unchanged, which keeps the claim honest rather than
+  // stamping every week page with a date nobody reviewed.
+  const weekPath = `/viikko-${w}-${y}`;
+  const weekReviewed = eventReviewedFor(weekPath, todayKey);
 
   var WD = [
     "Sunnuntai",
@@ -274,8 +288,32 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
       {w === 53 && (
         <div className="notice">
           <strong>Harvinainen viikko 53.</strong> Vuonna {y} on poikkeuksellisesti
-          53 viikkoa — useimmissa vuosissa niitä on vain 52. Viikko 53 on vuoden{" "}
-          {y} viimeinen viikko ennen seuraavan vuoden viikkoa 1.
+          53 viikkoa — useimmissa vuosissa niitä on vain 52. Viikko 53 alkaa
+          maanantaina {fmtShortFi(mo)} ja päättyy sunnuntaina {fmtShortFi(su)}
+          {crossesYear ? (
+            <>
+              , joten se jatkuu vuoden {su.getFullYear()} puolelle: tammikuun{" "}
+              {janDays} ensimmäistä päivää kuuluvat vielä vuoden {y} viikkoon 53,
+              ja vuoden {su.getFullYear()} viikko 1 alkaa maanantaina{" "}
+              {fmtShortFi(mondayOf(1, su.getFullYear()))}
+            </>
+          ) : (
+            <>, ja se on vuoden {y} viimeinen viikko</>
+          )}
+          .{" "}
+          <Link to="/miksi-vuodessa-on-53-viikkoa">
+            Miksi vuodessa on 53 viikkoa
+          </Link>
+          {crossesYear && (
+            <>
+              {" "}
+              ja{" "}
+              <Link to={`/viikko-1-${su.getFullYear()}`}>
+                viikko 1 vuonna {su.getFullYear()}
+              </Link>
+            </>
+          )}
+          .
         </div>
       )}
 
@@ -295,6 +333,12 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
         <strong>vko {w}</strong>. ISO 8601 -merkintä on{" "}
         <code>{isoWeekDateLabel(w, y)}</code>.
       </p>
+
+      {weekReviewed && (
+        <p className="note-soft">
+          Sisältö päivitetty <time dateTime={weekReviewed}>{eventReviewedFi(weekPath)}</time>.
+        </p>
+      )}
 
       <QuickFacts
         facts={[

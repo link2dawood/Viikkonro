@@ -65,7 +65,12 @@ export function weeksInYearMeta(date) {
   const year = isoYear(date);
   const weeks = weeksInIsoYear(year);
   return {
-    title: "Kuinka monta viikkoa vuodessa on? 52 vai 53 | Viikko Nro",
+    // The "52 vai 53" hook left the searcher without an answer, which is the
+    // one thing this page can give in the SERP itself. The computed count
+    // replaces it; the primary query phrase stays in front, and the
+    // "montako viikkoa vuodessa" wording stays in the description. Exactly 60
+    // characters for every year in the horizon, the enforced title limit.
+    title: `Kuinka monta viikkoa vuodessa? ${year}: ${weeks} viikkoa | Viikko Nro`,
     description: `Katso, montako viikkoa vuodessa on: tavallisesti 52, joskus 53. Vuonna ${year} on ${weeks} viikkoa. Lue ISO 8601 -sääntö ja tarkista 53 viikon vuodet.`,
   };
 }

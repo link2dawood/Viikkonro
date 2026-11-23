@@ -2,10 +2,13 @@ import {
   isoWeek,
   isoYear,
   WD,
+  WD_ALLATIVE,
   WD_ESSIVE,
   PRERENDER_MIN_YEAR,
   PRERENDER_MAX_YEAR,
 } from "../components/dateUtils.js";
+
+import { dayOffVerdict } from "./eventTemplate.js";
 
 const inRange = (y) => y >= PRERENDER_MIN_YEAR && y <= PRERENDER_MAX_YEAR;
 
@@ -33,9 +36,18 @@ export function itsenaisyyspaivaData(year) {
     isWeekend,
     yearsSinceIndependence,
     flagTime: "8.00-20.00",
+    // The answer line states date, weekday and week number, the three facts
+    // the query asks for, like the loppiainen lead below.
     answerLead: isWeekend
-      ? `Itsenäisyyspäivä ${y} on ${WD[dayOfWeek].toLowerCase()} ${date.getDate()}.${date.getMonth() + 1}., ei ylimääräistä vapaapäivää.`
-      : `Itsenäisyyspäivä ${y} on ${WD[dayOfWeek].toLowerCase()} ${date.getDate()}.${date.getMonth() + 1}., palkallinen vapaapäivä.`,
+      ? `Itsenäisyyspäivä ${y} on ${WD[dayOfWeek].toLowerCase()} ${date.getDate()}.${date.getMonth() + 1}. (viikko ${week}), ei ylimääräistä vapaapäivää.`
+      : `Itsenäisyyspäivä ${y} on ${WD[dayOfWeek].toLowerCase()} ${date.getDate()}.${date.getMonth() + 1}. (viikko ${week}), palkallinen vapaapäivä.`,
+    dayOff: {
+      question: `Onko itsenäisyyspäivä ${y} vapaapäivä?`,
+      verdict: dayOffVerdict({ official: true, weekend: isWeekend }),
+      detail: isWeekend
+        ? `Itsenäisyyspäivä on lakisääteinen vapaapäivä (laki 388/1937), mutta vuonna ${y} se osuu ${WD_ALLATIVE[dayOfWeek]}. Suomessa viikonlopulle osuvasta arkipyhästä ei anneta korvaavaa vapaapäivää.`
+        : `Itsenäisyyspäivä on lakisääteinen palkallinen vapaapäivä (laki 388/1937), ja vuonna ${y} se osuu ${WD_ALLATIVE[dayOfWeek]}.`,
+    },
   };
 }
 
@@ -128,6 +140,14 @@ export function christmasData(year) {
     boxing: { date: boxing, weekday: boxingWd, weekdayEssive: WD_ESSIVE[boxing.getDay()] },
     freeDaysCount: is2026 ? 4 : (eve.getDay() >= 1 && eve.getDay() <= 4 ? 4 : 3),
     freeDaysRange: is2026 ? "torstai 24.12. - sunnuntai 27.12.2026" : "joulun pyhät",
+    // Only the statutory facts, which hold in every year. The number of
+    // consecutive days off is stated in the page's own section, where the
+    // weekday placement is explained alongside it.
+    dayOff: {
+      question: `Onko jouluaatto ${y} vapaapäivä?`,
+      verdict: "Ei lakisääteinen pyhäpäivä, mutta useimmilla palkallinen vapaa",
+      detail: `Joulupäivä 25.12. ja tapaninpäivä 26.12. ovat lakisääteisiä pyhäpäiviä. Jouluaatto 24.12. ei ole lakisääteinen pyhäpäivä, mutta useimmissa työehtosopimuksissa se on koko päivän palkallinen vapaa.`,
+    },
   };
 }
 
@@ -305,6 +325,13 @@ export function newYearData(year) {
       isWeekend: dayIsWeekend,
     },
     fireworksTime: "klo 18.00-02.00",
+    dayOff: {
+      question: `Onko uudenvuodenpäivä ${y} vapaapäivä?`,
+      verdict: dayOffVerdict({ official: true, weekend: dayIsWeekend }),
+      detail: dayIsWeekend
+        ? `Uudenvuodenpäivä 1.1. on virallinen pyhäpäivä, mutta vuonna ${y} se osuu ${WD_ALLATIVE[dayDate.getDay()]}, eikä viikonlopulle osuvasta arkipyhästä anneta korvaavaa vapaapäivää. Uudenvuodenaatto 31.12. on tavallinen arkipäivä.`
+        : `Uudenvuodenpäivä 1.1. on virallinen pyhäpäivä ja useimmilla aloilla palkallinen vapaapäivä. Vuonna ${y} se osuu ${WD_ALLATIVE[dayDate.getDay()]}. Uudenvuodenaatto 31.12. on tavallinen arkipäivä, jota monissa työehtosopimuksissa lyhennetään.`,
+    },
   };
 }
 
@@ -387,6 +414,13 @@ export function epiphanyData(year) {
     answerLead: isWeekend
       ? `Loppiainen ${y} on ${weekday.toLowerCase()} 6.1.${y} (viikko ${week}), ei ylimääräistä vapaapäivää.`
       : `Loppiainen ${y} on ${weekday.toLowerCase()} 6.1.${y} (viikko ${week}), palkallinen arkipyhä.`,
+    dayOff: {
+      question: `Onko loppiainen ${y} vapaapäivä?`,
+      verdict: dayOffVerdict({ official: true, weekend: isWeekend }),
+      detail: isWeekend
+        ? `Loppiainen 6.1. on lakisääteinen kirkollinen pyhäpäivä, mutta vuonna ${y} se osuu ${WD_ALLATIVE[dayOfWeek]}, eikä viikonlopulle osuvasta arkipyhästä anneta korvaavaa vapaapäivää.`
+        : `Loppiainen 6.1. on lakisääteinen kirkollinen pyhäpäivä ja useimmilla aloilla palkallinen vapaapäivä. Vuonna ${y} se osuu ${WD_ALLATIVE[dayOfWeek]}.`,
+    },
   };
 }
 

@@ -14,6 +14,7 @@ import { canonicalFor, holidaysMeta } from "../data/seo";
 import { holidayDateRuleKey, holidaysInYear } from "../data/holidays";
 import { holidaySlugForName } from "../data/holidayPages";
 import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
+import UpcomingCalendarPromo from "../components/UpcomingCalendarPromo";
 
 // Finnish public-holidays hub for a year (/pyhapaivat-2026). Content-rich page
 // targeting "pyhäpäivät <vuosi>" searches — a higher-volume query cluster than
@@ -23,6 +24,9 @@ const PublicHolidays = ({ year: pYear } = {}) => {
   const params = useParams();
   const year = pYear ?? params.year;
   const y = Number(year);
+  // The new-year and Epiphany pages for y+1 only exist inside the prerender
+  // horizon, so the top year of this family must not link into a 404.
+  const nextYearPublished = y + 1 >= YEAR_MIN && y + 1 <= YEAR_MAX;
   const holidays = holidaysInYear(y);
   const officialCount = holidays.filter((h) => h.official).length;
   // Every holiday falls into exactly one of three date rules (see
@@ -108,12 +112,31 @@ const PublicHolidays = ({ year: pYear } = {}) => {
         </table>
       </div>
 
+      <UpcomingCalendarPromo />
+
       <p>
         Muut juhlapäivät: <Link to={`/ystavanpaiva-${year}`}>ystävänpäivä {year}</Link>,{" "}
         <Link to={`/laskiainen-${year}`}>laskiainen {year}</Link>,{" "}
         <Link to={`/aitienpaiva-${year}`}>äitienpäivä {year}</Link>,{" "}
         <Link to={`/isanpaiva-${year}`}>isänpäivä {year}</Link> ja{" "}
         <Link to={`/adventti-${year}`}>adventti {year}</Link>.{" "}
+        Juhlapyhien omat sivut:{" "}
+        <Link to={`/itsenaisyyspaiva-${year}`}>itsenäisyyspäivä {year}</Link>,{" "}
+        <Link to={`/joulu-${year}`}>joulu {year}</Link>
+        {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
+          <>
+            ,{" "}
+            <Link to={`/joululoma-${year}`}>joululoma {year}</Link>
+          </>
+        )}
+        {nextYearPublished && (
+          <>
+            ,{" "}
+            <Link to={`/uusi-vuosi-${year + 1}`}>uusi vuosi {year + 1}</Link> ja{" "}
+            <Link to={`/loppiainen-${year + 1}`}>loppiainen {year + 1}</Link>
+          </>
+        )}
+        .{" "}
         Katso myös <Link to="/vuosilomalaskuri">vuosilomalaskuri</Link>,{" "}
         {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
           <>

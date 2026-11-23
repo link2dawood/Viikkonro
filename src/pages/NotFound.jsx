@@ -10,13 +10,9 @@ const NotFound = () => {
 
   return (
     <section className="app">
-      {/* Unknown URLs are served the prerendered home HTML (HTTP 200) before
-          React swaps in this view, so flip robots to noindex while this page
-          is shown — preventing thin/duplicate pages from being indexed. */}
-      <SEO
-        title="Sivua ei löytynyt (404) | Viikko Nro"
-        robots="noindex, follow"
-      />
+      {/* Site-wide no-noindex policy (user-approved 2026-11-23, see
+          docs/noindex.md): this view keeps the default index,follow. */}
+      <SEO title="Sivua ei löytynyt (404) | Viikko Nro" />
       <div className="breadcrumb">
         <Link to="/">Etusivu</Link> / 404
       </div>

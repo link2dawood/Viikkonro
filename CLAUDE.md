@@ -16,6 +16,40 @@ internal linking, sitemap output, PDF and image discoverability, hreflang, and
 AI-facing resources. If a request requires weakening an invariant, explain the
 specific tradeoff and obtain an explicit user decision before implementing it.
 
+## Universal rule: never remove a noindex
+
+This rule covers every page, route family, generated document, and response
+header on the whole site. It overrides refactor convenience, audit
+suggestions, growth plans, and CTR work.
+
+- Do not remove, weaken, or bypass a `noindex` on any page. This includes the
+  `<meta name="robots">` output, `meta.robots` values and `robotsFor()` in
+  `src/data/seo.js`, per-page robots in `prerender.js`, and every
+  `X-Robots-Tag` entry in `vercel.json` or an API response.
+- As of the 2026-11-23 removal, the only robots directives left are on
+  `/tiimin-lomat/suunnittelu` (the auth-gated private app, the one mandatory
+  exception) and the JSON API and billing responses, all listed in
+  `docs/noindex.md`. Every public page, prerendered document, and downloadable
+  asset family is `index, follow`, including PDFs, ICS feeds and both widget
+  documents. Re-adding a `noindex` anywhere else is also a registry decision:
+  record it in `docs/noindex.md` first.
+- Do not do it indirectly either: do not add a noindex page to
+  `sitemapEntries()`, widen `INDEX_MIN_YEAR`, `INDEX_MAX_YEAR`, or the week
+  window, drop a header rule instead of the tag, or relax a unit test or
+  generated-artifact case so an indexable value passes.
+- A noindex may be removed only when both conditions hold:
+  1. the exact page or route family is listed in
+     [`docs/noindex.md`](docs/noindex.md) as approved for removal, with the
+     approval date and who approved it; and
+  2. the removal is then applied to every page listed in that file, across the
+     whole site, in one change. No partial pass, no single-page exception.
+- `docs/noindex.md` is the only gate. No other document, audit, plan file, or
+  earlier conversation authorizes a removal. If the page is not listed there,
+  leave the noindex in place, finish the rest of the task, and say which page
+  you left noindexed and why.
+- Adding a noindex that the SEO constitution requires stays normal work. This
+  rule governs removal only.
+
 ## Content rules
 
 - Do not add the en dash character to page copy, titles, descriptions, FAQs,
@@ -85,9 +119,11 @@ unknown public routes, so an unsupported path returns the generated 404 page.
 
 The dated resource horizon starts at `PRERENDER_MIN_YEAR` and ends at
 `PRERENDER_MAX_YEAR` in `src/components/dateUtils.js`. Pages outside the
-applicable indexable year window remain prerendered and directly accessible
-but receive
-`noindex` and stay out of the sitemap. Valid week pages are indexable
+applicable indexable year window remain prerendered, directly accessible, and
+served `index, follow`; they stay out of the sitemap and keep no page-level
+schema. Since the 2026-11-23 no-noindex decision (see
+[`docs/noindex.md`](docs/noindex.md)), `isIndexable()` governs sitemap
+membership and schema only, never robots. Valid week pages are in the sitemap
 across the full publishing horizon; other dated families retain their existing
 windows.
 
@@ -121,6 +157,13 @@ more specific page node. New page families must be added to the relevant
 route, metadata, schema, sitemap, internal-link, and AI-file generators listed
 in the SEO constitution.
 
+Dated event pages (adventti, itsenäisyyspäivä, joulu, uusi vuosi, loppiainen,
+week 53) share one block and one review-date constant. Read
+[`docs/event-page-template.md`](docs/event-page-template.md) before changing
+`src/components/EventTemplate.jsx`, `src/data/eventTemplate.js`, or any of
+those pages. Raise that page's `EVENT_REVIEWS` row when you refresh its copy;
+never compute a review date from the build clock.
+
 The planned 2027 keyword work lives in
 [`docs/seo-2027-growth-plan.md`](docs/seo-2027-growth-plan.md): sixteen keyword
 clusters, one target URL each, in three waves timed to the search peaks. It is
@@ -141,11 +184,16 @@ The full build creates:
 - `llms-full.txt`, its companion files, `ai-manifest.txt`, and the knowledge
   graph.
 
-PDFs are downloadable assets, not sitemap entries. Every generated PDF must
-remain visibly linked from its HTML page, represented in schema, exposed by a
-`rel="alternate"` link, and served with the matching HTML canonical in an HTTP
-`Link` response header. The three canonical header mappings live in
-`vercel.json`.
+Every generated PDF is submitted in `sitemap-pdfs.xml` and every free
+template export in `sitemap-templates.xml` (user-approved 2026-11-23). A PDF
+must remain visibly linked from its HTML page, represented in schema, and
+exposed by a `rel="alternate"` link; a template export must stay a visible
+anchor on `/kalenteripohjat/{slug}`. A paid template's files must never enter
+`dist` or the sitemap. PDF responses carry no
+`rel="canonical"` Link header and no robots directive: the canonical mappings
+were removed in the 2026-10-22 amendment and the `noindex` on 2026-11-23, so
+do not reintroduce either. `scripts/check-crawl.js` fails the build if a
+generated PDF is missing from the sitemap or from its HTML page.
 
 ### Advertising
 

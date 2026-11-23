@@ -1,11 +1,13 @@
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
+import EventTemplate from "../components/EventTemplate";
 import {
+  PRERENDER_MAX_YEAR as YEAR_MAX,
   PRERENDER_MIN_YEAR as YEAR_MIN,
   validateYear,
 } from "../components/dateUtils";
-import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
+import { canonicalFor } from "../data/seo";
 import {
   newYearData,
   newYearFaqs,
@@ -25,6 +27,7 @@ const NewYearHoliday = ({ year: pYear } = {}) => {
   const meta = newYearMeta(year);
   const faqs = newYearFaqs(year);
   const path = `/uusi-vuosi-${year}`;
+  const nextYear = year + 1 <= YEAR_MAX ? year + 1 : null;
 
   return (
     <section className="app">
@@ -37,16 +40,29 @@ const NewYearHoliday = ({ year: pYear } = {}) => {
 
       <h1>Uusi vuosi {year}</h1>
 
-      <p className="lead">
-        <span className="answer-sentence">
-          <strong>
-            Vuonna {year} uudenvuodenaatto on {data.eve.weekday.toLowerCase()}na 31.12.{data.previousYear} ja uudenvuodenpäivä {data.day.weekday.toLowerCase()}na 1.1.{year}.
-          </strong>
-        </span>{" "}
-        {year === 2027 && (
-          <>Uudenvuodenpäivä 1.1.2027 osuu perjantaille, mikä tuo kolmen päivän yhtenäisen viikonloppuvapaan (1.–3.1.2027).</>
-        )}
-      </p>
+      <EventTemplate
+        path={path}
+        answer={
+          <>
+            Vuonna {year} uudenvuodenaatto on {data.eve.weekday.toLowerCase()}na 31.12.{data.previousYear} ja uudenvuodenpäivä {data.day.weekday.toLowerCase()}na 1.1.{year} (viikko {data.day.week}).
+          </>
+        }
+        answerTail={
+          year === 2027
+            ? "Uudenvuodenpäivä 1.1.2027 osuu perjantaille, mikä tuo kolmen päivän yhtenäisen viikonloppuvapaan (1.-3.1.2027)."
+            : null
+        }
+        target={data.day.date}
+        nameCap="Uudenvuodenpäivä"
+        illative="uuteenvuoteen"
+        dayOff={data.dayOff}
+        nextYear={
+          nextYear
+            ? { to: `/uusi-vuosi-${nextYear}`, label: `Uusi vuosi ${nextYear}` }
+            : null
+        }
+        calendar={{ to: `/kalenteri-${year}`, label: `Katso kalenteri ${year}` }}
+      />
 
       <QuickFacts
         title={`Uuden vuoden ajankohdat ja tiedot ${year}`}
@@ -90,8 +106,6 @@ const NewYearHoliday = ({ year: pYear } = {}) => {
         ]}
       />
 
-      <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
-
       <section className="prose">
         <h2>Uudenvuoden vapaapäivät {year}</h2>
         <p>
@@ -100,7 +114,7 @@ const NewYearHoliday = ({ year: pYear } = {}) => {
         {year === 2027 ? (
           <>
             <p>
-              Vuonna 2027 uudenvuodenpäivä osuu <strong>perjantaille 1.1.2027</strong>. Tämä muodostaa arkityötä tekeville luontevan 3 päivän viikonloppuvapaan (pe 1.1. – su 3.1.2027).
+              Vuonna 2027 uudenvuodenpäivä osuu <strong>perjantaille 1.1.2027</strong>. Tämä muodostaa arkityötä tekeville luontevan 3 päivän viikonloppuvapaan (pe 1.1. - su 3.1.2027).
             </p>
             <p>
               Torstai 31.12.2026 (uudenvuodenaatto) on useissa työehtosopimuksissa joko lyhennetty työpäivä tai koko päivän palkallinen vapaa. Ottamalla torstain vapaaksi vuosilomalla saat 4 päivän yhtäjaksoisen loman.
@@ -134,7 +148,7 @@ const NewYearHoliday = ({ year: pYear } = {}) => {
         </p>
         <ul>
           <li>
-            <strong>Uudenvuodenaatto (31.12.):</strong> Useimmat ruokakaupat ja kauppakeskukset ovat avoinna aamusta iltaan, mutta sulkevat ovensa usein normaalia aiemmin (klo 18.00–21.00 välillä). Alko sulkee ovensa uudenvuodenaattona klo 18.00.
+            <strong>Uudenvuodenaatto (31.12.):</strong> Useimmat ruokakaupat ja kauppakeskukset ovat avoinna aamusta iltaan, mutta sulkevat ovensa usein normaalia aiemmin (klo 18.00-21.00 välillä). Alko sulkee ovensa uudenvuodenaattona klo 18.00.
           </li>
           <li>
             <strong>Uudenvuodenpäivä (1.1.):</strong> Suuret hypermarketit ja tavaratalot ovat usein suljettuina tai auki supistetuin aukioloajoin. Pienemmät lähikaupat (kuten Alepat ja K-Marketit) sekä liikenneasemat ovat laajasti avoinna.

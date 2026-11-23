@@ -14,6 +14,7 @@ import {
 import { holidaysInYear } from "./holidays.js";
 import { flagDaysInYear } from "./flagDayPages.js";
 import { countsAsDay } from "./dayRules.js";
+import { eventReviewedAt } from "./eventTemplate.js";
 
 export const VAPPU_UPDATED = "2026-10-12";
 
@@ -171,10 +172,19 @@ export function holidayLinkPath(name, date) {
   return `/pyhat-${year}/${slug}`;
 }
 
+// The later of two YYYY-MM-DD strings, ignoring missing ones. Undefined when
+// neither is set, so the caller's own fallback still applies.
+function laterDate(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  return a > b ? a : b;
+}
+
 export function holidayPageFor(year, slug) {
   const y = Number(year);
   const definition = BY_SLUG.get(slug);
   if (!definition || !Number.isInteger(y)) return null;
+  const path = `/pyhat-${y}/${slug}`;
   const holiday = holidaysInYear(y).find(
     (item) => item.name === definition.sourceName,
   );
@@ -189,8 +199,35 @@ export function holidayPageFor(year, slug) {
     month: holiday.date.getMonth() + 1,
     weekday: WD[holiday.date.getDay()],
     weekdayEssive: WD_ESSIVE[holiday.date.getDay()],
-    path: `/pyhat-${y}/${slug}`,
+    path,
+    // `updated` drives both the visible "Sisältö päivitetty" line in
+    // NamedHoliday.jsx and the page's schema dateModified in prerender.js, so
+    // the two can never disagree. A recorded review of one year's page (see
+    // EVENT_REVIEWS) wins over the slug-wide date when it is the later of the
+    // two; otherwise the slug-wide date stands.
+    updated: laterDate(eventReviewedAt(path), definition.updated),
   };
+}
+
+// Four holidays also have a richer seasonal landing page (/itsenaisyyspaiva-,
+// /joulu-, /uusi-vuosi-, /loppiainen-{year}) that answers the planning
+// questions this page only states the date for. Returns that page's path and
+// anchor text so NamedHoliday.jsx links the two together, or null when the
+// holiday has no landing page or the year is outside the publishing horizon.
+const SEASONAL_LANDING = {
+  itsenaisyyspaiva: (y) => ({ path: `/itsenaisyyspaiva-${y}`, label: `itsenäisyyspäivä ${y}: liputus ja vapaat` }),
+  jouluaatto: (y) => ({ path: `/joulu-${y}`, label: `joulu ${y}: pyhät ja aukioloajat` }),
+  joulupaiva: (y) => ({ path: `/joulu-${y}`, label: `joulu ${y}: pyhät ja aukioloajat` }),
+  tapaninpaiva: (y) => ({ path: `/joulu-${y}`, label: `joulu ${y}: pyhät ja aukioloajat` }),
+  uudenvuodenpaiva: (y) => ({ path: `/uusi-vuosi-${y}`, label: `uusi vuosi ${y}: vapaat ja aukioloajat` }),
+  loppiainen: (y) => ({ path: `/loppiainen-${y}`, label: `loppiainen ${y}: vapaat ja aukioloajat` }),
+};
+
+export function seasonalLandingFor(page) {
+  const build = SEASONAL_LANDING[page.slug];
+  if (!build) return null;
+  if (page.year < PRERENDER_MIN_YEAR || page.year > PRERENDER_MAX_YEAR) return null;
+  return build(page.year);
 }
 
 // Reusable Holiday -> Week/Month/Year cross-links (bidirectional linking

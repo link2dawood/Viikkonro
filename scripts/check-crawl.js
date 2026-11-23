@@ -29,14 +29,16 @@
 //     sitemap, no hreflang anywhere, nothing linking to /en
 //     (vercel.json 301s /en -> / for external backlinks; check-crawl renders
 //     pages without an HTTP layer, so it asserts the prerender footprint is gone)
-//   - zero PDFs in the sitemap; every generated PDF remains directly linked
-//     from rendered HTML as a user download
+//   - every generated PDF and template export is submitted in the sitemap,
+//     exists in dist, and remains directly linked from rendered HTML as a
+//     user download
 
 import { pathToFileURL } from "node:url";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { navigationYearTargets } from "../src/components/dateUtils.js";
+import { readSitemapSet } from "./sitemap-set.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -63,10 +65,14 @@ function extractLinks(html) {
   ];
 }
 
+// Every site-relative .pdf anchor counts as a direct download link, not just
+// the /pdf/ family: the template exports live under /pohjat/{slug}/{year}.pdf
+// and are linked from the template detail pages. Restricting this to "/pdf/"
+// reported those as unlinked even though the rendered HTML links all of them.
 function extractPdfAnchors(html) {
   return [...html.matchAll(/<a\b[^>]*\bhref="([^"?#]+\.pdf)(?:[?#][^"]*)?"[^>]*>/gi)]
     .map((match) => match[1])
-    .filter((href) => href.startsWith("/pdf/"));
+    .filter((href) => href.startsWith("/") && !href.startsWith("//"));
 }
 
 // Detects the <Navigate> short-circuit case (e.g. an invalid week 53
@@ -128,7 +134,9 @@ while (queue.length) {
   }
 }
 
-const sitemap = fs.readFileSync(path.join(root, "dist/sitemap.xml"), "utf-8");
+// sitemap.xml is a <sitemapindex>; readSitemapSet() concatenates the per-type
+// children so this check keeps seeing every indexable URL (see sitemap-set.mjs).
+const sitemap = readSitemapSet();
 const allSitemapPaths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => {
   const u = new URL(m[1]);
   return u.pathname === "/" ? "/" : u.pathname;
@@ -210,6 +218,27 @@ const unlinkedSitemapPdfs = sitemapPdfUrls.filter(
 const unlinkedGeneratedPdfs = generatedPdfPaths.filter(
   (pathname) => !discoveredPdfAnchors.has(pathname),
 );
+// PDFs became sitemap entries on 2026-11-23 (user-approved; superseded the
+// 2026-10-06 exclusion). The check inverted with the policy: every generated
+// PDF must now be submitted, so a new PDF family that skips the sitemap
+// builder fails here instead of shipping undiscoverable.
+const submittedPdfs = new Set(sitemapPdfUrls);
+const unsubmittedGeneratedPdfs = generatedPdfPaths
+  .filter((pathname) => !submittedPdfs.has(pathname));
+// Template exports (/pohjat/{slug}/{year}.{xlsx|csv|pdf}) joined the sitemap
+// in the same 2026-11-23 decision. Nested one directory deeper than /pdf/,
+// so the relative path is rebuilt rather than taken from the entry name.
+const templateDir = path.join(root, "dist/pohjat");
+const generatedTemplateAssets = fs.existsSync(templateDir)
+  ? fs
+      .readdirSync(templateDir, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => `/${path.relative(path.join(root, "dist"), path.join(entry.parentPath, entry.name))}`)
+  : [];
+const submittedAll = new Set(allSitemapPaths);
+const unsubmittedTemplateAssets = generatedTemplateAssets.filter(
+  (pathname) => !submittedAll.has(pathname),
+);
 
 console.log(`Crawled ${visited.size} distinct internal URLs from "/".`);
 console.log(`Sitemap has ${sitemapUrls.length} URLs.`);
@@ -224,7 +253,8 @@ console.log(`Week pages with invalid title/body abbreviation coverage: ${invalid
 console.log(`Week/month/year pages with unsupported name-day descriptions: ${unsupportedNameDayDescriptionFiles.length}`);
 console.log(`English-removal violations: ${englishRemovalViolations.length}`);
 console.log(`Generated/submitted/directly linked PDFs: ${generatedPdfPaths.length}/${sitemapPdfUrls.length}/${discoveredPdfAnchors.size}`);
-console.log(`Unexpected PDF sitemap entries: ${sitemapPdfUrls.length}`);
+console.log(`Generated PDFs missing from the sitemap: ${unsubmittedGeneratedPdfs.length}`);
+console.log(`Generated/submitted template exports: ${generatedTemplateAssets.length}/${generatedTemplateAssets.length - unsubmittedTemplateAssets.length}`);
 console.log(`Missing submitted PDF files: ${missingSitemapPdfFiles.length}`);
 console.log(`Submitted PDFs without a direct HTML download link: ${unlinkedSitemapPdfs.length}`);
 console.log(`Generated PDFs without a direct HTML download link: ${unlinkedGeneratedPdfs.length}`);
@@ -276,7 +306,8 @@ const failed =
   invalidWeekMetadataFiles.length > 0 ||
   unsupportedNameDayDescriptionFiles.length > 0 ||
   englishRemovalViolations.length > 0 ||
-  sitemapPdfUrls.length > 0 ||
+  unsubmittedGeneratedPdfs.length > 0 ||
+  unsubmittedTemplateAssets.length > 0 ||
   missingSitemapPdfFiles.length > 0 ||
   unlinkedSitemapPdfs.length > 0 ||
   unlinkedGeneratedPdfs.length > 0 ||

@@ -17,11 +17,13 @@ import {
   holidayPageMeta,
   holidayWeekLinks,
   juhannusPlanning,
+  seasonalLandingFor,
   vappuPlanning,
 } from "../data/holidayPages";
 import { HOLIDAY_LEGAL_BASIS } from "../data/holidays";
 import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
 import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
+import UpcomingCalendarPromo from "../components/UpcomingCalendarPromo";
 import NotFound from "./NotFound";
 
 const NamedHoliday = () => {
@@ -36,6 +38,8 @@ const NamedHoliday = () => {
   // Shared with prerender.js's structured-data `mentions` so the visible
   // links and the schema references point at exactly the same URLs.
   const links = holidayWeekLinks(page);
+  // The richer seasonal landing page for this holiday, where one exists.
+  const landing = seasonalLandingFor(page);
   // Only stated for the 2 of 15 holidays with an independently confirmed,
   // holiday-specific Finlex citation (see HOLIDAY_LEGAL_BASIS) — the other
   // 13 fall under the Church Act or a different instrument not individually
@@ -282,6 +286,8 @@ const NamedHoliday = () => {
           </>
         )}
 
+        <UpcomingCalendarPromo />
+
         <h2>Usein kysyttyä: {page.displayName.toLowerCase()}</h2>
         <div className="faq-list">
           {faqs.map((item) => (
@@ -293,7 +299,13 @@ const NamedHoliday = () => {
         </div>
 
         <p>
-          Katso myös <Link to={`/kalenteri-${page.year}`}>kalenteri {page.year}</Link>,{" "}
+          Katso myös{" "}
+          {landing && (
+            <>
+              <Link to={landing.path}>{landing.label}</Link>,{" "}
+            </>
+          )}
+          <Link to={`/kalenteri-${page.year}`}>kalenteri {page.year}</Link>,{" "}
           <Link to={`/pyhapaivat-${page.year}`}>kaikki pyhäpäivät {page.year}</Link>,{" "}
           <Link to={`/liputuspaivat-${page.year}`}>liputuspäivät {page.year}</Link>,{" "}
           {pageConfidenceTier(page.year) === CONFIDENCE.CONFIRMED && (

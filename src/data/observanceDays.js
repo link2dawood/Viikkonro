@@ -71,6 +71,7 @@ export const OBSERVANCES = [
     slug: "isanpaiva",
     name: "Isänpäivä",
     genitive: "isänpäivän",
+    illative: "isänpäivään",
     isFlagDay: true,
     date: (y) => nthSunday(y, 10, 2),
     rule: "Isänpäivää vietetään marraskuun toisena sunnuntaina, joten se osuu aina 8. ja 14. marraskuuta välille.",
@@ -81,6 +82,7 @@ export const OBSERVANCES = [
     slug: "aitienpaiva",
     name: "Äitienpäivä",
     genitive: "äitienpäivän",
+    illative: "äitienpäivään",
     isFlagDay: true,
     date: (y) => nthSunday(y, 4, 2),
     rule: "Äitienpäivää vietetään toukokuun toisena sunnuntaina, joten se osuu aina 8. ja 14. toukokuuta välille.",
@@ -91,6 +93,7 @@ export const OBSERVANCES = [
     slug: "ystavanpaiva",
     name: "Ystävänpäivä",
     genitive: "ystävänpäivän",
+    illative: "ystävänpäivään",
     date: (y) => new Date(y, 1, 14),
     rule: "Ystävänpäivää vietetään joka vuosi 14. helmikuuta, joten päivämäärä ei muutu, vain viikonpäivä vaihtuu.",
     flagDay: "Ystävänpäivä ei ole liputuspäivä eikä virallinen vapaapäivä.",
@@ -101,6 +104,7 @@ export const OBSERVANCES = [
     name: "Laskiainen",
     dayLabel: "Laskiaissunnuntai",
     genitive: "laskiaisen",
+    illative: "laskiaiseen",
     date: (y) => addDays(easterSunday(y), -49),
     extrasHeading: "Laskiaissunnuntai ja laskiaistiistai",
     extra: (y) => [{ label: "Laskiaistiistai", date: addDays(easterSunday(y), -47) }],
@@ -112,6 +116,7 @@ export const OBSERVANCES = [
     slug: "adventti",
     name: "1. adventti",
     genitive: "1. adventin",
+    illative: "1. adventtiin",
     date: (y) => firstAdvent(y),
     extrasHeading: "Kaikki adventtisunnuntait",
     extra: (y) => [2, 3, 4].map((n) => ({ label: `${n}. adventti`, date: addDays(firstAdvent(y), (n - 1) * 7) })),
@@ -154,6 +159,23 @@ export function observancePage(slug, year) {
     weekPath: `/viikko-${isoWeek(date)}-${isoYear(date)}`,
     monthPath: `/kuukausi-${date.getMonth() + 1}-${y}`,
     monthLabel: `${M_GENITIVE[date.getMonth()]} ${y} viikot`,
+  };
+}
+
+// The day-off verdict for the shared event template. None of these days is a
+// statutory holiday in Finland, so the verdict is always "ei virallinen
+// vapaapäivä"; `detail` reuses the exact `flagDay` sentence the matching FAQ
+// answer already states, so the two cannot drift. Days that always land on a
+// Sunday get that noted, because for most people the day is free regardless.
+export function observanceDayOff(page) {
+  const lower = page.name.charAt(0).toLowerCase() + page.name.slice(1);
+  const sunday = page.date.getDay() === 0;
+  return {
+    question: `Onko ${lower} ${page.year} vapaapäivä?`,
+    verdict: sunday
+      ? "Ei virallinen vapaapäivä, mutta osuu sunnuntaille"
+      : "Ei virallinen vapaapäivä",
+    detail: `${page.flagDay}${sunday ? " Päivä osuu sunnuntaille, joten se on useimmille jo viikonloppuvapaa." : ""}`,
   };
 }
 

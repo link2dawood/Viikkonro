@@ -1,5 +1,6 @@
 import { useToday } from "./useToday";
 import { navigationYearTargets } from "./dateUtils";
+import { upcomingEventPages } from "../data/upcomingEvents";
 import { Link } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
 import { CALENDAR_META } from "../data/nameDays";
@@ -8,7 +9,12 @@ import { openConsentSettings } from "../consent";
 function Footer({ reloadDocument = false, showConsentSettings = true }) {
   // Copyright follows the Helsinki calendar year, not the ISO week-year (which
   // can roll over during the last days of December).
-  const { currentYear } = navigationYearTargets(useToday());
+  const today = useToday();
+  const { currentYear } = navigationYearTargets(today);
+  // Sitewide internal links to the seasonal event pages, newest event first.
+  // These pages are otherwise reachable only from /vuosi-{year}, which left
+  // them uncrawled or unindexed (see src/data/upcomingEvents.js).
+  const upcoming = upcomingEventPages(today, 5);
 
   return (
     <footer className="site-footer">
@@ -44,6 +50,26 @@ function Footer({ reloadDocument = false, showConsentSettings = true }) {
             </li>
           </ul>
         </div>
+
+        {/* Upcoming seasonal events: rotates by date, see upcomingEvents.js */}
+        {upcoming.length > 0 && (
+          <div className="footer-links-col footer-upcoming-col">
+            <h3>Tulevat juhlapäivät</h3>
+            <ul>
+              {upcoming.map((event) => (
+                <li key={event.path}>
+                  <Link
+                    reloadDocument={reloadDocument}
+                    to={event.path}
+                    onClick={() => window.scrollTo(0, 0)}
+                  >
+                    {event.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Navigation Links Column */}
         <div className="footer-links-col">

@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { weeksInIsoYear } from "../src/components/dateUtils.js";
+import { readSitemapSet } from "./sitemap-set.mjs";
 import { TEMPLATE_PATH, TEMPLATES, templatePath } from "../src/platform/templates/catalog.js";
 import { COMPANY_ICS_PATH, companyIcsFaqs } from "../src/data/companyIcs.js";
 import { PLANNER_PATH, PLANNER_UPDATED, plannerFaqs } from "../src/data/vacationPlanner.js";
@@ -81,11 +82,11 @@ test("every prerendered site page retains the shared header, main and footer", (
 
 test("business widget v1 is small, isolated, embeddable and absent from sitemap", () => {
   const html = read("dist/widget/calendar/v1.html"), script = read("dist/widget/calendar/v1.js");
-  assert.match(html, /noindex, follow/);
+  assert.doesNotMatch(html, /noindex/);
   assert.match(html, /\/widget\/calendar\/v1.js/);
   assert.ok(Buffer.byteLength(script) < 25000, "widget must stay below 25 KB raw");
   assert.doesNotMatch(script, /supabase|clarity|gtag|localStorage|sessionStorage|XMLHttpRequest/);
-  assert.doesNotMatch(read("dist/sitemap.xml"), /\/widget\//);
+  assert.doesNotMatch(readSitemapSet(), /\/widget\//);
   assert.match(pageHtml("/upota-viikkonumero"), /yrityskalenteri-widget/);
   const headers = JSON.parse(read("vercel.json")).headers.find((rule) => rule.source === "/widget/calendar/(.*)").headers;
   assert.ok(headers.some((header) => header.key === "Content-Security-Policy" && header.value.includes("connect-src 'none'") && header.value.includes("frame-ancestors *")));
@@ -197,7 +198,7 @@ function schemaTypes(documents) {
 }
 
 function sitemapLocations() {
-  const xml = read("dist/sitemap.xml");
+  const xml = readSitemapSet();
   return [...xml.matchAll(/<url>[\s\S]*?<loc>([^<]+)<\/loc>[\s\S]*?<\/url>/g)]
     .map((match) => match[1]);
 }
@@ -321,16 +322,31 @@ test("PD-12 publishes substantive template pages and all 54 downloadable artifac
     }
   }
   assert.equal(assets, 54); assert.equal(titles.size, 6); assert.equal(descriptions.size, 6);
+  // All 54 exports are submitted in sitemap-templates.xml (user-approved
+  // 2026-11-23). A paid template would be excluded here exactly as
+  // build-templates.mjs excludes its files from dist.
+  const submittedTemplateAssets = sitemapLocations().filter((url) => url.includes("/pohjat/"));
+  assert.equal(submittedTemplateAssets.length, 54, "every generated template export is submitted in the sitemap");
+  assert.equal(new Set(submittedTemplateAssets).size, 54, "no duplicate template entries");
+  for (const format of ["xlsx", "csv", "pdf"]) {
+    assert.equal(
+      submittedTemplateAssets.filter((url) => url.endsWith(`.${format}`)).length,
+      18,
+      `all 18 ${format} exports are submitted`,
+    );
+  }
   const headers = JSON.parse(read("vercel.json")).headers;
-  // Template exports are downloadable assets, so they follow the same policy
-  // as /pdf/ and /ics/: one bare noindex, no canonical. The landing page
-  // /kalenteripohjat/:slug remains the indexable, citable surface.
-  const templateRule = headers.find((rule) => rule.source === "/pohjat/(.*)");
-  assert.ok(templateRule, "/pohjat/(.*) header rule is missing");
-  assert.deepEqual(templateRule.headers, [{ key: "X-Robots-Tag", value: "noindex" }]);
+  // Template exports follow the same policy as /pdf/ and /ics/: no robots
+  // directive and no canonical (site-wide no-noindex policy, user-approved
+  // 2026-11-23, see docs/noindex.md). The landing page
+  // /kalenteripohjat/:slug remains the citable surface.
+  assert.ok(
+    !headers.some((rule) => rule.source.startsWith("/pohjat/") && JSON.stringify(rule.headers).includes("X-Robots-Tag")),
+    "no /pohjat/ rule may declare a robots directive",
+  );
   assert.ok(
     !headers.some((rule) => rule.source.startsWith("/pohjat/") && JSON.stringify(rule.headers).includes("canonical")),
-    "no /pohjat/ rule may declare a canonical alongside noindex",
+    "no /pohjat/ rule may declare a canonical",
   );
   for (const file of ["llms.txt", "ai.txt", "llms-full.txt", "llms-api.txt", "llms-glossary.txt", "ai-manifest.txt"]) assert.ok(read(`dist/${file}`).includes(TEMPLATE_PATH), file);
   const graph = JSON.parse(read("dist/data/knowledge-graph.json"));
@@ -374,7 +390,11 @@ test("PD-02 keeps the sitemap HTML-only, unique, and complete for new routes", (
   assert.ok(locations.length >= minimumUrls, `expected at least ${minimumUrls} sitemap URLs, got ${locations.length}`);
   assert.equal(new Set(locations).size, locations.length, "sitemap URLs must be unique");
   assert.ok(locations.every((url) => url.startsWith(`${siteOrigin}/`)), "all sitemap URLs use production origin");
-  assert.ok(locations.every((url) => !url.toLowerCase().endsWith(".pdf")), "PDFs stay out of sitemap");
+  // PDFs joined the sitemap on 2026-11-23 (user-approved; superseded the
+  // 2026-10-06 exclusion), one entry per generated file.
+  const submittedPdfLocations = locations.filter((url) => url.includes("/pdf/") && url.toLowerCase().endsWith(".pdf"));
+  const generatedPdfNames = fs.readdirSync(path.join(dist, "pdf")).filter((name) => name.endsWith(".pdf"));
+  assert.equal(submittedPdfLocations.length, generatedPdfNames.length, "every generated PDF is submitted in the sitemap");
   for (const route of [
     "/parillinen-pariton-viikko",
     "/koululomat-2028",
@@ -429,7 +449,7 @@ test("PD-05 preserves sourced 2028 school-holiday limits in generated HTML", () 
   assert.doesNotMatch(html, /Tiedot perustuvat aiempien vuosien käytäntöihin/);
 });
 
-test("PD-06 keeps every generated PDF downloadable as a noindex asset", () => {
+test("PD-06 keeps every generated PDF downloadable with no robots directive", () => {
   const pdfDirectory = path.join(dist, "pdf");
   const pdfs = fs.readdirSync(pdfDirectory).filter((name) => name.endsWith(".pdf"));
   assert.ok(pdfs.length >= 1000, `expected at least 1000 generated PDFs, got ${pdfs.length}`);
@@ -441,12 +461,11 @@ test("PD-06 keeps every generated PDF downloadable as a noindex asset", () => {
     assert.ok(pdfs.includes(representative), `missing ${representative}`);
   }
 
-  // PDFs are generated across the full 2020..currentYear+9 horizon while
-  // isIndexable() keeps week pages to currentYear..currentYear+1 and other
-  // dated pages to currentYear-2..currentYear+4, so a per-family canonical
-  // pointed at a noindex page for most generated files. A bare noindex states
-  // the same intent for every PDF with no rolling-year logic to drift.
-  // See the 2026-10-22 amendment in docs/SEO_CONSTITUTION.md.
+  // No PDF family may canonicalize to an HTML page: the rolling index windows
+  // made that a conflicting signal Search Console never resolves. The bare
+  // noindex that replaced those canonicals in the 2026-10-22 amendment was
+  // itself removed under the site-wide no-noindex policy (user-approved
+  // 2026-11-23, see docs/noindex.md), so a PDF response now carries neither.
   const config = JSON.parse(read("vercel.json"));
   const canonicalRules = config.headers
     .filter((rule) => rule.source.startsWith("/pdf/"))
@@ -454,10 +473,10 @@ test("PD-06 keeps every generated PDF downloadable as a noindex asset", () => {
   assert.deepEqual(canonicalRules, [], "no PDF family may canonicalize to an HTML page");
 
   const pdfRule = config.headers.find((rule) => rule.source === "/pdf/(.*)");
-  assert.deepEqual(
+  assert.equal(
     pdfRule.headers.find((header) => header.key === "X-Robots-Tag"),
-    { key: "X-Robots-Tag", value: "noindex" },
-    "every PDF response is a bare-noindex download",
+    undefined,
+    "no PDF response carries a robots directive",
   );
 });
 
@@ -534,6 +553,9 @@ test("PD-10 keeps the development unlock and the 2 MB PDF library out of every p
 test("PD-18 keeps the team app separate from public analytics and generated data", () => {
   const landing = pageHtml("/tiimin-lomat"), app = pageHtml("/tiimin-lomat/suunnittelu");
   assert.ok(landing.includes('href="/tiimin-lomat/suunnittelu"'));
+  // The private app is the only surface that keeps a robots directive under
+  // the 2026-11-23 policy (user-approved; see docs/noindex.md): an empty
+  // auth-gated shell has nothing to index.
   assert.ok(app.includes('content="noindex,nofollow,noarchive"'));
   assert.ok(app.includes('content="no-referrer"'));
   assert.ok(!/clarity|bing\.com|adsbygoogle|analytics/i.test(app));

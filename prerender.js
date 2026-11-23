@@ -74,7 +74,13 @@ import {
   parityMeta,
   parityPageFaqs,
 } from "./src/data/weekParity.js";
+import {
+  YEAR_INDEX_PATH,
+  yearIndexFaqs,
+  yearIndexStats,
+} from "./src/data/yearIndexPages.js";
 import { CALENDAR_CONTENT_UPDATED, sitemapLastmod } from "./src/data/sitemapMetadata.js";
+import { eventReviewedFor } from "./src/data/eventTemplate.js";
 import { PAGE_TOPICS, pageTopic, topicSchema } from "./src/data/pageTopics.js";
 import { REFUND_PATH, LEGAL_UPDATED, refundFaqs } from "./src/data/legalPolicies.js";
 import {
@@ -259,7 +265,7 @@ const currentYear = new Date().getFullYear();
 const FEED_BUILD_DATE_RAW = new Date();
 const FEED_BUILD_DATE = `${FEED_BUILD_DATE_RAW.getFullYear()}-${String(FEED_BUILD_DATE_RAW.getMonth() + 1).padStart(2, "0")}-${String(FEED_BUILD_DATE_RAW.getDate()).padStart(2, "0")}`;
 const sitemapRoutes = sitemapEntries(currentYear).map((e) => e.path);
-// Keep the honest noindex fallback available even while today's date is not
+// Keep the honest fallback page available even while today's date is not
 // covered by the partial seed. It joins the sitemap automatically once the
 // authorized full dataset supplies names for the current date.
 const routeCandidates = [...sitemapRoutes, "/nimipaivat/tanaan"];
@@ -282,16 +288,17 @@ if (forbiddenGeneratedRoutes.length) {
 const routes = routeCandidates;
 
 // Valid week pages are indexable across the full publishing horizon so
-// historical and future dates remain searchable. Other dated pages retain
-// currentYear-2..currentYear+4.
-// Out-of-window pages remain prerendered with noindex and leave the sitemap.
-// This governs HTML routes only. PDFs are never sitemap entries and no longer
-// carry a per-family canonical header: vercel.json serves every /pdf/ response
-// with a bare X-Robots-Tag: noindex, so a PDF path never reaches this function.
-// A PDF window here would have been meaningless anyway, since the canonical it
-// used to advertise pointed at a noindex page for most of the horizon.
-const INDEX_MIN_YEAR = currentYear - 2;
-const INDEX_MAX_YEAR = currentYear + 4;
+// historical and future dates remain searchable. Other dated pages use
+// currentYear-1..currentYear+2 (narrowed from currentYear-2..currentYear+4 on
+// 2026-11-21; see isIndexable() in src/data/seo.js for the rationale and keep
+// the two windows identical).
+// Out-of-window pages remain prerendered and crawlable but leave the sitemap
+// and lose their page-level schema. Since the 2026-11-23 no-noindex decision
+// (docs/noindex.md) this function no longer affects robots at all.
+// It governs HTML routes only. PDFs are never sitemap entries and carry no
+// per-family canonical header, so a PDF path never reaches this function.
+const INDEX_MIN_YEAR = currentYear - 1;
+const INDEX_MAX_YEAR = currentYear + 2;
 const WEEK_INDEX_MIN_YEAR = PRERENDER_MIN_YEAR;
 const WEEK_INDEX_MAX_YEAR = PRERENDER_MAX_YEAR;
 const isIndexable = (p) => {
@@ -2195,12 +2202,11 @@ function schoolHolidayNodes(year) {
           cssSelector: [".answer-sentence"],
         },
       }),
-      // STEP 7 safeguard: even though a non-CONFIRMED page never reaches this
-      // function (schoolHolidayMeta() sets robots:"noindex" for it, which
-      // the dispatch loop's isIndexable/meta.robots check already skips this
-      // whole function for), don't ALSO rely on that being the only gate —
-      // schoolHolidayFaqs() itself returns [] for anything but Tier A, so
-      // skip emitting an empty FAQPage rather than trust a single check.
+      // STEP 7 safeguard: schoolHolidayFaqs() returns [] for anything but
+      // Tier A, so skip emitting an empty FAQPage. This used to be the second
+      // of two gates, the first being the Tier B robots:"noindex" value that
+      // the 2026-11-23 no-noindex decision removed, so it is now the only
+      // gate keeping an empty FAQPage off an estimated page.
       ...(faq.length > 0
         ? [
             {
@@ -2693,6 +2699,54 @@ function schoolWeeksNodes() {
   ];
 }
 
+// CollectionPage + ItemList + FAQPage for /kaikki-vuodet. CollectionPage, not
+// WebPage: this page's mainEntity is a structured list of the year hubs
+// (invariant 11), the same reason weekCollectionNodes()/calendarPageNodes()
+// use it. The ItemList is the crawlable edge to every year outside the
+// indexable window, so each entry must reference a real, live page - all
+// /vuosi-{year} pages are prerendered across the full horizon.
+// FAQ content comes from yearIndexFaqs(), the same function YearIndex.jsx
+// renders as visible <details>, so the two cannot drift.
+function yearIndexNodes() {
+  const url = canonicalFor(YEAR_INDEX_PATH);
+  const meta = metaFor(YEAR_INDEX_PATH);
+  const faq = yearIndexFaqs();
+  const { first, last, count } = yearIndexStats();
+  const years = [];
+  for (let year = first; year <= last; year += 1) years.push(year);
+  return [
+    pageNode(YEAR_INDEX_PATH, "CollectionPage", {
+      description: meta.description,
+      dateModified: CONTENT_UPDATED,
+      mainEntity: { "@id": `${url}#years` },
+    }),
+    {
+      "@type": "ItemList",
+      "@id": `${url}#years`,
+      name: `Julkaistut vuodet ${first}-${last}`,
+      numberOfItems: count,
+      itemListOrder: "https://schema.org/ItemListOrderAscending",
+      itemListElement: years.map((year, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: `Viikkonumerot ${year}`,
+        url: canonicalFor(`/vuosi-${year}`),
+      })),
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      inLanguage: "fi-FI",
+      dateModified: CONTENT_UPDATED,
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+}
+
 function weeksInQuarterNodes() {
   const url = canonicalFor("/kuinka-monta-viikkoa-kvartaalissa");
   const meta = metaFor("/kuinka-monta-viikkoa-kvartaalissa");
@@ -3065,7 +3119,7 @@ function weekFaqNodes(w, y) {
     "@type": "FAQPage",
     "@id": `${canonicalFor(`/viikko-${w}-${y}`)}#faq`,
     inLanguage: "fi-FI",
-    dateModified: CONTENT_UPDATED,
+    dateModified: eventReviewedFor(`/viikko-${w}-${y}`, RENDER_DAY) ?? CONTENT_UPDATED,
     mainEntity: faq.map(([q, a]) => ({
       "@type": "Question",
       name: q,
@@ -3611,7 +3665,15 @@ const CALCULATOR_SCHEMA = {
 
 // FAQPage node for pages whose Q&A list comes from a shared *Faqs()
 // function that the page's JSX also renders (invariant 9).
-function faqPageNode(url, items, dateModified = CONTENT_UPDATED) {
+// A page with a recorded editorial review date (EVENT_REVIEWS in
+// src/data/eventTemplate.js) publishes that date instead of the site-wide
+// CONTENT_UPDATED, so its FAQ node, its WebPage node and its visible
+// "Päivitetty" line all state the same day. eventReviewedFor() applies the
+// same build-day guard sitemapLastmod() uses, so a build that predates the
+// review cannot leave this node ahead of the WebPage node and the sitemap.
+// An explicit third argument still wins, for the page families that carry
+// their own constant.
+function faqPageNode(url, items, dateModified = eventReviewedFor(url, RENDER_DAY) ?? CONTENT_UPDATED) {
   return {
     "@type": "FAQPage",
     "@id": `${canonicalFor(url)}#faq`,
@@ -3645,6 +3707,8 @@ function observanceNodes(url) {
   return [
     pageNode(url, "WebPage", {
       description: observanceMeta(m[1], +m[2]).description,
+      // Same source as the sitemap lastmod and the visible "Päivitetty" line.
+      ...(sitemapLastmod(url, RENDER_DAY) ? { dateModified: sitemapLastmod(url, RENDER_DAY) } : {}),
       about: { "@type": "Thing", name: page.name },
       mentions: [
         { "@id": `${canonicalFor(page.weekPath)}#webpage` },
@@ -3953,15 +4017,10 @@ for (const url of routes) {
     if (pdfLink) {
       html = html.replace("</head>", pdfLink + "</head>");
     }
-    // Prune the index to the high-intent window: out-of-window year pages stay
-    // prerendered (navigable) but are noindexed (flip the template's default
-    // index,follow) and dropped from the sitemap below.
-    if (!isIndexable(url) || meta.robots?.startsWith("noindex")) {
-      html = html.replace(
-        'content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"',
-        'content="noindex, follow"',
-      );
-    }
+    // Site-wide policy (user-approved 2026-11-23, see docs/noindex.md): no page
+    // is served noindex. Out-of-window year pages keep the template's default
+    // index,follow; isIndexable() below still governs sitemap membership and
+    // page-level schema only.
 
     // Per-page OG image (week/month/year/calendar/holiday) — every other
     // page keeps the site's default /og.png. ogImageUrlFor() is the same
@@ -3989,7 +4048,7 @@ for (const url of routes) {
     // Archive year hubs retain their CollectionPage and FAQ nodes because
     // indexable week pages across the full horizon reference them as parents.
     // Robots metadata and sitemap eligibility still use isIndexable() above.
-    // Other noindex archives continue to omit their page-level schema.
+    // Other out-of-window archives continue to omit their page-level schema.
     const isWeekYearHub = /^\/vuosi-\d+$/.test(url);
     if ((isIndexable(url) || isWeekYearHub) && !meta.robots?.startsWith("noindex")) {
       const nodes = [];
@@ -4076,6 +4135,9 @@ for (const url of routes) {
       }
       if (url === "/kuinka-monta-viikkoa-kvartaalissa") {
         nodes.push(...weeksInQuarterNodes());
+      }
+      if (url === YEAR_INDEX_PATH) {
+        nodes.push(...yearIndexNodes());
       }
       if (url === "/kuinka-monta-viikkoa-jaljella") {
         nodes.push(...weeksRemainingNodes());
@@ -4259,8 +4321,8 @@ for (const url of routes) {
 
 // 404 page: a static dist/404.html so Vercel serves it (with a real 404 status,
 // not 200) for any path that doesn't match a prerendered file. Rendered from the
-// NotFound route; meta is set manually (metaFor has no 404 entry) and forced to
-// noindex since the same page answers many unmatched URLs.
+// NotFound route; meta is set manually (metaFor has no 404 entry). The 404
+// status, not a robots directive, is what keeps it out of the index.
 try {
   const nf = stripInlineMeta(render("/404"));
   let html404 = applyMeta(withoutAdsenseLoader(templateForRoute("/404")), {
@@ -4269,12 +4331,9 @@ try {
       "Etsimääsi sivua ei löytynyt. Palaa etusivulle ja jatka viikkonumeroiden selaamista.",
     url: `${SITE_URL}/404`,
   });
-  // Flip the template's default index,follow to noindex (don't append a second
-  // robots meta — the same 404 page answers many unmatched URLs).
-  html404 = html404.replace(
-    'content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"',
-    'content="noindex, follow"',
-  );
+  // The 404 document keeps the template's default index,follow under the
+  // site-wide no-noindex policy (user-approved 2026-11-23, docs/noindex.md).
+  // The response status stays 404, which is what keeps it out of the index.
   html404 = html404.replace(
     '<div id="root"></div>',
     `<div id="root">${nf}</div>`,
@@ -4349,8 +4408,8 @@ try {
 }
 
 // Embeddable current-week widget (/widget/viikko) — a standalone document,
-// deliberately not in routes/sitemapEntries (noindex embed target; see
-// weekWidget.js and docs/embeddable-widgets.md).
+// deliberately not in routes/sitemapEntries (embed target kept out of the
+// sitemap; see weekWidget.js and docs/embeddable-widgets.md).
 try {
   const outPath = path.join(distDir, `${WEEK_WIDGET_PATH}.html`);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
@@ -5170,7 +5229,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     },
     {
       entity: "BusinessWidget",
-      schemaType: "none (noindex iframe embed target)",
+      schemaType: "none (iframe embed target, outside the sitemap)",
       urlPattern: "/widget/calendar/v1",
       idPattern: "n/a; documented on the existing embed page",
       example: `${SITE_URL}/widget/calendar/v1`,
@@ -5178,7 +5237,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     },
     {
       entity: "Widget",
-      schemaType: "none (noindex iframe embed target)",
+      schemaType: "none (iframe embed target, outside the sitemap)",
       urlPattern: WEEK_WIDGET_PATH,
       idPattern: "n/a — documented on the embed page",
       example: `${SITE_URL}${WEEK_WIDGET_PATH}`,
@@ -5342,16 +5401,52 @@ const lastmodLines = (resourcePath) => {
   const date = sitemapLastmod(resourcePath, today);
   return date ? [`    <lastmod>${date}</lastmod>`] : [];
 };
-// isIndexable(e.path) alone matched the year-window gate but not a
-// per-route meta.robots noindex override — the actual noindex-flip logic
-// below (search "!isIndexable(url) || meta.robots") checks both. No route
-// sets meta.robots to noindex today (audited), so this was previously a
-// latent gap, not an active leak — closing it here so it can't become one
-// silently if a future route ever does.
+// isIndexable(e.path) is the year-window gate. The meta.robots check is kept
+// as a belt-and-braces filter: no route sets a noindex value today (the
+// 2026-11-23 no-noindex decision removed the last ones, see docs/noindex.md),
+// so this is a latent guard rather than an active filter, and a future route
+// that reintroduces one cannot silently leak into the sitemap.
 const indexableEntries = sitemapEntries(currentYear).filter(
   (e) => isIndexable(e.path) && !metaFor(e.path)?.robots?.startsWith("noindex"),
 );
-const urlset = indexableEntries
+// Sitemaps are split by page type so Search Console reports indexing per
+// group instead of one 1,400-URL bucket: a drop in week coverage is then
+// visible without exporting and diffing the whole list. sitemap.xml stays the
+// one submitted URL and becomes the <sitemapindex> over the children, so
+// robots.txt, src/cli.js submit-sitemap and the deploy workflow are unchanged.
+//
+// Invariant 4 still holds across the set: every indexable HTML page lands in
+// exactly one child sitemap. SITEMAP_GROUPS is ordered and the last entry is
+// the catch-all, so a future page family cannot silently fall out of the
+// sitemap by not matching a pattern - it lands in sitemap-pages.xml.
+const SITEMAP_GROUPS = [
+  { file: "sitemap-weeks.xml", match: (p) => /^\/viikko-\d+-\d{4}$/.test(p) },
+  {
+    file: "sitemap-holidays.xml",
+    match: (p) =>
+      /^\/pyhat-\d{4}\/[a-z0-9-]+$/.test(p) ||
+      /^\/(pyhapaivat|liputuspaivat|koululomat)-\d{4}$/.test(p) ||
+      /^\/(itsenaisyyspaiva|joulu|joululoma|adventti|isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|uusi-vuosi|loppiainen)-\d{4}$/.test(p),
+  },
+  {
+    file: "sitemap-calendars.xml",
+    match: (p) =>
+      /^\/(kalenteri|tulostettava-kalenteri|tulosta|vuosi)-\d{4}(?:-(?:alkuvuosi|loppuvuosi))?$/.test(p) ||
+      /^\/kuukausi-\d+-\d{4}$/.test(p) ||
+      /^\/q[1-4]-\d{4}$/.test(p),
+  },
+  { file: "sitemap-pages.xml", match: () => true },
+  // Write-only groups: sitemap-pages.xml above is the catch-all for HTML
+  // routes, so sitemapGroupFor() never selects these. Their entries are
+  // pushed in explicitly below.
+  { file: "sitemap-pdfs.xml", match: () => false },
+  { file: "sitemap-templates.xml", match: () => false },
+];
+
+const sitemapGroupFor = (pathname) =>
+  SITEMAP_GROUPS.find((group) => group.match(pathname)).file;
+
+const urlXml = indexableEntries
   .map((e) => {
     const loc = e.path === "/" ? `${SITE_URL}/` : `${SITE_URL}${e.path}`;
     // Same ogImageUrlFor() the og:image override and ImageObject schema use
@@ -5362,25 +5457,83 @@ const urlset = indexableEntries
     // additive entry — not a replacement of the OG one.
     const img = ogImageUrlFor(e.path);
     const discoverImg = discoverImageUrlFor(e.path);
-    return [
-      "  <url>",
-      `    <loc>${loc}</loc>`,
-      ...lastmodLines(e.path),
-      `    <changefreq>${e.changefreq}</changefreq>`,
-      `    <priority>${e.priority}</priority>`,
-      ...(img ? [`    <image:image><image:loc>${img}</image:loc></image:image>`] : []),
-      ...(discoverImg ? [`    <image:image><image:loc>${discoverImg}</image:loc></image:image>`] : []),
-      "  </url>",
-    ].join("\n");
-  })
-  .join("\n");
-// PDFs stay generated, visibly linked, and described as associated media.
-// They are excluded from the sitemap so each HTML page remains the canonical
-// search result; vercel.json supplies the corresponding HTTP Link canonical.
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urlset}\n</urlset>\n`;
-fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemap);
+    return {
+      group: sitemapGroupFor(e.path),
+      xml: [
+        "  <url>",
+        `    <loc>${loc}</loc>`,
+        ...lastmodLines(e.path),
+        `    <changefreq>${e.changefreq}</changefreq>`,
+        `    <priority>${e.priority}</priority>`,
+        ...(img ? [`    <image:image><image:loc>${img}</image:loc></image:image>`] : []),
+        ...(discoverImg ? [`    <image:image><image:loc>${discoverImg}</image:loc></image:image>`] : []),
+        "  </url>",
+      ].join("\n"),
+    };
+  });
+// PDFs are submitted in the sitemap as of the user-approved 2026-11-23
+// decision, which superseded the 2026-10-06 exclusion: they carry no robots
+// directive and no canonical any more, so they are ordinary indexable
+// downloads. The URL list is built from the same horizon loops and the same
+// path builders that generate the files further down this script, so a
+// submitted URL can never drift from a generated file. No <lastmod> is
+// emitted: a PDF's content date is not known here, and sitemapLastmod()
+// deliberately omits PDF dates rather than inventing the build date.
+const pdfSitemapPaths = [];
+for (let py = PRERENDER_MIN_YEAR; py <= PRERENDER_MAX_YEAR; py += 1) {
+  pdfSitemapPaths.push(calendarPdfPath(py));
+  const pdfWeeks = weeksInIsoYear(py);
+  for (let w = 1; w <= pdfWeeks; w += 1) pdfSitemapPaths.push(weekPdfPath(w, py));
+  for (let m = 1; m <= 12; m += 1) pdfSitemapPaths.push(monthPdfPath(m, py));
+}
+urlXml.push(
+  ...pdfSitemapPaths.map((pdfPath) => ({
+    group: "sitemap-pdfs.xml",
+    xml: ["  <url>", `    <loc>${SITE_URL}${pdfPath}</loc>`, "  </url>"].join("\n"),
+  })),
+);
+
+// Template exports (/pohjat/{slug}/{year}.{xlsx|csv|pdf}) are submitted on the
+// same user-approved 2026-11-23 decision. The list reads each template's own
+// downloadableAssets records, the same records scripts/build-templates.mjs
+// writes files from, and repeats its fail-closed price check so a future paid
+// template is never advertised: its files are deliberately absent from dist.
+// Every asset is already a visible anchor on /kalenteripohjat/{slug}, which
+// check-crawl.js verifies for the PDF members of this set.
+const templateSitemapPaths = TEMPLATES.filter((template) => template.price.amount === 0)
+  .flatMap((template) => template.downloadableAssets.map((asset) => asset.path));
+urlXml.push(
+  ...templateSitemapPaths.map((assetPath) => ({
+    group: "sitemap-templates.xml",
+    xml: ["  <url>", `    <loc>${SITE_URL}${assetPath}</loc>`, "  </url>"].join("\n"),
+  })),
+);
+
+const sitemapCounts = [];
+for (const { file } of SITEMAP_GROUPS) {
+  const urls = urlXml.filter((entry) => entry.group === file);
+  // An empty child sitemap is invalid, so an unused group is simply not
+  // written and not referenced from the index.
+  if (!urls.length) continue;
+  fs.writeFileSync(
+    path.join(distDir, file),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls
+      .map((entry) => entry.xml)
+      .join("\n")}\n</urlset>\n`,
+  );
+  sitemapCounts.push({ file, count: urls.length });
+}
+const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapCounts
+  .map(
+    ({ file }) =>
+      `  <sitemap>\n    <loc>${SITE_URL}/${file}</loc>\n    <lastmod>${today}</lastmod>\n  </sitemap>`,
+  )
+  .join("\n")}\n</sitemapindex>\n`;
+fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemapIndex);
 console.log(
-  `generated sitemap.xml (${indexableEntries.length} indexable HTML urls, PDFs excluded as noindex downloads, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today})`,
+  `generated sitemap.xml index -> ${sitemapCounts
+    .map(({ file, count }) => `${file} (${count})`)
+    .join(", ")}; ${indexableEntries.length} sitemap-listed HTML urls plus ${pdfSitemapPaths.length} submitted PDFs and ${templateSitemapPaths.length} template exports, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today}`,
 );
 
 // Generate llms-full.txt: a comprehensive English-language reference for AI
@@ -5430,7 +5583,7 @@ const aiFileIntro = (name, purpose) =>
   `https://viikkonro.fi/ when citing.`;
 
 const templateDiscovery = [
-  `Business Calendar Widget v1: ${SITE_URL}/widget/calendar/v1. Lightweight noindex iframe, month/week views, Finnish holidays, ISO weeks and host-supplied events kept in memory. Appearance-only URL parameters; parent-only postMessage configuration. No tracking, credentials or private calendar fetches. Documentation: ${SITE_URL}${WIDGET_EMBED_PAGE_PATH}#yrityskalenteri-widget. Free attribution retained; premium licensing is not live.`,
+  `Business Calendar Widget v1: ${SITE_URL}/widget/calendar/v1. Lightweight iframe, month/week views, Finnish holidays, ISO weeks and host-supplied events kept in memory. Appearance-only URL parameters; parent-only postMessage configuration. No tracking, credentials or private calendar fetches. Documentation: ${SITE_URL}${WIDGET_EMBED_PAGE_PATH}#yrityskalenteri-widget. Free attribution retained; premium licensing is not live.`,
   `Team Leave Planner: ${SITE_URL}${TEAM_PATH}. Public product guide for an authenticated organization calendar. Private application is excluded from indexing, public data feeds and analytics. Organization owner, manager and employee permissions; private PDF, XLSX and ICS. Requires configured Supabase Auth/PostgreSQL.`,
   `HR Calendar: ${SITE_URL}${HR_PATH}. Local Finnish HR annual calendar with public holidays, company dates, user-entered collective agreement references and optional sourced Annual Holidays Act reminders. Private PDF, Excel and ICS; no legal compliance claim.`,
   `Vacation Planner Pro: ${SITE_URL}${PLANNER_PATH}#vuosisuunnitelma. Existing free long-break calculator plus local annual person-labelled vacation, absence and company closure planning. Explicit planning/statutory leave rules, premium-capable PDF, XLSX and ICS; no remote personal data or team collaboration.`,
@@ -5459,7 +5612,7 @@ const llmsFull =
     "",
     "- Purpose: instant ISO 8601 week-number lookup (\"what week is it today / on this date\") plus a full Finnish calendar reference: public holidays, flag days, name days, school holidays, quarters, months, printable calendars and PDF/CSV downloads.",
     "- No login, no paywall, no backend at request time — a prerendered React single-page app. Every meaningful URL is rendered to static HTML at build time (not just the homepage), so crawlers and AI agents see full content without executing JavaScript.",
-    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Valid week pages use the full ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window and appear in the sitemap; other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online and prerendered with noindex, follow and are excluded from the sitemap. PDFs are downloadable assets rather than pages in every year: they remain crawlable and linked from their HTML page, but are served noindex and excluded from the sitemap, so the HTML page is always the citable source. All years remain reachable by direct URL regardless of index status.`,
+    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Valid week pages use the full ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window and appear in the sitemap; other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online, prerendered and crawlable with index, follow, and are excluded from the sitemap. PDFs are generated in every year of the horizon, remain crawlable, are linked from their HTML page and are submitted in the sitemap; the HTML page carries the fuller context and stays the preferred citable source. All years remain reachable by direct URL regardless of index status.`,
     "- The contact form is the only feature that talks to a third party (Web3Forms, client-side only); everything else — week/date math, holiday and flag-day dates, name-day lookups — is computed locally from deterministic rules, not fetched from an external API.",
     "- For ISO 8601 rules, Finnish holiday/flag-day definitions and how entities relate to each other, see llms-glossary.txt rather than this file.",
     "",
@@ -5560,7 +5713,7 @@ const llmsFull =
     "",
     "Reference / meta pages",
     "  /  — homepage: current ISO week number and a date-to-week lookup",
-    "  /en  — the one English-language page (mirrors the homepage's current-week facts)",
+    `  ${YEAR_INDEX_PATH}  — year index: every published year ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} with its ISO week count, and the crawl path to the year pages outside the indexable window`,
     "  /ukk  — full FAQ page (Finnish; same content as the FAQ section of this document)",
     "  /avoin-data  — documentation for the /data/ JSON feeds and the /api/ alias",
     `  ${CHROME_EXTENSION_PATH}  — landing page for the free "${EXTENSION_FACTS.name}" Chrome extension (current ISO week number in the browser toolbar, week dates, flag days, school holidays, "vk 42" address-bar search): ${EXTENSION_FACTS.storeUrl}`,
@@ -5598,7 +5751,10 @@ const llmsFull =
     `  ${SITE_URL}/llms-glossary.txt — ISO 8601 rules, holiday/flag-day definitions, entity relationships`,
     `  ${SITE_URL}/ai.txt            — AI crawler policy and machine-readable resource pointers`,
     `  ${SITE_URL}/ai-manifest.txt   — priority-ordered "fetch these first" manifest`,
-    `  ${SITE_URL}/sitemap.xml       — full XML sitemap of every indexable HTML page`,
+    `  ${SITE_URL}/sitemap.xml       — XML sitemap index over the per-type sitemaps below`,
+    ...sitemapCounts.map(
+      ({ file, count }) => `  ${SITE_URL}/${file.padEnd(23)} — ${count} indexable HTML urls`,
+    ),
     `  ${SITE_URL}/robots.txt        — crawler access rules`,
     "  Every prerendered HTML page additionally carries schema.org JSON-LD (WebSite/Organization/WebApplication graph on every page, plus FAQPage/BreadcrumbList/Article/Dataset/ImageObject nodes on relevant pages) — prefer the JSON-LD or the /data/ JSON feeds over parsing HTML for structured facts.",
     "",
@@ -5651,7 +5807,7 @@ const llmsApi =
     `  /pdf/kalenteri-{year}.pdf         — full-year printable calendar, e.g. ${SITE_URL}${calendarPdfPath(llY)}`,
     `  /pdf/viikko-{week}-{year}.pdf     — single-week fact sheet, e.g. ${SITE_URL}${weekPdfPath(llWeek, llY)}`,
     `  /pdf/kuukausi-{month}-{year}.pdf  — single-month calendar + fact sheet, e.g. ${SITE_URL}${monthPdfPath(llMonth, llY)}`,
-    "  Generated with pdfkit (no headless browser), one file per year/week/month across the full data horizon, linked as a visible download from the corresponding HTML page. Downloadable assets, not indexable pages: they stay out of the sitemap and are served noindex, so cite the HTML page as the source.",
+    "  Generated with pdfkit (no headless browser), one file per year/week/month across the full data horizon, linked as a visible download from the corresponding HTML page and submitted in the sitemap. The matching HTML page carries the fuller context, so prefer it as the citable source.",
     "",
     "## Calendar feeds (iCalendar)",
     "",
@@ -5660,7 +5816,7 @@ const llmsApi =
     "",
     "## Embeddable widget",
     "",
-    `  ${SITE_URL}${WEEK_WIDGET_PATH}  — current ISO week number widget for iframes (300x150, ?teema=tumma for dark). noindex; embed code: ${SITE_URL}${WIDGET_EMBED_PAGE_PATH}.`,
+    `  ${SITE_URL}${WEEK_WIDGET_PATH}  — current ISO week number widget for iframes (300x150, ?teema=tumma for dark). Embed code: ${SITE_URL}${WIDGET_EMBED_PAGE_PATH}.`,
     "",
     "## Images",
     "",
@@ -5898,7 +6054,7 @@ const aiManifest =
     `   ${SITE_URL}/llms.txt        — concise curated index`,
     `   ${SITE_URL}/llms-full.txt   — full site-structure reference`,
     `   ${SITE_URL}/ai.txt          — AI crawler policy and resource pointers`,
-    `   ${SITE_URL}/sitemap.xml     — full XML sitemap`,
+    `   ${SITE_URL}/sitemap.xml     — XML sitemap index (per-type children: ${sitemapCounts.map(({ file }) => file).join(", ")})`,
     `   ${SITE_URL}/robots.txt      — crawler access rules`,
     `   ${SITE_URL}/avoin-data      — human-readable docs for every /data/ feed`,
     ...ICS_FEEDS.map((f) => `   ${SITE_URL}${f.path}  — iCalendar feed: ${f.calName}`),
@@ -5916,7 +6072,7 @@ const aiManifest =
     `   ${SITE_URL}${calendarPdfPath(amCalYear)}  — full-year calendar (pattern: /pdf/kalenteri-{year}.pdf)`,
     `   ${SITE_URL}${weekPdfPath(amWeek, amWeekYear)}  — current week (pattern: /pdf/viikko-{week}-{year}.pdf)`,
     `   ${SITE_URL}${monthPdfPath(amMonth, amCalYear)}  — current month (pattern: /pdf/kuukausi-{month}-{year}.pdf)`,
-    `   One PDF per year/week/month, ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Crawlable noindex downloads; cite the matching HTML page.`,
+    `   One PDF per year/week/month, ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Crawlable, sitemap-submitted downloads; cite the matching HTML page.`,
     "",
     "## Weekly pages",
     "",

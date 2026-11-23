@@ -6,7 +6,7 @@
 // recomputes the ISO week on load and hourly, so an iframe left open across
 // midnight on Sunday still turns over without a rebuild.
 //
-// /widget/* is noindex (X-Robots-Tag in vercel.json + meta robots here) and
+// /widget/* carries no robots directive since 2026-11-23 (docs/noindex.md) and
 // kept out of sitemapEntries(): it's an embed target, not a landing page.
 // The "viikkonro.fi" link inside it is the backlink the feature exists for —
 // deliberately not optional in the embed code.
@@ -87,7 +87,6 @@ export function weekWidgetHtml(siteUrl, now) {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex, follow" />
 <title>Viikko ${week} – Viikko Nro</title>
 <link rel="canonical" href="${siteUrl}/" />
 <style>

@@ -106,15 +106,15 @@ code.
 
 - **Real backlinks**: every site that embeds a widget links back —
   genuine off-page signal, unlike a new page trying to rank on its own.
-- **The `/widget/*` pages themselves should be `noindex`**: they're
-  embed targets, not content for someone to land on via search — thin,
-  narrow, and would otherwise risk looking like duplicate content
-  against the real pages they summarize (`/vuosi-{year}`, `/pyhapaivat-
-  {year}`, etc.). `isIndexable()` already has the mechanism for this;
-  extend its exclusion list rather than adding a new one.
-- **`sitemapEntries()`**: exclude `/widget/*`, consistent with the
-  `noindex` call above — a sitemap listing pages designed to never rank
-  is the same category of error already avoided elsewhere on the site.
+- **The `/widget/*` pages are kept out of the sitemap**: they're embed
+  targets, not content for someone to land on via search. They used to be
+  `noindex` as well, until the 2026-11-23 site-wide no-noindex decision
+  (`docs/noindex.md`) removed both the meta tag and the `/widget/(.*)`
+  header. Sitemap exclusion through `sitemapEntries()` is now the only
+  signal, so accept that an embed target may be indexed.
+- **`sitemapEntries()`**: exclude `/widget/*`. A sitemap listing pages
+  designed to never rank is the same category of error already avoided
+  elsewhere on the site.
 
 ## Implementation checklist
 

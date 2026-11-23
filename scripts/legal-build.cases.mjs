@@ -3,9 +3,10 @@ import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 import { LEGAL_PATHS, LEGAL_UPDATED, refundFaqs } from "../src/data/legalPolicies.js";
 import { routeMeta } from "../src/data/seo.js";
+import { readSitemapSet } from "./sitemap-set.mjs";
 
 test("policy pages are prerendered with canonical URLs, contact and unchanged WebPage identifiers",()=>{
-  const sitemap=readFileSync("dist/sitemap.xml","utf8");
+  const sitemap=readSitemapSet();
   for(const path of LEGAL_PATHS) {
     const html=readFileSync(`dist${path}.html`,"utf8");
     assert.equal((html.replace(/<!--[\s\S]*?-->/g,"").match(/<h1>/g)||[]).length,1,path);

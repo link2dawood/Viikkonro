@@ -16,6 +16,7 @@ import { pageTopic, TOPIC_CONTENT_UPDATED } from "./pageTopics.js";
 import { dateFromDayKey } from "../components/dateUtils.js";
 import { LEGAL_PATHS, LEGAL_UPDATED } from "./legalPolicies.js";
 import { VAPPU_UPDATED } from "./holidayPages.js";
+import { eventReviewedFor } from "./eventTemplate.js";
 
 export const CALENDAR_CONTENT_UPDATED = "2026-10-05";
 
@@ -31,6 +32,14 @@ function previousContentLastmod(path, buildDay) {
     /^\/kuinka-monta-paivaa-[a-z-]+$/.test(path) ||
     /^\/\d+-paivaa-eteenpain$/.test(path)
   ) return buildDay;
+
+  // Dated event pages (adventti, itsenäisyyspäivä, joulu, uusi vuosi,
+  // loppiainen, week 53) carry a hand-recorded editorial review date, the same
+  // one their visible "Päivitetty" line and schema dateModified use. Checked
+  // before the generic week/year rule below so a reviewed week page publishes
+  // its own review date instead of the shared parity date.
+  const eventReviewed = eventReviewedFor(path, buildDay);
+  if (eventReviewed) return eventReviewed;
 
   if (path === "/tyopaivalaskuri") return WORKING_DAYS_UPDATED;
   if (/^\/pyhat-\d{4}\/vappu$/.test(path) && buildDay >= VAPPU_UPDATED) return VAPPU_UPDATED;

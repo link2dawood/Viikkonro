@@ -1,8 +1,14 @@
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
-import { fmtFullFi, validateYear } from "../components/dateUtils";
-import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
+import EventTemplate from "../components/EventTemplate";
+import {
+  PRERENDER_MAX_YEAR as YEAR_MAX,
+  WD_ALLATIVE,
+  fmtFullFi,
+  validateYear,
+} from "../components/dateUtils";
+import { canonicalFor } from "../data/seo";
 import {
   itsenaisyyspaivaData,
   itsenaisyyspaivaFaqs,
@@ -22,6 +28,7 @@ const IndependenceDay = ({ year: pYear } = {}) => {
   const meta = itsenaisyyspaivaMeta(year);
   const faqs = itsenaisyyspaivaFaqs(year);
   const path = `/itsenaisyyspaiva-${year}`;
+  const nextYear = year + 1 <= YEAR_MAX ? year + 1 : null;
 
   return (
     <section className="app">
@@ -34,12 +41,24 @@ const IndependenceDay = ({ year: pYear } = {}) => {
 
       <h1>Itsenäisyyspäivä {year}</h1>
 
-      <p className="lead">
-        <span className="answer-sentence">
-          <strong>{data.answerLead}</strong>
-        </span>{" "}
-        Itsenäisyyspäivä kuuluu ISO-viikkoon {data.week} ja on Suomen virallinen liputuspäivä.
-      </p>
+      <EventTemplate
+        path={path}
+        answer={data.answerLead}
+        answerTail="Itsenäisyyspäivä on Suomen virallinen liputuspäivä."
+        target={data.date}
+        nameCap="Itsenäisyyspäivä"
+        illative="itsenäisyyspäivään"
+        dayOff={data.dayOff}
+        nextYear={
+          nextYear
+            ? {
+                to: `/itsenaisyyspaiva-${nextYear}`,
+                label: `Itsenäisyyspäivä ${nextYear}`,
+              }
+            : null
+        }
+        calendar={{ to: `/kalenteri-${year}`, label: `Katso kalenteri ${year}` }}
+      />
 
       <QuickFacts
         title={`Itsenäisyyspäivä ${year} lyhyesti`}
@@ -65,20 +84,18 @@ const IndependenceDay = ({ year: pYear } = {}) => {
         ]}
       />
 
-      <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
-
       <section className="prose">
         <h2>Vaikutus vapaapäiviin ja työaikaan</h2>
         {data.isWeekend ? (
           <p>
-            Koska itsenäisyyspäivä {year} osuu {data.weekday.toLowerCase()}lle ({data.date.getDate()}.{data.date.getMonth() + 1}.), se ei tuo
+            Koska itsenäisyyspäivä {year} osuu {WD_ALLATIVE[data.dayOfWeek]} ({data.date.getDate()}.{data.date.getMonth() + 1}.), se ei tuo
             maanantaista perjantaihin työskenteleville ylimääräistä arkivapaata. Suomen lainsäädäntö ja työehtosopimukset
             eivät tunne viikonloppupyhien siirtämistä seuraavalle arkipäivälle (kuten esimerkiksi Isossa-Britanniassa tai Yhdysvalloissa).
             Työntekijöille, jotka työskentelevät sunnuntaisin, itsenäisyyspäivältä maksetaan työehtosopimuksen mukainen pyhätyökorvaus.
           </p>
         ) : (
           <p>
-            Itsenäisyyspäivä {year} osuu {data.weekday.toLowerCase()}lle ({data.date.getDate()}.{data.date.getMonth() + 1}.), joten se on
+            Itsenäisyyspäivä {year} osuu {WD_ALLATIVE[data.dayOfWeek]} ({data.date.getDate()}.{data.date.getMonth() + 1}.), joten se on
             palkallinen arkivapaa päivätyötä tekeville. Itsenäisyyspäivän palkallisuus perustuu lakiin itsenäisyyspäivän
             viettämisestä yleisenä juhla- ja vapaapäivänä (388/1937).
           </p>

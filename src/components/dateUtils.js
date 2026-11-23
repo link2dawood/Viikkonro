@@ -336,6 +336,19 @@ export const WD_ESSIVE = [
   "perjantaina",
   "lauantaina",
 ];
+// Weekday allative ("osuu maanantaille"), lowercase. Not derivable by adding
+// "lle" to the nominative: keskiviikko takes consonant gradation and loses its
+// final vowel ("keskiviikolle", never "keskiviikkolle"), which is exactly the
+// mistake this array exists to prevent.
+export const WD_ALLATIVE = [
+  "sunnuntaille",
+  "maanantaille",
+  "tiistaille",
+  "keskiviikolle",
+  "torstaille",
+  "perjantaille",
+  "lauantaille",
+];
 // Month genitive ("kesäkuun viikot"), lowercase.
 export const M_GENITIVE = [
   "tammikuun",

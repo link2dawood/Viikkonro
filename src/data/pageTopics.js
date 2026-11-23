@@ -1,5 +1,6 @@
 import { canonicalFor, metaFor, sitemapEntries } from "./seo.js";
-import { daysInYear, daysInMonth, fmtShortFi, helsinkiDayKey, M_GENITIVE, mondayOf, navigationYearTargets, weeksInIsoYear } from "../components/dateUtils.js";
+import { daysInYear, daysInMonth, fmtShortFi, helsinkiDayKey, M_GENITIVE, mondayOf, navigationYearTargets, weeksInIsoYear, PRERENDER_MIN_YEAR, PRERENDER_MAX_YEAR } from "../components/dateUtils.js";
+import { YEAR_INDEX_PATH } from "./yearIndexPages.js";
 import { DAY_RULES } from "./dayRules.js";
 
 // Editorial content reviewed on this date, not refreshed by daily builds.
@@ -95,6 +96,9 @@ export function pageTopic(pathname, today) {
     id="weeks";links=[weekGuide,link("/viikko-paivamaaraksi","Viikkonumerosta päivämääriksi","Hae kokonaisen viikon päivät."),link("/paivamaara-viikoksi","Päivämäärästä viikkonumeroon","Tarkista yksittäisen päivän viikkovuosi.")];
   } else if (["/tietolahteet","/menetelma","/toimitusperiaatteet","/tietoa-meista","/ota-yhteytta","/tietosuoja","/kayttoehdot","/palautusehdot","/ukk"].includes(pathname)) {
     id="trust";links=[link("/tietolahteet","Kalenteritietojen lähteet","Katso aineistojen alkuperä ja kattavuus."),link("/menetelma","Laskentamenetelmät","Lue päivämäärien ja työpäivien laskennasta."),link("/toimitusperiaatteet","Toimitusperiaatteet","Tutustu sisällön tarkistamiseen."),link("/ota-yhteytta","Ilmoita kalenteritiedon virheestä","Lähetä korjauspyyntö toimitukselle.")];
+  } else if (pathname===YEAR_INDEX_PATH) {
+    id="calendar";detail=`Sivustolla on viikkonumerot ja vuosikalenteri vuosille ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Viikkonumerot lasketaan jokaiselle vuodelle samalla ISO 8601 -säännöllä.`;
+    links=[link(`/vuosi-${year}`,`Viikkovuosi ${year}`,"Selaa kuluvan viikkovuoden kaikkia viikkoja."),calendar(),weekGuide];
   } else if (pathname==="/laskurit") {
     id="calendar";links=[weekGuide,link("/menetelma","Laskureiden toimintaperiaatteet","Valitse laskutapa ennen työkalun käyttöä."),link("/tietolahteet","Tietolähteet","Tarkista aineistojen lähtötiedot.")];
   } else {

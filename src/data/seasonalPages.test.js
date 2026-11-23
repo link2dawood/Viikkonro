@@ -29,7 +29,7 @@ describe("Itsenäisyyspäivä (/itsenaisyyspaiva-2026)", () => {
     expect(data.week).toBe(49);
     expect(data.isWeekend).toBe(true);
     expect(data.yearsSinceIndependence).toBe(109);
-    expect(data.answerLead).toContain("Itsenäisyyspäivä 2026 on sunnuntai 6.12., ei ylimääräistä vapaapäivää");
+    expect(data.answerLead).toContain("Itsenäisyyspäivä 2026 on sunnuntai 6.12. (viikko 49), ei ylimääräistä vapaapäivää");
   });
 
   it("produces valid SEO title and description without en dashes", () => {

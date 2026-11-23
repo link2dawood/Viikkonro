@@ -5,7 +5,8 @@ import { fmtDayRangeFi, mondayOf } from "../components/dateUtils.js";
 // published this exact date. Indexable, in the sitemap, gets FAQ schema.
 // Tier B/ESTIMATED: a historically stable pattern, not yet officially
 // confirmed for this specific year — rendered with a visible warning,
-// noindex,follow, excluded from the sitemap, no FAQ schema.
+// excluded from the sitemap, no FAQ schema (the noindex they also carried was
+// removed on 2026-11-23, see docs/noindex.md).
 // Tier C/UNKNOWN: no source at all. Never given a fabricated date — see
 // autumnUnknownCities below, which lists cities by name with no date.
 export const CONFIDENCE = Object.freeze({
@@ -315,14 +316,14 @@ export function schoolHolidayMeta(year) {
           title: `Syysloma ${year} ja hiihtoloma ${year}: koululomat | Viikko Nro`,
           description: `${autumnSummary(page)} ${winterSummary} Katso koululomat alueittain.`,
         };
-  // STEP 4: Tier B pages must noindex,follow and their description must
-  // carry the exact required disclaimer — not a paraphrase, so it reads
-  // identically everywhere it appears (meta description, visible banner).
+  // STEP 4: Tier B pages keep the exact required disclaimer in their
+  // description — not a paraphrase, so it reads identically everywhere it
+  // appears (meta description, visible banner). They are no longer noindexed
+  // (site-wide policy, user-approved 2026-11-23, see docs/noindex.md).
   if (tier === CONFIDENCE.ESTIMATED) {
     return {
       ...base,
       description: `${base.description} Tiedot perustuvat aiempien vuosien käytäntöihin eikä niitä ole vielä vahvistettu.`,
-      robots: "noindex, follow",
     };
   }
   return base;
