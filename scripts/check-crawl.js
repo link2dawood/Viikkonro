@@ -29,8 +29,9 @@
 //     sitemap, no hreflang anywhere, nothing linking to /en
 //     (vercel.json 301s /en -> / for external backlinks; check-crawl renders
 //     pages without an HTTP layer, so it asserts the prerender footprint is gone)
-//   - zero PDFs in the sitemap; every generated PDF remains directly linked
-//     from rendered HTML as a user download
+//   - every generated PDF and template export is submitted in the sitemap,
+//     exists in dist, and remains directly linked from rendered HTML as a
+//     user download
 
 import { pathToFileURL } from "node:url";
 import fs from "node:fs";
@@ -64,10 +65,14 @@ function extractLinks(html) {
   ];
 }
 
+// Every site-relative .pdf anchor counts as a direct download link, not just
+// the /pdf/ family: the template exports live under /pohjat/{slug}/{year}.pdf
+// and are linked from the template detail pages. Restricting this to "/pdf/"
+// reported those as unlinked even though the rendered HTML links all of them.
 function extractPdfAnchors(html) {
   return [...html.matchAll(/<a\b[^>]*\bhref="([^"?#]+\.pdf)(?:[?#][^"]*)?"[^>]*>/gi)]
     .map((match) => match[1])
-    .filter((href) => href.startsWith("/pdf/"));
+    .filter((href) => href.startsWith("/") && !href.startsWith("//"));
 }
 
 // Detects the <Navigate> short-circuit case (e.g. an invalid week 53
