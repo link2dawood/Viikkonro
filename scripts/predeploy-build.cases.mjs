@@ -322,6 +322,19 @@ test("PD-12 publishes substantive template pages and all 54 downloadable artifac
     }
   }
   assert.equal(assets, 54); assert.equal(titles.size, 6); assert.equal(descriptions.size, 6);
+  // All 54 exports are submitted in sitemap-templates.xml (user-approved
+  // 2026-11-23). A paid template would be excluded here exactly as
+  // build-templates.mjs excludes its files from dist.
+  const submittedTemplateAssets = sitemapLocations().filter((url) => url.includes("/pohjat/"));
+  assert.equal(submittedTemplateAssets.length, 54, "every generated template export is submitted in the sitemap");
+  assert.equal(new Set(submittedTemplateAssets).size, 54, "no duplicate template entries");
+  for (const format of ["xlsx", "csv", "pdf"]) {
+    assert.equal(
+      submittedTemplateAssets.filter((url) => url.endsWith(`.${format}`)).length,
+      18,
+      `all 18 ${format} exports are submitted`,
+    );
+  }
   const headers = JSON.parse(read("vercel.json")).headers;
   // Template exports follow the same policy as /pdf/ and /ics/: no robots
   // directive and no canonical (site-wide no-noindex policy, user-approved
@@ -377,7 +390,11 @@ test("PD-02 keeps the sitemap HTML-only, unique, and complete for new routes", (
   assert.ok(locations.length >= minimumUrls, `expected at least ${minimumUrls} sitemap URLs, got ${locations.length}`);
   assert.equal(new Set(locations).size, locations.length, "sitemap URLs must be unique");
   assert.ok(locations.every((url) => url.startsWith(`${siteOrigin}/`)), "all sitemap URLs use production origin");
-  assert.ok(locations.every((url) => !url.toLowerCase().endsWith(".pdf")), "PDFs stay out of sitemap");
+  // PDFs joined the sitemap on 2026-11-23 (user-approved; superseded the
+  // 2026-10-06 exclusion), one entry per generated file.
+  const submittedPdfLocations = locations.filter((url) => url.includes("/pdf/") && url.toLowerCase().endsWith(".pdf"));
+  const generatedPdfNames = fs.readdirSync(path.join(dist, "pdf")).filter((name) => name.endsWith(".pdf"));
+  assert.equal(submittedPdfLocations.length, generatedPdfNames.length, "every generated PDF is submitted in the sitemap");
   for (const route of [
     "/parillinen-pariton-viikko",
     "/koululomat-2028",
@@ -536,10 +553,10 @@ test("PD-10 keeps the development unlock and the 2 MB PDF library out of every p
 test("PD-18 keeps the team app separate from public analytics and generated data", () => {
   const landing = pageHtml("/tiimin-lomat"), app = pageHtml("/tiimin-lomat/suunnittelu");
   assert.ok(landing.includes('href="/tiimin-lomat/suunnittelu"'));
-  // The private app keeps its no-store, no-referrer and frame-ancestors
-  // protections, but no longer declares robots directives (site-wide
-  // no-noindex policy, user-approved 2026-11-23, see docs/noindex.md).
-  assert.ok(!/noindex/i.test(app));
+  // The private app is the only surface that keeps a robots directive under
+  // the 2026-11-23 policy (user-approved; see docs/noindex.md): an empty
+  // auth-gated shell has nothing to index.
+  assert.ok(app.includes('content="noindex,nofollow,noarchive"'));
   assert.ok(app.includes('content="no-referrer"'));
   assert.ok(!/clarity|bing\.com|adsbygoogle|analytics/i.test(app));
   assert.ok(!sitemapLocations().includes(`${siteOrigin}/tiimin-lomat/suunnittelu`));

@@ -213,6 +213,27 @@ const unlinkedSitemapPdfs = sitemapPdfUrls.filter(
 const unlinkedGeneratedPdfs = generatedPdfPaths.filter(
   (pathname) => !discoveredPdfAnchors.has(pathname),
 );
+// PDFs became sitemap entries on 2026-11-23 (user-approved; superseded the
+// 2026-10-06 exclusion). The check inverted with the policy: every generated
+// PDF must now be submitted, so a new PDF family that skips the sitemap
+// builder fails here instead of shipping undiscoverable.
+const submittedPdfs = new Set(sitemapPdfUrls);
+const unsubmittedGeneratedPdfs = generatedPdfPaths
+  .filter((pathname) => !submittedPdfs.has(pathname));
+// Template exports (/pohjat/{slug}/{year}.{xlsx|csv|pdf}) joined the sitemap
+// in the same 2026-11-23 decision. Nested one directory deeper than /pdf/,
+// so the relative path is rebuilt rather than taken from the entry name.
+const templateDir = path.join(root, "dist/pohjat");
+const generatedTemplateAssets = fs.existsSync(templateDir)
+  ? fs
+      .readdirSync(templateDir, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => `/${path.relative(path.join(root, "dist"), path.join(entry.parentPath, entry.name))}`)
+  : [];
+const submittedAll = new Set(allSitemapPaths);
+const unsubmittedTemplateAssets = generatedTemplateAssets.filter(
+  (pathname) => !submittedAll.has(pathname),
+);
 
 console.log(`Crawled ${visited.size} distinct internal URLs from "/".`);
 console.log(`Sitemap has ${sitemapUrls.length} URLs.`);
@@ -227,7 +248,8 @@ console.log(`Week pages with invalid title/body abbreviation coverage: ${invalid
 console.log(`Week/month/year pages with unsupported name-day descriptions: ${unsupportedNameDayDescriptionFiles.length}`);
 console.log(`English-removal violations: ${englishRemovalViolations.length}`);
 console.log(`Generated/submitted/directly linked PDFs: ${generatedPdfPaths.length}/${sitemapPdfUrls.length}/${discoveredPdfAnchors.size}`);
-console.log(`Unexpected PDF sitemap entries: ${sitemapPdfUrls.length}`);
+console.log(`Generated PDFs missing from the sitemap: ${unsubmittedGeneratedPdfs.length}`);
+console.log(`Generated/submitted template exports: ${generatedTemplateAssets.length}/${generatedTemplateAssets.length - unsubmittedTemplateAssets.length}`);
 console.log(`Missing submitted PDF files: ${missingSitemapPdfFiles.length}`);
 console.log(`Submitted PDFs without a direct HTML download link: ${unlinkedSitemapPdfs.length}`);
 console.log(`Generated PDFs without a direct HTML download link: ${unlinkedGeneratedPdfs.length}`);
@@ -279,7 +301,8 @@ const failed =
   invalidWeekMetadataFiles.length > 0 ||
   unsupportedNameDayDescriptionFiles.length > 0 ||
   englishRemovalViolations.length > 0 ||
-  sitemapPdfUrls.length > 0 ||
+  unsubmittedGeneratedPdfs.length > 0 ||
+  unsubmittedTemplateAssets.length > 0 ||
   missingSitemapPdfFiles.length > 0 ||
   unlinkedSitemapPdfs.length > 0 ||
   unlinkedGeneratedPdfs.length > 0 ||

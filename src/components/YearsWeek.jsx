@@ -6,7 +6,7 @@ import { YEAR_INDEX_PATH, featuredYears, yearIndexStats } from "../data/yearInde
 
 // Homepage year browser. It lists only the years inside the indexable window
 // (featuredYears) rather than the whole PRERENDER_MIN_YEAR..PRERENDER_MAX_YEAR
-// horizon: the wider list spent the homepage's link equity on ~11 noindex year
+// horizon: the wider list spent the homepage's link equity on ~11 pruned year
 // pages per row. The remaining years keep a crawl path through
 // /kaikki-vuodet, which is one click from here. See yearIndexPages.js.
 const YearsWeek = () => {

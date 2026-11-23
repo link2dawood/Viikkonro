@@ -14,7 +14,8 @@ import { syncSeoDom } from "../data/seoDom";
 //
 // Robots meta and page-level JSON-LD are explicitly synchronized with the DOM
 // on every route transition (Finding 2 fix), ensuring that navigation between
-// indexable and noindex pages always cleans up or applies the correct directives.
+// pages with and without explicit robots values always cleans up or applies
+// the correct directives.
 const SEO = ({ title, description, robots, canonical, lang, alternates = [], jsonLd }) => {
   let locationPath = "/";
   try {

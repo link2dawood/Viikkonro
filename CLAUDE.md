@@ -26,11 +26,13 @@ suggestions, growth plans, and CTR work.
   `<meta name="robots">` output, `meta.robots` values and `robotsFor()` in
   `src/data/seo.js`, per-page robots in `prerender.js`, and every
   `X-Robots-Tag` entry in `vercel.json` or an API response.
-- As of the 2026-11-23 removal, the only robots directives left on the site
-  are on the JSON API and billing responses listed in `docs/noindex.md`. Every
-  page, prerendered document, and downloadable asset family is `index, follow`.
-  Re-adding a `noindex` anywhere is also a registry decision: record it in
-  `docs/noindex.md` first.
+- As of the 2026-11-23 removal, the only robots directives left are on
+  `/tiimin-lomat/suunnittelu` (the auth-gated private app, the one mandatory
+  exception) and the JSON API and billing responses, all listed in
+  `docs/noindex.md`. Every public page, prerendered document, and downloadable
+  asset family is `index, follow`, including PDFs, ICS feeds and both widget
+  documents. Re-adding a `noindex` anywhere else is also a registry decision:
+  record it in `docs/noindex.md` first.
 - Do not do it indirectly either: do not add a noindex page to
   `sitemapEntries()`, widen `INDEX_MIN_YEAR`, `INDEX_MAX_YEAR`, or the week
   window, drop a header rule instead of the tag, or relax a unit test or
@@ -182,11 +184,16 @@ The full build creates:
 - `llms-full.txt`, its companion files, `ai-manifest.txt`, and the knowledge
   graph.
 
-PDFs are downloadable assets, not sitemap entries. Every generated PDF must
-remain visibly linked from its HTML page, represented in schema, exposed by a
-`rel="alternate"` link, and served with the matching HTML canonical in an HTTP
-`Link` response header. The three canonical header mappings live in
-`vercel.json`.
+Every generated PDF is submitted in `sitemap-pdfs.xml` and every free
+template export in `sitemap-templates.xml` (user-approved 2026-11-23). A PDF
+must remain visibly linked from its HTML page, represented in schema, and
+exposed by a `rel="alternate"` link; a template export must stay a visible
+anchor on `/kalenteripohjat/{slug}`. A paid template's files must never enter
+`dist` or the sitemap. PDF responses carry no
+`rel="canonical"` Link header and no robots directive: the canonical mappings
+were removed in the 2026-10-22 amendment and the `noindex` on 2026-11-23, so
+do not reintroduce either. `scripts/check-crawl.js` fails the build if a
+generated PDF is missing from the sitemap or from its HTML page.
 
 ### Advertising
 

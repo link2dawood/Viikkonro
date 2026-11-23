@@ -17,7 +17,7 @@ bundle removed by prerendering, and completes the internal crawl check.
 | PD-03 | Parse generated JSON-LD | Parity, school-holiday, and workday pages contain their required WebPage, Article, FAQPage, and breadcrumb types. |
 | PD-04 | Inspect cross-year week links | A normal week has seven valid alternatives; week 53 never links to a year without ISO week 53. |
 | PD-05 | Inspect the 2028 school-holiday page | All five official city sources, the unknown-coverage notice, and the review date remain visible. |
-| PD-06 | Inspect PDF output and Vercel headers | At least 1,000 PDFs remain generated, `/pdf/(.*)` declares no `X-Robots-Tag` (2026-11-23 no-noindex decision, see `docs/noindex.md`), and no PDF family declares a `rel="canonical"` Link header. |
+| PD-06 | Inspect PDF output and Vercel headers | At least 1,000 PDFs remain generated, every generated PDF is submitted in `sitemap-pdfs.xml`, `/pdf/(.*)` declares no `X-Robots-Tag` (2026-11-23 no-noindex decision, see `docs/noindex.md`), and no PDF family declares a `rel="canonical"` Link header. |
 | PD-07 | Inspect the English surface | `/en` retains English document signals and reciprocal hreflang, and the Finnish site links to it. |
 | PD-08 | Scan deployable text artifacts | No unresolved merge marker reaches generated HTML, XML, text, or JSON. |
 | PD-09 | Inspect `/yrityskalenteri` | One H1, a self-canonical, indexable, WebPage, FAQPage, HowTo and breadcrumb schema, the watermarked free preview, a sitemap entry, links from the calendar and print pages, and its own styles (no other page carries them). |
@@ -210,7 +210,7 @@ purchase/inbox acceptance test is a separately authorized operational check.
 | SEC-12 | Employee edits and notes | Employee cannot edit others' shifts/leaves or read private coworker notes. |
 | SEC-13 | Reusable templates, branding and exports across clients | Correct source/target permissions, no private field copied to the wrong client. |
 | SEC-14 | Audit/export history | Server records allowed action and actor; users cannot forge/delete history to bypass rules. |
-| SEC-15 | Private headers/caching/indexing | no-store and intended CSP/frame protections (the private app's robots directives were removed on 2026-11-23, see `docs/noindex.md`); private records absent from sitemap, prerender, static feeds and widget URLs. |
+| SEC-15 | Private headers/caching/indexing | no-store, noindex and intended CSP/frame protections; private records absent from sitemap, prerender, static feeds and widget URLs. |
 | SEC-16 | Static assets, logs, analytics and browser storage | No server keys, card data, private event titles, company names or bearer codes; session handling matches documented privacy policy. |
 | SEC-17 | Stored/reflected XSS, hostile SVG and formula payloads | Treated as data/rejected; cannot execute in UI, exports or recipient applications. |
 | SEC-18 | Test database under real role grants | Tenant isolation holds for direct SQL/RPC access, not just mocked browser restrictions. |

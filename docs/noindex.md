@@ -33,7 +33,6 @@ schema, sitemap eligibility, and crawlable internal links, per
 | The 404 document (`/404`, `404.html`) | noindex flip in `prerender.js`, `robots` prop in `src/pages/NotFound.jsx` | Site owner | 2026-11-23 | 2026-11-23 |
 | Week widget (`/widget/viikko`) | meta robots in `src/data/weekWidget.js`, `/widget/(.*)` header | Site owner | 2026-11-23 | 2026-11-23 |
 | Business calendar widget (`/widget/calendar/v1`) | meta robots in `scripts/build-business-widget.mjs`, `/widget/(.*)` header | Site owner | 2026-11-23 | 2026-11-23 |
-| Private team planner (`/tiimin-lomat/suunnittelu`) | meta robots in `tiimin-lomat/suunnittelu.html`, `/tiimin-lomat/suunnittelu` header | Site owner | 2026-11-23 | 2026-11-23 |
 | Generated PDFs (`/pdf/*`) | `X-Robots-Tag` on `/pdf/(.*)` in `vercel.json` | Site owner | 2026-11-23 | 2026-11-23 |
 | Calendar subscriptions (`/ics/*`) | `X-Robots-Tag` on `/ics/(.*)` in `vercel.json` | Site owner | 2026-11-23 | 2026-11-23 |
 | Template exports (`/pohjat/*`) | `X-Robots-Tag` on `/pohjat/(.*)` in `vercel.json` | Site owner | 2026-11-23 | 2026-11-23 |
@@ -44,9 +43,17 @@ document, or downloadable asset family on the site is served `noindex` now.
 
 ## Still carrying a robots directive
 
-One set was deliberately left in place, because these are POST or
-authenticated JSON responses rather than pages, where the header sits
-alongside `Cache-Control: private, no-store` as response hygiene:
+Two sets were deliberately left in place.
+
+The private team planner at `/tiimin-lomat/suunnittelu` keeps
+`noindex, nofollow, noarchive` in both its entry document and its
+`vercel.json` header. The site owner reviewed this on 2026-11-23 and kept it
+as the single mandatory exception: the shell is an empty `<div id="team-root">`
+plus one noscript line behind Supabase auth, so there is nothing to index and
+an indexed URL would be a thin/soft-404 signal on the domain.
+
+The rest are POST or authenticated JSON responses rather than pages, where the
+header sits alongside `Cache-Control: private, no-store` as response hygiene:
 
 - `/api/newsletter` and `/api/asset-404` header rules in `vercel.json`.
 - `api/newsletter.js` and `api/asset-404.js` response headers.

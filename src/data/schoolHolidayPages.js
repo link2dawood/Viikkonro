@@ -5,7 +5,8 @@ import { fmtDayRangeFi, mondayOf } from "../components/dateUtils.js";
 // published this exact date. Indexable, in the sitemap, gets FAQ schema.
 // Tier B/ESTIMATED: a historically stable pattern, not yet officially
 // confirmed for this specific year — rendered with a visible warning,
-// noindex,follow, excluded from the sitemap, no FAQ schema.
+// excluded from the sitemap, no FAQ schema (the noindex they also carried was
+// removed on 2026-11-23, see docs/noindex.md).
 // Tier C/UNKNOWN: no source at all. Never given a fabricated date — see
 // autumnUnknownCities below, which lists cities by name with no date.
 export const CONFIDENCE = Object.freeze({

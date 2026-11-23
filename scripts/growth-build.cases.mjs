@@ -7,9 +7,15 @@ import { dateFromDayKey } from "../src/components/dateUtils.js";
 import { pageTopic, PAGE_TOPICS, TOPIC_CONTENT_UPDATED } from "../src/data/pageTopics.js";
 import { readSitemapSet } from "./sitemap-set.mjs";
 
+// The sitemap set has carried non-HTML entries since 2026-11-23 (PDFs in
+// sitemap-pdfs.xml, template exports in sitemap-templates.xml, see
+// docs/noindex.md). Both cases below inspect prerendered HTML, so they walk
+// page routes only; a PDF has no .html file and no topic guide to assert.
+const HTML_ROUTE = (pathname) => !/\.[a-z0-9]+$/i.test(pathname);
+
 test("every sitemap page has visible topic guides and matching semantic relationships", () => {
   const sitemap=readSitemapSet();
-  const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>new URL(m[1]));
+  const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>new URL(m[1])).filter(u=>HTML_ROUTE(u.pathname));
   for (const url of urls) {
     const path=url.pathname;
     const file=path==="/" ? "dist/index.html" : `dist${path}.html`;
@@ -49,6 +55,7 @@ test("indexed page titles and descriptions are distinct, excluding redirect docu
   const titles=new Map(),descriptions=new Map();
   for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
     const path=new URL(match[1]).pathname;
+    if (!HTML_ROUTE(path)) continue;
     const html=readFileSync(path==="/" ? "dist/index.html" : `dist${path}.html`,"utf8");
     const title=html.match(/<title>([^<]*)<\/title>/)?.[1];
     const description=html.match(/<meta name="description" content="([^"]*)"/)?.[1];

@@ -4,7 +4,7 @@
 // after a given day, each paired with the page that answers it. Dates and names
 // come from the same modules as the pages themselves (holidays.js,
 // observanceDays.js), so the list cannot disagree with them. Only pages that are
-// indexable today are returned, so a link from here never points at a noindex
+// indexable today are returned, so a link from here never points at a
 // page.
 //
 // `upcomingEventPages()` answers the sitewide rotating block. Why it exists: the
@@ -70,7 +70,7 @@ export function upcomingEvents(today, limit = 8) {
   return [...found.values()].sort((a, b) => a.date - b.date).slice(0, limit);
 }
 
-// Mirrors the dated-family window in isIndexable(): linking to a noindex year
+// Mirrors the dated-family window in isIndexable(): linking to a pruned year
 // would spend internal links on a page that cannot rank.
 const indexableYear = (y, currentYear) => y >= currentYear - 1 && y <= currentYear + 2;
 

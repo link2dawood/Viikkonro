@@ -33,8 +33,9 @@ export function isIndexable(p, currentYear = new Date().getFullYear()) {
   // clicks, so the wide window diluted the strong years rather than adding
   // reach. Weeks and named holidays keep their own full-horizon windows
   // above: those are the two clusters prior amendments deliberately expanded.
-  // Out-of-window years stay prerendered and live with noindex, follow, and
-  // the 2029+ ones are reachable through LATER_YEARS_PATH below.
+  // Out-of-window years stay prerendered, live and crawlable with index,
+  // follow; they are excluded from the sitemap, and the 2029+ ones are
+  // reachable through LATER_YEARS_PATH below.
   const indexMinYear = currentYear - 1;
   const indexMaxYear = currentYear + 2;
   return y >= indexMinYear && y <= indexMaxYear;
@@ -1407,7 +1408,7 @@ export function sitemapEntries(year) {
   // STEP 5 of the koululomat trust redesign: sitemap inclusion follows the
   // page's computed confidence tier, not just "does a page exist for this
   // year" — a Tier B (estimated) or Tier C page must never appear here, even
-  // though it's still reachable/prerendered (noindex,follow, not gone).
+  // though it's still reachable/prerendered (out of the sitemap, not gone).
   for (const schoolYear of schoolHolidayYears) {
     if (pageConfidenceTier(schoolYear) !== CONFIDENCE.CONFIRMED) continue;
     entries.push({

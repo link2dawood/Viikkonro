@@ -52,14 +52,20 @@ describe("PDF indexing response headers", () => {
     expect(assetCanonicals).toEqual([]);
   });
 
-  it("leaves no robots directive on any page, document or asset response", () => {
-    // The JSON API and billing endpoints are the one deliberate exception:
-    // they are POST/authenticated responses rather than pages.
-    const apiOnly = ["/api/newsletter", "/api/asset-404"];
+  it("leaves no robots directive outside the two approved exceptions", () => {
+    // Approved exceptions (2026-11-23, see docs/noindex.md): the auth-gated
+    // private app, whose shell has nothing to index, and the JSON API
+    // endpoints, which are POST responses rather than pages. Any other
+    // source appearing here means a noindex was reintroduced without a
+    // registry row.
+    const allowed = ["/api/newsletter", "/api/asset-404", "/tiimin-lomat/suunnittelu"];
     const withRobots = config.headers
       .filter((rule) => rule.headers.some((header) => header.key === "X-Robots-Tag"))
       .map((rule) => rule.source)
-      .filter((source) => !apiOnly.includes(source));
+      .filter((source) => !allowed.includes(source));
     expect(withRobots).toEqual([]);
+
+    const privateRule = config.headers.find((rule) => rule.source === "/tiimin-lomat/suunnittelu");
+    expect(privateRule.headers).toContainEqual({ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" });
   });
 });

@@ -4,7 +4,7 @@
 // Why this page exists: isIndexable() (seo.js) indexes dated hub families only
 // for currentYear-1..currentYear+2. The homepage used to link every year in
 // PRERENDER_MIN_YEAR..PRERENDER_MAX_YEAR directly, so ~11 of the 16 year pills
-// pointed at noindex pages from the site's strongest page. Those years stay
+// pointed at sitemap-excluded pages from the site's strongest page. Those years stay
 // live and useful for visitors, and their week pages stay indexable across the
 // full horizon, so they still need a crawl path - just not one competing for
 // attention on the homepage. This hub is that path: the homepage links the

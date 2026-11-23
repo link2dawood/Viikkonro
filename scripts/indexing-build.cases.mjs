@@ -88,7 +88,7 @@ test("every valid published week is indexable with canonical, schema and sitemap
     const yearCanonical = `https://viikkonro.fi/vuosi-${year}`;
     const yearNodes = nodesFor(read(`dist/vuosi-${year}.html`));
     const yearPages = yearNodes.filter((node) => node["@id"] === `${yearCanonical}#webpage`);
-    assert.equal(yearPages.length, 1, `${year}: week parent exists even on noindex year hubs`);
+    assert.equal(yearPages.length, 1, `${year}: week parent exists even on pruned year hubs`);
     assert.equal(yearPages[0]["@type"], "CollectionPage", `${year}: preserve year collection schema`);
     for (let week = 1; week <= weeksInIsoYear(year); week += 1) {
       const pathname = `/viikko-${week}-${year}`;
@@ -109,7 +109,13 @@ test("every valid published week is indexable with canonical, schema and sitemap
   }
   assert.equal(weekLocations.length, expectedWeeks, "all valid weeks, no extra week URLs");
   assert.equal(new Set(weekLocations).size, expectedWeeks, "no duplicate week URLs");
-  assert.ok(!/<loc>[^<]*\/pdf\//.test(sitemap), "PDF downloads stay outside the sitemap");
+  // PDFs are submitted as of the user-approved 2026-11-23 decision, which
+  // superseded the 2026-10-06 exclusion. Every generated file must be listed,
+  // so a PDF family that skips the sitemap builder fails here.
+  const submittedPdfs = [...sitemap.matchAll(/<loc>[^<]*(\/pdf\/[^<]+)<\/loc>/g)].map((match) => match[1]);
+  const generatedPdfFiles = fs.readdirSync(new URL("../dist/pdf", import.meta.url)).filter((name) => name.endsWith(".pdf"));
+  assert.equal(submittedPdfs.length, generatedPdfFiles.length, "every generated PDF is submitted in the sitemap");
+  assert.equal(new Set(submittedPdfs).size, submittedPdfs.length, "no duplicate PDF entries");
   assert.ok(read("dist/llms-full.txt").includes(`full ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR} indexing window`));
 });
 
@@ -231,12 +237,19 @@ test("no prerendered page links to a page that does not exist", () => {
 test("no prerendered page is noindexed and the sitemap stays a subset of them", () => {
   const listed = new Set([...readSitemap().matchAll(/<loc>https:\/\/viikkonro\.fi([^<]*)<\/loc>/g)].map((m) => m[1] || "/"));
   // Site-wide no-noindex policy (user-approved 2026-11-23, docs/noindex.md).
+  // The auth-gated private app is the single approved exception recorded
+  // there; any other noindexed page means one was reintroduced off-registry.
+  const allowedNoindex = ["/tiimin-lomat/suunnittelu"];
   const noindexed = [];
   for (const file of walkHtml("dist")) {
     const route = routeOf(file), robots = robotsOf(read(file));
-    if (robots.includes("noindex")) noindexed.push(route);
+    if (robots.includes("noindex") && !allowedNoindex.includes(route)) noindexed.push(route);
   }
   assert.deepEqual(noindexed.slice(0, 20), []);
+  assert.ok(
+    robotsOf(read("dist/tiimin-lomat/suunnittelu.html")).includes("noindex"),
+    "the private app keeps its approved noindex",
+  );
   assert.ok(listed.size > 1000);
 });
 

@@ -5426,7 +5426,7 @@ const SITEMAP_GROUPS = [
     match: (p) =>
       /^\/pyhat-\d{4}\/[a-z0-9-]+$/.test(p) ||
       /^\/(pyhapaivat|liputuspaivat|koululomat)-\d{4}$/.test(p) ||
-      /^\/(itsenaisyyspaiva|joulu|joululoma|adventti|isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|uusivuosi|loppiainen)-\d{4}$/.test(p),
+      /^\/(itsenaisyyspaiva|joulu|joululoma|adventti|isanpaiva|aitienpaiva|ystavanpaiva|laskiainen|uusi-vuosi|loppiainen)-\d{4}$/.test(p),
   },
   {
     file: "sitemap-calendars.xml",
@@ -5436,6 +5436,11 @@ const SITEMAP_GROUPS = [
       /^\/q[1-4]-\d{4}$/.test(p),
   },
   { file: "sitemap-pages.xml", match: () => true },
+  // Write-only groups: sitemap-pages.xml above is the catch-all for HTML
+  // routes, so sitemapGroupFor() never selects these. Their entries are
+  // pushed in explicitly below.
+  { file: "sitemap-pdfs.xml", match: () => false },
+  { file: "sitemap-templates.xml", match: () => false },
 ];
 
 const sitemapGroupFor = (pathname) =>
@@ -5466,9 +5471,44 @@ const urlXml = indexableEntries
       ].join("\n"),
     };
   });
-// PDFs stay generated, visibly linked, and described as associated media.
-// They are excluded from the sitemap so each HTML page remains the canonical
-// search result; vercel.json supplies the corresponding HTTP Link canonical.
+// PDFs are submitted in the sitemap as of the user-approved 2026-11-23
+// decision, which superseded the 2026-10-06 exclusion: they carry no robots
+// directive and no canonical any more, so they are ordinary indexable
+// downloads. The URL list is built from the same horizon loops and the same
+// path builders that generate the files further down this script, so a
+// submitted URL can never drift from a generated file. No <lastmod> is
+// emitted: a PDF's content date is not known here, and sitemapLastmod()
+// deliberately omits PDF dates rather than inventing the build date.
+const pdfSitemapPaths = [];
+for (let py = PRERENDER_MIN_YEAR; py <= PRERENDER_MAX_YEAR; py += 1) {
+  pdfSitemapPaths.push(calendarPdfPath(py));
+  const pdfWeeks = weeksInIsoYear(py);
+  for (let w = 1; w <= pdfWeeks; w += 1) pdfSitemapPaths.push(weekPdfPath(w, py));
+  for (let m = 1; m <= 12; m += 1) pdfSitemapPaths.push(monthPdfPath(m, py));
+}
+urlXml.push(
+  ...pdfSitemapPaths.map((pdfPath) => ({
+    group: "sitemap-pdfs.xml",
+    xml: ["  <url>", `    <loc>${SITE_URL}${pdfPath}</loc>`, "  </url>"].join("\n"),
+  })),
+);
+
+// Template exports (/pohjat/{slug}/{year}.{xlsx|csv|pdf}) are submitted on the
+// same user-approved 2026-11-23 decision. The list reads each template's own
+// downloadableAssets records, the same records scripts/build-templates.mjs
+// writes files from, and repeats its fail-closed price check so a future paid
+// template is never advertised: its files are deliberately absent from dist.
+// Every asset is already a visible anchor on /kalenteripohjat/{slug}, which
+// check-crawl.js verifies for the PDF members of this set.
+const templateSitemapPaths = TEMPLATES.filter((template) => template.price.amount === 0)
+  .flatMap((template) => template.downloadableAssets.map((asset) => asset.path));
+urlXml.push(
+  ...templateSitemapPaths.map((assetPath) => ({
+    group: "sitemap-templates.xml",
+    xml: ["  <url>", `    <loc>${SITE_URL}${assetPath}</loc>`, "  </url>"].join("\n"),
+  })),
+);
+
 const sitemapCounts = [];
 for (const { file } of SITEMAP_GROUPS) {
   const urls = urlXml.filter((entry) => entry.group === file);
@@ -5493,7 +5533,7 @@ fs.writeFileSync(path.join(distDir, "sitemap.xml"), sitemapIndex);
 console.log(
   `generated sitemap.xml index -> ${sitemapCounts
     .map(({ file, count }) => `${file} (${count})`)
-    .join(", ")}; ${indexableEntries.length} sitemap-listed HTML urls total, PDFs excluded as downloads, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today}`,
+    .join(", ")}; ${indexableEntries.length} sitemap-listed HTML urls plus ${pdfSitemapPaths.length} submitted PDFs and ${templateSitemapPaths.length} template exports, of ${sitemapEntries(currentYear).length} prerendered, lastmod ${today}`,
 );
 
 // Generate llms-full.txt: a comprehensive English-language reference for AI
@@ -5572,7 +5612,7 @@ const llmsFull =
     "",
     "- Purpose: instant ISO 8601 week-number lookup (\"what week is it today / on this date\") plus a full Finnish calendar reference: public holidays, flag days, name days, school holidays, quarters, months, printable calendars and PDF/CSV downloads.",
     "- No login, no paywall, no backend at request time — a prerendered React single-page app. Every meaningful URL is rendered to static HTML at build time (not just the homepage), so crawlers and AI agents see full content without executing JavaScript.",
-    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Valid week pages use the full ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window and appear in the sitemap; other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online, prerendered and crawlable with index, follow, and are excluded from the sitemap. PDFs are downloadable assets rather than pages in every year: they remain crawlable and linked from their HTML page but are excluded from the sitemap, so the HTML page is always the citable source. All years remain reachable by direct URL regardless of index status.`,
+    `- Date horizon: every dated resource (week, month, year, quarter pages; PDFs; JSON feeds) exists for years ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Valid week pages use the full ${WEEK_INDEX_MIN_YEAR}-${WEEK_INDEX_MAX_YEAR} indexing window and appear in the sitemap; other dated pages keep the ${INDEX_MIN_YEAR}-${INDEX_MAX_YEAR} window, with named-holiday pages retaining their full-horizon exception. Out-of-window HTML pages stay online, prerendered and crawlable with index, follow, and are excluded from the sitemap. PDFs are generated in every year of the horizon, remain crawlable, are linked from their HTML page and are submitted in the sitemap; the HTML page carries the fuller context and stays the preferred citable source. All years remain reachable by direct URL regardless of index status.`,
     "- The contact form is the only feature that talks to a third party (Web3Forms, client-side only); everything else — week/date math, holiday and flag-day dates, name-day lookups — is computed locally from deterministic rules, not fetched from an external API.",
     "- For ISO 8601 rules, Finnish holiday/flag-day definitions and how entities relate to each other, see llms-glossary.txt rather than this file.",
     "",
@@ -5767,7 +5807,7 @@ const llmsApi =
     `  /pdf/kalenteri-{year}.pdf         — full-year printable calendar, e.g. ${SITE_URL}${calendarPdfPath(llY)}`,
     `  /pdf/viikko-{week}-{year}.pdf     — single-week fact sheet, e.g. ${SITE_URL}${weekPdfPath(llWeek, llY)}`,
     `  /pdf/kuukausi-{month}-{year}.pdf  — single-month calendar + fact sheet, e.g. ${SITE_URL}${monthPdfPath(llMonth, llY)}`,
-    "  Generated with pdfkit (no headless browser), one file per year/week/month across the full data horizon, linked as a visible download from the corresponding HTML page. Downloadable assets rather than pages: they stay out of the sitemap, so cite the HTML page as the source.",
+    "  Generated with pdfkit (no headless browser), one file per year/week/month across the full data horizon, linked as a visible download from the corresponding HTML page and submitted in the sitemap. The matching HTML page carries the fuller context, so prefer it as the citable source.",
     "",
     "## Calendar feeds (iCalendar)",
     "",
@@ -6032,7 +6072,7 @@ const aiManifest =
     `   ${SITE_URL}${calendarPdfPath(amCalYear)}  — full-year calendar (pattern: /pdf/kalenteri-{year}.pdf)`,
     `   ${SITE_URL}${weekPdfPath(amWeek, amWeekYear)}  — current week (pattern: /pdf/viikko-{week}-{year}.pdf)`,
     `   ${SITE_URL}${monthPdfPath(amMonth, amCalYear)}  — current month (pattern: /pdf/kuukausi-{month}-{year}.pdf)`,
-    `   One PDF per year/week/month, ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Crawlable downloads outside the sitemap; cite the matching HTML page.`,
+    `   One PDF per year/week/month, ${PRERENDER_MIN_YEAR}-${PRERENDER_MAX_YEAR}. Crawlable, sitemap-submitted downloads; cite the matching HTML page.`,
     "",
     "## Weekly pages",
     "",
