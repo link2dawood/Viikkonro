@@ -5,7 +5,7 @@
 // - the Excel download on the calendar pages: semicolon (Finnish Excel
 //   locale), CRLF, UTF-8 BOM, no trailing newline.
 // `escapeFormulas` neutralises user-typed cells that spreadsheets would run as
-// formulas (a leading = + - @ tab or CR); it is off by default so existing
+// formulas (a leading = + - @ tab, CR or LF); it is off by default so existing
 // exports are unchanged, and must be on for any text a customer typed.
 
 const needsQuoteFor = (delimiter) =>
@@ -13,7 +13,7 @@ const needsQuoteFor = (delimiter) =>
 
 export function csvCell(value, { delimiter = ",", quoteWhen, escapeFormulas = false } = {}) {
   let text = String(value ?? "");
-  if (escapeFormulas && typeof value === "string" && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  if (escapeFormulas && typeof value === "string" && /^[=+\-@\t\r\n]/.test(text)) text = `'${text}`;
   const re = quoteWhen ?? needsQuoteFor(delimiter);
   return re.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
