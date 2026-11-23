@@ -115,7 +115,7 @@ export function todayNameDayMeta(now = new Date()) {
     description: page.available
       ? fitDescription(`Katso nimipäivä tänään ${fmtFullFi(page.date)}: ${names}. Tänään on ${page.weekdayEssive} ja viikko ${page.week}. Avaa päivän tiedot sekä nimien omat nimipäiväsivut.`)
       : `Päivälle ${fmtFullFi(page.date)} ei ole julkaistu nimipäivätietoa Viikko Nron varmennetussa aineistossa. Tarkista päivän viikonpäivä ja viikkonumero.`,
-    robots: page.available ? "index, follow" : "noindex, follow",
+    robots: "index, follow",
   };
 }
 

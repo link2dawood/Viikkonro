@@ -8,6 +8,7 @@ import {
 } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
+import EventTemplate from "../components/EventTemplate";
 import { canonicalFor } from "../data/seo";
 import {
   ALMANAC_URL,
@@ -16,6 +17,7 @@ import {
   calendarFacts,
   observanceFaqs,
   observanceHighlights,
+  observanceDayOff,
   observanceMeta,
   observancePage,
   observancePath,
@@ -23,6 +25,7 @@ import {
   upcomingYears,
 } from "../data/observanceDays";
 import { CONFIDENCE, pageConfidenceTier } from "../data/schoolHolidayPages";
+import UpcomingCalendarPromo from "../components/UpcomingCalendarPromo";
 import NotFound from "./NotFound";
 
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
@@ -42,6 +45,24 @@ const ObservanceDay = ({ slug, year }) => {
   const highlights = observanceHighlights(page);
   const upcoming = upcomingYears(slug, y);
   const allDays = [{ label: day, date: page.date }, ...page.extras];
+  const nextYear = y + 1 <= YEAR_MAX ? y + 1 : null;
+  // Shared event template inputs: the answer sentence this page already led
+  // with, the day it counts down to, and the day-off verdict from the same
+  // flag-day sentence the FAQ answers with.
+  const answer = isAdventti ? (
+    <>
+      Vuonna {y} adventtisunnuntait ovat 1. adventti {fmtFullFi(page.date)} (viikko {page.week}), 2. adventti {fmtFullFi(page.extras[0].date)} (viikko {isoWeek(page.extras[0].date)}), 3. adventti {fmtFullFi(page.extras[1].date)} (viikko {isoWeek(page.extras[1].date)}) ja 4. adventti {fmtFullFi(page.extras[2].date)} (viikko {isoWeek(page.extras[2].date)}).
+    </>
+  ) : (
+    <>
+      {day} {y} on {page.weekdayEssive} {fmtFullFi(page.date)} ja kuuluu viikkoon {page.week}.
+    </>
+  );
+  const answerTail = isAdventti
+    ? "Ensimmäinen adventti aloittaa kirkkovuoden ja joulun odotuksen."
+    : page.extras.length === 1
+      ? `${page.extras[0].label} on ${fmtFullFi(page.extras[0].date)}.`
+      : null;
 
   return (
     <section className="app">
@@ -55,27 +76,21 @@ const ObservanceDay = ({ slug, year }) => {
         {isAdventti ? `Adventti ${y}: adventtisunnuntait ja viikot` : `${page.name} ${y}`}
       </h1>
 
-      {isAdventti ? (
-        <p className="lead">
-          <span className="answer-sentence">
-            <strong>
-              Vuonna {y} adventtisunnuntait ovat 1. adventti {fmtFullFi(page.date)} (viikko {page.week}), 2. adventti {fmtFullFi(page.extras[0].date)} (viikko {isoWeek(page.extras[0].date)}), 3. adventti {fmtFullFi(page.extras[1].date)} (viikko {isoWeek(page.extras[1].date)}) ja 4. adventti {fmtFullFi(page.extras[2].date)} (viikko {isoWeek(page.extras[2].date)}).
-            </strong>
-          </span>{" "}
-          Ensimmäinen adventti aloittaa kirkkovuoden ja joulun odotuksen.
-        </p>
-      ) : (
-        <p className="lead">
-          <span className="answer-sentence">
-            <strong>
-              {day} {y} on {page.weekdayEssive} {fmtFullFi(page.date)}
-            </strong>{" "}
-            ja kuuluu viikkoon {page.week}.
-          </span>{" "}
-          {page.extras.length === 1 &&
-            `${page.extras[0].label} on ${fmtFullFi(page.extras[0].date)}.`}
-        </p>
-      )}
+      <EventTemplate
+        path={page.path}
+        answer={answer}
+        answerTail={answerTail}
+        target={page.date}
+        nameCap={day}
+        illative={page.illative}
+        dayOff={observanceDayOff(page)}
+        nextYear={
+          nextYear
+            ? { to: observancePath(slug, nextYear), label: `${page.name} ${nextYear}` }
+            : null
+        }
+        calendar={{ to: `/kalenteri-${y}`, label: `Katso kalenteri ${y}` }}
+      />
 
       <QuickFacts
         title={isAdventti ? `Adventti ${y} lyhyesti` : `${page.name} ${y} lyhyesti`}
@@ -218,6 +233,8 @@ const ObservanceDay = ({ slug, year }) => {
         (tarkistettu {FACTS_CHECKED}).
       </p>
 
+      <UpcomingCalendarPromo />
+
       <section className="prose">
         <h2>Usein kysytyt kysymykset</h2>
         {faqs.map((item, index) => (
@@ -237,6 +254,11 @@ const ObservanceDay = ({ slug, year }) => {
           </span>
         ))}{" "}
         Katso myös <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>,{" "}
+        {nextYear && (
+          <>
+            <Link to={`/kalenteri-${nextYear}`}>kalenteri {nextYear}</Link>,{" "}
+          </>
+        )}
         {pageConfidenceTier(y) === CONFIDENCE.CONFIRMED && (
           <>
             <Link to={`/koululomat-${y}`}>

@@ -1,11 +1,13 @@
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
+import EventTemplate from "../components/EventTemplate";
 import {
   PRERENDER_MAX_YEAR as YEAR_MAX,
+  WD_ALLATIVE,
   validateYear,
 } from "../components/dateUtils";
-import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
+import { canonicalFor } from "../data/seo";
 import {
   christmasData,
   christmasFaqs,
@@ -25,6 +27,7 @@ const ChristmasHoliday = ({ year: pYear } = {}) => {
   const meta = christmasMeta(year);
   const faqs = christmasFaqs(year);
   const path = `/joulu-${year}`;
+  const nextYear = year + 1 <= YEAR_MAX ? year + 1 : null;
 
   return (
     <section className="app">
@@ -37,14 +40,31 @@ const ChristmasHoliday = ({ year: pYear } = {}) => {
 
       <h1>Joulu {year}</h1>
 
-      <p className="lead">
-        <span className="answer-sentence">
-          <strong>
+      <EventTemplate
+        path={path}
+        answer={
+          <>
             Vuonna {year} jouluaatto on {data.eve.weekday.toLowerCase()}na 24.12., joulupäivä {data.day.weekday.toLowerCase()}na 25.12. ja tapaninpäivä {data.boxing.weekday.toLowerCase()}na 26.12. (viikko {data.week}).
-          </strong>
-        </span>{" "}
-        {year === 2026 && "Päivätyötä tekeville joulusta muodostuu 4 peräkkäistä vapaapäivää ilman vuosiloman käyttöä."}
-      </p>
+          </>
+        }
+        answerTail={
+          year === 2026
+            ? "Päivätyötä tekeville joulusta muodostuu 4 peräkkäistä vapaapäivää ilman vuosiloman käyttöä."
+            : null
+        }
+        target={data.eve.date}
+        nameCap="Jouluaatto"
+        illative="jouluaattoon"
+        dayOff={data.dayOff}
+        nextYear={
+          nextYear ? { to: `/joulu-${nextYear}`, label: `Joulu ${nextYear}` } : null
+        }
+        calendar={
+          nextYear
+            ? { to: `/kalenteri-${nextYear}`, label: `Katso kalenteri ${nextYear}` }
+            : { to: `/kalenteri-${year}`, label: `Katso kalenteri ${year}` }
+        }
+      />
 
       <QuickFacts
         title={`Joulun päivät ${year}`}
@@ -72,12 +92,10 @@ const ChristmasHoliday = ({ year: pYear } = {}) => {
         ]}
       />
 
-      <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
-
       <section className="prose">
         <h2>Montako vapaapäivää joulusta {year} tulee?</h2>
         <p>
-          Vuonna {year} jouluaatto osuu {data.eve.weekday.toLowerCase()}lle (24.12.) ja joulupäivä {data.day.weekday.toLowerCase()}lle (25.12.).
+          Vuonna {year} jouluaatto osuu {WD_ALLATIVE[data.eve.date.getDay()]} (24.12.) ja joulupäivä {WD_ALLATIVE[data.day.date.getDay()]} (25.12.).
           Tapaninpäivää vietetään {data.boxing.weekday.toLowerCase()}na (26.12.).
         </p>
         <p>

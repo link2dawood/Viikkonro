@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_ROBOTS, NOINDEX_ROBOTS, robotsFor } from "../data/seo.js";
+import { DEFAULT_ROBOTS, robotsFor } from "../data/seo.js";
+
+// A robots value no page is served any more (site-wide no-noindex policy,
+// user-approved 2026-11-23, see docs/noindex.md). Kept here only to seed a
+// stale tag left in the DOM by an older cached document, so the cleanup
+// path in syncSeoDom stays covered.
+const STALE_NOINDEX = "noindex, follow";
 import { getPageJsonLd } from "../data/pageJsonLd.js";
 import { syncSeoDom } from "../data/seoDom.js";
 
@@ -85,12 +91,13 @@ describe("Finding 2: Robots and JSON-LD SPA navigation remediation", () => {
       expect(robotsFor("/pyhat-2026/joulupaiva")).toBe(DEFAULT_ROBOTS);
     });
 
-    it("returns NOINDEX_ROBOTS for out-of-window and non-indexable routes", () => {
-      // Out of rolling 6-year window for dated pages
-      expect(robotsFor("/kuukausi-10-2020")).toBe(NOINDEX_ROBOTS);
-      expect(robotsFor("/tyopaivat-2020")).toBe(NOINDEX_ROBOTS);
-      expect(robotsFor("/404")).toBe(NOINDEX_ROBOTS);
-      expect(robotsFor("/widget/viikko")).toBe(NOINDEX_ROBOTS);
+    it("returns DEFAULT_ROBOTS for out-of-window and previously noindexed routes", () => {
+      // No route is served noindex any more. Out-of-window dated pages, the
+      // 404 view and the widget documents all keep index, follow.
+      expect(robotsFor("/kuukausi-10-2020")).toBe(DEFAULT_ROBOTS);
+      expect(robotsFor("/tyopaivat-2020")).toBe(DEFAULT_ROBOTS);
+      expect(robotsFor("/404")).toBe(DEFAULT_ROBOTS);
+      expect(robotsFor("/widget/viikko")).toBe(DEFAULT_ROBOTS);
     });
 
     it("respects explicit robots overrides", () => {
@@ -118,7 +125,7 @@ describe("Finding 2: Robots and JSON-LD SPA navigation remediation", () => {
       expect(laskuritPageNode).toBeDefined();
     });
 
-    it("returns null for noindex archives and out-of-window pages", () => {
+    it("returns null for archives and out-of-window pages", () => {
       expect(getPageJsonLd("/kuukausi-10-2020")).toBeNull();
       expect(getPageJsonLd("/tyopaivat-2020")).toBeNull();
       expect(getPageJsonLd("/404")).toBeNull();
@@ -128,13 +135,14 @@ describe("Finding 2: Robots and JSON-LD SPA navigation remediation", () => {
 
   describe("syncSeoDom DOM synchronization across navigation", () => {
     it("Reproduction Case 1: direct load /kuukausi-10-2020 then navigate to /", () => {
-      // Step 1: initial page load of /kuukausi-10-2020 (noindex, no schema)
+      // Step 1: initial page load of /kuukausi-10-2020 (stale robots tag
+      // from a cached document, no schema)
       const { doc } = createMockDocument({
-        metas: [{ name: "robots", content: NOINDEX_ROBOTS }],
+        metas: [{ name: "robots", content: STALE_NOINDEX }],
         scripts: [],
       });
 
-      expect(doc.querySelectorAll('meta[name="robots"]')[0].getAttribute("content")).toBe(NOINDEX_ROBOTS);
+      expect(doc.querySelectorAll('meta[name="robots"]')[0].getAttribute("content")).toBe(STALE_NOINDEX);
       expect(doc.querySelectorAll('script[type="application/ld+json"]').length).toBe(0);
 
       // Step 2: SPA navigate to /
@@ -183,7 +191,7 @@ describe("Finding 2: Robots and JSON-LD SPA navigation remediation", () => {
       expect(scriptTags[0].textContent).toContain("https://viikkonro.fi/laskurit#webpage");
     });
 
-    it("navigating from indexable page to noindex page removes JSON-LD and sets noindex", () => {
+    it("navigating to an out-of-window page removes JSON-LD and keeps index, follow", () => {
       // Initial state: /laskurit
       const laskuritLd = getPageJsonLd("/laskurit");
       const { doc } = createMockDocument({
@@ -192,16 +200,16 @@ describe("Finding 2: Robots and JSON-LD SPA navigation remediation", () => {
       });
 
       // Navigate to /kuukausi-10-2020
-      const noindexRobots = robotsFor("/kuukausi-10-2020");
-      const noindexLd = getPageJsonLd("/kuukausi-10-2020");
-      expect(noindexLd).toBeNull();
+      const archiveRobots = robotsFor("/kuukausi-10-2020");
+      const archiveLd = getPageJsonLd("/kuukausi-10-2020");
+      expect(archiveLd).toBeNull();
 
-      syncSeoDom("/kuukausi-10-2020", noindexRobots, noindexLd, doc);
+      syncSeoDom("/kuukausi-10-2020", archiveRobots, archiveLd, doc);
 
-      // Robots meta updated to noindex
+      // Robots meta stays index, follow: the page is no longer noindexed
       const robotsTags = doc.querySelectorAll('meta[name="robots"]');
       expect(robotsTags.length).toBe(1);
-      expect(robotsTags[0].getAttribute("content")).toBe(NOINDEX_ROBOTS);
+      expect(robotsTags[0].getAttribute("content")).toBe(DEFAULT_ROBOTS);
 
       // JSON-LD scripts completely removed
       const scriptTags = doc.querySelectorAll('script[type="application/ld+json"]');
@@ -211,7 +219,7 @@ describe("Finding 2: Robots and JSON-LD SPA navigation remediation", () => {
     it("cleans up duplicate robots meta tags", () => {
       const { doc, elements } = createMockDocument({
         metas: [
-          { name: "robots", content: NOINDEX_ROBOTS },
+          { name: "robots", content: STALE_NOINDEX },
           { name: "robots", content: DEFAULT_ROBOTS },
         ],
       });

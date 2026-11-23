@@ -37,6 +37,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { navigationYearTargets } from "../src/components/dateUtils.js";
+import { readSitemapSet } from "./sitemap-set.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -128,7 +129,9 @@ while (queue.length) {
   }
 }
 
-const sitemap = fs.readFileSync(path.join(root, "dist/sitemap.xml"), "utf-8");
+// sitemap.xml is a <sitemapindex>; readSitemapSet() concatenates the per-type
+// children so this check keeps seeing every indexable URL (see sitemap-set.mjs).
+const sitemap = readSitemapSet();
 const allSitemapPaths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => {
   const u = new URL(m[1]);
   return u.pathname === "/" ? "/" : u.pathname;

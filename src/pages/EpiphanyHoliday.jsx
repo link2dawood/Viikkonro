@@ -1,11 +1,13 @@
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
+import EventTemplate from "../components/EventTemplate";
 import {
+  PRERENDER_MAX_YEAR as YEAR_MAX,
   PRERENDER_MIN_YEAR as YEAR_MIN,
   validateYear,
 } from "../components/dateUtils";
-import { canonicalFor, CONTENT_UPDATED_FI } from "../data/seo";
+import { canonicalFor } from "../data/seo";
 import {
   epiphanyData,
   epiphanyFaqs,
@@ -25,6 +27,7 @@ const EpiphanyHoliday = ({ year: pYear } = {}) => {
   const meta = epiphanyMeta(year);
   const faqs = epiphanyFaqs(year);
   const path = `/loppiainen-${year}`;
+  const nextYear = year + 1 <= YEAR_MAX ? year + 1 : null;
 
   return (
     <section className="app">
@@ -37,16 +40,29 @@ const EpiphanyHoliday = ({ year: pYear } = {}) => {
 
       <h1>Loppiainen {year}</h1>
 
-      <p className="lead">
-        <span className="answer-sentence">
-          <strong>
+      <EventTemplate
+        path={path}
+        answer={
+          <>
             Loppiainen {year} on {data.weekday.toLowerCase()}na 6.1.{year} (viikko {data.week}).
-          </strong>
-        </span>{" "}
-        {data.isWeekend
-          ? "Koska loppiainen osuu viikonlopulle, se ei tuo ylimääräistä arkivapaata."
-          : "Se on virallinen lakisääteinen kirkollinen juhlapyhä ja palkallinen arkivapaa."}
-      </p>
+          </>
+        }
+        answerTail={
+          data.isWeekend
+            ? "Koska loppiainen osuu viikonlopulle, se ei tuo ylimääräistä arkivapaata."
+            : "Se on virallinen lakisääteinen kirkollinen juhlapyhä ja palkallinen arkivapaa."
+        }
+        target={data.date}
+        nameCap="Loppiainen"
+        illative="loppiaiseen"
+        dayOff={data.dayOff}
+        nextYear={
+          nextYear
+            ? { to: `/loppiainen-${nextYear}`, label: `Loppiainen ${nextYear}` }
+            : null
+        }
+        calendar={{ to: `/kalenteri-${year}`, label: `Katso kalenteri ${year}` }}
+      />
 
       <QuickFacts
         title={`Loppiaisen tiedot ${year}`}
@@ -78,8 +94,6 @@ const EpiphanyHoliday = ({ year: pYear } = {}) => {
         ]}
       />
 
-      <p className="note-soft">Sisältö päivitetty {CONTENT_UPDATED_FI}.</p>
-
       <section className="prose">
         <h2>Onko loppiainen {year} vapaapäivä?</h2>
         <p>
@@ -98,10 +112,10 @@ const EpiphanyHoliday = ({ year: pYear } = {}) => {
         {year === 2027 ? (
           <ul>
             <li>
-              <strong>5 päivän loma 2 lomapäivällä:</strong> Ottamalla lomaa maanantain ja tiistain (4.–5.1.) saat vapaaputken lauantaista 2.1. keskiviikkoon 6.1. asti. Vaihtoehtoisesti ottamalla torstain ja perjantain (7.–8.1.) vapaaksi loma jatkuu keskiviikosta 6.1. sunnuntaihin 10.1.
+              <strong>5 päivän loma 2 lomapäivällä:</strong> Ottamalla lomaa maanantain ja tiistain (4.-5.1.) saat vapaaputken lauantaista 2.1. keskiviikkoon 6.1. asti. Vaihtoehtoisesti ottamalla torstain ja perjantain (7.-8.1.) vapaaksi loma jatkuu keskiviikosta 6.1. sunnuntaihin 10.1.
             </li>
             <li>
-              <strong>9 päivän loma 4 lomapäivällä:</strong> Ottamalla lomaa ma–ti (4.–5.1.) ja to–pe (7.–8.1.) saat 9 peräkkäistä vapaapäivää (2.–10.1.2027) käyttämällä vain neljä vuosilomapäivää.
+              <strong>9 päivän loma 4 lomapäivällä:</strong> Ottamalla lomaa ma-ti (4.-5.1.) ja to-pe (7.-8.1.) saat 9 peräkkäistä vapaapäivää (2.-10.1.2027) käyttämällä vain neljä vuosilomapäivää.
             </li>
           </ul>
         ) : (
@@ -119,7 +133,7 @@ const EpiphanyHoliday = ({ year: pYear } = {}) => {
         </p>
         <ul>
           <li>
-            <strong>Ruokakaupat ja kauppakeskukset:</strong> Useimmat suuret supermarketit ja kauppakeskukset palvelevat sunnuntain aukioloaikojen mukaan (esimerkiksi klo 10.00–21.00 tai 11.00–18.00). Pienemmät lähikaupat palvelevat normaalisti.
+            <strong>Ruokakaupat ja kauppakeskukset:</strong> Useimmat suuret supermarketit ja kauppakeskukset palvelevat sunnuntain aukioloaikojen mukaan (esimerkiksi klo 10.00-21.00 tai 11.00-18.00). Pienemmät lähikaupat palvelevat normaalisti.
           </li>
           <li>
             <strong>Alko:</strong> Alkon myymälät ovat lakisääteisenä pyhäpäivänä loppiaisena suljettuina.

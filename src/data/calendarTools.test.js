@@ -616,7 +616,7 @@ describe("week widget", () => {
     const html = weekWidgetHtml("https://viikkonro.fi", new Date(2026, 8, 25));
     expect(html).toContain('<b id="w">39</b>');
     expect(html).toContain('href="https://viikkonro.fi/viikko-39-2026"');
-    expect(html).toContain('content="noindex, follow"');
+    expect(html).not.toContain("noindex");
   });
 
   it("adds the dark-theme parameter only when asked", () => {

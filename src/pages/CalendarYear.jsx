@@ -17,7 +17,7 @@ import { hasNameDayPage, nameDaySlug } from "../data/nameDays";
 import SEO from "../components/SEO";
 import AdSlot from "../components/AdSlot";
 import YearActions from "../components/YearActions";
-import { calendarAnswer, calendarFaqs, calendarPdfPath, canonicalFor, calendarMeta } from "../data/seo";
+import { calendarAnswer, calendarFaqs, calendarPdfPath, canonicalFor, calendarMeta, monthPdfPath } from "../data/seo";
 import {
   downloadCalendarCsv,
   printableCalendarAnswer,
@@ -458,6 +458,42 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
             päivämäärät, ISO-viikot sekä juhla- ja liputuspäivät Exceliä,
             Numbersia ja Google Sheetsia varten.
           </p>
+
+          {/* Format picker. The half-year views and the per-month PDFs already
+              exist but were reachable only from the full-year calendar page,
+              so the people who search for a vuosipuolisko or a single month
+              never saw them from here. Both are the same generated artifacts,
+              linked visibly per the SEO constitution's PDF rule. */}
+          <h2>Muut tulostusmuodot vuodelle {y}</h2>
+          <ul className="clean">
+            <li>
+              <Link to={`/kalenteri-${y}-alkuvuosi`}>
+                Vuosipuolisko 1: tammikuu, kesäkuu {y}
+              </Link>{" "}
+              ja{" "}
+              <Link to={`/kalenteri-${y}-loppuvuosi`}>
+                vuosipuolisko 2: heinäkuu, joulukuu {y}
+              </Link>{" "}
+              (kuusi kuukautta yhdellä A4-sivulla)
+            </li>
+            <li>
+              Koko vuosi yhdellä sivulla:{" "}
+              <a href={calendarPdfPath(y)} download>
+                viikkokalenteri {y} A4-vaaka (PDF)
+              </a>
+            </li>
+            <li>
+              Kuukausi per sivu (12 PDF-tiedostoa):{" "}
+              {M_FULL.map((name, index) => (
+                <span key={name}>
+                  {index > 0 ? ", " : ""}
+                  <a href={monthPdfPath(index + 1, y)} download>
+                    {name.toLowerCase()}
+                  </a>
+                </span>
+              ))}
+            </li>
+          </ul>
           <h2>Usein kysytyt kysymykset</h2>
           {printFaqs.map((item, index) => (
             <details key={item.q} open={index === 0}>

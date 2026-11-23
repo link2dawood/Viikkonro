@@ -1,25 +1,28 @@
 import { useToday } from "./useToday";
 import React from "react";
-import {
-  isoYear,
-  PRERENDER_MIN_YEAR as YEAR_MIN,
-  PRERENDER_MAX_YEAR as YEAR_MAX,
-} from "./dateUtils";
+import { isoYear } from "./dateUtils";
 import { Link } from "react-router-dom";
+import { YEAR_INDEX_PATH, featuredYears, yearIndexStats } from "../data/yearIndexPages.js";
+
+// Homepage year browser. It lists only the years inside the indexable window
+// (featuredYears) rather than the whole PRERENDER_MIN_YEAR..PRERENDER_MAX_YEAR
+// horizon: the wider list spent the homepage's link equity on ~11 noindex year
+// pages per row. The remaining years keep a crawl path through
+// /kaikki-vuodet, which is one click from here. See yearIndexPages.js.
 const YearsWeek = () => {
-  const years = [];
-  for (let y = YEAR_MIN; y <= YEAR_MAX; y++) {
-    years.push(y);
-  }
-  const Y_NOW = isoYear(useToday());
+  const today = useToday();
+  const years = featuredYears(today);
+  const { first, last } = yearIndexStats(today);
+  const Y_NOW = isoYear(today);
 
   return (
     <>
       <section>
         <h2 className="mh">Selaa vuosia</h2>
         <p className="lead">
-          Kaikki viikkonumerot ja vuosikalenterit vuosi kerrallaan
-          päivämäärineen.
+          Haetuimmat vuodet yhdellä klikkauksella. Kaikki julkaistut vuodet{" "}
+          {first}-{last} löytyvät{" "}
+          <Link to={YEAR_INDEX_PATH}>vuosihakemistosta</Link>.
         </p>
 
         <h3 className="dir-h">Viikkonumerot vuosittain</h3>
@@ -35,6 +38,15 @@ const YearsWeek = () => {
               {year}
             </Link>
           ))}
+          <Link
+            key="v-all"
+            to={YEAR_INDEX_PATH}
+            className="pill"
+            aria-label={`Kaikki vuodet ${first}-${last}`}
+            onClick={() => window.scrollTo(0, 0)}
+          >
+            Kaikki vuodet
+          </Link>
         </div>
 
         <h3 className="dir-h">Vuosikalenterit</h3>
@@ -50,6 +62,15 @@ const YearsWeek = () => {
               {year}
             </Link>
           ))}
+          <Link
+            key="k-all"
+            to={YEAR_INDEX_PATH}
+            className="pill"
+            aria-label={`Kaikki vuosikalenterit ${first}-${last}`}
+            onClick={() => window.scrollTo(0, 0)}
+          >
+            Kaikki vuodet
+          </Link>
         </div>
       </section>
     </>

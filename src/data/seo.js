@@ -12,7 +12,6 @@ export const SITE_URL = process.env.SITE_ORIGIN || "https://viikkonro.fi";
 
 export const DEFAULT_ROBOTS =
   "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
-export const NOINDEX_ROBOTS = "noindex, follow";
 
 export function isIndexable(p, currentYear = new Date().getFullYear()) {
   const week = p.match(/^\/viikko-\d+-(\d{4})$/);
@@ -28,15 +27,26 @@ export function isIndexable(p, currentYear = new Date().getFullYear()) {
   const m = p.match(/-(\d{4})(?:-(?:alkuvuosi|loppuvuosi))?$/);
   if (!m) return true; // static pages have no year -> always indexable
   const y = Number(m[1]);
-  const indexMinYear = currentYear - 2;
-  const indexMaxYear = currentYear + 4;
+  // Narrowed from currentYear-2..currentYear+4 on 2026-11-21 (user-approved
+  // thin-URL pruning). Other dated families are hub/aggregate pages whose
+  // archive and far-future years earned impressions at position 8-30 and no
+  // clicks, so the wide window diluted the strong years rather than adding
+  // reach. Weeks and named holidays keep their own full-horizon windows
+  // above: those are the two clusters prior amendments deliberately expanded.
+  // Out-of-window years stay prerendered and live with noindex, follow, and
+  // the 2029+ ones are reachable through LATER_YEARS_PATH below.
+  const indexMinYear = currentYear - 1;
+  const indexMaxYear = currentYear + 2;
   return y >= indexMinYear && y <= indexMaxYear;
 }
 
-export function robotsFor(url, metaRobots, currentYear) {
+// No page on the site is served noindex (user-approved 2026-11-23, see
+// docs/noindex.md). An explicit metaRobots value still wins, so callers can
+// set max-snippet style directives; isIndexable() now feeds sitemap
+// membership and page-level schema only, not robots.
+export function robotsFor(url, metaRobots) {
   if (metaRobots) return metaRobots;
-  const path = url ? url.split("?")[0].replace(/^https?:\/\/[^/]+/, "") || "/" : "/";
-  return isIndexable(path, currentYear) ? DEFAULT_ROBOTS : NOINDEX_ROBOTS;
+  return DEFAULT_ROBOTS;
 }
 
 // Finnish date formatters live in one place (dateUtils.js). Imported with an
@@ -120,6 +130,7 @@ import { CONSTRUCTION_PATH, constructionMeta } from "./constructionCalendar.js";
 import { HR_PATH, hrMeta } from "./hrCalendar.js";
 import { TEAM_PATH, teamMeta } from "./teamLeave.js";
 import { PARITY_PATH, parityMeta } from "./weekParity.js";
+import { YEAR_INDEX_PATH, yearIndexMeta } from "./yearIndexPages.js";
 import { weeksInYearMeta } from "./weeksInYearContent.js";
 import { weeksInMonthMeta } from "./weeksInMonthContent.js";
 import { fiftyThreeWeeksMeta } from "./fiftyThreeWeeksContent.js";
@@ -643,8 +654,15 @@ export function yearStats(year) {
 
 export function printMeta(y) {
   const total = weeksInIsoYear(y);
+  // The title names what PrintCalendar.jsx's own <h1> and FAQ call this page:
+  // a viikkolista, weeks as rows. It previously led with "Tulostettava
+  // viikkokalenteri", which contradicted that H1 and competed for
+  // "viikkokalenteri <year>" -- the token yearMeta() is meant to own. The
+  // sibling /tulostettava-kalenteri-{y} keeps "Tulostettava kalenteri" plus
+  // its free-PDF hook, so the three print/calendar intents now lead with three
+  // different nouns: viikkolista, kalenteri, viikkokalenteri.
   return {
-    title: `Tulostettava viikkokalenteri ${y}: ${total} viikkoa | Viikko Nro`,
+    title: `Tulostettava viikkolista ${y}: ${total} viikkoa | Viikko Nro`,
     description: `Tulosta vuoden ${y} kaikki ${total} ISO-viikkoa riveittäin alkamis- ja päättymispäivineen. Tallenna viikkolista PDF-muodossa tai lataa Excel-yhteensopiva CSV.`,
   };
 }
@@ -655,9 +673,15 @@ export function holidaysMeta(y) {
   };
 }
 export function workingDaysMeta(y) {
+  // The SERP answer box already states the bare count, so the title adds the
+  // thing it cannot show: the per-month breakdown WorkingDays.jsx renders as a
+  // real table. The count itself comes from workingDaySplit(), the same source
+  // calendarMeta() reads, so /tyopaivat- and /kalenteri- can never disagree.
+  // The description keeps the "montako työpäivää" phrasing and the Kela mode.
+  const { working } = workingDaySplit(y);
   return {
-    title: `Työpäivät ${y}: montako työpäivää vuodessa | Viikko Nro`,
-    description: `Montako työpäivää vuonna ${y}? Työpäivät ja Kelan arkipäivät, kuukausittaiset määrät, viikonloput ja pyhäpäivät palkanlaskentaan ja suunnitteluun.`,
+    title: `Työpäivät ${y}: ${working} päivää kuukausittain | Viikko Nro`,
+    description: `Montako työpäivää vuonna ${y}? Vuodessa on ${working} työpäivää. Katso kuukausittainen taulukko, Kelan arkipäivät, viikonloput ja arkipyhät palkanlaskentaan.`,
   };
 }
 
@@ -961,6 +985,10 @@ export const routeMeta = {
   [PARITY_PATH]: {
     ...parityMeta(new Date()),
     breadcrumb: "Parillinen vai pariton viikko",
+  },
+  [YEAR_INDEX_PATH]: {
+    ...yearIndexMeta(new Date()),
+    breadcrumb: "Kaikki vuodet",
   },
   "/viikko-alkaa-maanantaista": {
     title: "Viikko alkaa maanantaista – ISO 8601 -sääntö | Viikko Nro",
@@ -1305,6 +1333,9 @@ export function sitemapEntries(year) {
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/mika-on-viikkonumero", changefreq: "monthly", priority: "0.8" },
     { path: PARITY_PATH, changefreq: "weekly", priority: "0.8" },
+    // Year index hub: the crawl path to every year outside the indexable
+    // window (see yearIndexPages.js). Indexable itself - no year in the slug.
+    { path: YEAR_INDEX_PATH, changefreq: "monthly", priority: "0.7" },
     { path: "/viikko-alkaa-maanantaista", changefreq: "monthly", priority: "0.7" },
     { path: "/kuinka-monta-viikkoa-vuodessa", changefreq: "monthly", priority: "0.8" },
     { path: "/kuinka-monta-viikkoa-kuukaudessa", changefreq: "monthly", priority: "0.8" },
@@ -1696,7 +1727,7 @@ export function breadcrumbTrail(url) {
     return [
       home,
       { name: `Kalenteri ${m[1]}`, path: `/kalenteri-${m[1]}` },
-      { name: `Tulostettava viikkokalenteri ${m[1]}`, path: url },
+      { name: `Tulostettava viikkolista ${m[1]}`, path: url },
     ];
   }
   if ((m = url.match(/^\/pyhapaivat-(\d+)$/))) {

@@ -25,7 +25,7 @@ describe("calendar and print breadcrumbs", () => {
 
   it("gives the two print artifacts distinct leaf labels", () => {
     expect(breadcrumbTrail("/tulosta-2027").at(-1).name).toBe(
-      "Tulostettava viikkokalenteri 2027",
+      "Tulostettava viikkolista 2027",
     );
     expect(breadcrumbTrail("/tulostettava-kalenteri-2027").at(-1).name).toBe(
       "Tulostettava kalenteri 2027",

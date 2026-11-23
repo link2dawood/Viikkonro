@@ -6,6 +6,7 @@ import {
 } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
+import UpcomingCalendarPromo from "../components/UpcomingCalendarPromo";
 import { useToday } from "../components/useToday";
 import { canonicalFor } from "../data/seo";
 import {
@@ -206,6 +207,8 @@ const MoonPhases = ({ year }) => {
         </a>{" "}
         vasten ({PHASES_CHECKED}). Tarkkuus on noin minuutti.
       </p>
+
+      <UpcomingCalendarPromo />
 
       <section className="prose">
         <h2>Usein kysytyt kysymykset</h2>

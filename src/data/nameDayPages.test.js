@@ -35,7 +35,7 @@ describe("name-day SEO pages", () => {
     }
   });
 
-  it("uses Finland's date for the today route and noindexes missing seed data", () => {
+  it("uses Finland's date for the today route and keeps missing seed data indexable", () => {
     const now = new Date("2026-08-03T22:30:00Z");
     const page = todayNameDayPage(now);
     const meta = todayNameDayMeta(now);
@@ -43,7 +43,7 @@ describe("name-day SEO pages", () => {
     expect(page.date.getMonth()).toBe(7);
     expect(page.date.getDate()).toBe(4);
     expect(page.available).toBe(false);
-    expect(meta.robots).toBe("noindex, follow");
+    expect(meta.robots).toBe("index, follow");
   });
 
   it("provides four matching FAQs for every page type", () => {

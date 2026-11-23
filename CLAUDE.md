@@ -16,6 +16,38 @@ internal linking, sitemap output, PDF and image discoverability, hreflang, and
 AI-facing resources. If a request requires weakening an invariant, explain the
 specific tradeoff and obtain an explicit user decision before implementing it.
 
+## Universal rule: never remove a noindex
+
+This rule covers every page, route family, generated document, and response
+header on the whole site. It overrides refactor convenience, audit
+suggestions, growth plans, and CTR work.
+
+- Do not remove, weaken, or bypass a `noindex` on any page. This includes the
+  `<meta name="robots">` output, `meta.robots` values and `robotsFor()` in
+  `src/data/seo.js`, per-page robots in `prerender.js`, and every
+  `X-Robots-Tag` entry in `vercel.json` or an API response.
+- As of the 2026-11-23 removal, the only robots directives left on the site
+  are on the JSON API and billing responses listed in `docs/noindex.md`. Every
+  page, prerendered document, and downloadable asset family is `index, follow`.
+  Re-adding a `noindex` anywhere is also a registry decision: record it in
+  `docs/noindex.md` first.
+- Do not do it indirectly either: do not add a noindex page to
+  `sitemapEntries()`, widen `INDEX_MIN_YEAR`, `INDEX_MAX_YEAR`, or the week
+  window, drop a header rule instead of the tag, or relax a unit test or
+  generated-artifact case so an indexable value passes.
+- A noindex may be removed only when both conditions hold:
+  1. the exact page or route family is listed in
+     [`docs/noindex.md`](docs/noindex.md) as approved for removal, with the
+     approval date and who approved it; and
+  2. the removal is then applied to every page listed in that file, across the
+     whole site, in one change. No partial pass, no single-page exception.
+- `docs/noindex.md` is the only gate. No other document, audit, plan file, or
+  earlier conversation authorizes a removal. If the page is not listed there,
+  leave the noindex in place, finish the rest of the task, and say which page
+  you left noindexed and why.
+- Adding a noindex that the SEO constitution requires stays normal work. This
+  rule governs removal only.
+
 ## Content rules
 
 - Do not add the en dash character to page copy, titles, descriptions, FAQs,
@@ -85,9 +117,11 @@ unknown public routes, so an unsupported path returns the generated 404 page.
 
 The dated resource horizon starts at `PRERENDER_MIN_YEAR` and ends at
 `PRERENDER_MAX_YEAR` in `src/components/dateUtils.js`. Pages outside the
-applicable indexable year window remain prerendered and directly accessible
-but receive
-`noindex` and stay out of the sitemap. Valid week pages are indexable
+applicable indexable year window remain prerendered, directly accessible, and
+served `index, follow`; they stay out of the sitemap and keep no page-level
+schema. Since the 2026-11-23 no-noindex decision (see
+[`docs/noindex.md`](docs/noindex.md)), `isIndexable()` governs sitemap
+membership and schema only, never robots. Valid week pages are in the sitemap
 across the full publishing horizon; other dated families retain their existing
 windows.
 
@@ -120,6 +154,13 @@ assembles per-route JSON-LD and guarantees an indexable page has a WebPage or
 more specific page node. New page families must be added to the relevant
 route, metadata, schema, sitemap, internal-link, and AI-file generators listed
 in the SEO constitution.
+
+Dated event pages (adventti, itsenäisyyspäivä, joulu, uusi vuosi, loppiainen,
+week 53) share one block and one review-date constant. Read
+[`docs/event-page-template.md`](docs/event-page-template.md) before changing
+`src/components/EventTemplate.jsx`, `src/data/eventTemplate.js`, or any of
+those pages. Raise that page's `EVENT_REVIEWS` row when you refresh its copy;
+never compute a review date from the build clock.
 
 The planned 2027 keyword work lives in
 [`docs/seo-2027-growth-plan.md`](docs/seo-2027-growth-plan.md): sixteen keyword

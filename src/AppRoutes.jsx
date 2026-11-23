@@ -26,6 +26,7 @@ const WeekDays = routePage("WeekDays");
 const WeeksInEachMonth = routePage("WeeksInEachMonth");
 const QuarterPage = routePage("QuarterPage");
 const WhatWeek = routePage("WhatWeek");
+const YearIndex = routePage("YearIndex");
 const WeekParityPage = routePage("WeekParityPage");
 const WeekStartsMonday = routePage("WeekStartsMonday");
 const PrintCalendar = routePage("PrintCalendar");
@@ -189,6 +190,7 @@ const RouteAnalytics = () => {
 const routeElements = <>
         <Route path="/" element={<Home />} />
         <Route path="/mika-on-viikkonumero" element={<WhatWeek />} />
+        <Route path="/kaikki-vuodet" element={<YearIndex />} />
         <Route path="/parillinen-pariton-viikko" element={<WeekParityPage />} />
         <Route path="/viikko-alkaa-maanantaista" element={<WeekStartsMonday />} />
         <Route path="/kuinka-monta-viikkoa-vuodessa" element={<WeeksInYear />} />

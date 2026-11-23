@@ -27,10 +27,14 @@ describe("print and PDF calendar content", () => {
     const calendar = calendarMeta(2026, null, true);
     const browsable = calendarMeta(2026, null, false);
     expect(list.title).not.toBe(calendar.title);
-    // The weekly print leads with "Tulostettava viikkokalenteri", the yearly
-    // print with "Tulostettava kalenteri" and its free-PDF hook. Both stay
-    // distinct from the browsable year page, which never mentions PDF.
-    expect(list.title).toContain("Tulostettava viikkokalenteri");
+    // The weekly print leads with "Tulostettava viikkolista" (matching its own
+    // <h1>), the yearly print with "Tulostettava kalenteri" and its free-PDF
+    // hook. Both stay distinct from the browsable year page, which never
+    // mentions PDF. The week list must not claim "viikkokalenteri <year>"
+    // either: /vuosi-{y} (yearMeta) owns that token, and three pages leading
+    // with the same noun is the cannibalization this split exists to prevent.
+    expect(list.title).toContain("Tulostettava viikkolista");
+    expect(list.title).not.toContain("viikkokalenteri");
     expect(calendar.title).toContain("Tulostettava kalenteri");
     expect(calendar.title).toContain("ilmainen PDF");
     expect(browsable.title).toMatch(/^Kalenteri 2026: /);

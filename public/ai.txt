@@ -43,6 +43,8 @@ Preferred-Citation: https://viikkonro.fi/
 Contact: https://viikkonro.fi/ota-yhteytta
 Legal-Information: https://viikkonro.fi/tietoa-meista, https://viikkonro.fi/tietosuoja, https://viikkonro.fi/kayttoehdot, https://viikkonro.fi/palautusehdot (service, privacy, purchase terms and withdrawal instructions; purchase and cancellation data are private)
 Sitemap: https://viikkonro.fi/sitemap.xml
+# sitemap.xml is a sitemap index. Per-type children: /sitemap-weeks.xml,
+# /sitemap-holidays.xml, /sitemap-calendars.xml, /sitemap-pages.xml
 
 ## Downloadable planning templates
 https://viikkonro.fi/kalenteripohjat - Six free Finnish planning templates: company calendar, vacation, projects, shifts, construction and HR/payroll. Substantive landing pages at /kalenteripohjat/{slug}. XLSX, CSV and printable PDF for 2026, 2027 and 2028, without an account. Downloads: /pohjat/{slug}/{year}.{xlsx|csv|pdf}. Editable blank planning fields; no automatic payroll or legal deadline calculations.

@@ -291,10 +291,6 @@
       "source": "/widget/(.*)",
       "headers": [
         {
-          "key": "X-Robots-Tag",
-          "value": "noindex, follow"
-        },
-        {
           "key": "Cross-Origin-Resource-Policy",
           "value": "cross-origin"
         },
@@ -307,10 +303,6 @@
     {
       "source": "/ics/(.*)",
       "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
-        },
         {
           "key": "Content-Type",
           "value": "text/calendar; charset=utf-8"
@@ -382,24 +374,6 @@
         {
           "key": "CDN-Cache-Control",
           "value": "public, s-maxage=3600, stale-while-revalidate=86400"
-        }
-      ]
-    },
-    {
-      "source": "/data/(.*)/index.json",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, follow"
-        }
-      ]
-    },
-    {
-      "source": "/data/index.json",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, follow"
         }
       ]
     },
@@ -486,10 +460,6 @@
           "value": "application/pdf"
         },
         {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
-        },
-        {
           "key": "Cache-Control",
           "value": "public, max-age=3600"
         },
@@ -534,15 +504,6 @@
       ]
     },
     {
-      "source": "/pohjat/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
-        }
-      ]
-    },
-    {
       "source": "/tiimin-lomat/suunnittelu",
       "headers": [
         {
@@ -556,10 +517,6 @@
         {
           "key": "Vercel-CDN-Cache-Control",
           "value": "no-store"
-        },
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
         },
         {
           "key": "Referrer-Policy",

@@ -87,7 +87,6 @@ export function weekWidgetHtml(siteUrl, now) {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex, follow" />
 <title>Viikko ${week} – Viikko Nro</title>
 <link rel="canonical" href="${siteUrl}/" />
 <style>

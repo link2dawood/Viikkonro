@@ -9,6 +9,7 @@ import {
 import SEO from "../components/SEO";
 import AdSlot from "../components/AdSlot";
 import QuickFacts from "../components/QuickFacts";
+import UpcomingCalendarPromo from "../components/UpcomingCalendarPromo";
 import { canonicalFor } from "../data/seo";
 import { dstChanges, dstFaqs, dstMeta } from "../data/dstPages";
 
@@ -84,6 +85,8 @@ const DaylightSaving = ({ year }) => {
       </p>
 
       <AdSlot placement="dst-after-facts" />
+
+      <UpcomingCalendarPromo />
 
       <section className="prose">
         <h2>Usein kysytyt kysymykset</h2>
