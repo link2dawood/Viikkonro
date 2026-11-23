@@ -265,7 +265,7 @@ const currentYear = new Date().getFullYear();
 const FEED_BUILD_DATE_RAW = new Date();
 const FEED_BUILD_DATE = `${FEED_BUILD_DATE_RAW.getFullYear()}-${String(FEED_BUILD_DATE_RAW.getMonth() + 1).padStart(2, "0")}-${String(FEED_BUILD_DATE_RAW.getDate()).padStart(2, "0")}`;
 const sitemapRoutes = sitemapEntries(currentYear).map((e) => e.path);
-// Keep the honest noindex fallback available even while today's date is not
+// Keep the honest fallback page available even while today's date is not
 // covered by the partial seed. It joins the sitemap automatically once the
 // authorized full dataset supplies names for the current date.
 const routeCandidates = [...sitemapRoutes, "/nimipaivat/tanaan"];
@@ -292,12 +292,11 @@ const routes = routeCandidates;
 // currentYear-1..currentYear+2 (narrowed from currentYear-2..currentYear+4 on
 // 2026-11-21; see isIndexable() in src/data/seo.js for the rationale and keep
 // the two windows identical).
-// Out-of-window pages remain prerendered with noindex and leave the sitemap.
-// This governs HTML routes only. PDFs are never sitemap entries and no longer
-// carry a per-family canonical header: vercel.json serves every /pdf/ response
-// with a bare X-Robots-Tag: noindex, so a PDF path never reaches this function.
-// A PDF window here would have been meaningless anyway, since the canonical it
-// used to advertise pointed at a noindex page for most of the horizon.
+// Out-of-window pages remain prerendered and crawlable but leave the sitemap
+// and lose their page-level schema. Since the 2026-11-23 no-noindex decision
+// (docs/noindex.md) this function no longer affects robots at all.
+// It governs HTML routes only. PDFs are never sitemap entries and carry no
+// per-family canonical header, so a PDF path never reaches this function.
 const INDEX_MIN_YEAR = currentYear - 1;
 const INDEX_MAX_YEAR = currentYear + 2;
 const WEEK_INDEX_MIN_YEAR = PRERENDER_MIN_YEAR;
@@ -2203,12 +2202,11 @@ function schoolHolidayNodes(year) {
           cssSelector: [".answer-sentence"],
         },
       }),
-      // STEP 7 safeguard: even though a non-CONFIRMED page never reaches this
-      // function (schoolHolidayMeta() sets robots:"noindex" for it, which
-      // the dispatch loop's isIndexable/meta.robots check already skips this
-      // whole function for), don't ALSO rely on that being the only gate —
-      // schoolHolidayFaqs() itself returns [] for anything but Tier A, so
-      // skip emitting an empty FAQPage rather than trust a single check.
+      // STEP 7 safeguard: schoolHolidayFaqs() returns [] for anything but
+      // Tier A, so skip emitting an empty FAQPage. This used to be the second
+      // of two gates, the first being the Tier B robots:"noindex" value that
+      // the 2026-11-23 no-noindex decision removed, so it is now the only
+      // gate keeping an empty FAQPage off an estimated page.
       ...(faq.length > 0
         ? [
             {
@@ -4050,7 +4048,7 @@ for (const url of routes) {
     // Archive year hubs retain their CollectionPage and FAQ nodes because
     // indexable week pages across the full horizon reference them as parents.
     // Robots metadata and sitemap eligibility still use isIndexable() above.
-    // Other noindex archives continue to omit their page-level schema.
+    // Other out-of-window archives continue to omit their page-level schema.
     const isWeekYearHub = /^\/vuosi-\d+$/.test(url);
     if ((isIndexable(url) || isWeekYearHub) && !meta.robots?.startsWith("noindex")) {
       const nodes = [];
@@ -4323,8 +4321,8 @@ for (const url of routes) {
 
 // 404 page: a static dist/404.html so Vercel serves it (with a real 404 status,
 // not 200) for any path that doesn't match a prerendered file. Rendered from the
-// NotFound route; meta is set manually (metaFor has no 404 entry) and forced to
-// noindex since the same page answers many unmatched URLs.
+// NotFound route; meta is set manually (metaFor has no 404 entry). The 404
+// status, not a robots directive, is what keeps it out of the index.
 try {
   const nf = stripInlineMeta(render("/404"));
   let html404 = applyMeta(withoutAdsenseLoader(templateForRoute("/404")), {
@@ -4410,8 +4408,8 @@ try {
 }
 
 // Embeddable current-week widget (/widget/viikko) — a standalone document,
-// deliberately not in routes/sitemapEntries (noindex embed target; see
-// weekWidget.js and docs/embeddable-widgets.md).
+// deliberately not in routes/sitemapEntries (embed target kept out of the
+// sitemap; see weekWidget.js and docs/embeddable-widgets.md).
 try {
   const outPath = path.join(distDir, `${WEEK_WIDGET_PATH}.html`);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
@@ -5231,7 +5229,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     },
     {
       entity: "BusinessWidget",
-      schemaType: "none (noindex iframe embed target)",
+      schemaType: "none (iframe embed target, outside the sitemap)",
       urlPattern: "/widget/calendar/v1",
       idPattern: "n/a; documented on the existing embed page",
       example: `${SITE_URL}/widget/calendar/v1`,
@@ -5239,7 +5237,7 @@ writeJson(path.join(dataDir, "knowledge-graph.json"), {
     },
     {
       entity: "Widget",
-      schemaType: "none (noindex iframe embed target)",
+      schemaType: "none (iframe embed target, outside the sitemap)",
       urlPattern: WEEK_WIDGET_PATH,
       idPattern: "n/a — documented on the embed page",
       example: `${SITE_URL}${WEEK_WIDGET_PATH}`,
@@ -5403,12 +5401,11 @@ const lastmodLines = (resourcePath) => {
   const date = sitemapLastmod(resourcePath, today);
   return date ? [`    <lastmod>${date}</lastmod>`] : [];
 };
-// isIndexable(e.path) alone matched the year-window gate but not a
-// per-route meta.robots noindex override — the actual noindex-flip logic
-// below (search "!isIndexable(url) || meta.robots") checks both. No route
-// sets meta.robots to noindex today (audited), so this was previously a
-// latent gap, not an active leak — closing it here so it can't become one
-// silently if a future route ever does.
+// isIndexable(e.path) is the year-window gate. The meta.robots check is kept
+// as a belt-and-braces filter: no route sets a noindex value today (the
+// 2026-11-23 no-noindex decision removed the last ones, see docs/noindex.md),
+// so this is a latent guard rather than an active filter, and a future route
+// that reintroduces one cannot silently leak into the sitemap.
 const indexableEntries = sitemapEntries(currentYear).filter(
   (e) => isIndexable(e.path) && !metaFor(e.path)?.robots?.startsWith("noindex"),
 );

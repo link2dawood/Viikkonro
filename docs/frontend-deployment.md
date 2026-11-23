@@ -33,8 +33,9 @@ automation access to the protected deployment URL; the token is not in source.
 ## Live checks
 
 - Anonymous private entry loads the login form, hides private planner data and
-  returns `private, no-store`, `noindex, nofollow, noarchive`, and a restrictive
-  Content Security Policy with `frame-ancestors 'none'`.
+  returns `private, no-store` and a restrictive Content Security Policy with
+  `frame-ancestors 'none'`. The `noindex, nofollow, noarchive` header this
+  check originally verified was removed on 2026-11-23 (see `docs/noindex.md`).
 - Real Supabase password login passed using a synthetic, administratively
   confirmed account. The tenant-scoped leave calendar, shift planner and
   accounting-firm workspace loaded; private ICS export and logout passed.
