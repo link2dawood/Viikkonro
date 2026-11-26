@@ -107,6 +107,8 @@ export default function WeeksInQuarter() {
           Monet vähittäiskaupan, ravintola-alan ja teollisuuden yritykset käyttävät kalenterikuukausien sijaan{" "}
           <strong>4-4-5-kalenteria</strong>. Tässä mallissa jokainen 13 viikon kvartaali jaetaan kolmeen jaksoon:
         </p>
+        <AdSlot placement="weeks-in-quarter-mid-1" />
+
         <ul>
           <li><strong>1. jakso:</strong> 4 viikkoa (28 päivää)</li>
           <li><strong>2. jakso:</strong> 4 viikkoa (28 päivää)</li>
@@ -115,6 +117,8 @@ export default function WeeksInQuarter() {
         <p>
           Yhteensä kvartaaliin kertyy tasan 4 + 4 + 5 = 13 viikkoa ja 91 päivää. Etuna on, että jokainen jakso päättyy aina samaan viikonpäivään (esimerkiksi sunnuntaihin) ja viikonloppujen määrä on täysin ennakoitavissa, mikä tekee myynti- ja tulosvertailuista tarkempia kuin eri pituisilla kalenterikuukausilla.
         </p>
+
+        <AdSlot placement="weeks-in-quarter-mid-2" />
 
         <h2>Usein kysyttyä kvartaalin viikoista</h2>
         <div className="faq-list">
@@ -125,6 +129,8 @@ export default function WeeksInQuarter() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="weeks-in-quarter-tail" />
 
         <p className="hub-links">
           Katso myös kvartaalikohtaiset sivut <Link to={`/q1-${selectedYear}`}>Q1 {selectedYear}</Link>,{" "}

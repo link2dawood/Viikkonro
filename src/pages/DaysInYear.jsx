@@ -117,6 +117,8 @@ export default function DaysInYear() {
           </p>
         </div>
 
+        <AdSlot placement="days-in-year-mid-1" />
+
         <h2>Miksi vuodessa on 365 päivää?</h2>
         <p>
           Yksi kalenterivuosi kuvaa aikaa, jossa Maa kiertää kerran Auringon ympäri suhteessa kevätpäiväntasaukseen.
@@ -126,6 +128,8 @@ export default function DaysInYear() {
           Trooppisen vuoden tarkka pituus on noin <strong>365,2422 vuorokautta</strong> (eli noin 365 päivää, 5 tuntia, 48 minuuttia ja 45 sekuntia).
           Koska kalenteripäivän on oltava kokonainen vuorokausi, kalenterivuoden peruspituudeksi on valittu tasan 365 päivää.
         </p>
+
+        <AdSlot placement="days-in-year-mid-2" />
 
         <h2>Miksi karkausvuosi tarvitaan?</h2>
         <p>
@@ -137,6 +141,8 @@ export default function DaysInYear() {
           juhannusta vietettäisiin lumihangessa ja joulua keskellä hellettä. Karkauspäivä 29. helmikuuta korjaa
           tämän eron ja pitää vuodenajat samoilla paikoillaan.
         </p>
+
+        <AdSlot placement="days-in-year-tail" />
 
         <h2>Mistä tietää, onko vuosi karkausvuosi?</h2>
         <p>

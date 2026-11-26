@@ -118,6 +118,8 @@ export default function SchoolWeeks() {
           </p>
         </div>
 
+        <AdSlot placement="school-weeks-mid-1" />
+
         <h2>Mihin lukuvuoden pituus perustuu?</h2>
         <p>
           Suomessa koulujen työajasta säädetään <strong>perusopetuslain 23 §:ssä</strong>:
@@ -125,6 +127,8 @@ export default function SchoolWeeks() {
         <blockquote>
           <em>"Lukuvuodessa on 190 työpäivää. Lukuvuoden työpäivistä vähennetään kuitenkin muuksi arkipäiväksi kuin lauantaiksi sattuva itsenäisyyspäivä, loppiainen ja vapunpäivä."</em>
         </blockquote>
+        <AdSlot placement="school-weeks-mid-2" />
+
         <p>
           Lukuvuoden koulutyö päättyy aina viikon 22 viimeisenä arkipäivänä (lauantaina touko-kesäkuun vaihteessa).
           Syyslukukauden alkamispäivästä päättää kukin kunta itsenäisesti, useimmiten viikolla 32 tai 33 (elokuun 8.–15. päivän tienoilla).
@@ -139,6 +143,8 @@ export default function SchoolWeeks() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="school-weeks-tail" />
 
         <p className="hub-links">
           Katso myös vahvistetut kaupunkikohtaiset lomat sivulta <Link to={`/koululomat-${currentYear}`}>koululomat {currentYear}</Link>,{" "}

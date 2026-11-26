@@ -33,9 +33,11 @@ const Home = () => {
         <SeasonYear />
         <UpcomingEvents />
         <WeekParity />
-        {/* Top slot sits after the live week answer and the parity answer, not
-            above them: the week number is what the page exists to answer and
-            what it ranks for, so it stays first on screen. */}
+        {/* First of four slots. It sits after the live week answer and the
+            parity answer, not above them: the week number is what the page
+            exists to answer and what it ranks for, so it stays first on
+            screen. The other three follow the search tool, the browse lists
+            and the tool directory, so a content block separates each pair. */}
         <AdSlot placement="home-after-answer" />
         <WeeklySearch />
         <AdSlot placement="home-after-search" />
@@ -46,6 +48,7 @@ const Home = () => {
         <AppsPromo />
         <QuickLinks />
         <ToolDirectory />
+        <AdSlot placement="home-before-faq" />
         <FAQ />
       </div>
     </>

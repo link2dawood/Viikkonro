@@ -121,6 +121,8 @@ const WeeksInYear = () => {
           vuoden viikkoon 1, ja tammikuun ensimmäiset päivät voivat kuulua
           edellisen vuoden viikkoon 52 tai 53.
         </p>
+        <AdSlot placement="weeks-in-year-mid-1" />
+
         <p>
           Katso perusteellinen selitys sivulta{" "}
           <Link to="/mika-on-viikkonumero">mikä on viikkonumero</Link> tai
@@ -128,6 +130,8 @@ const WeeksInYear = () => {
           <Link to="/paivamaara-viikoksi">päivämäärästä viikkonumeroon</Link>
           -laskurilla.
         </p>
+
+        <AdSlot placement="weeks-in-year-mid-2" />
 
         <h2>Mitkä vuodet sisältävät viikon 53?</h2>
         <p>
@@ -156,6 +160,8 @@ const WeeksInYear = () => {
             </tbody>
           </table>
         </div>
+
+        <AdSlot placement="weeks-in-year-tail" />
 
         <h2>Seuraavat 53 viikon vuodet</h2>
         <div className="pills">

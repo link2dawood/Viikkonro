@@ -98,6 +98,8 @@ export default function YearIndex() {
           </>
         )}
 
+        <AdSlot placement="year-index-between-years" />
+
         {earlier.length > 0 && (
           <>
             <h2>
@@ -111,6 +113,8 @@ export default function YearIndex() {
           </>
         )}
 
+        <AdSlot placement="year-index-mid-1" />
+
         <h2>Usein kysyttyä julkaistuista vuosista</h2>
         <div className="faq-list">
           {faqs.map((item) => (
@@ -120,6 +124,8 @@ export default function YearIndex() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="year-index-mid-2" />
 
         <p className="hub-links">
           Katso myös <Link to="/mika-on-viikkonumero">mikä on viikkonumero</Link>,{" "}

@@ -38,7 +38,7 @@ The same unit was reconfigured in the AdSense account as responsive on
 2026-10-24, keeping its slot ID. The markup now carries no width or height and
 uses `data-ad-format="auto"` with `data-full-width-responsive="true"`, so
 AdSense sizes the creative to the container and may use the full viewport width
-on phones. The viewport gate is gone, and one unit serves all eight placements.
+on phones. The viewport gate is gone, and the one unit serves every placement.
 
 Because a responsive creative varies in height, the reserved geometry is the
 120px desktop and 280px mobile budget in the guardrails below rather than an
@@ -98,12 +98,54 @@ never be used as the ad-serving switch.
 | `print-list-before-preview` | `/tulosta-{year}` | After print/download controls, before the printable week table | Responsive banner | Leaves the explanation and actions together and never enters printed output. |
 | `calendar-before-preview` | `/kalenteri-{year}[-alkuvuosi|-loppuvuosi]` | After view controls, before the calendar grid | Responsive banner | Places monetization outside the calendar itself and excludes the print-only route. |
 
-The homepage carries three slots as of 2026-10-24, the only page that does.
-It is the highest-traffic page and has enough distinct blocks to separate
-them: a substantial content section sits between each pair, and none is above
-the hero. Every other page family keeps exactly one slot. Raising density
-further is a revenue-per-page question that should be answered from the
-AdSense report, not assumed.
+## Density: four slots per page, 2026-11-26
+
+Density was raised to four slots per page family on request, after a same-day
+reduction to one. Current state: 107 `AdSlot` mounts across 27 page
+components, each with a unique placement id, 26 of them carrying four.
+
+The user was advised before this change that four units per page is a 4x
+density increase, that it works against the Better Ads ad-density signal and
+the pogo-sticking risk on short lookup pages, and that several pages have
+fewer than four content blocks to separate the units. The increase was
+confirmed and implemented. Revisit it from the AdSense report plus field
+Core Web Vitals, not from assumption, and treat the three notes below as the
+known weak points.
+
+Placement rule used for the three added slots on each page: the insertion
+point must be a sibling-level content boundary (`h2`, `h3`, `section`, `p`,
+`ul`, `ol`, `blockquote`) at the same JSX depth as the original slot, at least
+six source lines after the previous slot, so a content block always separates
+a pair. `div` boundaries are deliberately excluded, because on these pages a
+`div` is a table wrapper, the calendar grid, a tool panel, a FAQ list or a pill
+or grid block, and the guardrails below keep slots out of tables, calendar
+cells and calculator controls. Inserting before a tool panel would also split
+a heading from its own tool.
+
+Three exceptions to the four-per-page rule:
+
+- `/kalenteri-{year}` (`src/pages/CalendarYear.jsx`) carries **three**. Its
+  remaining content sits inside `half` and `print` variant conditionals at
+  deeper JSX depth, so a fourth slot could only go inside a variant branch or
+  against the calendar grid. Both are out of bounds here.
+- `/tulosta-{year}` (`src/pages/PrintCalendar.jsx`) keeps all three added
+  slots inside the explicitly `noprint` prose block, never around the
+  printable week table. `AdSlot` renders with the `noprint` class, so no unit
+  reaches printed output.
+- `/kalenteri-{year}` print variant and `/tulostettava-kalenteri-{year}` stay
+  ad free: both `CalendarYear` slots are gated behind `{!print && ...}`.
+
+Separator quality is thin on the shortest pages. On `/kesaaika-{year}` and
+`/pyhapaivat-{year}` one pair is separated only by `UpcomingCalendarPromo`, a
+promo card rather than a substantial content section. Those are the first two
+placements to drop if ad-density or page-experience signals degrade.
+
+The `/viikko-{week}-{year}` family carries **no slot**. `week-after-facts` was
+removed earlier on 2026-11-26 to cut density and was not restored when density
+was raised again, so the largest page family on the site is currently
+unmonetized while every other family carries four. Restoring it means adding
+`AdSlot` mounts and the import back to `src/pages/WeekDays.jsx`, the first
+after the QuickFacts table and before the day table.
 
 ## High-traffic placements, added 2026-10-23
 
@@ -114,10 +156,7 @@ traffic, and obey the same guardrails.
 
 | Placement ID | Route family | Position | Rationale |
 | --- | --- | --- | --- |
-| `week-after-facts` | `/viikko-{week}-{year}` | After the QuickFacts table, before the holiday note and the day table | The largest page family on the site. Keeps the lead answer and the facts table uninterrupted, and stays out of the day table. |
 | `home-after-answer` | `/` | After the live week answer and the parity answer, before the week search tool | The highest-viewability slot on the site. It sits after the hero, never above or inside it: the week number is what the page exists to answer and what it ranks for. |
-| `home-after-search` | `/` | After the week search tool, before the month and year browse blocks | Below both the live answer and the primary tool, so it never sits between an input and its result. |
-| `home-after-browse` | `/` | After the month and year week lists, before the explanatory sections | Keeps the third slot below two substantial content blocks rather than stacking it near the others. |
 | `weeks-in-year-after-answer` | `/kuinka-monta-viikkoa-vuodessa` | After the computed current-year answer, before the ISO explanation | Highest-impression single page. The answer is served first. |
 | `dst-after-facts` | `/kesaaika-{year}` | After the change cards, QuickFacts and the EU directive note, before the FAQ | Strongly seasonal; the directive caveat stays attached to the facts. |
 

@@ -88,6 +88,8 @@ const DaylightSaving = ({ year }) => {
 
       <UpcomingCalendarPromo />
 
+      <AdSlot placement="dst-mid-2" />
+
       <section className="prose">
         <h2>Usein kysytyt kysymykset</h2>
         {faqs.map((item, index) => (
@@ -98,6 +100,8 @@ const DaylightSaving = ({ year }) => {
         ))}
       </section>
 
+      <AdSlot placement="dst-mid-1" />
+
       <p>
         Katso myös <Link to={`/vuosi-${y}`}>vuoden {y} viikkonumerot</Link>,{" "}
         <Link to={`/kalenteri-${y}`}>kalenteri {y}</Link>,{" "}
@@ -105,6 +109,8 @@ const DaylightSaving = ({ year }) => {
         <Link to="/auringonlasku">auringonnousu ja -lasku</Link> ja{" "}
         <Link to={`/pyhapaivat-${y}`}>pyhäpäivät {y}</Link>.
       </p>
+
+      <AdSlot placement="dst-tail" />
 
       <div className="prevnext">
         {y - 1 >= YEAR_MIN && (

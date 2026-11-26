@@ -136,6 +136,8 @@ export default function WorkdaysInMonth() {
           </p>
         </div>
 
+        <AdSlot placement="workdays-month-mid-1" />
+
         <h2>Miksi työpäivien määrä vaihtelee kuukausittain?</h2>
         <p>
           Työpäivien määrään kuukaudessa vaikuttavat kolme tekijää:
@@ -146,6 +148,8 @@ export default function WorkdaysInMonth() {
           <li><strong>Arkipyhät:</strong> Suomen viralliset arkipyhät (kuten vappu, helatorstai, itsenäisyyspäivä tai joulu) vähentävät kyseisen kuukauden työpäiviä aina silloin, kun ne osuvat maanantain ja perjantain välille.</li>
         </ol>
 
+        <AdSlot placement="workdays-month-mid-2" />
+
         <h2>Vaikutus kuukausipalkkaan ja palkanlaskentaan</h2>
         <p>
           Kuukausipalkkaiselle työntekijälle maksetaan sama kiinteä kuukausipalkka joka kuukausi riippumatta siitä,
@@ -155,6 +159,8 @@ export default function WorkdaysInMonth() {
           Tuntipalkkaisilla työntekijöillä sekä työaikasaldoja seuraavilla asiantuntijoilla kuukausittainen työaikavelvoite
           kuitenkin vaihtelee suoraan kyseisen kuukauden työpäivien mukaan.
         </p>
+
+        <AdSlot placement="workdays-month-tail" />
 
         <h2>Usein kysyttyä kuukauden työpäivistä</h2>
         <div className="faq-list">

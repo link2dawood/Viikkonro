@@ -139,6 +139,8 @@ const PrintCalendar = ({ year: pYear } = {}) => {
           </CompanyCalendarLink>
           .
         </p>
+        <AdSlot placement="print-list-mid-1" />
+
         <p>
           Jos tarvitset kuukausinäkymän, avaa{" "}
           <Link to={"/tulostettava-kalenteri-" + selectedYear}>
@@ -159,6 +161,8 @@ const PrintCalendar = ({ year: pYear } = {}) => {
           .
         </p>
 
+        <AdSlot placement="print-list-mid-2" />
+
         <h2>Usein kysytyt kysymykset</h2>
         {faqs.map((item, index) => (
           <details key={item.q} open={index === 0}>
@@ -166,6 +170,8 @@ const PrintCalendar = ({ year: pYear } = {}) => {
             <p>{item.a}</p>
           </details>
         ))}
+
+        <AdSlot placement="print-list-tail" />
       </div>
     </section>
   );

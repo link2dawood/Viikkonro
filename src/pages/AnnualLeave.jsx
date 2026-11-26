@@ -153,6 +153,8 @@ const AnnualLeave = () => {
           ))}
         </ol>
 
+        <AdSlot placement="annual-leave-mid-1" />
+
         <h2>
           Lomavinkit {year} ja {year + 1}: viikot, joilla loma kuluttaa vähemmän
         </h2>
@@ -162,6 +164,8 @@ const AnnualLeave = () => {
         </p>
         <CheapWeeks year={year} />
         <CheapWeeks year={year + 1} />
+
+        <AdSlot placement="annual-leave-mid-2" />
 
         <h2>Lomapäivien kertyminen kuukausittain</h2>
       </section>
@@ -187,6 +191,8 @@ const AnnualLeave = () => {
       </div>
 
       <section className="prose">
+        <AdSlot placement="annual-leave-tail" />
+
         <h2>Vuosilomalain pääsäännöt</h2>
         <ul>
           <li>

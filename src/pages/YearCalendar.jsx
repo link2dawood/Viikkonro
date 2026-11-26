@@ -277,6 +277,8 @@ const YearCalendar = ({ year: pYear } = {}) => {
         ))}
       </div>
 
+      <AdSlot placement="year-summary-mid-1" />
+
       <h2>Vuoden {selectedYear} vuosikalenteri</h2>
       <p>
         Vuoden {selectedYear} vuosikalenterista näet kaikki kuukaudet, viikonpäivät ja viikkonumerot
@@ -286,6 +288,8 @@ const YearCalendar = ({ year: pYear } = {}) => {
       </p>
 
       <CalendarPreview year={selectedYear} juhla={juhla} />
+
+      <AdSlot placement="year-summary-mid-2" />
 
       <section className="prose">
         <h2>Miten vuoden {selectedYear} viikkonumerot määräytyvät?</h2>
@@ -347,6 +351,8 @@ const YearCalendar = ({ year: pYear } = {}) => {
           <Link to="/menetelma">Laskentamenetelmä</Link>.
         </p>
       </section>
+
+      <AdSlot placement="year-summary-tail" />
 
       <h2>Kaikki vuoden {selectedYear} viikot</h2>
       <p>

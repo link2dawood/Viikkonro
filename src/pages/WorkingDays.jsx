@@ -152,6 +152,8 @@ const WorkingDays = ({ year: pYear } = {}) => {
         </table>
       </div>
 
+      <AdSlot placement="working-days-mid-1" />
+
       <p className="note-soft">
         Laskutapa: työpäiviksi lasketaan maanantai–perjantai, joista on
         vähennetty viralliset arkipyhät. Jouluaatto ja juhannusaatto ovat monilla
@@ -160,6 +162,8 @@ const WorkingDays = ({ year: pYear } = {}) => {
         {HOLIDAY_LEGAL_BASIS["Itsenäisyyspäivä"].act} — joten jouluaatto ja
         juhannusaatto sisältyvät yllä työpäiviin.
       </p>
+
+      <AdSlot placement="working-days-mid-2" />
 
       <section className="prose">
         <p className="note-soft">
@@ -225,6 +229,8 @@ const WorkingDays = ({ year: pYear } = {}) => {
           </details>
         ))}
       </section>
+
+      <AdSlot placement="working-days-tail" />
 
       <p>
         Katso myös <Link to={`/pyhapaivat-${year}`}>pyhäpäivät {year}</Link>,{" "}

@@ -127,18 +127,24 @@ export default function WeeksInMonth() {
           </div>
         </div>
 
+        <AdSlot placement="weeks-in-month-mid-1" />
+
         <h2>Miksi kuukaudessa ei ole tasan neljää viikkoa?</h2>
         <p>
           Neljä viikkoa on tasan $4 \times 7 = 28$ päivää. Kalenterivuodessa on kuitenkin 365 päivää
           (tai karkausvuonna 366 päivää). Jos kaikki 12 kuukautta olisivat 28 päivän pituisia, vuoteen mahtuisi
           vain 336 päivää, jolloin 29 päivää jäisi kalenterin ulkopuolelle.
         </p>
+        <AdSlot placement="weeks-in-month-mid-2" />
+
         <p>
           Tästä syystä gregoriaanisessa kalenterissa 11 kuukautta on pidennetty 30 tai 31 päivän pituisiksi.
           Vain helmikuussa on normaalina vuonna 28 päivää eli tasan neljä viikkoa.
         </p>
 
         <h2>Kuukausipalkan ja viikkopalkan suhde</h2>
+        <AdSlot placement="weeks-in-month-tail" />
+
         <p>
           Palkka- ja vuokralaskelmissa kuukautta ei pidä kertoa tai jakaa neljällä, sillä vuodessa on
           52 viikkoa mutta vain 12 kuukautta. Oikea keskiarvo saadaan kaavalla:

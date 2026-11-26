@@ -127,6 +127,8 @@ const NamedHoliday = () => {
           </>
         )}
 
+        <AdSlot placement="holiday-mid-1" />
+
         <h2>Mille viikolle {page.displayName.toLowerCase()} {page.year} osuu?</h2>
         <p>
           Päivä kuuluu ISO 8601 -kalenterissa{" "}
@@ -137,6 +139,8 @@ const NamedHoliday = () => {
           <Link to={links.month.path}>{links.month.label} viikot kokonaisuudessaan</Link>.
         </p>
 
+        <AdSlot placement="holiday-mid-2" />
+
         <h2>Onko {page.displayName.toLowerCase()} virallinen pyhäpäivä?</h2>
         <p>
           {page.official
@@ -145,6 +149,8 @@ const NamedHoliday = () => {
           {" "}Kaikki vuoden päivät ja niiden asema löytyvät{" "}
           <Link to={`/pyhapaivat-${page.year}`}>pyhäpäivien {page.year} listasta</Link>.
         </p>
+
+        <AdSlot placement="holiday-tail" />
 
         <h2>Miten {page.displayName.toLowerCase()} päivämäärä määräytyy?</h2>
         <p>{page.rule}</p>

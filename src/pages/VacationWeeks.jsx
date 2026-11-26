@@ -104,6 +104,8 @@ export default function VacationWeeks() {
         <p>
           Moni 5-päiväistä työviikkoa (ma–pe) tekevä ihmettelee, miksi 5 viikon vuosilomaan tarvitaan 30 lomapäivää 25 päivän sijaan.
         </p>
+        <AdSlot placement="vacation-weeks-mid-1" />
+
         <p>
           Syy on Suomen <strong>vuosilomalaki</strong>, joka määrittelee arkipäiviksi kaikki päivät maanantaista lauantaihin
           (pois lukien viralliset kirkolliset pyhät ja juhlapäivät). Tämän vuoksi:
@@ -112,11 +114,15 @@ export default function VacationWeeks() {
           <strong>1 viikko vuosilomaa = 6 lomapäivää (ma–la)</strong><br />
           <strong>5 viikkoa vuosilomaa = 5 × 6 = 30 lomapäivää</strong>
         </blockquote>
+        <AdSlot placement="vacation-weeks-mid-2" />
+
         <p>
           Jos otat vapaaksi vain yksittäisiä päiviä (esim. maanantain tai perjantain), lauantaita ei automaattisesti kulu,
           mutta työnantajalla on lain mukaan oikeus sijoittaa lauantait lomajaksoihin niin, että jokaista viittä arkipäivää kohden
           kulutetaan yksi lauantai.
         </p>
+
+        <AdSlot placement="vacation-weeks-tail" />
 
         <h2>Lomanmääräytymisvuosi: 1.4.–31.3.</h2>
         <p>
