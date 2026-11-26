@@ -124,11 +124,15 @@ export default function HoursInYear() {
         <p>
           Vuoden kokonaistuntimäärä auttaa hahmottamaan ajankäyttöä laajemmassa mittakaavassa:
         </p>
+        <AdSlot placement="hours-in-year-mid-1" />
+
         <ul>
           <li><strong>Nukkuminen:</strong> Suositeltu 8 tunnin uni vie vuodesta 2 920 tuntia (33,3 %). Vietämme siis kolmanneksen vuodesta nukkuen.</li>
           <li><strong>Työaika:</strong> Täysipäivätyö (noin 1 890 tuntia) vie vain noin 21–22 prosenttia vuoden kaikista tunneista. Lomat, viikonloput ja arkipyhät mukaan lukien vapaata on huomattavasti enemmän kuin työaikaa.</li>
           <li><strong>Vapaa-aika ja arkiaskareet:</strong> Nukkumisen ja työajan jälkeen jäljelle jää noin 3 950 tuntia (noin 45 % koko vuodesta) perheelle, harrastuksille, syömiselle ja levolle.</li>
         </ul>
+
+        <AdSlot placement="hours-in-year-mid-2" />
 
         <h2>Usein kysyttyä tunneista vuodessa</h2>
         <div className="faq-list">
@@ -139,6 +143,8 @@ export default function HoursInYear() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="hours-in-year-tail" />
 
         <p className="hub-links">
           Katso myös <Link to="/kuinka-monta-tyotuntia-vuodessa">kuinka monta työtuntia vuodessa on</Link>,{" "}

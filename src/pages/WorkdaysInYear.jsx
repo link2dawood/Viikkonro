@@ -120,6 +120,8 @@ export default function WorkdaysInYear() {
           </p>
         </div>
 
+        <AdSlot placement="workdays-year-mid-1" />
+
         <h2>Mistä työpäivien määrä muodostuu?</h2>
         <p>
           Tavallinen kalenterivuosi muodostuu 365 päivästä (tai karkausvuonna 366 päivästä).
@@ -130,6 +132,8 @@ export default function WorkdaysInYear() {
           pitkäperjantai, toinen pääsiäispäivä, vappu, helatorstai, juhannusaatto, itsenäisyyspäivä, jouluaatto, joulupäivä ja tapaninpäivä).
           Näistä keskimäärin 8–10 osuu maanantain ja perjantain välille.
         </p>
+        <AdSlot placement="workdays-year-mid-2" />
+
         <blockquote>
           <strong>261 arkipäivää − 9 arkipyhää = 252 työpäivää</strong>
         </blockquote>
@@ -138,6 +142,8 @@ export default function WorkdaysInYear() {
         <p>
           Suomen lainsäädännössä käytetään kahta eri arkipäivän määritelmää:
         </p>
+        <AdSlot placement="workdays-year-tail" />
+
         <ul>
           <li>
             <strong>5-päiväinen työpäivä (ma–pe):</strong> Käytetään yleisimmissä työehtosopimuksissa,

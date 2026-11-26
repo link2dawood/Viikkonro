@@ -20,7 +20,6 @@ import {
 } from "../components/dateUtils";
 import SEO from "../components/SEO";
 import QuickFacts from "../components/QuickFacts";
-import AdSlot from "../components/AdSlot";
 import { canonicalFor, weekMeta, weekPdfPath } from "../data/seo";
 import { eventReviewedFi, eventReviewedFor } from "../data/eventTemplate";
 import { useTodayKey } from "../components/useToday";
@@ -375,8 +374,6 @@ const WeekDays = ({ week: pWeek, year: pYear } = {}) => {
           { label: "Viikkoja jäljellä vuonna", value: weeksLeft },
         ]}
       />
-
-      <AdSlot placement="week-after-facts" />
 
       {officialHolidays.length > 0 && (
         <p className="lead">

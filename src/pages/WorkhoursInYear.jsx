@@ -143,6 +143,8 @@ export default function WorkhoursInYear() {
           </div>
         </div>
 
+        <AdSlot placement="workhours-year-mid-1" />
+
         <h2>Miten vuosityöaika määritellään työehtosopimuksissa?</h2>
         <p>
           Suomessa työaikalaki asettaa säännöllisen työajan enimmäismääräksi 8 tuntia vuorokaudessa ja 40 tuntia viikossa.
@@ -154,6 +156,8 @@ export default function WorkhoursInYear() {
           <li><strong>Teollisuus ja rakennus:</strong> tyypillisesti 8 tuntia päivässä (40 h/vko), jolloin työaikaa usein lyhennetään erillisillä <em>pekkaspäivillä</em> (työajanlyhennysvapaat).</li>
         </ul>
 
+        <AdSlot placement="workhours-year-mid-2" />
+
         <h2>Usein kysyttyä vuosityötunneista</h2>
         <div className="faq-list">
           {faqs.map((item) => (
@@ -163,6 +167,8 @@ export default function WorkhoursInYear() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="workhours-year-tail" />
 
         <p className="hub-links">
           Katso myös <Link to="/kuinka-monta-tyotuntia-kuukaudessa">kuinka monta työtuntia kuukaudessa on</Link>,{" "}

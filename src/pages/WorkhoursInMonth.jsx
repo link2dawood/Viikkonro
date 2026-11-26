@@ -134,12 +134,16 @@ export default function WorkhoursInMonth() {
           </p>
         </div>
 
+        <AdSlot placement="workhours-month-mid-1" />
+
         <h2>Miten kuukausipalkka muunnetaan tuntipalkaksi?</h2>
         <p>
           Koska kuukausien työpäivien ja työtuntien määrä vaihtelee, palkanlaskennassa tuntipalkkaa ei lasketa
           yksittäisen kuukauden todellisten tuntien mukaan. Sen sijaan työehtosopimuksissa (TES) on määritelty
           kiinteä <strong>kuukausipalkan jakaja</strong>:
         </p>
+        <AdSlot placement="workhours-month-mid-2" />
+
         <ul>
           <li><strong>Jakaja 158:</strong> Yleinen toimisto- ja asiantuntija-aloilla (37,5 h/viikko).</li>
           <li><strong>Jakaja 157 tai 157,5:</strong> KVTES toimistotyöajassa.</li>
@@ -148,6 +152,8 @@ export default function WorkhoursInMonth() {
         <p>
           Esimerkki: Työntekijän kuukausipalkka on 3 200 euroa ja alan TES-jakaja on 158. Tuntipalkka saadaan jakamalla:
         </p>
+        <AdSlot placement="workhours-month-tail" />
+
         <blockquote>
           <strong>3 200 € / 158 = 20,25 € / tunti</strong>
         </blockquote>

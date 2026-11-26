@@ -114,11 +114,15 @@ export default function WeekendsInYear() {
         <p>
           Tavallisessa vuodessa on 365 päivää. Koska 52 viikkoa on 52 × 7 = 364 päivää, vuoteen jää aina yksi "ylimääräinen" päivä yli täysien viikkojen:
         </p>
+        <AdSlot placement="weekends-in-year-mid-1" />
+
         <ul>
           <li><strong>104 viikonloppupäivää (tavallisin):</strong> Jos vuosi alkaa maanantaina, tiistaina, keskiviikkona, torstaina tai perjantaina, kyseinen ylimääräinen päivä on arkipäivä. Tällöin lauantaita ja sunnuntaita on kumpaakin tasan 52.</li>
           <li><strong>105 viikonloppupäivää:</strong> Jos 365-päiväinen vuosi alkaa lauantaina tai sunnuntaina, kyseistä viikonloppupäivää on vuodessa 53 kappaletta.</li>
           <li><strong>106 viikonloppupäivää (harvinainen):</strong> Karkausvuonna ylimääräisiä päiviä on kaksi (366 päivää = 52 vk + 2 pv). Jos karkausvuosi alkaa lauantaina, sekä lauantai että sunnuntai toistuvat 53 kertaa (esim. vuosi 2028).</li>
         </ul>
+
+        <AdSlot placement="weekends-in-year-mid-2" />
 
         <h2>Usein kysyttyä viikonlopuista vuodessa</h2>
         <div className="faq-list">
@@ -129,6 +133,8 @@ export default function WeekendsInYear() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="weekends-in-year-tail" />
 
         <p className="hub-links">
           Katso myös <Link to="/kuinka-monta-tyopaivaa-vuodessa">kuinka monta työpäivää vuodessa on</Link>,{" "}

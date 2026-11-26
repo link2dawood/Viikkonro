@@ -218,6 +218,8 @@ const SchoolHolidays = ({ year }) => {
           </div>
         )}
 
+        <AdSlot placement="school-holidays-mid-1" />
+
         <h2>Milloin hiihtoloma {selectedYear} on?</h2>
         <p>
           Talviloma porrastetaan kolmen viikon jaksolle. Jokainen taulukon rivi
@@ -230,6 +232,8 @@ const SchoolHolidays = ({ year }) => {
           year={selectedYear}
           label="Hiihtolomaviikko"
         />
+
+        <AdSlot placement="school-holidays-mid-2" />
 
         <h2>Milloin syysloma {selectedYear} on?</h2>
         <p className="answer-sentence">
@@ -256,6 +260,8 @@ const SchoolHolidays = ({ year }) => {
             työpäivää. Varmista lopullinen tieto kunnan sivulta tai Wilmasta.
           </p>
         </div>
+
+        <AdSlot placement="school-holidays-tail" />
 
         <h2>Muut koululomien ajankohdat vuonna {selectedYear}</h2>
         <ul>

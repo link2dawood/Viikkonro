@@ -333,6 +333,8 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
         </p>
       )}
 
+      {!print && <AdSlot placement="calendar-mid-1" />}
+
       <p className="noprint">
         <button className="btn" onClick={() => window.print()}>
           Tulosta / tallenna PDF
@@ -503,6 +505,8 @@ const CalendarYear = ({ year, half = null, print = false } = {}) => {
           ))}
         </section>
       )}
+
+      {!print && <AdSlot placement="calendar-tail" />}
 
       <div className="cal-seealso">
         <h2 id="mh">Katso myös</h2>

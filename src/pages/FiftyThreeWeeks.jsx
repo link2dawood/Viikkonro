@@ -98,6 +98,8 @@ export default function FiftyThreeWeeks() {
           Suomessa ja useimmissa Euroopan maissa viikkonumerointi noudattaa virallista{" "}
           <strong>SFS-EN 28601 / ISO 8601</strong> -standardia. Sen mukaan:
         </p>
+        <AdSlot placement="why-53-weeks-mid-1" />
+
         <ol>
           <li>Viikko alkaa aina <strong>maanantaina</strong> ja päättyy <strong>sunnuntaina</strong>.</li>
           <li>Viikkoja ei koskaan katkaista kuukauden tai vuoden vaihtuessa, vaan ne ovat aina 7 päivän pituisia.</li>
@@ -106,12 +108,16 @@ export default function FiftyThreeWeeks() {
             Tämä vastaa sääntöä, että viikolla 1 on oltava vähintään neljä uuden vuoden päivää.
           </li>
         </ol>
+        <AdSlot placement="why-53-weeks-mid-2" />
+
         <p>
           Jos vuosi alkaa perjantaina, lauantaina tai sunnuntaina, uudenvuodenpäivät lasketaan edellisen vuoden
           viimeisen viikon (viikon 52 tai 53) osaksi, ja uusi viikko 1 alkaa vasta seuraavana maanantaina.
         </p>
 
         <h2>Matemaattinen syy: 365 päivää ei jakaudu tasan</h2>
+        <AdSlot placement="why-53-weeks-tail" />
+
         <p>
           Yhdessä täydessä viikossa on 7 päivää. 52 täyttä viikkoa on:
         </p>

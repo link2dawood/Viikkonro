@@ -123,6 +123,8 @@ export default function WeekdaysInMonth() {
           </div>
         </div>
 
+        <AdSlot placement="weekdays-month-mid-1" />
+
         <h2>Miksi lauantai on Suomen laissa arkipäivä?</h2>
         <p>
           Suomessa siirryttiin 5-päiväiseen työviikkoon 1960-luvun lopulla, mutta lainsäädäntö perustuu edelleen
@@ -131,6 +133,8 @@ export default function WeekdaysInMonth() {
         <p>
           Tästä syystä lauantai on virallisesti arkipäivä kahdessa keskeisessä yhteydessä:
         </p>
+        <AdSlot placement="weekdays-month-mid-2" />
+
         <ol>
           <li>
             <strong>Vuosilomalaki:</strong> Vuosilomaa kertyy ja kuluu 6 päivää viikossa. Yhden viikon loma
@@ -141,6 +145,8 @@ export default function WeekdaysInMonth() {
             maksetaan myös lauantailta, yhteensä 6 päivältä viikossa.
           </li>
         </ol>
+
+        <AdSlot placement="weekdays-month-tail" />
 
         <h2>Usein kysyttyä kuukauden arkipäivistä</h2>
         <div className="faq-list">

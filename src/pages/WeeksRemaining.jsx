@@ -121,11 +121,15 @@ export default function WeeksRemaining() {
           Suomessa ja kansainvälisessä ISO 8601 -standardissa viikot lasketaan aina maanantaista sunnuntaihin.
           Tavallisessa vuodessa on 52 viikkoa ja joinakin vuosina (kuten 2026 ja 2032) 53 viikkoa.
         </p>
+        <AdSlot placement="weeks-remaining-mid-1" />
+
         <p>
           Jäljellä olevat viikot lasketaan vähentämällä kuluvan viikon numero vuoden kokonaisviikkomäärästä.
           Koska vuoden viimeiset päivät voivat kalenterista riippuen kuulua jo seuraavan vuoden ensimmäiseen viikkoon,
           päivälaskuri ottaa huomioon todelliset kalenteripäivät joulukuun 31. päivään saakka.
         </p>
+
+        <AdSlot placement="weeks-remaining-mid-2" />
 
         <h2>Usein kysyttyä jäljellä olevista viikoista</h2>
         <div className="faq-list">
@@ -136,6 +140,8 @@ export default function WeeksRemaining() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="weeks-remaining-tail" />
 
         <p className="hub-links">
           Katso myös <Link to="/kuinka-monta-viikkoa-vuodessa">kuinka monta viikkoa vuodessa on</Link>,{" "}

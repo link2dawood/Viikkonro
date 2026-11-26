@@ -112,7 +112,11 @@ const PublicHolidays = ({ year: pYear } = {}) => {
         </table>
       </div>
 
+      <AdSlot placement="public-holidays-after-table" />
+
       <UpcomingCalendarPromo />
+
+      <AdSlot placement="public-holidays-mid-1" />
 
       <p>
         Muut juhlapäivät: <Link to={`/ystavanpaiva-${year}`}>ystävänpäivä {year}</Link>,{" "}
@@ -149,6 +153,8 @@ const PublicHolidays = ({ year: pYear } = {}) => {
         <Link to={`/kalenteri-${year}`}>vuoden {year} kalenteri</Link> ja{" "}
         <Link to={`/tulosta-${year}`}>tulostettava viikkolista</Link>.
       </p>
+
+      <AdSlot placement="public-holidays-tail" />
 
       <div className="prevnext">
         {y - 1 >= YEAR_MIN && (

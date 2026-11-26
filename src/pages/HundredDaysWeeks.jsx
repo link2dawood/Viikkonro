@@ -134,6 +134,8 @@ export default function HundredDaysWeeks() {
           </table>
         </div>
 
+        <AdSlot placement="hundred-days-mid-1" />
+
         <h2>Mihin 100 päivän aikajaksoa käytetään?</h2>
         <p>
           100 päivää on suosittu aikaraja monissa eri yhteyksissä:
@@ -144,6 +146,8 @@ export default function HundredDaysWeeks() {
           <li><strong>Koeajat ja toimitusajat:</strong> Noin kolmen kuukauden toimitus- tai tilausajat vastaavat usein noin 90–100 päivää.</li>
         </ul>
 
+        <AdSlot placement="hundred-days-mid-2" />
+
         <h2>Usein kysyttyä 100 päivästä viikkoina</h2>
         <div className="faq-list">
           {faqs.map((item) => (
@@ -153,6 +157,8 @@ export default function HundredDaysWeeks() {
             </details>
           ))}
         </div>
+
+        <AdSlot placement="hundred-days-tail" />
 
         <p className="hub-links">
           Katso myös <Link to="/paivamaaralaskuri">päivämäärälaskuri</Link>,{" "}
