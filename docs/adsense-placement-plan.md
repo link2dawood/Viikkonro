@@ -7,7 +7,7 @@ Status: the account wiring ships, and one manual desktop unit is live as of
 
 | Piece | Location | Note |
 | --- | --- | --- |
-| Loader script | `index.html` head | `prerender.js` copies it into every public page. |
+| Loader script | `index.html` head | Inline block that appends the loader after load, at idle. `prerender.js` copies it into every public page. |
 | Ownership meta | `index.html` head | `google-adsense-account`, accepted as proof even when the script is blocked. |
 | Seller declaration | `public/ads.txt` | One Google DIRECT line. `scripts/check-ad-crawlers.js` then requires the live file to match it byte for byte. |
 | Crawler access | `public/robots.txt` | `Mediapartners-Google`, `Google-Display-Ads-Bot` and `AdsBot-Google` allowed explicitly. |
@@ -62,6 +62,35 @@ detectable ad code.
 
 `src/consent.js` is the analytics banner only. It keeps `ad_Storage` denied for
 Clarity and must not be presented as the control for advertising.
+
+## When the loader runs, changed 2026-11-27
+
+Unconditional does not mean first. A Lighthouse run on `/adventti-2026`
+attributed about 650 ms of main-thread CPU to the loader and the consent
+message it delivers, on a page that mounts no unit at all, and total blocking
+time on that page was 690 ms.
+
+The loader is therefore appended by an inline head script once the page has
+loaded and the main thread goes idle, the pattern Clarity and `gtag.js`
+already use. What did not change:
+
+- The loader URL stays a literal in `index.html`, so PD-19 and the contextual
+  crawlers still read it in every generated page, and `prerender.js` still
+  removes the whole block from `404.html` and the `/liputuspaivat` redirect
+  document through `withoutAdsenseLoader()`.
+- The `google-adsense-account` meta remains the ownership proof.
+- The certified CMP is still Google's message, still delivered by this script.
+  It appears a moment later than before, not conditionally.
+
+A page that mounts a unit does not wait: `AdSlot` calls
+`window.viikkonroLoadAds()` from its mount effect, so the loader is requested
+as soon as a real viewport has been measured. Ad-bearing pages therefore
+request it at the same point in the lifecycle as before, and the large
+majority of pages, which carry no slot, no longer pay for it during load.
+
+`src/adsenseLoader.test.js` covers the URL literal, the ownership meta, the
+idle append, the `AdSlot` fast path and the once-only guarantee. The inline
+block has its own `sha256` in `vercel.json`, asserted by the release gate.
 
 ## Remaining manual steps
 

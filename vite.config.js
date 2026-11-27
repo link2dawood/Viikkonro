@@ -104,12 +104,23 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 // it must never be merged into the vendor chunk every page loads.
                 if (id.includes("pdfkit")) return "pdfkit";
                 if (id.includes("@supabase/")) return "team-backend";
+                // Deliberately unassigned, so the dynamic import boundary in
+                // src/sentryClient.js decides where the SDK lands. Naming a
+                // manual chunk for it turns the dynamic import into a static
+                // one, and letting the `vendor` fallback below claim it is
+                // just as bad: every page statically imports vendor, so
+                // either way the whole SDK is back on the critical path.
+                if (/node_modules\/@sentry\//.test(id)) return;
                 if (id.includes("react-router")) return "router";
-                if (
-                  id.includes("/react-dom/") ||
-                  id.includes("/react/") ||
-                  id.includes("/scheduler/")
-                ) {
+                // Anchored at the package root so only the framework itself
+                // lands here, not every dependency whose name contains
+                // "react". The loose `/react/` test used to match
+                // `@sentry/react`, which folded the whole SDK into the chunk
+                // every page preloads. Sentry is no longer named here at all:
+                // src/sentryLazy.js reaches it through a dynamic import, and
+                // naming a manual chunk for a dynamically imported module
+                // turns it back into a static import of that chunk.
+                if (/node_modules\/(?:react|react-dom|scheduler)\//.test(id)) {
                   return "react";
                 }
                 return "vendor";

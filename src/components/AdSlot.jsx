@@ -34,6 +34,13 @@ const AdSlot = ({ placement, format = "banner" }) => {
   useEffect(() => {
     if (!mounted || !insRef.current) return;
     try {
+      // index.html appends the loader at idle after load, so that the large
+      // majority of pages, which mount no unit, do not pay for it during
+      // load. This page does mount one, so ask for the loader now: the
+      // viewport has been measured and there is a real slot to fill. The
+      // helper is idempotent, and the push below queues on window.adsbygoogle
+      // either way, so the unit fills whichever request arrives first.
+      window.viikkonroLoadAds?.();
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
       // A blocked, failed or ad-blocked loader must never break the page.
