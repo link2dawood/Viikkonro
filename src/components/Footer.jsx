@@ -22,11 +22,17 @@ function Footer({ reloadDocument = false, showConsentSettings = true }) {
         {/* Brand/Description Column */}
         <div className="footer-brand-col">
           <div className="brand-dark">
+            {/* The footer is below the fold on every viewport, so this 18 KB
+                asset must not compete with the above-the-fold render. Its
+                width and height are declared, so deferring the download
+                reserves the same box and shifts nothing. */}
             <img
               src="/logo-horizontal-dark-viikkonro-20260916.webp"
               alt="Viikkonro"
               width="592"
               height="122"
+              loading="lazy"
+              decoding="async"
               translate="no"
             />
           </div>

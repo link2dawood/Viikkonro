@@ -390,8 +390,15 @@ function templateForRoute(url) {
 // the loader that index.html gives every other page. Removing it here keeps one
 // copy of the tag in source control, and the throw makes a renamed or dropped
 // loader a build failure instead of a silent policy problem.
+//
+// The loader is no longer a plain `<script src>` tag: index.html appends it
+// after load, when the main thread goes idle, so pages that mount no ad unit
+// do not spend load-time CPU on it. The inline block that does the appending
+// is what has to come out of a non-content document, and it is matched by the
+// loader URL it contains. The inner alternation is tempered so the match can
+// never run past the end of that one script element.
 const ADSENSE_LOADER =
-  /<script\b[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com[^"]*"[^>]*><\/script>/;
+  /<script>(?:(?!<\/script>)[\s\S])*pagead2\.googlesyndication\.com(?:(?!<\/script>)[\s\S])*<\/script>/;
 if (!ADSENSE_LOADER.test(template)) {
   throw new Error("AdSense loader missing from index.html");
 }

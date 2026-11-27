@@ -131,10 +131,12 @@ test("every generated page carries the stylesheets for the classes it renders", 
 });
 
 test("the inline head scripts match their Content-Security-Policy hashes", () => {
-  // Google Analytics and Clarity both initialize consent in the public head.
+  // Google Analytics and Clarity both initialize consent in the public head,
+  // and each of the three blocks also appends its own third-party tag after
+  // load so none of them competes with hydration for the main thread.
   // Every inline script must retain a matching hash in vercel.json.
   const scripts = [...read("dist/index.html").matchAll(/<script>([\s\S]*?)<\/script>/g)];
-  assert.equal(scripts.length, 2, "expected Google Analytics and Clarity inline scripts in the generated page");
+  assert.equal(scripts.length, 3, "expected the Google Analytics, Clarity and AdSense inline scripts in the generated page");
   // Hash the LF form, which is what the browser receives: git stores this file
   // with LF and Vercel builds on Linux. A Windows checkout materializes CRLF,
   // and hashing that raw gives a digest that is correct nowhere -- it passes

@@ -1,5 +1,4 @@
 import { startTransition } from "react";
-import * as Sentry from "@sentry/react";
 import { hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import "./App.css";
@@ -9,16 +8,16 @@ import App from "./App.jsx";
 import { registerWebMCPTools } from "./webmcp.js";
 import { trackPdfDownloads } from "./analytics.js";
 import { applyStoredConsent } from "./consent.js";
-import { publicErrorEvent } from "./errorReporting.js";
+import {
+  captureError,
+  loadSentryWhenIdle,
+  reactErrorHandler,
+} from "./sentryLazy.js";
 
-Sentry.init({
-  dsn: "https://1ae2cecc5e24d5d63d03f083901d3e07@o4510551843143680.ingest.us.sentry.io/4512197245403136",
-  environment: import.meta.env.MODE,
-  release: import.meta.env.VITE_SENTRY_RELEASE || undefined,
-  sendDefaultPii:false,
-  maxBreadcrumbs:0,
-  beforeSend:publicErrorEvent,
-});
+// Error reporting is buffered immediately and the Sentry SDK itself is
+// imported after load, once the main thread is idle. See src/sentryLazy.js for
+// why: its init() instrumentation used to run inside the hydration window.
+loadSentryWhenIdle();
 
 // A returning visitor's analytics consent, queued before clarity.js loads
 // (it waits for idle), so Clarity starts with the right cookie setting.
@@ -42,12 +41,12 @@ preloadRoute(window.location.pathname).then(() => startTransition(() => {
       <App />
     </HelmetProvider>,
     {
-      onUncaughtError: Sentry.reactErrorHandler(),
-      onCaughtError: Sentry.reactErrorHandler(),
-      onRecoverableError: Sentry.reactErrorHandler(),
+      onUncaughtError: reactErrorHandler(),
+      onCaughtError: reactErrorHandler(),
+      onRecoverableError: reactErrorHandler(),
     },
   );
-})).catch(error => Sentry.captureException(error));
+})).catch(error => captureError(error));
 
 // Expose the calculators as WebMCP tools for in-browser AI agents (experimental;
 // feature-detected no-op in browsers without navigator.modelContext).
