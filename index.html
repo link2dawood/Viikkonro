@@ -21,8 +21,29 @@
       } catch (e) {}
       gtag('js', new Date());
       gtag('config', 'G-B1M6291M6C');
+      // gtag.js itself is fetched after the load event, once the main thread
+      // next goes idle, for the same reason as the Clarity block below: tag
+      // initialization measured about 140 ms of CPU on a mid-range phone and
+      // it ran while React was hydrating. Nothing is lost by waiting. Every
+      // call above is already queued on dataLayer, so the consent state and
+      // the page_view are delivered in order as soon as the tag arrives.
+      (function (w, d) {
+        function go() {
+          var s = d.createElement('script');
+          s.async = 1;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-B1M6291M6C';
+          d.head.appendChild(s);
+        }
+        function idle() {
+          'requestIdleCallback' in w
+            ? w.requestIdleCallback(go, { timeout: 4000 })
+            : w.setTimeout(go, 1500);
+        }
+        d.readyState === 'complete'
+          ? idle()
+          : w.addEventListener('load', idle, { once: true });
+      })(window, document);
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B1M6291M6C"></script>
     <link rel="icon" type="image/svg+xml" href="/favicon-viikkonro-20260915.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mikä viikko nyt on? Viikkonumero | Viikko Nro</title>
@@ -196,16 +217,47 @@
          delivered by this same script. Gating the script behind the
          first-party banner (src/consent.js, analytics only) would stop the
          consent prompt from appearing at all and would leave the review with
-         no detectable ad code.
+         no detectable ad code. Unconditional, however, does not mean first:
+         the loader plus the consent message it delivers measured about 650 ms
+         of main-thread CPU, so the tag is appended after load once the thread
+         goes idle, exactly like Clarity and gtag.js above. The loader URL
+         stays a literal in this document, which is what PD-19 and the
+         contextual crawlers read, and the google-adsense-account meta above
+         remains the ownership proof.
+
+         A page that actually mounts a unit does not wait for idle:
+         src/components/AdSlot.jsx calls window.viikkonroLoadAds() when it
+         mounts, so an ad page requests the loader as soon as its viewport has
+         been measured. Pages with no slot, which is most of the site, never
+         pay for it during load at all.
 
          Never add this to tiimin-lomat/suunnittelu.html (the private app) or
          to the embeddable widget. When the origins change, update the
-         script-src and frame-src lists in vercel.json. -->
-    <script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5553975522423673"
-      crossorigin="anonymous"
-    ></script>
+         script-src and frame-src lists in vercel.json. If this script
+         changes, update its sha256 in vercel.json's CSP. -->
+    <script>
+      (function (w, d) {
+        var started = false;
+        function go() {
+          if (started) return;
+          started = true;
+          var s = d.createElement('script');
+          s.async = 1;
+          s.crossOrigin = 'anonymous';
+          s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5553975522423673';
+          d.head.appendChild(s);
+        }
+        w.viikkonroLoadAds = go;
+        function idle() {
+          'requestIdleCallback' in w
+            ? w.requestIdleCallback(go, { timeout: 4000 })
+            : w.setTimeout(go, 1500);
+        }
+        d.readyState === 'complete'
+          ? idle()
+          : w.addEventListener('load', idle, { once: true });
+      })(window, document);
+    </script>
   </head>
   <body>
     <div id="root"></div>
