@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import SocialLinks from "../components/SocialLinks";
+import SisterSites from "../components/SisterSites";
 import { LegalNavigation, LegalOperator, LegalUpdated } from "../components/LegalContact.jsx";
 import { canonicalFor, routeMeta } from "../data/seo";
 
@@ -25,8 +26,7 @@ export default function AboutUs() {
       <LegalOperator />
       <h2>Muut tavat käyttää Viikkonroa</h2>
       <p>Viikkonrosta on myös <Link to="/android-sovellus">Android-sovellus</Link> ja <Link to="/chrome-extension">Chrome-laajennus</Link>. Kehittäjille on <Link to="/avoin-data">avoimia kalenteriaineistoja</Link> ja verkkosivuille <Link to="/upota-viikkonumero">upotettava viikkonumero ja kalenteri</Link>.</p>
-      <p>Finnish website: <a href="https://viikkonro.fi/" hrefLang="fi">viikkonro.fi</a></p>
-      <p>Dutch website: <a href="https://weeknr.date/" hrefLang="nl">weeknr.date</a></p>
+      <SisterSites />
       <SocialLinks />
     </div><LegalNavigation />
   </section>;
