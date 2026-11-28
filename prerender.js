@@ -80,7 +80,7 @@ import {
   yearIndexStats,
 } from "./src/data/yearIndexPages.js";
 import { CALENDAR_CONTENT_UPDATED, sitemapLastmod } from "./src/data/sitemapMetadata.js";
-import { sisterSiteLinks } from "./src/data/sisterSites.js";
+import { sisterSchemaLinks } from "./src/data/sisterSites.js";
 import { eventReviewedFor } from "./src/data/eventTemplate.js";
 import { PAGE_TOPICS, pageTopic, topicSchema } from "./src/data/pageTopics.js";
 import { REFUND_PATH, LEGAL_UPDATED, refundFaqs } from "./src/data/legalPolicies.js";
@@ -471,11 +471,6 @@ function pageNode(url, type = "WebPage", extra = {}) {
     ...extra,
   };
 }
-
-// The two pages that render SisterSites.jsx. Kept here so the schema edge and
-// the visible links stay a matched pair: a page added to one must be added to
-// the other.
-const SISTER_SITE_PAGES = new Set(["/", "/tietoa-meista"]);
 
 // Speakable targets ONLY the single rendered sentence that states the page's
 // direct answer, via the ".answer-sentence" class added around that exact
@@ -4296,17 +4291,19 @@ for (const url of routes) {
         const dataset = nodes.find((node) => node["@type"] === "Dataset");
         nodes[pageIndex].mainEntity = { "@id": dataset["@id"] };
       }
-      // Sister-language week-number sites, on the two pages that show the
-      // visible links (SisterSites.jsx on / and /tietoa-meista). relatedLink
-      // is the correct edge for a related page on another domain: these sites
-      // are separate entities with their own content, so they are not
+      // Sister-language sites, on exactly the pages that render a visible link:
+      // the full section on / and /tietoa-meista (SisterSites.jsx), one
+      // topic-matched deep link on the mapped pages (SisterTopicLink.jsx).
+      // relatedLink is the right edge for a related page on another domain:
+      // these are separate entities with their own content, so they are not
       // Organization sameAs profiles and not hreflang alternates. Set before
       // topicSchema() because that merges relatedLink through a Set.
-      if (SISTER_SITE_PAGES.has(url)) {
+      const sisterLinks = sisterSchemaLinks(url);
+      if (sisterLinks.length) {
         const existingRelated = nodes[pageIndex].relatedLink
           ? [].concat(nodes[pageIndex].relatedLink)
           : [];
-        nodes[pageIndex].relatedLink = [...new Set([...existingRelated, ...sisterSiteLinks()])];
+        nodes[pageIndex].relatedLink = [...new Set([...existingRelated, ...sisterLinks])];
       }
       nodes[pageIndex] = topicSchema(nodes[pageIndex],pageTopic(url,dateFromDayKey(RENDER_DAY)));
       html = html.replace(

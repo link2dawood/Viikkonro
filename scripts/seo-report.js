@@ -172,11 +172,15 @@ await section("Backlinks (seo/backlinks.txt)", async () => {
   const list = readBacklinkList();
   if (!list.length) return { rows: [], note: "No backlinks listed yet. Add the pages that link to viikkonro.fi to seo/backlinks.txt (see the comments in that file)." };
   const results = await checkBacklinks(list);
-  for (const r of results.filter((x) => !x.ok)) alerts.push(`Backlink lost: ${r.source} (${r.state}).`);
+  // A page that still links but turned the link nofollow/sponsored/ugc is a
+  // different problem from one that dropped the link, so the alert names it.
+  for (const r of results.filter((x) => !x.ok)) {
+    alerts.push(`${r.links.length ? "Backlink no longer followed" : "Backlink lost"}: ${r.source} (${r.state}).`);
+  }
   return {
     head: ["Linking page", "State", "Anchor text"],
     rows: results.map((r) => [r.source, r.state, r.links.map((l) => l.text).filter(Boolean).join(" | ") || "-"]),
-    note: `${results.filter((r) => r.ok).length}/${results.length} known backlinks present.`,
+    note: `${results.filter((r) => r.ok).length}/${results.length} known backlinks present and followed.`,
   };
 });
 
