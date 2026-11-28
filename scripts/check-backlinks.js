@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 // Known-backlinks monitor: for every page listed in seo/backlinks.txt, fetch
-// it and check that it still links to viikkonro.fi, and whether the link is
-// nofollow / sponsored / ugc. Search Console's API has no links data, so this
-// checks the links you already know about rather than discovering new ones.
+// it and check that it still links to viikkonro.fi with a followed link.
+// Search Console's API has no links data, so this checks the links you already
+// know about rather than discovering new ones.
+//
+// A page that still links but has turned the link nofollow / sponsored / ugc
+// counts as a failure, not a pass: the reason to track a known backlink is the
+// link equity it passes, and a nofollow-only link passes none. `state` still
+// reports "nofollow only" separately from "link missing" so the weekly report
+// can say which of the two happened.
 //
 // Usage: node scripts/check-backlinks.js [--json]
-// Exit code 1 when any listed page no longer links to the site.
+// Exit code 1 when any listed page no longer carries a followed link.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -75,7 +81,8 @@ export async function checkBacklinks(urls = readBacklinkList()) {
       results.push({
         source,
         status: res.status,
-        ok: res.ok && links.length > 0,
+        // A followed link is the condition being monitored: see the header.
+        ok: res.ok && follow.length > 0,
         links,
         follow: follow.length,
         state: !res.ok ? `HTTP ${res.status}` : !links.length ? "link missing" : follow.length ? "dofollow" : "nofollow only",
@@ -102,7 +109,7 @@ async function main() {
       for (const l of r.links) console.log(`       -> ${l.target}  "${l.text}"${l.nofollow ? " [nofollow]" : ""}${l.sponsored ? " [sponsored]" : ""}${l.ugc ? " [ugc]" : ""}`);
     }
     const lost = results.filter((r) => !r.ok).length;
-    console.log(`\n${results.length - lost}/${results.length} backlinks present.`);
+    console.log(`\n${results.length - lost}/${results.length} backlinks present and followed.`);
   }
   if (results.some((r) => !r.ok)) process.exitCode = 1;
 }

@@ -7,6 +7,7 @@ import { trackPageView } from "./analytics";
 import GrowthCTA from "./components/GrowthCTA";
 import RelatedTools from "./components/RelatedTools";
 import TopicGuide from "./components/TopicGuide";
+import SisterTopicLink from "./components/SisterTopicLink";
 import ConsentBanner from "./components/ConsentBanner";
 import NewsletterSignup from "./components/NewsletterSignup";
 const Home = routePage("Home");
@@ -319,6 +320,8 @@ const AppRoutes = () => {
         </RouteErrorBoundary>
         <TopicGuide />
         <RelatedTools />
+        {/* Renders only on the pages mapped in SISTER_TOPIC_LINKS. */}
+        <SisterTopicLink />
         <GrowthCTA />
       </main>
       <Footer />

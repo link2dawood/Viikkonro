@@ -2158,3 +2158,16 @@ ins.adsbygoogle,
 /* ─── Paydays (/palkkapaivat-*) ────────────────────────────────────────── */
 
 /* ─── Kela and pension payment days (/kelan-maksupaivat-*, /elakkeen-maksupaivat-*) */
+
+/* One contextual link to the Spanish page on the same subject
+   (SisterTopicLink.jsx). Deliberately quiet: it sits below the page's own
+   related-tool links and must not compete with them for attention. */
+.sister-topic {
+  margin-top: 1.25rem;
+}
+.sister-topic p {
+  max-width: 75ch;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
