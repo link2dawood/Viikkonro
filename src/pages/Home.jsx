@@ -8,6 +8,7 @@ import WeeksOfMonth from "../components/WeeksOfMonth";
 import YearsWeek from "../components/YearsWeek";
 import QuickLinks from "../components/QuickLinks";
 import Information from "../components/Information";
+import SisterSites from "../components/SisterSites";
 import AppsPromo from "../components/AppsPromo";
 import SeasonYear from "../components/SeasonYear";
 import UpcomingEvents from "../components/UpcomingEvents";
@@ -45,6 +46,10 @@ const Home = () => {
         <YearsWeek />
         <AdSlot placement="home-after-browse" />
         <Information />
+        {/* Sister-language week-number sites. Placed straight after the
+            ISO 8601 explainer, which is where the page already talks about
+            how other countries number their weeks. */}
+        <SisterSites />
         <AppsPromo />
         <QuickLinks />
         <ToolDirectory />

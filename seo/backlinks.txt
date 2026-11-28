@@ -9,3 +9,9 @@
 #
 # Example:
 # https://example.fi/hyodylliset-linkit   # partner page, added 2026-09
+
+# Sister-language week-number sites. Each links back to viikkonro.fi from its
+# own language section, and viikkonro.fi links to both from the homepage and
+# /tietoa-meista (src/data/sisterSites.js). Added 2026-11-28.
+https://www.numerosemanas.es/      # Spanish sister site, "Idiomas" section
+https://weeknr.date/               # Dutch sister site
